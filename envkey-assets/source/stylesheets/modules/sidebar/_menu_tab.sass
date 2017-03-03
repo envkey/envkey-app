@@ -1,0 +1,31 @@
+.menu-tab
+  box-sizing: border-box
+  background: hsl(0, 0%, 31%)
+  height: $sidebar-tab-height - 1px
+  padding: 8px 12px
+  position: relative
+  overflow-x: hidden
+  transition: background 0.15s ease-out
+
+  label
+    font-family: $heading-condensed-font
+    font-weight: 400
+    color: rgba(#fff,0.8) // $light-orange
+    text-transform: uppercase
+    font-size: 12.5px
+    margin-right: 18px
+    transition: color 0.15s ease-out
+    display: inline-block
+
+  &:hover
+    background: hsl(0, 0%, 36%)
+
+    label
+      color: $light-orange
+
+  .line
+    width: 100%
+    opacity: 0.5
+
+  &, *
+    cursor: pointer

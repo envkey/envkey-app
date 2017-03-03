@@ -1,0 +1,18 @@
+=popover($border-color, $fill-color)
+  &::before, &::after
+    content: ""
+    position: absolute
+    width: 0
+    height: 0
+    border-width: 20px
+    border-style: solid
+    left: 50%
+    transform: translateX(-50%)
+
+  &::before
+    border-color: transparent transparent $border-color transparent
+    top: -40px
+
+  &::after
+    border-color: transparent transparent $fill-color transparent
+    top: -39px

@@ -1,0 +1,93 @@
+.env-header
+  box-sizing: border-box
+  padding: 0 0
+  background:  linear-gradient(to right, hsl(0,0,25), hsl(0,0,20))
+  height: $app-tab-height / 2
+
+  button.split-strong
+    float: left
+    width: 12.5%
+    height: 100%
+    box-sizing: border-box
+    font-size: 12.5px
+    border-radius: 0
+    color: $light-orange
+    background: hsla(0,0,28,0)
+    border-right: 1px solid rgba(#fff, 0.15)
+    transition: background 0.15s ease-out
+    position: relative
+    outline: none
+
+    &:hover
+      background: hsl(0,0,10)
+
+    &:first-of-type
+      margin: 0
+
+    &.add-var
+
+    &.add-service
+
+    &.show-hide-toggle
+      color: $lighter-blue
+
+  .filter
+    width: 25%
+    font-size: 13px
+    position: absolute
+    top: 100%
+    input
+      width: calc(100% - 35px)
+      border-bottom: 1px solid rgba(#000,0.05)
+
+  .entry-opts
+    position: fixed
+    z-index: 3
+    background: #fff
+    top: $app-tab-height / 2
+    height: $env-grid-header-height
+    width: $env-grid-fixed-col-width
+    font-family: $heading-condensed-font
+    font-size: 14px
+    font-weight: 300
+    left: $sidebar-width + $app-tab-width
+    border-top: 1px solid rgba(#000,0.05)
+    border-bottom: 1px solid rgba(#000,0.05)
+    padding-left: 0
+    box-sizing: border-box
+
+    span
+      display: inline-block
+      position: relative
+      top: 50%
+      transform: translateY(-50%)
+      padding: 4px 0 8px
+
+    span.opt
+      color: hsl(0,0,70)
+      cursor: pointer
+      padding-left: 8px
+      padding-right: 8px
+
+      &:hover
+        color: rgba($dark-blue, 0.6)
+
+      &.selected, &.selected:hover
+        color: $dark-blue
+
+
+    span.sep
+      font-weight: 600
+      color: hsl(0,0,90)
+      pointer-events: none
+
+.service-parent .env-header
+  .filter
+    position: absolute
+    top: 100%
+    border-bottom: 1px solid rgba(#000,0.05)
+
+.environments
+  .add-service, .add-var
+    .env-header button.split-strong.selected
+      color: $lighter-blue

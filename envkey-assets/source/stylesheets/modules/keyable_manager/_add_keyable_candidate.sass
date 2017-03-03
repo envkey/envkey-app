@@ -1,0 +1,55 @@
+.add-keyable-candidate
+  height: 100%
+
+  .filter
+    width: 100%
+    height: $app-tab-height / 2
+
+    input
+      border-bottom: 1px solid rgba(#000, 0.1)
+      width: calc(100% - 35px)
+
+  .candidates
+    height: calc(100% - 40px)
+    overflow-y: auto
+
+  .candidate-row
+    height: $app-tab-height / 2
+    padding: 0 15px
+    cursor: pointer
+
+    .primary, .secondary
+      display: inline-block
+      position: relative
+      top: 45%
+      transform: translateY(-50%)
+
+    .primary
+      color: $darker-blue
+      //font-family: $heading-condensed-font
+      font-weight: 200
+      font-size: 13.5px
+
+    .secondary
+      color: rgba(#000, 0.4)
+      font-size: 10.5px
+      font-weight: 200
+      float: right
+
+
+    &.odd
+      background: hsl(0,0,98)
+
+    &:last-of-type.even
+      border-bottom: 1px solid rgba(#000, 0.05)
+
+    &.selected
+      background: rgba($dark-blue, 0.1)
+
+      // .name
+      //   color: #fff
+
+      // .secondary
+      //   color: rgba(#fff, 0.7)
+
+

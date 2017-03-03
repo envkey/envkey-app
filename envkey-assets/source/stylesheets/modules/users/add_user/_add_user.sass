@@ -1,0 +1,37 @@
+.add-user
+  position: relative
+  top: -1px
+  width: 100%
+  height: calc(100% - 201px)
+  .tabs
+    width: 100%
+    .tab
+      display: inline-block
+      width: 50%
+      text-align: center
+      height: $app-tab-height / 2 - 1px
+      font-family: $heading-condensed-font
+      font-size: 13.5px
+      background: #fff
+      color: $darker-blue
+      cursor: pointer
+      transition: background 0.15s ease-out, color 0.15s ease-out, border 0.15s ease-out
+      border-top: 1px solid #fff
+      border-bottom: 1px solid hsl(0,0,95)
+
+      &:hover
+        background: rgba($dark-blue, 0.1)
+        border-top: 1px solid transparent
+
+      &.selected
+        color: #fff
+        background: $darker-blue
+        border-bottom: 1px solid $darker-blue
+        border-top: 1px solid $darker-blue
+
+      span
+        display: inline-block
+        position: relative
+        top: 45%
+        transform: translateY(-50%)
+

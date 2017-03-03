@@ -1,0 +1,126 @@
+.keyable-column
+  float: left
+  display: block
+  box-sizing: border-box
+  width: 33.33%
+  height: 100%
+  position: relative
+  height: 100%
+  border-right: 1px solid rgba(#000, 0.1)
+
+  &:last-of-type
+    border-right: none
+
+  .column-header
+    position: relative
+    .head
+      height: $app-tab-height
+      box-sizing: border-box
+      padding: 0 15px
+      background: #fff
+
+    .title, button, .small-loader
+      position: relative
+      top: 50%
+      transform: translateY(-50%)
+
+    .title
+      font-family: $heading-condensed-font
+      text-transform: uppercase
+      color: $dark-text
+      font-size: 18px
+      font-weight: 400
+      position: relative
+      float: left
+
+    button
+      float: right
+      box-sizing: border-box
+      width: 40px
+      font-size: 29px
+      font-weight: 100
+      border: 1px dashed rgba($dark-blue, 0.5)
+      background: #fff
+      color:  rgba($dark-blue, 0.9)
+      transition: background 0.15s ease-out, color 0.15s ease-out
+      outline: none
+      position: relative
+
+      &:hover
+        background: rgba($dark-blue, 0.05)
+
+    .small-loader
+      float: right
+
+  &.admin .column-header .title em
+    color: $orange
+
+  &.production .column-header .title em
+    color: $light-blue
+
+  &.development .column-header .title em
+    color: $darker-blue
+
+  &.show-add-keyable .column-header .head > button
+    background: $darker-blue
+    color: #fff
+    // font-size: 20px
+
+  .permissions
+    height: $app-tab-height
+    background: hsl(0,0,97)
+    box-sizing: border-box
+    padding: 0 15px
+
+    ul, span
+      display: block
+      position: relative
+      top: 50%
+      transform: translateY(-50%)
+
+    li, span
+      font-size: 11px
+      color: hsl(0,0,50)
+      line-height: 142.5%
+
+    li::before
+      content: "-"
+      margin-right: 5px
+
+  .sections
+    height: calc(100% - #{$app-tab-height * 2})
+    overflow-y: auto
+
+  .section
+    width: 100%
+
+    &:last-of-type
+      border-bottom: 1px solid rgba(#000, 0.05)
+
+  .section-title
+    background: $darker-blue
+    color: #fff
+    text-transform: uppercase
+    font-size: 11px
+    font-weight: 600
+    padding: 5px 10px
+
+.association-manager.app-server
+  .keyable-column
+    &.production .column-header .head .title em
+      color: $light-blue
+
+    &.staging .column-header .head .title em
+      color: $darker-blue
+
+    &.development .column-header .head .title em
+      color: lighten($dark-text, 42.5%)
+
+  .permissions
+    height: $app-tab-height / 2
+
+    li::before
+      content: ""
+
+    span > strong
+      font-weight: 600

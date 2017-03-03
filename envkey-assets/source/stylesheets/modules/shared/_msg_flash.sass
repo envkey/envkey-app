@@ -1,0 +1,29 @@
+.msg-flash
+  position: absolute
+  background: $light-blue
+  height: 26px
+  width: calc(100%)
+  top: 50%
+  transform: translateY(-50%)
+  color: #fff
+  font-size: 12px
+  font-weight: 400
+  text-align: left
+  padding-left: 10px
+  box-sizing: border-box
+  opacity: 0
+  transition: opacity 0.3s ease-out
+  pointer-events: none
+  z-index: 3
+
+  span
+    display: block
+    cursor: default
+    font-family: $default-font !important
+    position: relative
+    top: 50%
+    transform: translateY(-50%)
+
+  &.show
+    opacity: 1
+    pointer-events: auto

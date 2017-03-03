@@ -1,0 +1,45 @@
+input
+  font-family: $default-font
+  color: $dark-text
+  background: #fff
+  border: 1px solid rgba(#000, 0.1)
+  box-shadow: none
+  font-size: 12px
+  border-radius: 3px
+  padding: 8px 10px
+  box-shadow: inset 0px 0px 1px rgba(#000, 0.1)
+
+  +placeholder
+    font-family: $default-font
+    font-weight: 200
+    color: hsl(0,0,70)
+
+.prefixed-input
+  position: relative
+  > span
+    display: inline-block
+    background: hsl(0, 0, 92)
+    height: 100%
+    position: absolute
+    box-sizing: border-box
+    border: 1px solid rgba(#000, 0.08)
+    border-right: none
+    border-top-left-radius: 100px
+    border-bottom-left-radius: 100px
+    width: 35px
+    text-align: center
+
+    > img
+      max-width: 16px
+      max-height: 16px
+      position: relative
+      display: inline-block
+      top: 50%
+      transform: translateY(-50%)
+      left: 1px
+
+
+  input
+    margin-left: 35px
+    border-top-left-radius: 0px
+    border-bottom-left-radius: 0px

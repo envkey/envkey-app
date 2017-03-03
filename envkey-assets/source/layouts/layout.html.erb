@@ -1,0 +1,24 @@
+
+<!doctype html>
+
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Envkey</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <%= stylesheet_link_tag :application %>
+
+  </head>
+
+  <body >
+    <div id="wrap">
+      <div id="react-root">Loading app... </div>
+    </div>
+
+     <script src="<%= ENV['JAVASCRIPT_HOST'] %>/openpgp.min.js"></script>
+     <script src="<%= ENV['JAVASCRIPT_HOST'] %>/index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+.side-menu
+  box-sizing: border-box
+  padding-bottom: 5px
+  height: 100%
+
+  .menu-list
+    margin-bottom: 10px
+    max-height: calc(100% - 53px)
+    overflow-y: hidden
+    overflow-x: hidden
+    position: relative
+    transform: translateZ(0)
+
+    &:hover
+      position: static
+      overflow-y: auto
+      overflow-x: hidden
+
+      .menu-item
+        width: calc(100% + 15px)
+
+        img
+          right: 18px + 15px
+
+  .menu-item
+    display: block
+    position: relative
+    box-sizing: border-box
+    height: $sidebar-menu-item-height
+    padding: 10px 12px
+    text-decoration: none
+    color: hsl(0, 0%, 89%)
+    font-size: 11.5px
+    font-weight: 300
+    border-bottom: 1px solid hsl(0,0,30)
+    transition: background 0.15s ease-out, color 0.15s ease-out
+
+    img
+      width: 6.5px
+      position: absolute
+      right: 18px
+      top: 50%
+      transform: translateY(-50%)
+      opacity: 0
+      transition: opacity 0.15s ease-out
+
+    strong
+      color: #fff
+      font-weight: 400
+
+    &.selected, &.selected:hover
+      background: $darker-blue
+      pointer-events: none
+      font-weight: 400
+      border-bottom: rgba(#000, 0.1)
+
+      img
+        opacity: 1
+
+    &:hover
+      background: rgba(#000, 0.15)
+      img
+        opacity: 0.8
+
+  .menu-group .menu-item:last-of-type
+    border-bottom: none
+
+  .menu-group:last-of-type .menu-item:last-of-type
+    border-bottom: 1px solid hsl(0,0,30)
+
+
+  .group-label
+    background: rgba(#000, 0.5)
+    font-size: 10.5px
+    text-transform: uppercase
+    padding: 6px 0 7.5px 6px
+    color: rgba(#fff, 0.9)
+    font-weight: 600
+
+  .new-btn
+    border: 1px solid rgba(#000, 0.8)
+    background: none
+    margin: 0 9px
+    width: calc(100% - 18px)
+    box-shadow: 0px 0px 1px rgba(#fff, 0.2)
+    outline-color: rgba(#fff, 0.1)
+    z-index: 1
+    position: relative
+    padding-bottom: 0
+    height: $sidebar-menu-item-height
+
+    &:hover
+      background: rgba(#fff, 0.1)
+      box-shadow: 0px 0px 2px rgba(#fff, 0.2)
+
+    &.selected
+      background: $darker-blue
+      pointer-events: none

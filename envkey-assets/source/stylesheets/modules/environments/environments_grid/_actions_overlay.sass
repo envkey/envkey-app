@@ -1,0 +1,63 @@
+.cell .actions-overlay
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  opacity: 0
+  pointer-events: none
+
+  &, > span
+    transition: opacity 0.15s ease-out
+
+  > span
+    display: inline-block
+    position: absolute
+    cursor: pointer
+    height: 100%
+    box-sizing: border-box
+
+    &.copy
+      left: 0
+      padding: 0 5px
+
+    &.edit
+      left: 30px
+      width: calc(100% - 60px)
+      text-align: right
+
+    &.remove
+      right: 0
+      padding-right: 5px
+
+    img
+      opacity: 0.3
+
+    &:hover img
+      opacity: 0.8
+
+  img
+    position: relative
+    width: 20px
+    height: 20px
+    top: 50%
+    transform: translateY(-50%)
+
+  .img-bg-wrap
+    background: rgba(#fff, 0.8)
+    width: 25px
+    display: inline-block
+    height: 90%
+    position: relative
+    top: 5%
+    text-align: center
+    z-index: 2
+
+.cell:hover .actions-overlay
+  opacity: 1
+  pointer-events: auto
+
+.cell.val-cell.service
+  span.copy
+    width: 100%
+    text-align: left

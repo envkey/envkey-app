@@ -1,0 +1,27 @@
+require 'bundler/setup'
+
+task :clean do
+  puts `rm -rf build`
+end
+
+task :build do
+  puts "Building middleman..."
+  puts `middleman build`
+end
+
+task :build_prod do
+  puts "Building middleman for production..."
+  puts `PRODUCTION_BUILD=true middleman build`
+end
+
+namespace :netlify do
+
+  task :staging => [:build] do
+  end
+
+  task :production => [:build_prod] do
+  end
+
+end
+
+

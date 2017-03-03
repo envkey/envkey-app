@@ -1,0 +1,39 @@
+.confirm-action
+  span
+    font-family: $default-font
+    color: $darker-blue
+    font-weight: 400
+    display: inline-block
+
+  button
+    border-radius: 3px
+    height: 30px
+    width: 50px
+    padding: 0
+    text-align: center
+    font-size: 11.5px
+    margin-right: 6px
+    box-sizing: border-box
+
+    &.cancel
+      background: none
+      border: 1px solid rgba(#000, 0.15)
+      color: rgba(#000, 0.3)
+
+      &:hover
+        background: rgba(#000, 0.03)
+        color: rgba(#000, 0.4)
+
+    &.confirm
+      background: $light-blue
+
+      &:hover
+        background: darken($light-blue, 5%)
+
+  span, .actions
+    position: absolute
+    top: 50%
+    transform: translateY(-50%)
+
+  .actions
+    right: 5px

@@ -1,0 +1,137 @@
+.account-menu
+  height: calc(100% - #{$sidebar-tab-height * 3})
+  width: 100%
+  color: #fff
+  box-sizing: border-box
+  transition: border 0.15s ease-out//, height 0.15s ease-out
+  overflow-y: hidden
+  margin-bottom: 1px
+
+  .basic-menu
+    background: hsl(0,0,12)
+    height: $sidebar-account-menu-height
+    width: 100%
+    font-family: $heading-condensed-font
+    font-size: 12.5px
+    transition: background 0.15s ease-out
+
+  &, *
+    cursor: pointer
+
+  .row-bottom, .row-top
+    height: 50%
+    width: 100%
+    box-sizing: border-box
+
+  .row-top
+    border-bottom: 1px solid rgba(#fff, 0.1)
+    transition: border 0.15s ease-out
+
+  .col-left, .col-right
+    display: inline-block
+    box-sizing: border-box
+    height: 100%
+    font-size: 12.5px
+
+  .col-left
+    float: left
+    background: rgba(#000, 0.98)
+    width: 62%
+    transition: border 0.15s ease-out, background 0.15s ease-out
+    border-right: 1px solid rgba(#fff, 0.15)
+
+  .col-right
+    float: right
+    width: 38%
+
+  .expand
+    text-align: center
+    transition: background 0.15s ease-out
+
+    > img
+      width: 12px
+      opacity: 0.65
+      // transition: opacity 0.15s ease-out, transform 0.15s ease-out
+      position: relative
+      top: 5px
+
+  .col-left, .col-right
+    label
+      position: relative
+      top: 5px
+
+  .role
+    text-align: center
+    text-transform: uppercase
+    font-size: 10px
+    font-weight: 600
+    opacity: 0.9
+
+    > label
+      top: 7.5px
+
+  .org, .user
+    padding-left: 8px
+
+  .org
+    color: $lighter-blue
+
+  &:hover
+    .expand
+      background: rgba(#fff, 0.2)
+      > img
+        opacity: 1
+
+  .expanded-menu
+
+    > a
+      display: block
+      font-family: $default-font
+      font-size: 11.5px
+      font-weight: 300
+      border-bottom: 1px solid rgba(#fff, 0.1)
+      height: $sidebar-menu-item-height
+      box-sizing: border-box
+      padding-left: 8px
+      position: relative
+      transition: background 0.15s ease-out
+
+      > img
+        width: 18px
+        position: relative
+        top: 50%
+        transform: translateY(-50%)
+        float: left
+
+      > span
+        margin-left: 10px
+        position: relative
+        top: 10px
+        color: rgba(#fff, 0.9)
+        transition: color 0.15s ease-out
+
+      &, &:visited, &:hover
+        color: #fff
+        text-decoration: none
+
+      &:hover
+        background: rgba(#000, 0.15)
+        > span
+          color: #fff
+
+      &.selected, &.selected:hover
+        background: $darker-blue
+        border-bottom: none
+
+
+.account-menu-expanded .account-menu
+  height: calc(100% - #{$sidebar-tab-height * 3})
+
+  .expand
+    background: $light-blue
+    > img
+      opacity: 1
+      transform: rotate(180deg)
+      top: 3px
+
+

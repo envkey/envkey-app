@@ -1,0 +1,96 @@
+import { call, select, put } from 'redux-saga/effects'
+import R from 'ramda'
+import {decamelizeKeys} from 'xcase'
+import {
+  TOKEN_INVALID,
+  ORG_INVALID,
+  API_SUCCESS,
+  API_FAILED
+} from 'actions'
+import {getAuth, getCurrentOrgSlug} from "selectors"
+import api, { authenticatedClient } from "lib/api"
+
+export default function apiSaga({
+  authenticated,
+  actionTypes,
+  method,
+  urlSelector,
+  skipOrg,
+  urlFn
+}){
+
+  if (typeof authenticated !== 'boolean'){
+    throw new Error('authenticated: Expected a boolean.')
+  }
+
+  if (!Array.isArray(actionTypes) ||
+      actionTypes.length !== 2 ||
+      !actionTypes.every(type => typeof type === 'string')) {
+    throw new Error('actionTypes: Expected an array of two string actionTypes, for success and failure conditions.')
+  }
+
+  if (["get", "post", "patch", "put", "delete"].indexOf(method) == -1){
+    throw new Error('method: Requires a valid REST method: get, post, patch, put, or delete.')
+  }
+
+  if (typeof urlFn !== 'function') {
+    throw new Error('urlFn: Expected to be a function.')
+  }
+
+  if (!(typeof urlSelector === 'function' ||
+        typeof urlSelector === 'undefined')) {
+    throw new Error('urlSelector: Expected to be either undefined or a function.')
+  }
+
+  const [SUCCESS_TYPE, FAILURE_TYPE] = actionTypes
+
+  return function* (requestAction){
+    try {
+      const auth = yield select(getAuth),
+            orgSlug = skipOrg ? undefined : (yield select(getCurrentOrgSlug)),
+            client = authenticated ? authenticatedClient(auth) : api,
+            urlArg = urlSelector ? (yield select(urlSelector)) : null,
+            url = urlFn(requestAction, urlArg),
+            orgParams = {org_id: orgSlug},
+            params = orgParams,
+            data = decamelizeKeys(requestAction.payload || {}),
+            config = {method, url, params, data},
+            res = yield call(client, config)
+
+      yield put({type: API_SUCCESS})
+
+      yield put({
+        type: SUCCESS_TYPE,
+        payload: res.data,
+        meta: {...requestAction.meta, headers: res.headers, requestPayload: requestAction.payload}
+      })
+
+    } catch (err){
+      const status = R.path(["response", "status"], err),
+            msg = R.path(["response", "data", "error"], err),
+            payload = err,
+            meta = {...requestAction.meta, requestPayload: requestAction.payload}
+
+      if (status){
+
+        yield put({type: API_FAILED})
+
+        yield put({type: FAILURE_TYPE, error: true, payload, meta})
+
+        if (authenticated){
+          if (status == 401){
+            yield put({type: TOKEN_INVALID, error: true, payload, meta})
+          } else if (status == 404 && msg == "Missing org"){
+            yield put({type: ORG_INVALID, error: true, payload, meta})
+          }
+        }
+
+      } else {
+        throw(err)
+      }
+
+    }
+
+  }
+}
+

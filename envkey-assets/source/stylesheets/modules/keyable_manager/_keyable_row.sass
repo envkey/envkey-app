@@ -1,0 +1,50 @@
+.keyable-row
+  .key
+    transition: opacity 0.15s ease-out, color 0.15s ease-out
+    display: inline-block
+    font-size: 10px
+    color: hsl(0,0,75)
+    position: relative
+    cursor: pointer
+
+    > span
+      line-height: 20px
+
+    &:hover
+      color: hsl(0,0,50)
+
+      img
+        opacity: 0.45
+
+    img
+      width: 24px
+      float: left
+      margin-right: 5px
+      opacity: 0.35
+      transition: opacity 0.15s ease-out
+      position: relative
+      top: 5px
+
+    span
+      display: inline-block
+      position: relative
+      top: 8px
+
+  &.show-key .key
+    &, &:hover
+      cursor: default
+      color: hsl(0,0,50)
+      font-size: 11.5px
+
+      > span
+        cursor: text
+
+      img
+        opacity: 0.55
+        cursor: pointer
+
+  &.updating-key
+    .actions, .key
+      opacity: 0
+      pointer-events: none
+

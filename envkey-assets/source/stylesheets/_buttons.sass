@@ -1,0 +1,52 @@
+button, .button
+  text-decoration: none
+  display: inline-block
+  box-sizing: border-box
+  border-radius: 3px
+  font-size: 12.5px
+  height: 36px
+  text-transform: uppercase
+  color: #fff
+  font-family: $heading-condensed-font
+  padding: 0 12px 2.25px
+  transition: background 0.15s ease-out, box-shadow 0.15s ease-out
+  border: none
+  background: lighten($darker-blue, 5%)
+
+  &.img-button
+    text-align: right
+
+    img
+      width: 18.5px
+      float: left
+
+    span
+      margin-left: 18px
+
+    span, img
+      position: relative
+      display: inline-block
+      top: 50%
+      transform: translateY(-50%)
+
+  &, *
+    cursor: pointer
+
+  &:hover
+    background: darken($darker-blue, 5%)
+
+
+  &.split-strong
+    font-weight: 400
+    color: lighten(#2cb1dd, 25%)
+
+    img
+      float: left
+      display: inline
+      max-height: 30px
+      max-width: 30px
+
+    strong
+      font-weight: 600
+      color: #fff
+      letter-spacing: 0.5px

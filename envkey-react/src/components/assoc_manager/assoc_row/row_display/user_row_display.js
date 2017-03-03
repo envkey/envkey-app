@@ -1,0 +1,54 @@
+import React from 'react'
+import {Link} from 'react-router'
+import h from "lib/ui/hyperscript_with_helpers"
+import KeyableActions from "./keyable_actions"
+import AppUserStatus from "./app_user_status"
+
+export default function ({params,
+                          parentType,
+                          assocType,
+                          onCopy,
+                          onRenew,
+                          isRemoving,
+                          isGeneratingAssocKey,
+                          permissions: {read: {user: canReadUser}},
+                          assoc: {firstName, lastName, email, slug, relation, isCurrentUser},
+                          config: {keyLabel}}){
+
+  const
+    renderUserLabel = ()=>{
+      if(canReadUser){
+        return h.span(".primary", [
+          h(Link, {to: `/${params.orgSlug}/users/${slug}`},
+            [firstName, lastName].join(" ")
+          )
+        ])
+      }
+    }
+  return h.div([
+    h.div(".top-row", [
+      renderUserLabel(),
+      h.span(".secondary", email)
+    ]),
+
+    h.div(".bottom-row", [
+      h(AppUserStatus, relation.accessStatus)
+    ])
+
+    // h.div(".bottom-row", [
+    //   h(KeyableActions, {
+    //     parentType,
+    //     assocType,
+    //     keyLabel,
+    //     isCurrentUser,
+    //     onCopy,
+    //     onRenew,
+    //     isRemoving,
+    //     isGeneratingAssocKey,
+    //     envkey: relation.envkey,
+    //     createdAt: relation.createdAt
+    //   })
+    // ])
+  ])
+
+}

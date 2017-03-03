@@ -1,0 +1,26 @@
+$sidebar-width: 225px
+$app-tab-width: 104px
+$sidemenu-width: $sidebar-width + $app-tab-width
+$viewport-width: calc(100% - #{$sidemenu-width})
+$label-row-width: calc(75% - #{$sidemenu-width})
+$app-tab-height: $app-tab-width / 1.35
+$header-height: $app-tab-height * 0.67
+$logo-width: $header-height * 2
+$env-grid-header-height: $app-tab-height / 2
+$env-grid-fixed-col-width: calc(25% - #{($sidebar-width + $app-tab-width) / 4})
+$sidebar-account-menu-height: $header-height //($app-tab-height - $header-height) * 2
+$sidebar-tab-height: 36px
+$sidebar-menu-item-height: 34px
+$env-cell-height: 40.5px
+.show-page
+  padding: 0 0 0 $sidebar-width + $app-tab-width
+s
+.new-page, .my-account
+  padding-left: $sidebar-width
+
+
+// @media (max-width: 1000px)
+//   .show-page
+//     padding: 0
+//   .sidebar
+//     display: none
