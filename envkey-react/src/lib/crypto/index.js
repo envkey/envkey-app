@@ -60,6 +60,8 @@ export const
       passphrase
     }
 
+    console.log("GENERATING KEY")
+
     return openpgp.generateKey(opts)
   },
 

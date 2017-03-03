@@ -98,6 +98,7 @@ GEM
     rack (2.0.1)
     rack-livereload (0.3.16)
       rack
+    rack-rewrite (1.5.1)
     rb-fsevent (0.9.8)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
@@ -125,11 +126,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  dotenv
   middleman (>= 4.0.0.rc.1)
   middleman-livereload
   middleman-sprockets (>= 4.0.0.rc.1)
   pry
+  rack-rewrite (~> 1.5.0)
   sass
   sass-globbing
   slim (>= 3.0)

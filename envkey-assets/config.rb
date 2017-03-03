@@ -2,15 +2,20 @@ require 'slim'
 require 'sass'
 require 'sass-globbing'
 require 'dotenv'
+require 'rack/rewrite'
 
-build_env =  =
+build_env =
   if build?
     ENV["PRODUCTION_BUILD"] ? "production" : "staging"
   else
     "development"
   end
 
-Dotenv.load(".env.#{build_env}")
+if build_env == "development"
+  use ::Rack::Rewrite do
+    rewrite %r{^\/(?!stylesheets|images|fonts|__rack|openpgp)(.*)}, '/index.html'
+  end
+end
 
 ###
 # Page options, layouts, aliases and proxies
@@ -63,10 +68,10 @@ configure :build do
   activate :minify_css
 
   # Minify Javascript on build
-  activate :minify_javascript
+  # activate :minify_javascript
 
   # Append a hash to asset urls (make sure to use the url helpers)
-  activate :asset_hash
+  # activate :asset_hash
 
   #Use relative URLs
   activate :relative_assets

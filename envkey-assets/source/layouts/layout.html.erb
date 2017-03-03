@@ -18,7 +18,12 @@
       <div id="react-root">Loading app... </div>
     </div>
 
-     <script src="<%= ENV['JAVASCRIPT_HOST'] %>/openpgp.min.js"></script>
-     <script src="<%= ENV['JAVASCRIPT_HOST'] %>/index.js"></script>
+     <script src="/openpgp.min.js"></script>
+
+    <% if build? %>
+      <script src="/javascripts/index.js"></script>
+    <% else %>
+      <script src="http://localhost:8080/index.js"></script>
+    <% end %>
   </body>
 </html>

@@ -17,9 +17,7 @@ gem 'middleman-sprockets', '>= 4.0.0.rc.1'
 gem 'middleman', '>= 4.0.0.rc.1'
 gem 'middleman-livereload'
 gem 'sass-globbing'
-
-# Env vars
-gem 'dotenv'
+gem 'rack-rewrite', '~> 1.5.0'
 
 # Utilitis
 gem "pry"
