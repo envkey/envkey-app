@@ -100,7 +100,8 @@ const
     if (resultType == API_SUCCESS) yield put(push(`/${currentOrg.slug}`))
   },
 
-  onCreateObjectSuccess = function*({meta: {objectType}, payload: {slug}}){
+  onCreateObjectSuccess = function*({meta: {createAssoc, objectType}, payload: {slug}}){
+    if(createAssoc)return
     const currentOrg = yield select(getCurrentOrg),
           path = `/${currentOrg.slug}/${pluralize(objectType)}/${slug}`
 

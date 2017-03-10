@@ -1,11 +1,16 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import { imagePath } from "lib/ui"
+import Filter from 'components/shared/filter'
+import BroadcastLoader from 'components/shared/broadcast_loader'
 
 export default function({parentType,
+                         emptyOnInit,
                          addVar,
                          addService,
                          hideValues,
+                         isEmpty,
+                         isUpdatingEnv,
                          onToggleHideValues,
                          onFilter,
                          onAddVar,
@@ -13,24 +18,18 @@ export default function({parentType,
 
   const
     renderFilter = ()=> {
-      if(!addVar && !addService){
-        return h.div(".prefixed-input.filter", [
-          h.span([h.img({src: imagePath("search.png")})]),
-          h.input({
-            placeholder: "Type here to filter...",
-            onChange: (e)=> onFilter(e.target.value)
-          })
-        ])
+      if(!addService){
+        return h(Filter, {placeholder: "Type here to filter...", onFilter})
       }
     },
 
     renderAddVar = ()=>{
-      if (!addService){
+      if (!addService && !emptyOnInit){
         return h.button(".split-strong.add-var", {
           className: (addVar ? " selected" : ""),
           onClick: onAddVar
         }, [
-          addVar ? h.span(["Go", " ", h.strong("Back")]) :
+          addVar ? h.strong("⨉") :
                    h.span([
                             // h.img({src: imagePath("var-black.svg")}),
                             h.span([
@@ -44,26 +43,26 @@ export default function({parentType,
     },
 
     renderAddService = ()=>{
-      if (parentType == "app" && !addVar){
-        return h.button(".split-strong.add-service", {
-          className: (addService ? " selected" : ""),
-          onClick: onAddService
-        }, [
-          addService ? h.span(["Go", " ", h.strong("Back")]) :
-                       h.span([
-                                // h.img({src: imagePath("lightning-black.svg")}),
-                                h.span([
-                                  "Add",
-                                  " ",
-                                  h.strong("Service")
-                                ])
-                              ])
-        ])
-      }
+      // if (parentType == "app"){
+      //   return h.button(".split-strong.add-service", {
+      //     className: (addService ? " selected" : ""),
+      //     onClick: onAddService
+      //   }, [
+      //     addService ? h.span(["Go", " ", h.strong("Back")]) :
+      //                  h.span([
+      //                           // h.img({src: imagePath("lightning-black.svg")}),
+      //                           h.span([
+      //                             "Add",
+      //                             " ",
+      //                             h.strong("Mixin")
+      //                           ])
+      //                         ])
+      //   ])
+      // }
     },
 
     renderShowHide = ()=> {
-      if (!addVar && !addService){
+      if (!addService && !isEmpty){
         return h.button(".split-strong.show-hide-toggle", {
           onClick: onToggleHideValues
         }, [
@@ -75,13 +74,21 @@ export default function({parentType,
           ])
         ])
       }
+    },
+
+    renderUpdatingEnv = ()=>{
+      return h.span(".updating-env-msg", [
+        h(BroadcastLoader),
+        h.span("Encrypting and syncing")
+      ])
     }
+
 
   return h.header(".env-header", [
     renderFilter(),
     renderAddVar(),
     renderAddService(),
     renderShowHide(),
-    h.span(".line")
+    renderUpdatingEnv()
   ])
 }

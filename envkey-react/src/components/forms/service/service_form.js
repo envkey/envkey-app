@@ -20,7 +20,7 @@ export default class ServiceForm extends React.Component {
 
         <input className="service-name"
                ref="name"
-               placeholder="Service Name"
+               placeholder="Mixin Name"
                required />
 
         {this._renderSubmit()}
@@ -32,7 +32,7 @@ export default class ServiceForm extends React.Component {
     if(this.props.isSubmitting){
       return <SmallLoader />
     } else {
-      return <button> <span>Create Service</span> </button>;
+      return <button> <span>Create Mixin</span> </button>;
     }
   }
 }

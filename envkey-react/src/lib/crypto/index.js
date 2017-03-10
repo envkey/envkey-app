@@ -53,16 +53,14 @@ export const
     sjcl.misc.pbkdf2(password, emailSalt(email), 50000)
   ),
 
-  generateKeys = ({id, passphrase})=>{
+  generateKeys = ({id, passphrase}, worker=false)=>{
     const opts = {
       userIds: [{ name: id, email:`${id}@envkey.com` }],
       numBits: 2048,
       passphrase
     }
 
-    console.log("GENERATING KEY")
-
-    return openpgp.generateKey(opts)
+    return worker ? proxy().delegate('generateKey', opts) : openpgp.generateKey(opts)
   },
 
   encryptJson = ({data, pubkey})=>{

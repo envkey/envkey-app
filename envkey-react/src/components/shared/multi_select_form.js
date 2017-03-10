@@ -25,7 +25,8 @@ export default class MultiSelectForm extends React.Component {
   _renderSubmit(){
     if (this.props.isSubmitting) return h(SmallLoader)
 
-    return h.button({
+    return h.button(".submit", {
+      disabled: this.state.numSelected == 0,
       onClick: e => this.props.onSubmit(this.refs.multiSelect.getSelected())
     },
       this.props.submitLabelFn ? this.props.submitLabelFn(this.state.numSelected) :

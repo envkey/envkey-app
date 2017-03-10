@@ -23,8 +23,12 @@ export const getAutocompleteOpts = ({entryKey,
                                   envsWithMeta,
                                   environments,
                                   environment}, searchStr)=>{
-  const baseOpts = searchStr ? [] : [{val: null, label: "(undefined)", className: "undefined"},
-                                     {val: "", label: "(empty string)", className: "empty-string"}],
+  const searchStrIsEnv = environments.includes(searchStr),
+
+        baseOpts = searchStr && !searchStrIsEnv ?
+          [] :
+          [{val: null, label: "undefined", className: "undefined", isSpecial: true},
+           {val: "", label: "empty string", className: "empty-string", isSpecial: true}],
 
         envOpts = environments.filter(getEnvsFilter({entryKey, envsWithMeta, environment}, searchStr))
                               .map(envOpt => ({val: envOpt,

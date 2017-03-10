@@ -27,8 +27,7 @@ const AccountMenu = ({
       return <h4> Loading... </h4>
     } else {
       return <div>
-          <section className="basic-menu"
-                 onClick={e => onToggleExpanded()}>
+          <section className="basic-menu">
           <div className="row-top">
             <span className="col-left user">
               <label>{[currentUser.firstName, currentUser.lastName].join(" ")}</label>
@@ -41,8 +40,9 @@ const AccountMenu = ({
             <span className="col-left org">
               <label>{currentOrg.name}</label>
             </span>
-            <span className="col-right expand">
-              <img src={imagePath("menu-down-arrow-white.png")} />
+            <span className="col-right expand"
+                  onClick={e => onToggleExpanded()}>
+              <img src={imagePath("gear-white.png")} />
             </span>
           </div>
         </section>

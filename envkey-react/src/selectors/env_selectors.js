@@ -27,7 +27,8 @@ export const
   getEntries = defaultMemoize(R.pipe(
     R.values,
     R.head,
-    R.keys
+    R.keys,
+    R.sort(R.ascend(R.identity))
   )),
 
   getAppEnvironmentsAccessible = db.path("appEnvironmentsAccessible"),

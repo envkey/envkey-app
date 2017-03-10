@@ -64,8 +64,9 @@ export default class AutocompleteOptions extends React.Component {
     )
   }
 
-  _renderAutoCompleteOption({val, label, prefix, className, selectedInherits}, i){
-    let prefixEl = prefix ? <small className="prefix">{prefix}</small> : ""
+  _renderAutoCompleteOption({val, label, prefix, isSpecial, className, selectedInherits}, i){
+    const prefixEl = prefix ? <small className="prefix">{prefix}</small> : "",
+          labelEl = isSpecial ? <small>{label}</small> : <span>{label}</span>
     return (
       <div key={i}
            className={["opt", className].join(" ") + (i == this.state.selectedIndex ? " selected" : "")}
@@ -73,7 +74,7 @@ export default class AutocompleteOptions extends React.Component {
            onMouseOver={this._onMouseOver.bind(this,i)}>
         <span>
           {prefixEl}
-          <span>{label}</span>
+          {labelEl}
         </span>
       </div>
     )

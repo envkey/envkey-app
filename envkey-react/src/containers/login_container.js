@@ -1,12 +1,13 @@
 import { connect } from 'react-redux'
 import Login from 'components/shared/login'
-import {login} from 'actions'
+import {login, appLoaded} from 'actions'
 import R from 'ramda'
 
 const mapStateToProps = state => R.pick(['isAuthenticating'], state)
 
 const mapDispatchToProps = dispatch => {
   return {
+    onLoad: ()=> dispatch(appLoaded()),
     onSubmit: (params) => dispatch(login(params))
   }
 }

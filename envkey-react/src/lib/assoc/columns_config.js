@@ -32,17 +32,17 @@ import {
 } from 'selectors'
 
 const adminUserPermissions = [
-        "Can view + edit all environments.",
-        "Can manage user access + server access for all environments.",
-        "Can invite collaborators + edit app settings."
+        h.span(["Can view + edit all environments."]),
+        h.span(["Can manage user access + server access for all environments."]),
+        h.span(["Can invite collaborators + edit app settings."])
       ],
       productionUserPermissions = [
-        "Can view + edit all environments.",
-        "Can manage server access for all environments."
+        h.span(["Can view + edit all environments."]),
+        h.span(["Can manage server access for all environments."])
       ],
       developmentUserPermissions = [
-        "Can view + edit development and staging environments.",
-        "Can manage development and staging server access."
+        h.span(["Can view + edit development and staging environments."]),
+        h.span(["Can manage development and staging server access."])
       ]
 
 export default function({
@@ -63,7 +63,7 @@ export default function({
         addFormType: UserForm,
         addLabel: "+",
         addExistingLabel: "Add Existing Users",
-        addExistingSubmitLabelFn: (n)=> `Add ${pluralize("User", n, true)}`,
+        addExistingSubmitLabelFn: (n)=> "Add Users",
         addNewLabel: "Invite New User",
         addExistingTextFn: ({firstName, lastName}) => [firstName, lastName].join(" "),
         addExistingLabelFn: ({firstName, lastName}) => h.span([h.span([firstName, " "]), h.strong(lastName)]),
@@ -113,18 +113,18 @@ export default function({
         addLabel: "+",
         columns: [
           {
-            title: "Production",
-            // subtitle: "Servers",
-            role: "production",
-            groups: R.pick(["production"], serverGroups),
-            keyLabel: "production",
-            permissionCopyLines: [h.span(["Connect to the ", h.strong("production"), " environment."])],
-            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "production"}, state),
-            isCreating: getIsCreating({assocType, parentId: parent.id, role: "production"}, state)
+            title: "Development",
+            subtitle: "Keys",
+            role: "development",
+            groups: R.pick(["development"], serverGroups),
+            keyLabel: "development",
+            permissionCopyLines: [h.span(["Connect to the ", h.strong("development"), " environment."])],
+            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
+            isCreating: getIsCreating({assocType, parentId: parent.id, role: "development"}, state)
           },
           {
             title: "Staging",
-            // subtitle: "Servers",
+            subtitle: "Keys",
             role: "staging",
             groups: R.pick(["staging"], serverGroups),
             keyLabel: "staging",
@@ -133,14 +133,14 @@ export default function({
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "staging"}, state)
           },
           {
-            title: "Development",
-            // subtitle: "Servers",
-            role: "development",
-            groups: R.pick(["development"], serverGroups),
-            keyLabel: "development",
-            permissionCopyLines: [h.span(["Connect to the ", h.strong("development"), " environment."])],
-            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
-            isCreating: getIsCreating({assocType, parentId: parent.id, role: "development"}, state)
+            title: "Production",
+            subtitle: "Keys",
+            role: "production",
+            groups: R.pick(["production"], serverGroups),
+            keyLabel: "production",
+            permissionCopyLines: [h.span(["Connect to the ", h.strong("production"), " environment."])],
+            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "production"}, state),
+            isCreating: getIsCreating({assocType, parentId: parent.id, role: "production"}, state)
           }
         ]
       }
@@ -172,7 +172,7 @@ export default function({
       if(!["org_owner", "org_admin"].includes(parent.role)){
         columns = columns.concat([
           {
-            title: "Production",
+            title: "Devops",
             subtitle: "Access",
             role: "production",
             groups: R.pick(["production"], appGroups),
@@ -183,7 +183,7 @@ export default function({
             candidates: appCandidates
           },
           {
-            title: "Development + Staging",
+            title: "Developer",
             subtitle: "Access",
             role: "development",
             groups: R.pick(["development"], appGroups),
@@ -199,7 +199,7 @@ export default function({
       return {
         rowDisplayType: AppRowDisplay,
         addLabel: "+",
-        addExistingSubmitLabelFn: (n)=> `Add ${pluralize("App", n, true)}`,
+        addExistingSubmitLabelFn: (n)=> "Add Apps",
         addExistingTextFn: R.prop("name"),
         columns
       }
@@ -211,7 +211,7 @@ export default function({
         rowDisplayType: AppRowDisplay,
         addFormType: AppForm,
         addLabel: "+",
-        addExistingSubmitLabelFn: (n)=> `Add ${pluralize("App", n, true)}`,
+        addExistingSubmitLabelFn: (n)=> "Add Apps",
         addExistingTextFn: R.prop("name"),
         columns: [
           {
@@ -231,13 +231,13 @@ export default function({
         rowDisplayType: AppServiceRowDisplay,
         addFormType: ServiceForm,
         addLabel: "+",
-        addExistingSubmitLabelFn: (n)=> `Add ${pluralize("Service", n, true)}`,
+        addExistingSubmitLabelFn: (n)=> "Add Mixins",
         addExistingTextFn: R.prop("name"),
-        addExistingLabel: "Connect Existing Services",
-        addNewLabel: "Create New Service",
+        addExistingLabel: "Connect Existing Mixin",
+        addNewLabel: "Create New Mixin",
         columns: [
           {
-            title: "Connected Services",
+            title: "Connected Mixins",
             groups: {services: appServices},
             candidates: R.without(dissocRelations(appServices || []))(orgServices),
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id}, state),

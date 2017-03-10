@@ -32,7 +32,7 @@
     overflow-y: hidden
 
   .menu-section.selected
-    height: calc(100% - #{$sidebar-tab-height * 2})
+    height: calc(100% - #{$sidebar-tab-height * 1})
 
     .menu-tab label
       color: $light-orange
@@ -50,6 +50,6 @@
 
   &.account-menu-expanded
     .menu-sections
-      height: 107px
+      height: $sidebar-tab-height * 2
       transition: height 0.0s linear
       // transition-delay: 0.2s

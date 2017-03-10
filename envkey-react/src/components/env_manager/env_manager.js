@@ -3,7 +3,6 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import EnvHeader from './env_header'
 import EnvGrid from './env_grid'
-import EntryForm from './entry_form'
 import {AddAssoc} from 'components/assoc_manager'
 
 export default class EnvManager extends React.Component {
@@ -14,8 +13,32 @@ export default class EnvManager extends React.Component {
       addVar: false,
       addService: false,
       hideValues: true,
-      filter: ""
+      filter: "",
+      emptyOnInit: false,
     }
+  }
+
+  componentDidMount() {
+    if (this.props.envsAreDecrypted &&
+        !this.state.emptyOnInit &&
+        this._isEmpty(this.props)){
+      this.setState({addVar: true, emptyOnInit: true})
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.envsAreDecrypted &&
+        !this.state.emptyOnInit &&
+        this._isEmpty(nextProps)){
+      this.setState({addVar: true, emptyOnInit: true})
+    } else if (nextProps.parent.id != this.props.parent.id) {
+      this.setState({addVar: false, emptyOnInit: false})
+    }
+  }
+
+  _isEmpty(arg=null){
+    const props = arg || this.props
+    return props.entries.length + R.keys(props.entriesByServiceId) == 0
   }
 
   _onSubmitDecryptionPassword(e){
@@ -37,7 +60,8 @@ export default class EnvManager extends React.Component {
     const className = "environments " +
                       [this.props.parentType, "parent"].join("-") +
                       (this.state.addVar ? " add-var" : "") +
-                      (this.state.addService ? " add-service" : "")
+                      (this.state.addService ? " add-service" : "") +
+                      (this.props.isUpdatingEnv ? " updating-env" : "")
 
     return h.div({className}, this._renderContents())
   }
@@ -56,9 +80,7 @@ export default class EnvManager extends React.Component {
   }
 
   _renderBody(){
-    if(this.state.addVar){
-      return this._renderAddVar()
-    } else if (this.state.addService){
+    if (this.state.addService){
       return this._renderAddService()
     } else {
       return this._renderGrid()
@@ -85,7 +107,8 @@ export default class EnvManager extends React.Component {
   _renderHeader(){
     return h(EnvHeader, {
       ...this.props,
-      ...R.pick(["addVar", "addService", "hideValues"], this.state),
+      ...R.pick(["addVar", "addService", "hideValues", "emptyOnInit"], this.state),
+      isEmpty: this._isEmpty(),
       onFilter: s => this.setState({filter: s.trim().toLowerCase()}),
       onToggleHideValues: ()=> this.setState(state => ({hideValues: !state.hideValues})),
       onAddVar: ()=> this.setState(state => ({addVar: !state.addVar})),
@@ -101,18 +124,10 @@ export default class EnvManager extends React.Component {
     })
   }
 
-  _renderAddVar(){
-    return h(EntryForm, {
-      isSubmitting: this.props.isCreatingEntry,
-      environments: this.props.environments,
-      onSubmit: this.props.createEntry
-    })
-  }
-
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "filter"], this.state)
+      ...R.pick(["hideValues", "filter", "addVar"], this.state)
     })
   }
 

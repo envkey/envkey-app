@@ -5,6 +5,7 @@ import EntryRow from './entry_row'
 import LabelRow from './label_row'
 import ServiceBlock from './service_block'
 import EditableCellsParent from './traits/editable_cells_parent'
+import EntryForm from './entry_form'
 
 export default class EnvGrid extends EditableCellsParent(React.Component) {
 
@@ -32,6 +33,7 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
   render(){
     return h.div(".grid.env-grid", [
       h(LabelRow, this.props),
+      this._renderAddVar(),
       this._renderEntryRows(),
       this._renderServiceBlocks()
     ])
@@ -74,6 +76,16 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
       service,
       key: i
     })
+  }
+
+  _renderAddVar(){
+    if (this.props.addVar){
+      return h(EntryForm, {
+        isSubmitting: this.props.isCreatingEntry,
+        environments: this.props.environments,
+        onSubmit: this.props.createEntry
+      })
+    }
   }
 }
 

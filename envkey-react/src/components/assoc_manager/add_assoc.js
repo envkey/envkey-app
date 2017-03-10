@@ -79,6 +79,7 @@ export default class AddAssoc extends React.Component {
       }),
       isSubmitting: this.props.isAddingAssoc,
       submitLabelFn: this.props.addExistingSubmitLabelFn,
+      placeholder: "Filter candidates...",
       onSubmit: ids => this.props.addAssoc({ids, role: this.props.role})
     })
   }

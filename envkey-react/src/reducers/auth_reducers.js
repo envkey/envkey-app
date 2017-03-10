@@ -20,8 +20,8 @@ import {
   DECRYPT_ENVS_SUCCESS,
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
-  GENERATE_USER_KEY,
-  GENERATE_USER_KEY_SUCCESS,
+  GENERATE_USER_KEYPAIR,
+  GENERATE_USER_KEYPAIR_SUCCESS,
   HASH_USER_PASSWORD,
   HASH_USER_PASSWORD_SUCCESS,
   GRANT_ENV_ACCESS_SUCCESS
@@ -238,9 +238,9 @@ export const
 
   isGeneratingUserKey = (state = false, action)=>{
     switch(action.type){
-      case GENERATE_USER_KEY:
+      case GENERATE_USER_KEYPAIR:
         return true
-      case GENERATE_USER_KEY_SUCCESS:
+      case GENERATE_USER_KEYPAIR_SUCCESS:
         return false
       default:
         return state

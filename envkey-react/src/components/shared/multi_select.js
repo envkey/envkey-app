@@ -1,6 +1,7 @@
 // Based on https://github.com/neodon/react-multiselect
 
 import React from 'react'
+import Filter from './filter'
 
 var MultiSelectItem = React.createClass({
   getDefaultProps: function() {
@@ -15,7 +16,10 @@ var MultiSelectItem = React.createClass({
     return this.props.visible && <li
       className={this.props.selected ? 'selected' : 'deselected'}
       onClick={this.props.onClick}
-    >{this.props.text}</li>
+    >
+      <input type="checkbox" checked={this.props.selected} />
+      <span className="primary">{this.props.text}</span>
+    </li>
   }
 })
 
@@ -38,9 +42,9 @@ var MultiSelect = React.createClass({
   handleItemClick: function(item) {
     this.setSelected(item, !this.state.selections[item.id])
   },
-  handleFilterChange: function(event) {
+  onFilter: function(val) {
     // Keep track of every change to the filter input
-    this.setState({ filter: event.target.value })
+    this.setState({ filter: val })
   },
   escapeRegExp: function(str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
@@ -92,7 +96,7 @@ var MultiSelect = React.createClass({
   render: function() {
     return (
       <div className="multi-select">
-        <input onChange={this.handleFilterChange} value={this.state.filter} placeholder={this.props.placeholder} />
+        <Filter onFilter={this.onFilter} value={this.state.filter} placeholder={this.props.placeholder || "Filter candidates..."} />
         <ul>{this.props.items.map(this.createItem)}</ul>
       </div>
     )

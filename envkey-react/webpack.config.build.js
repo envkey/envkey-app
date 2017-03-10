@@ -16,7 +16,6 @@ var plugins = [
   new webpack.optimize.UglifyJsPlugin({
     output: {comments: false},
     compress: {
-      disable: buildEnv == "staging",
       sequences: true,
       dead_code: true,
       conditionals: true,
@@ -34,7 +33,6 @@ var plugins = [
 var presets = ['es2015', 'react', 'stage-2'];
 
 module.exports =  {
-  devtool: (isProd ? undefined : 'inline-source-map'),
   output: { filename: '[name].js', path: path.resolve("./build")},
   module: {
     loaders: [

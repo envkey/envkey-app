@@ -5,6 +5,7 @@ import Routes from 'routes'
 import R from 'ramda'
 import * as crypto from 'lib/crypto'
 
-ReactDOM.render(<Routes />, document.getElementById('react-root'))
+ReactDOM.render(<Routes />, document.getElementById('wrap'))
 
 crypto.init()
+

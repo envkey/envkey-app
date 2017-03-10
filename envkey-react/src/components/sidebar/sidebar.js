@@ -75,18 +75,18 @@ export default class Sidebar extends React.Component {
                                          {pathFn: (item => `/${this.props.currentOrg.slug}/apps/${item.slug}/environments`),
                                           newBtnLabel: "New Application"})}
 
-            {this._renderMenuListSection("services",
-                                         "Mixin",
-                                         this.props.services,
-                                         {pathFn: (item => `/${this.props.currentOrg.slug}/services/${item.slug}/environments`),
-                                          newBtnLabel: "New Mixin" })}
-
           </section>
 
         </div>
       </div>
     )
   }
+
+  // {this._renderMenuListSection("services",
+  //                                        "Mixin",
+  //                                        this.props.services,
+  //                                        {pathFn: (item => `/${this.props.currentOrg.slug}/services/${item.slug}/environments`),
+  //                                         newBtnLabel: "New Mixin" })}
 
   _renderMenuSection(type, label, contents){
     return <section className={["menu-section",

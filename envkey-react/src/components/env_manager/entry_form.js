@@ -7,19 +7,22 @@ import SmallLoader from 'components/shared/small_loader'
 export default class EntryForm extends React.Component {
 
   _onSubmit(){
-    this.props.onSubmit(this.refs.entryFormRow.formData())
+    const formData = this.refs.entryFormRow.formData()
+    if (formData.entryKey){
+      this.props.onSubmit(formData)
+      this.refs.entryFormRow.reset()
+    }
   }
 
   render(){
-    return h.div(".grid.env-grid.entry-form", [
-      h(LabelRow, {environments: this.props.environments}),
+    return h.div(".entry-form", [
 
       h(EntryFormRow, {
         environments: this.props.environments,
         ref: "entryFormRow"
       }),
 
-      this._renderSubmit()
+      h.div(".submit-row", [this._renderSubmit()])
     ])
   }
 
@@ -27,7 +30,7 @@ export default class EntryForm extends React.Component {
     if(this.props.isSubmitting){
       return h(SmallLoader)
     } else {
-      return h.button({onClick: ::this._onSubmit}, "Create Var")
+      return h.button(".submit",{onClick: ::this._onSubmit}, "Add Var")
     }
   }
 

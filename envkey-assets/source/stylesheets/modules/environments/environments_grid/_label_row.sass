@@ -15,11 +15,10 @@
 
   .label-cell
     box-sizing: border-box
-    background: $darker-blue
     display: inline-block
     width: 33.33%
     height: 100%
-    border-right: 1px solid darken($darker-blue, 2.5%)
+    border-right: 1px solid rgba(#000, 0.1)
 
     &:first-of-type
       width: calc(33.33% + 1px)
@@ -39,6 +38,12 @@
       position: relative
       top: 11px
       width: 100%
+
+    &.env-development
+      background: darken($darker-blue, 3.5%)
+
+    &.env-staging
+      background: lighten($darker-blue, 3.5%)
 
     &.env-production
       background: $dark-blue

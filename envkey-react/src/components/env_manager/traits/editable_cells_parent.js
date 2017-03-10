@@ -15,9 +15,16 @@ const EditableCellsParent = CellsParent => class extends CellsParent {
     document.body.removeEventListener("keydown", ::this._onKeyDown)
   }
 
+  _preventClearEditingSelector(){
+    return ".cell"
+  }
+
   _onBodyClick(e){
     const tg = traversty(e.target)
-    if ((this.state.editing.entryKey) && !tg.closest(".cell").length)this._clearEditing()
+    if ((this.state.editing.entryKey) &&
+        !tg.closest(this._preventClearEditingSelector()).length){
+      this._clearEditing()
+    }
   }
 
   _onKeyDown(e){

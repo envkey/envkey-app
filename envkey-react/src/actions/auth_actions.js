@@ -1,6 +1,7 @@
 import { createAction } from 'redux-actions'
 import R from 'ramda'
 import {
+  APP_LOADED,
   LOGIN,
   REGISTER,
   ACCEPT_INVITE,
@@ -11,6 +12,7 @@ import {
 } from './action_types'
 
 export const
+  appLoaded = createAction(APP_LOADED),
 
   login = createAction(LOGIN),
 

@@ -8,6 +8,7 @@ import {
   REMOVE_ASSOC_FAILED,
   REMOVE_ASSOC_SUCCESS,
 
+  GENERATE_ASSOC_KEY,
   GENERATE_ASSOC_KEY_REQUEST,
   GENERATE_ASSOC_KEY_FAILED,
   GENERATE_ASSOC_KEY_SUCCESS,
@@ -116,7 +117,7 @@ export const isRemoving = (state = {}, action)=>{
 
 export const isGeneratingAssocKey = (state = {}, action)=>{
   switch(action.type){
-    case GENERATE_ASSOC_KEY_REQUEST:
+    case GENERATE_ASSOC_KEY:
       return R.assoc(action.meta.targetId, true, state)
 
     case GENERATE_ASSOC_KEY_SUCCESS:

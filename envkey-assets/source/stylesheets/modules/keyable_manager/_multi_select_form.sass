@@ -1,0 +1,71 @@
+.multi-select-form
+  height: calc(100% - #{$app-tab-height / 2})
+  width: 100%
+
+  .filter
+    width: 100%
+    height: $app-tab-height / 2
+
+    input
+      border-bottom: 1px solid rgba(#000, 0.1)
+      width: calc(100% - 35px)
+
+  .multi-select
+    height: calc(100% - #{$app-tab-height / 2})
+
+  .submit
+    width: 100%
+    border-radius: 0
+
+    &[disabled]
+      cursor: not-allowed
+
+      &, &:hover
+        background: $darker-blue
+        opacity: 0.5
+
+  ul
+    height: calc(100% - #{$app-tab-height / 2})
+    overflow-y: auto
+
+  li
+    height: $app-tab-height / 2
+    padding: 0 15px 0 0
+    cursor: pointer
+    border-bottom: 1px solid hsl(0,0,90)
+
+
+    .primary, .secondary
+      display: inline-block
+      position: relative
+      top: 45%
+      transform: translateY(-50%)
+
+    .primary
+      color: $darker-blue
+      //font-family: $heading-condensed-font
+      font-weight: 200
+      font-size: 13px
+
+    .secondary
+      color: rgba(#000, 0.4)
+      font-size: 10.5px
+      font-weight: 200
+      float: right
+
+    input[type='checkbox']
+      margin: 0 10px
+      position: relative
+      top: 10px
+      cursor: pointer
+
+    &.selected
+      background: rgba($dark-blue, 0.1)
+
+      // .name
+      //   color: #fff
+
+      // .secondary
+      //   color: rgba(#fff, 0.7)
+
+

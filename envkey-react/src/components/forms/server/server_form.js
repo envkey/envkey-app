@@ -19,7 +19,7 @@ export default class ServerForm extends React.Component {
 
         <input className="server-name"
                ref="name"
-               placeholder="server-name"
+               placeholder="Server Name"
                required />
 
         {this._renderSubmit()}

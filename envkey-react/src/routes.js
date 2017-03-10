@@ -23,24 +23,34 @@ import {
   AcceptInviteContainer
 } from 'containers'
 
-const UserAuthenticated = UserAuthWrapper({
-  authSelector: getAuth,
-  redirectAction: routerActions.replace,
-  wrapperDisplayName: 'UserAuthenticated'
-})
+const
+  UserAuthenticated = UserAuthWrapper({
+    authSelector: getAuth,
+    redirectAction: routerActions.replace,
+    wrapperDisplayName: 'UserAuthenticated'
+  }),
 
-const OrgsLoaded = UserAuthWrapper({
-  authSelector: getOrgs,
-  redirectAction: routerActions.replace,
-  wrapperDisplayName: 'OrgsLoaded'
-})
+  OrgsLoaded = UserAuthWrapper({
+    authSelector: getOrgs,
+    redirectAction: routerActions.replace,
+    wrapperDisplayName: 'OrgsLoaded'
+  }),
 
-const OrgSelected = UserAuthWrapper({
-  authSelector: getCurrentOrgSlug,
-  failureRedirectPath: "/select_org",
-  redirectAction: routerActions.replace,
-  wrapperDisplayName: 'OrgSelected'
-})
+  OrgSelected = UserAuthWrapper({
+    authSelector: getCurrentOrgSlug,
+    failureRedirectPath: "/select_org",
+    redirectAction: routerActions.replace,
+    wrapperDisplayName: 'OrgSelected'
+  }),
+
+  assocSubRoutes = ()=> {
+    return <Route path=":role">
+      <Route path="add">
+        <Route path="new" />
+        <Route path="existing" />
+      </Route>
+    </Route>
+  }
 
 export default class Routes extends React.Component {
 
@@ -56,6 +66,8 @@ export default class Routes extends React.Component {
   render(){
     return <Provider store={store}>
       <Router history={history}>
+        <IndexRedirect to="/login" />
+
         <Route path="/login" component={LoginContainer} />
 
         <Route path="/signup" component={RegistrationContainer} />
@@ -63,8 +75,6 @@ export default class Routes extends React.Component {
         <Route path="/accept_invite/:emailbs64/:token" component={AcceptInviteContainer} />
 
         <Route path="/select_org" component={OrgsLoaded(UserAuthenticated(SelectOrgContainer))} />
-
-        <Route path="/" onEnter={::this.redirectIndex} />
 
         <Route path="/:orgSlug" component={OrgSelected(UserAuthenticated(MainContainer))}>
 
@@ -74,13 +84,21 @@ export default class Routes extends React.Component {
 
             <IndexRedirect to="environments" />
 
-            <Route path="environments" component={EnvManagerContainerFactory({parentType: "app"})} />
+            <Route path="environments" component={EnvManagerContainerFactory({parentType: "app"})} >
 
-            <Route path="collaborators" component={AssocManagerContainerFactory({parentType: "app", assocType: "user", isManyToMany: true})} />
+              <Route path="add_var" />
 
-            <Route path="servers" component={AssocManagerContainerFactory({parentType: "app", assocType: "server"})} />
+              <Route path="add_block" />
 
-            <Route path="integration" />
+            </Route>
+
+            <Route path="keys" component={AssocManagerContainerFactory({parentType: "app", assocType: "server"})} >
+              {assocSubRoutes()}
+            </Route>
+
+            <Route path="collaborators" component={AssocManagerContainerFactory({parentType: "app", assocType: "user", isManyToMany: true})} >
+              {assocSubRoutes()}
+            </Route>
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "app"})}/>
 
@@ -92,9 +110,15 @@ export default class Routes extends React.Component {
 
             <IndexRedirect to="environments" />
 
-            <Route path="environments" component={EnvManagerContainerFactory({parentType: "service"})} />
+            <Route path="environments" component={EnvManagerContainerFactory({parentType: "service"})} >
 
-            <Route path="apps" component={AssocManagerContainerFactory({parentType: "service", assocType: "app", isManyToMany: true})} />
+              <Route path="add_var" />
+
+            </Route>
+
+            <Route path="apps" component={AssocManagerContainerFactory({parentType: "service", assocType: "app", isManyToMany: true})} >
+              {assocSubRoutes()}
+            </Route>
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "service"})}/>
 
@@ -106,7 +130,9 @@ export default class Routes extends React.Component {
 
             <IndexRedirect to="apps" />
 
-            <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", isManyToMany: true})} />
+            <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", isManyToMany: true})} >
+              {assocSubRoutes()}
+            </Route>
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "user"})}/>
 

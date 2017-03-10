@@ -42,7 +42,7 @@ export default class AssocColumn extends React.Component {
       return h.button({
         onClick: e => this.setState((state, props)=>({addMode: !state.addMode}))
       }, [
-        h.span(this.state.addMode ? "×" : this.props.columnsConfig.addLabel)
+        h.span(this.state.addMode ? "⨉" : this.props.columnsConfig.addLabel)
       ])
     }
   }

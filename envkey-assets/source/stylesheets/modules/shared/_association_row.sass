@@ -2,7 +2,7 @@
   box-sizing: border-box
   width: 100%
   border-bottom: 1px solid rgba(#000, 0.05)
-  padding: 13px 15px
+  // padding: 13px 15px
   height: $app-tab-height
   position: relative
 
@@ -11,8 +11,10 @@
 
   .remove
     position: absolute
+    top: 13px
+    left: 12px
     img
-      width: 21px
+      width: 19px
       opacity: 0.15
       transition: opacity 0.15s linear
 
@@ -21,7 +23,11 @@
       opacity: 0.6
 
   .top-row
+    padding: 13px 15px 0 15px
     margin-bottom: 12px
+
+  .bottom-row
+    padding: 0 15px 13px
 
   .primary
     a
@@ -50,11 +56,8 @@
 
       em
         font-style: normal
-
-        &.granted
-          color: rgba($darker-blue, 0.95)
-        &.pending
-          color: $light-blue
+        color: hsl(0,0,30)
+        font-weight: 400
 
   .small-label
     font-family: $heading-condensed-font
@@ -77,6 +80,6 @@
   //   bottom: 8px
 
   &.deletable .top-row
-    padding-left: 30px
+    padding-left: 39px
 
 

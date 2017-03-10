@@ -24,7 +24,11 @@
     &:first-of-type
       margin: 0
 
-    &.add-var
+    &.add-var.selected
+      font-size: 16px
+      background: hsl(0,0,15)
+      &:hover
+        background: #000
 
     &.add-service
 
@@ -81,6 +85,43 @@
       color: hsl(0,0,90)
       pointer-events: none
 
+  .updating-env-msg
+    float: right
+    opacity: 0
+    transition: opacity 0.3s ease-in
+    display: inline-block
+    height: 100%
+    margin-right: 25px
+
+    padding-left: 30px
+    position: relative
+
+    > span
+      color: rgba(#fff, 0.9)
+      font-family: $heading-condensed-font
+      text-transform: uppercase
+      font-weight: 600
+      font-size: 11px
+      position: relative
+      top: 11px
+
+    .broadcast-loader
+      position: absolute
+      top: calc(50% - 10px)
+      left: 0
+      opacity: 0.8
+
+      > svg
+        width: 20px
+        height: 20px
+
+        circle, path
+          fill: $light-orange
+
+.updating-env .env-header
+  .updating-env-msg
+    opacity: 1
+
 .service-parent .env-header
   .filter
     position: absolute
@@ -88,6 +129,10 @@
     border-bottom: 1px solid rgba(#000,0.05)
 
 .environments
-  .add-service, .add-var
+  .add-service
     .env-header button.split-strong.selected
       color: $lighter-blue
+
+
+
+

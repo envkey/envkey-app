@@ -1,12 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { register } from 'actions'
+import { register, appLoaded } from 'actions'
+import {Link} from 'react-router'
 import R from 'ramda'
 
 class Registration extends React.Component {
 
   componentDidMount() {
     this.refs.orgName.focus()
+    this.props.onLoad()
   }
 
   onSubmit(e){
@@ -21,33 +23,48 @@ class Registration extends React.Component {
   }
 
   render(){
-    return <form onSubmit={::this.onSubmit}>
+    return <form className="auth-form signup" onSubmit={::this.onSubmit}>
       <h2>Create your organization.</h2>
 
-      <input ref="orgName"
-             placeholder="Organization name"
-             required />
+      <fieldset>
+        <input ref="orgName"
+               placeholder="Organization name"
+               required />
+      </fieldset>
 
-      <input ref="firstName"
-             placeholder="Your first name"
-             required />
+      <fieldset>
+        <input ref="firstName"
+               placeholder="Your first name"
+               required />
+      </fieldset>
 
-      <input ref="lastName"
-             placeholder="Your last name"
-             required />
+      <fieldset>
+        <input ref="lastName"
+               placeholder="Your last name"
+               required />
+      </fieldset>
 
-      <input ref="email"
-             type="email"
-             placeholder="Your email"
-             required />
+      <fieldset>
+        <input ref="email"
+               type="email"
+               placeholder="Your email"
+               required />
+      </fieldset>
 
-      <input ref="password"
-             type="password"
-             placeholder="Your password (10-256 characters)"
-             pattern=".{10,256}"
-             required />
+      <fieldset>
+        <input ref="password"
+               type="password"
+               placeholder="Your password (10-256 characters)"
+               pattern=".{10,256}"
+               required />
+      </fieldset>
 
       {this._renderSubmit()}
+
+      <div className="auth-toggle">
+        <p> Already have an account? </p>
+        <Link to="/login"> Login </Link>
+      </div>
     </form>
   }
 
@@ -64,6 +81,7 @@ const mapStateToProps = state => R.pick(['isAuthenticating'], state)
 
 const mapDispatchToProps = dispatch => {
   return {
+    onLoad: ()=> dispatch(appLoaded()),
     onSubmit: (params) => dispatch(register(params))
   }
 }

@@ -5,8 +5,9 @@ import {imagePath} from 'lib/ui'
 
 const config = {
   environments: ["environments", "Environments", 34, 26],
-  collaborators: ["collaborators", "Collaborators", 28, 36, {objectPermissionPath: ["appUsers", "read"]}],
-  servers: ["servers", "Servers", 34, 39, {objectPermissionPath: ["servers", "read"]}],
+  collaborators: ["collaborators", "Collaborators", 30.8, 39.6, {objectPermissionPath: ["appUsers", "read"]}],
+  // servers: ["servers", "Servers", 34, 39, {objectPermissionPath: ["servers", "read"]}],
+  keys: ["keys", "Keys", 49.275, 23.625],
   integration: ["integration", "Integrate", 52, 25],
   settings: ["settings", "Settings", 33, 33, {objectPermissionPath: ["updateSettings"]}],
   apps: ["apps", "Applications", 36, 32],

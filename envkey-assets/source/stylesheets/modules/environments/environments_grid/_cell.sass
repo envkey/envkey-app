@@ -1,4 +1,4 @@
-.env-grid, .entry-form
+.env-grid
   .cell
     box-sizing: border-box
     transition: box-shadow 0.1s linear
@@ -9,8 +9,29 @@
       font-family: $code-font
 
     &:hover, &:last-of-type:hover
-      border: 1px solid rgba($light-blue, 0.6)
-      box-shadow: inset 0px 0px 2px rgba($light-blue, 0.9)
+      +cell-glow($light-blue)
+
+    > div
+      width: 100%
+      height: 100%
+
+    .val, .small-loader
+      display: block
+      position: relative
+      top: 50%
+      transform: translateY(-50%)
+
+    .val
+      white-space: nowrap
+      overflow: hidden
+      line-height: 110%
+
+    &.val-cell
+      .small-loader
+        position: absolute
+        left: 10px
+      &:hover .small-loader
+        left: 40px
 
   .entry-col .cell
     border-bottom: 1px solid rgba(#000,0.05)
@@ -30,8 +51,7 @@
         border-bottom: 1px solid rgba($light-blue, 0.6)
 
     &.var:hover, &.var:last-of-type:hover
-      border: 1px solid rgba($light-blue, 0.6)
-      box-shadow: inset 0px 0px 2px rgba($light-blue, 0.9)
+      +cell-glow($light-blue)
 
     &, span, input
       font-size: 11.5px
@@ -93,9 +113,9 @@
       opacity: 0
       pointer-events: none
 
+  .cell.editing, .cell.updating
     &, &:last-of-type, &:hover, &:last-of-type:hover
-      border: 1px solid rgba($light-orange, 0.6) !important
-      box-shadow: inset 0px 0px 2px rgba($light-orange, 0.9) !important
+      +cell-glow($light-orange)
 
   .cell.deleted
     .actions-overlay
@@ -142,6 +162,14 @@
   .cell small
     font-family: $default-font
     color: hsl(0,0,80)
+
+    em
+      font-style: italic
+
+    .optional
+      margin-left: 5px
+      font-size: 9.5px
+      opacity: 0.9
 
 
 

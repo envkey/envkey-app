@@ -33,25 +33,26 @@
     img
       opacity: 0.3
 
-    &:hover img
-      opacity: 0.8
+    &:hover
+      img
+        opacity: 0.8
+      .img-bg-wrap
+        background: #fff
 
-  img
+  img, .img-bg-wrap
     position: relative
     width: 20px
     height: 20px
     top: 50%
     transform: translateY(-50%)
+    z-index: 2
 
   .img-bg-wrap
     background: rgba(#fff, 0.8)
-    width: 25px
+    border-radius: 20px
     display: inline-block
-    height: 90%
-    position: relative
-    top: 5%
-    text-align: center
-    z-index: 2
+    z-index: 1
+    position: absolute
 
 .cell:hover .actions-overlay
   opacity: 1

@@ -1,1 +1,51 @@
-.entry-form
+.env-grid .entry-form
+  .entry-row
+    box-sizing: border-box
+    border-top: 1px solid transparent
+    border-bottom: 1px solid transparent
+
+  .cell
+    position: relative
+    top: -1px
+
+  .cell.val-cell:not(:hover):not(.editing)
+    box-sizing: border-box
+    border-bottom: 1px solid transparent !important
+    border-top: 1px solid transparent !important
+
+  .cell.entry-cell.editing
+    &, &:hover
+      border: 1px solid transparent !important
+      box-shadow: none !important
+
+  .cell.entry-cell:not(.editing) input
+    pointer-events: none
+    position: relative
+    left: -10px
+
+  .entry-row.editing-entry
+    +cell-glow($light-orange)
+
+    .cell.entry-cell:hover
+      border: 1px solid transparent !important
+      box-shadow: none !important
+
+  .submit-row
+    height: 36px
+    background: hsl(0,0,96)
+
+  .submit
+    width: 25%
+    height: calc(100% + 1px)
+    position: relative
+    top: -2px
+    border-radius: 0
+    background: $orange
+    outline: none
+    &:hover
+      background: darken(desaturate($orange, 5%), 5%)
+
+  .cell.entry-cell .actions-overlay > span.edit
+    width: calc(100% - 30px)
+    padding-right: 10px
+

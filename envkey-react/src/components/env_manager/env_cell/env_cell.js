@@ -14,7 +14,7 @@ export default class EnvCell extends React.Component {
   _classNames(){
     return [
       "cell",
-      (this.props.updating ? "updating" : "")
+      (this.props.isUpdating ? "updating" : "")
     ]
   }
 
@@ -31,16 +31,11 @@ export default class EnvCell extends React.Component {
   }
 
   _renderCellContents(){
-    if(this.props.isUpdating){
-      return [
-        h(SmallLoader)
-      ]
-    } else {
-      return [
-        this._renderVal(),
-        this._renderActions()
-      ]
-    }
+    return [
+      // this.props.isUpdating ? h(SmallLoader) : "",
+      this._renderVal(),
+      this._renderActions()
+    ]
   }
 
   _renderActions(){
@@ -49,6 +44,7 @@ export default class EnvCell extends React.Component {
 
   _renderAction({type, onClick, img}, i){
     return h.span({className: type, key: i, onClick}, [
+      h.span(".img-bg-wrap"),
       h.img({src: imagePath(img)})
     ])
   }

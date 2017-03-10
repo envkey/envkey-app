@@ -14,6 +14,10 @@ export default class ValCell extends EnvCell {
     ])
   }
 
+  _undefinedVal(){
+    return h.small("undefined")
+  }
+
   _valDisplay(){
     if(this.props.inherits){
       return h.span([
@@ -23,14 +27,14 @@ export default class ValCell extends EnvCell {
     }
 
     if(this.props.val === null){
-      return h.img({src: imagePath("x-black.png")})
+      return this._undefinedVal()
     }
 
     if(this.props.val === ""){
       return h.small("empty string")
     }
 
-    if(this.props.hideValues){
+    if(!this.props.isUpdating && this.props.hideValues){
       return "●●●●●●●●●●●●";
     } else {
       return this.props.val

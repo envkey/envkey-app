@@ -34,7 +34,6 @@ const SettingsFormContainerFactory = ({objectType})=> {
     SettingsFormContainer = props => h.div(".settings", [h(formClass, props)]),
 
     mapStateToProps = (state, ownProps) => {
-      console.log("settings form mapStateToProps")
       const obj = ownProps[objectType],
             props = {
               [objectType]: obj,

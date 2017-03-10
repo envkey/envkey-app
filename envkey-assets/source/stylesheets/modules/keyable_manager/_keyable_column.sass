@@ -37,20 +37,26 @@
       float: right
       box-sizing: border-box
       width: 40px
-      font-size: 29px
+      font-size: 25px
       font-weight: 100
       border: 1px dashed rgba($dark-blue, 0.5)
       background: #fff
       color:  rgba($dark-blue, 0.9)
       transition: background 0.15s ease-out, color 0.15s ease-out
       outline: none
-      position: relative
+
+      > span
+        position: relative
+        top: 1px
 
       &:hover
         background: rgba($dark-blue, 0.05)
 
     .small-loader
       float: right
+
+  .column-body
+    height: calc(100% - #{$app-tab-height * 2})
 
   &.admin .column-header .title em
     color: $orange
@@ -64,7 +70,7 @@
   &.show-add-keyable .column-header .head > button
     background: $darker-blue
     color: #fff
-    // font-size: 20px
+    font-size: 16px
 
   .permissions
     height: $app-tab-height
@@ -72,20 +78,24 @@
     box-sizing: border-box
     padding: 0 15px
 
-    ul, span
+    ul
       display: block
       position: relative
       top: 50%
       transform: translateY(-50%)
 
-    li, span
+    li
       font-size: 11px
       color: hsl(0,0,50)
-      line-height: 142.5%
+      line-height: 150%
 
-    li::before
-      content: "-"
-      margin-right: 5px
+      &::before
+        content: "-"
+        display: inline
+        margin-right: 5px
+
+      span > strong
+        font-weight: 600
 
   .sections
     height: calc(100% - #{$app-tab-height * 2})
@@ -107,6 +117,9 @@
 
 .association-manager.app-server
   .keyable-column
+    .column-body
+      height: calc(100% - #{$app-tab-height * 1.5})
+
     &.production .column-header .head .title em
       color: $light-blue
 
@@ -114,7 +127,7 @@
       color: $darker-blue
 
     &.development .column-header .head .title em
-      color: lighten($dark-text, 42.5%)
+      color: lighten($dark-text, 25%)
 
   .permissions
     height: $app-tab-height / 2

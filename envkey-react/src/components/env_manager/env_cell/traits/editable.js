@@ -28,7 +28,7 @@ const Editable = Cell => class extends Cell {
 
   componentWillReceiveProps(nextProps){
     if(super.componentWillReceiveProps)super.componentWillReceiveProps(nextProps)
-    if (!nextProps.isEditing && !nextProps.isUpdating){
+    if ((!nextProps.isEditing && !nextProps.isUpdating) || this.props.val != nextProps.val){
       this.setState({inputVal: defaultInputVal(nextProps)})
     }
   }
@@ -90,10 +90,9 @@ const Editable = Cell => class extends Cell {
   }
 
   _renderCellContents(){
-    const base = (this.props.isEditing ? [this._renderInput()] : super._renderCellContents())
-    return base.concat([
-      this._renderCommitPrompt()
-    ])
+    return this.props.isEditing ?
+      [this._renderInput()] :
+      super._renderCellContents()
   }
 
   _renderInput(){
@@ -106,18 +105,18 @@ const Editable = Cell => class extends Cell {
     })
   }
 
-  _renderCommitPrompt(){
-    if (this.state.showCommitPrompt){
-      const className = "commit-prompt " + (this.state.showCommitPrompt ? "show" : "")
+  // _renderCommitPrompt(){
+  //   if (this.state.showCommitPrompt){
+  //     const className = "commit-prompt " + (this.state.showCommitPrompt ? "show" : "")
 
-      return h.div({className}, [
-        h.div(".col-left",[
-          h.span([h.em("esc"), "to cancel"]),
-          h.span([h.em("enter"), "to commit"])
-        ])
-      ])
-    }
-  }
+  //     return h.div({className}, [
+  //       h.div(".col-left",[
+  //         h.span([h.em("esc"), "to cancel"]),
+  //         h.span([h.em("enter"), "to commit"])
+  //       ])
+  //     ])
+  //   }
+  // }
 }
 
 export default Editable

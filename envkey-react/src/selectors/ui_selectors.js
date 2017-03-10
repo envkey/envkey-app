@@ -1,5 +1,6 @@
 import R from 'ramda'
 import db from 'lib/db'
+import {flattenObj} from 'lib/utils/object'
 
 export const
 
@@ -20,6 +21,15 @@ export const
   },
 
   getIsGeneratingAssocKey = (id, state)=> db.path("isGeneratingAssocKey", id)(state),
+
+  getIsUpdatingEnv = (parentId, state)=> {
+    return R.pipe(
+      db.path("isUpdatingEnv"),
+      R.propOr({}, parentId),
+      flattenObj,
+      R.complement(R.isEmpty)
+    )(state)
+  },
 
   getIsUpdatingEnvVal = ({parentId, entryKey, environment}, state)=>{
     return db.path("isUpdatingEnv", parentId, entryKey, environment)(state)

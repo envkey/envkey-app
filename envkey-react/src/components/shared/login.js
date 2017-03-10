@@ -1,9 +1,11 @@
 import React from 'react'
+import {Link} from 'react-router'
 
 export default class Login extends React.Component {
 
   componentDidMount() {
-    this.refs.email.focus();
+    this.refs.email.focus()
+    this.props.onLoad()
   }
 
   onSubmit(e){
@@ -15,20 +17,28 @@ export default class Login extends React.Component {
   }
 
   render(){
-    return <form onSubmit={::this.onSubmit}>
+    return <form className="auth-form login" onSubmit={::this.onSubmit}>
+      <fieldset>
+        <input ref="email"
+               type="email"
+               placeholder="Your email"
+               required />
+      </fieldset>
 
-      <input ref="email"
-             type="email"
-             placeholder="Your email"
-             required />
+      <fieldset>
+        <input ref="password"
+               type="password"
+               placeholder="Your password (10-256 characters)"
+               pattern=".{10,256}"
+               required />
+      </fieldset>
 
-      <input ref="password"
-             type="password"
-             placeholder="Your password (8-256 characters)"
-             pattern=".{8,256}"
-             required />
+      <fieldset>{this.renderSubmit()}</fieldset>
 
-      {this.renderSubmit()}
+      <div className="auth-toggle">
+        <p> Don't have an account? </p>
+        <Link to="/signup"> Sign Up </Link>
+      </div>
     </form>
   }
 

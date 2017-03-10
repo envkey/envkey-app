@@ -13,7 +13,7 @@ build_env =
 
 if build_env == "development"
   use ::Rack::Rewrite do
-    rewrite %r{^\/(?!stylesheets|images|fonts|__rack|openpgp)(.*)}, '/index.html'
+    rewrite %r{^\/(?!stylesheets|images|fonts|javascripts|__rack|openpgp)(.*)}, '/index.html'
   end
 end
 
@@ -49,7 +49,10 @@ set :fonts_dir, 'fonts'
 
 # Reload the browser automatically whenever files change
 configure :development do
-  activate :livereload
+  activate :livereload,
+           livereload_css_pattern: Regexp.new('.+\.sass$'),
+           livereload_css_target: '/stylesheets/application.css'
+
   activate :sprockets
 end
 
@@ -74,5 +77,5 @@ configure :build do
   # activate :asset_hash
 
   #Use relative URLs
-  activate :relative_assets
+  # activate :relative_assets
 end

@@ -1,13 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {acceptInvite} from 'actions'
+import {appLoaded, acceptInvite} from 'actions'
 import R from 'ramda'
 import {Base64} from 'js-base64'
 
 class AcceptInvite extends React.Component {
 
   componentDidMount() {
-    this.refs.password.focus();
+    this.refs.password.focus()
+    this.props.onLoad()
   }
 
   onSubmit(e){
@@ -47,6 +48,7 @@ const mapStateToProps = state => R.pick(['isAuthenticating'], state)
 
 const mapDispatchToProps = dispatch => {
   return {
+    onLoad: ()=> dispatch(appLoaded()),
     onSubmit: (params) => dispatch(acceptInvite(params))
   }
 }

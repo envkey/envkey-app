@@ -44,9 +44,9 @@ const
 export const
   addAssoc = createAction(
     ADD_ASSOC_REQUEST,
-    ({parentType, assocType, assocId, role})=> {
-      const k = [parentType, assocType].join("_"),
-            obj =  {role, [`${assocType}Id`]: assocId}
+    ({parentType, assocType, assocId, role, name})=> {
+      const k = assocType == "server" ? "server" : [parentType, assocType].join("_"),
+            obj =  {role, name, [`${assocType}Id`]: assocId}
       return {[k]: obj}
     },
     pickMeta

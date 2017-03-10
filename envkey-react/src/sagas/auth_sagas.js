@@ -3,6 +3,7 @@ import {push} from 'react-router-redux'
 import R from 'ramda'
 import {apiSaga, envParamsForInvitee} from './helpers'
 import {
+  APP_LOADED,
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
@@ -25,13 +26,14 @@ import {
   ACCEPT_INVITE_FAILED,
   HASH_USER_PASSWORD,
   HASH_USER_PASSWORD_SUCCESS,
-  GENERATE_USER_KEY,
-  GENERATE_USER_KEY_SUCCESS,
+  GENERATE_USER_KEYPAIR,
+  GENERATE_USER_KEYPAIR_SUCCESS,
   SELECT_ORG,
   GRANT_ENV_ACCESS,
   GRANT_ENV_ACCESS_REQUEST,
   GRANT_ENV_ACCESS_SUCCESS,
   GRANT_ENV_ACCESS_FAILED,
+  appLoaded,
   login,
   selectOrg,
   decryptPrivkey,
@@ -112,6 +114,10 @@ const
     urlFn: (action)=> `/org_users/${action.meta.orgUserId}/grant_env_access.json`
   })
 
+function *onAppLoaded(){
+  document.getElementById("preloader-overlay").className = "hide"
+}
+
 function *onLogin({payload}){
   yield put({type: HASH_USER_PASSWORD, payload})
   const {payload: {hashedPassword}} = yield take(HASH_USER_PASSWORD_SUCCESS)
@@ -125,12 +131,12 @@ function *onLogin({payload}){
 function *hashPasswordAndGenerateKeys(payload){
   yield [
     put({type: HASH_USER_PASSWORD, payload}),
-    put({type: GENERATE_USER_KEY, payload})
+    put({type: GENERATE_USER_KEYPAIR, payload})
   ]
 
   const [{payload: {hashedPassword}}, {payload: {pubkey, encryptedPrivkey}}] = yield [
     take(HASH_USER_PASSWORD_SUCCESS),
-    take(GENERATE_USER_KEY_SUCCESS)
+    take(GENERATE_USER_KEYPAIR_SUCCESS)
   ]
 
   return {hashedPassword, pubkey, encryptedPrivkey}
@@ -169,7 +175,7 @@ function *onHashUserPassword({payload: {email, password}}){
   yield put({type: HASH_USER_PASSWORD_SUCCESS, payload: {email, hashedPassword}})
 }
 
-function *onGenerateUserKey({payload: {email, password}}){
+function *onGenerateUserKeypair({payload: {email, password}}){
   const {
     privateKeyArmored: encryptedPrivkey,
     publicKeyArmored: pubkey
@@ -178,7 +184,7 @@ function *onGenerateUserKey({payload: {email, password}}){
     passphrase: password
   })
 
-  yield put({type: GENERATE_USER_KEY_SUCCESS, payload: {encryptedPrivkey, pubkey}})
+  yield put({type: GENERATE_USER_KEYPAIR_SUCCESS, payload: {encryptedPrivkey, pubkey}})
 }
 
 function *onAcceptInviteSuccess({meta: {rawPassword, requestPayload: {email, password}}}){
@@ -249,6 +255,7 @@ function *onDecrypt(action){
 }
 
 function *onFetchCurrentUserSuccess(action){
+  yield put(appLoaded())
   const privkey = yield select(getPrivkey)
   if(privkey)yield call(dispatchDecryptEnvsIfNeeded)
 }
@@ -271,6 +278,7 @@ function *onGrantEnvAccess({payload: invitees}){
 
 export default function* authSagas(){
   yield [
+    takeLatest(APP_LOADED, onAppLoaded),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
     takeLatest(LOGIN, onLogin),
@@ -288,7 +296,7 @@ export default function* authSagas(){
     takeLatest(ACCEPT_INVITE_REQUEST, onAcceptInviteRequest),
     takeLatest(ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
     takeLatest(HASH_USER_PASSWORD, onHashUserPassword),
-    takeLatest(GENERATE_USER_KEY, onGenerateUserKey),
+    takeLatest(GENERATE_USER_KEYPAIR, onGenerateUserKeypair),
     takeLatest(GRANT_ENV_ACCESS, onGrantEnvAccess),
     takeLatest(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest)
   ]

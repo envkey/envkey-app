@@ -11,7 +11,7 @@ export const
 
   getServerGroupsForApp = db.apps.hasMany("servers", {
     groupBy: "role",
-    sortBy: "name"
+    sortBy: "createdAt"
   }),
 
   getAppUserBy = ({userId, appId}, state)=>{
