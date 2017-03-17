@@ -8,6 +8,8 @@ var isProd = process.env.PRODUCTION_BUILD == "true",
     env = dotenv.load({path: `./.env.${buildEnv}`}),
     defineParams = { NODE_ENV: JSON.stringify(process.env.NODE_ENV), BUILD_ENV: JSON.stringify(buildEnv) }
 
+console.log("buildEnv: ", buildEnv)
+
 for (k in env) defineParams[k] = JSON.stringify(env[k]);
 
 var plugins = [

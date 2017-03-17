@@ -87,6 +87,7 @@ export const isAddingAssoc = (state = {}, action)=>{
 
     case ADD_ASSOC_SUCCESS:
     case ADD_ASSOC_FAILED:
+    case CREATE_ASSOC_SUCCESS:
     case CREATE_ASSOC_FAILED:
       return R.dissocPath([action.meta.parentId,
                            action.meta.assocType,
