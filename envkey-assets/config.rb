@@ -51,7 +51,8 @@ set :fonts_dir, 'fonts'
 configure :development do
   activate :livereload,
            livereload_css_pattern: Regexp.new('.+\.sass$'),
-           livereload_css_target: '/stylesheets/application.css'
+           livereload_css_target: '/stylesheets/application.css',
+           port: 35739
 
   activate :sprockets
 end

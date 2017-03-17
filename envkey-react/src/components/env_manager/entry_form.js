@@ -14,6 +14,12 @@ export default class EntryForm extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps){
+    if (this.props.parent.id != nextProps.parent.id){
+      this.refs.entryFormRow.reset()
+    }
+  }
+
   render(){
     return h.div(".entry-form", [
 
@@ -27,11 +33,7 @@ export default class EntryForm extends React.Component {
   }
 
   _renderSubmit(){
-    if(this.props.isSubmitting){
-      return h(SmallLoader)
-    } else {
-      return h.button(".submit",{onClick: ::this._onSubmit}, "Add Var")
-    }
+    return h.button(".submit",{onClick: ::this._onSubmit}, "Add Var")
   }
 
 }

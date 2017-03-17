@@ -13,6 +13,21 @@ const SelectedObjectContainerFactory = ({objectType})=> {
 
   class SelectedObjectContainer extends React.Component {
 
+    constructor(props){
+      super(props)
+      this.state = {showTransitionOverlay: false}
+    }
+
+    componentWillReceiveProps(nextProps){
+      const pathFn = R.path([objectType, "id"])
+      if (pathFn(this.props) != pathFn(nextProps)){
+        this.setState({showTransitionOverlay: true})
+        setTimeout(()=>{ this.setState({showTransitionOverlay: false}) }, 1)
+
+
+      }
+    }
+
     render(){
       let path
       const tabs = R.pluck("path", this.props.route.childRoutes),
@@ -28,6 +43,7 @@ const SelectedObjectContainerFactory = ({objectType})=> {
       }
 
       return h.div(".selected-object-container.show-page", [
+        h.div(".transition-overlay", {className: (this.state.showTransitionOverlay ? "" : "hide")}),
         h(SelectedTabs, {...R.pick(["permissions"], this.props), objectPermissions: obj.permissions, tabs, path, selectedTab}),
         childrenWithProps(this.props.children, this.props)
       ])
@@ -54,13 +70,7 @@ const SelectedObjectContainerFactory = ({objectType})=> {
     }
   }
 
-  const mapDispatchToProps = dispatch => {
-    return {
-    }
-  }
-
-
-  return connect(mapStateToProps, mapDispatchToProps)(SelectedObjectContainer)
+  return connect(mapStateToProps)(SelectedObjectContainer)
 }
 
 export default SelectedObjectContainerFactory

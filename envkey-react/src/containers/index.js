@@ -8,3 +8,5 @@ export {default as EnvManagerContainerFactory} from './env_manager_container_fac
 export {default as AssocManagerContainerFactory } from './assoc_manager_container_factory'
 export {default as ObjectFormContainerFactory } from './object_form_container_factory'
 export {default as SettingsFormContainerFactory } from './settings_form_container_factory'
+export {default as DevKeyManagerContainer} from './dev_key_manager_container'
+export {default as AwaitingAccessContainer} from './awaiting_access_container'

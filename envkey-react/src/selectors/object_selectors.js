@@ -2,12 +2,18 @@ import db from 'lib/db'
 import { defaultMemoize } from 'reselect'
 import R from 'ramda'
 import { orgRoleGroupLabel } from 'lib/ui'
+import moment from 'moment'
 
 db.init("apps", "services", "users", "appUsers", "servers", "appServices")
 
 export const
 
   getApps = db.apps.list({sortBy: "name"}),
+
+  getAppsSortedByUpdatedAt = db.apps.list({
+    sortBy: ({updatedAt})=> moment(updatedAt).valueOf(),
+    reverse: true
+  }),
 
   getServerGroupsForApp = db.apps.hasMany("servers", {
     groupBy: "role",

@@ -70,10 +70,10 @@ export default class Sidebar extends React.Component {
                                           groupLabelFn: orgRoleGroupLabel})}
 
             {this._renderMenuListSection("apps",
-                                         "Application",
+                                         "App",
                                          this.props.apps,
                                          {pathFn: (item => `/${this.props.currentOrg.slug}/apps/${item.slug}/environments`),
-                                          newBtnLabel: "New Application"})}
+                                          newBtnLabel: "New App"})}
 
           </section>
 

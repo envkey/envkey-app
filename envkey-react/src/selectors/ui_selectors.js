@@ -4,6 +4,8 @@ import {flattenObj} from 'lib/utils/object'
 
 export const
 
+  getCurrentRoute = db.path("routing", "locationBeforeTransitions"),
+
   getIsRemoving = (id, state)=> db.path("isRemoving", id)(state),
 
   getIsCreating = ({objectType, parentId, assocType, role}, state)=> {
@@ -23,7 +25,7 @@ export const
   getIsGeneratingAssocKey = (id, state)=> db.path("isGeneratingAssocKey", id)(state),
 
   getIsUpdatingEnv = (parentId, state)=> {
-    return R.pipe(
+    return getIsCreatingEnvEntry(parentId, state) || R.pipe(
       db.path("isUpdatingEnv"),
       R.propOr({}, parentId),
       flattenObj,

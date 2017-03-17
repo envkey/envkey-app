@@ -18,7 +18,7 @@ const
             [assocId]: {env: encryptedRawEnv}
           }
         }
-      case "user":
+      case "appUser":
         return {
           users: {
             [assocId]: {
@@ -33,6 +33,7 @@ const
     "parent",
     "parentType",
     "assocType",
+    "joinType",
     "parentId",
     "assocId",
     "targetId",
@@ -44,8 +45,8 @@ const
 export const
   addAssoc = createAction(
     ADD_ASSOC_REQUEST,
-    ({parentType, assocType, assocId, role, name})=> {
-      const k = assocType == "server" ? "server" : [parentType, assocType].join("_"),
+    ({joinType, assocType, assocId, role, name})=> {
+      const k = assocType == "server" ? "server" : joinType,
             obj =  {role, name, [`${assocType}Id`]: assocId}
       return {[k]: obj}
     },
@@ -65,6 +66,7 @@ export const
   generateKeyRequest = createAction(
     GENERATE_ASSOC_KEY_REQUEST,
     ({encryptedPrivkey, pubkey, encryptedRawEnv, assocId, assocType, parentId})=> {
+
       return {
         [assocType]: {encryptedPrivkey, pubkey},
         envs: keyRequestEnv({appId: parentId, assocType, assocId, encryptedRawEnv})

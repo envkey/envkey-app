@@ -9,7 +9,7 @@ const Editable = Cell => class extends Cell {
     super(props)
 
     this.state = {
-      ...this.state,
+      ...(this.state || {}),
       showCommitPrompt: false,
       inputVal: defaultInputVal(props)
     }
@@ -35,7 +35,6 @@ const Editable = Cell => class extends Cell {
 
   _onEdit(){
     this.props.onEditCell(this.props.entryKey, this.props.environment)
-    if(this.props.needsCommitPrompt)this._flashCommitPrompt()
   }
 
   _onInputChange(e){
@@ -70,11 +69,6 @@ const Editable = Cell => class extends Cell {
 
   _handleDownArrow(){}
 
-  _flashCommitPrompt(){
-    this.setState({showCommitPrompt: true})
-    setTimeout(this.setState.bind(this, {showCommitPrompt: false}), 2500)
-  }
-
   _commit(update){}
 
   _actions(){
@@ -90,33 +84,19 @@ const Editable = Cell => class extends Cell {
   }
 
   _renderCellContents(){
-    return this.props.isEditing ?
-      [this._renderInput()] :
-      super._renderCellContents()
+    return this.props.isEditing ? [this._renderInput()] : super._renderCellContents()
   }
 
   _renderInput(){
     return h.input(".cell-input", {
       ref: "input",
+      spellCheck: "false",
       placeholder: this._inputPlaceholder(),
       value: this.state.inputVal,
       onChange: ::this._onInputChange,
       onKeyDown: ::this._onInputKeydown
     })
   }
-
-  // _renderCommitPrompt(){
-  //   if (this.state.showCommitPrompt){
-  //     const className = "commit-prompt " + (this.state.showCommitPrompt ? "show" : "")
-
-  //     return h.div({className}, [
-  //       h.div(".col-left",[
-  //         h.span([h.em("esc"), "to cancel"]),
-  //         h.span([h.em("enter"), "to commit"])
-  //       ])
-  //     ])
-  //   }
-  // }
 }
 
 export default Editable

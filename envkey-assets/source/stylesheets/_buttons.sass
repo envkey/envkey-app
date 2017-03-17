@@ -29,12 +29,12 @@ button, .button
       top: 50%
       transform: translateY(-50%)
 
-  &, *
-    cursor: pointer
+  &:not([disabled])
+    &, *
+      cursor: pointer
 
-  &:hover
+  &:not([disabled]):hover
     background: darken($darker-blue, 5%)
-
 
   &.split-strong
     font-weight: 400

@@ -1,6 +1,6 @@
 import React from 'react'
 import R from 'ramda'
-import { Router, Route, IndexRedirect } from 'react-router'
+import { Router, Route, IndexRoute, IndexRedirect } from 'react-router'
 import { Provider } from 'react-redux'
 import { routerActions, replace } from 'react-router-redux'
 import { UserAuthWrapper } from 'redux-auth-wrapper'
@@ -8,7 +8,9 @@ import {history, store} from 'init_redux'
 import {
   getAuth,
   getCurrentOrgSlug,
-  getOrgs
+  getOrgs,
+  getPermissions,
+  getApps
 } from 'selectors'
 import {
   MainContainer,
@@ -20,7 +22,8 @@ import {
   AssocManagerContainerFactory,
   ObjectFormContainerFactory,
   SettingsFormContainerFactory,
-  AcceptInviteContainer
+  AcceptInviteContainer,
+  DevKeyManagerContainer
 } from 'containers'
 
 const
@@ -41,20 +44,20 @@ const
     failureRedirectPath: "/select_org",
     redirectAction: routerActions.replace,
     wrapperDisplayName: 'OrgSelected'
-  }),
+  })
 
-  assocSubRoutes = ()=> {
-    return <Route path=":role">
-      <Route path="add">
-        <Route path="new" />
-        <Route path="existing" />
-      </Route>
-    </Route>
-  }
+  // assocSubRoutes = ()=> {
+  //   return <Route path=":role">
+  //     <Route path="add">
+  //       <Route path="new" />
+  //       <Route path="existing" />
+  //     </Route>
+  //   </Route>
+  // }
 
 export default class Routes extends React.Component {
 
-  redirectIndex(){
+  _redirectIndex(){
     const orgSlug = getCurrentOrgSlug(store.getState())
     if (orgSlug){
       store.dispatch(replace(`/${orgSlug}`))
@@ -63,10 +66,25 @@ export default class Routes extends React.Component {
     }
   }
 
+  _redirectOrgIndex(){
+    const state = store.getState(),
+          orgSlug = getCurrentOrgSlug(state),
+          permissions = getPermissions(state),
+          apps = getApps(state)
+
+    if (apps.length){
+      const {slug} = apps[0]
+      store.dispatch(replace(`/${orgSlug}/apps/${slug}`))
+    } else if (permissions.create.app){
+      store.dispatch(replace(`/${orgSlug}/apps/new`))
+    }
+  }
+
   render(){
     return <Provider store={store}>
       <Router history={history}>
-        <IndexRedirect to="/login" />
+
+        <Route path="/" onEnter={::this._redirectIndex} />
 
         <Route path="/login" component={LoginContainer} />
 
@@ -78,49 +96,23 @@ export default class Routes extends React.Component {
 
         <Route path="/:orgSlug" component={OrgSelected(UserAuthenticated(MainContainer))}>
 
+          <IndexRoute />
+
           <Route path="apps/new" component={ObjectFormContainerFactory({objectType: "app"})} />
 
           <Route path="apps/:slug" component={SelectedObjectContainerFactory({objectType: "app"})} >
 
             <IndexRedirect to="environments" />
 
-            <Route path="environments" component={EnvManagerContainerFactory({parentType: "app"})} >
+            <Route path="environments" component={EnvManagerContainerFactory({parentType: "app"})} />
 
-              <Route path="add_var" />
+            <Route path="dev_key" component={DevKeyManagerContainer} />
 
-              <Route path="add_block" />
+            <Route path="server_keys" component={AssocManagerContainerFactory({parentType: "app", assocType: "server"})} />
 
-            </Route>
-
-            <Route path="keys" component={AssocManagerContainerFactory({parentType: "app", assocType: "server"})} >
-              {assocSubRoutes()}
-            </Route>
-
-            <Route path="collaborators" component={AssocManagerContainerFactory({parentType: "app", assocType: "user", isManyToMany: true})} >
-              {assocSubRoutes()}
-            </Route>
+            <Route path="collaborators" component={AssocManagerContainerFactory({parentType: "app", assocType: "user", isManyToMany: true})} />
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "app"})}/>
-
-          </Route>
-
-          <Route path="services/new" component={ObjectFormContainerFactory({objectType: "service"})} />
-
-          <Route path="services/:slug" component={SelectedObjectContainerFactory({objectType: "service"})} >
-
-            <IndexRedirect to="environments" />
-
-            <Route path="environments" component={EnvManagerContainerFactory({parentType: "service"})} >
-
-              <Route path="add_var" />
-
-            </Route>
-
-            <Route path="apps" component={AssocManagerContainerFactory({parentType: "service", assocType: "app", isManyToMany: true})} >
-              {assocSubRoutes()}
-            </Route>
-
-            <Route path="settings" component={SettingsFormContainerFactory({objectType: "service"})}/>
 
           </Route>
 
@@ -130,9 +122,7 @@ export default class Routes extends React.Component {
 
             <IndexRedirect to="apps" />
 
-            <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", isManyToMany: true})} >
-              {assocSubRoutes()}
-            </Route>
+            <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", joinType: "appUser", isManyToMany: true})} />
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "user"})}/>
 
@@ -162,3 +152,25 @@ export default class Routes extends React.Component {
 
 
 }
+
+
+// <Route path="services/new" component={ObjectFormContainerFactory({objectType: "service"})} />
+
+// <Route path="services/:slug" component={SelectedObjectContainerFactory({objectType: "service"})} >
+
+//   <IndexRedirect to="environments" />
+
+//   <Route path="environments" component={EnvManagerContainerFactory({parentType: "service"})} >
+
+//     <Route path="add_var" />
+
+//   </Route>
+
+//   <Route path="apps" component={AssocManagerContainerFactory({parentType: "service", assocType: "app", isManyToMany: true})} >
+//     {assocSubRoutes()}
+//   </Route>
+
+//   <Route path="settings" component={SettingsFormContainerFactory({objectType: "service"})}/>
+
+// </Route>
+

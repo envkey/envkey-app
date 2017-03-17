@@ -7,7 +7,7 @@ const Header = ()=>{
   return <header className="main-header">
     <div className="logo">
       <Link to="/">
-        <img src={imagePath("envkey-logo.png")}/>
+        <img src={imagePath("envkey-logo.svg")}/>
       </Link>
     </div>
 

@@ -22,23 +22,22 @@ if (devMode) {
 }
 
 const reducer = compose(mergePersistedState())(rootReducer),
-      localPersistence = compose(filter(["auth","currentOrgSlug"]))(localStorageAdapter(window.localStorage)),
-      sessionPersistence = compose(filter(["privkey"]))(localStorageAdapter(window.sessionStorage)),
-      enhancerCompose = devMode ? composeWithDevTools : compose,
-      enhancer = enhancerCompose(applyMiddleware(...middlewares),
-                                 persistState(localPersistence, 'auth'),
-                                 persistState(sessionPersistence, 'pgp')),
-      store = createStore(reducer, enhancer),
-      history = syncHistoryWithStore(browserHistory, store)
 
-// This screwed up localStorage auth
-// if (devMode && module.hot) {
-//   // Enable Webpack hot module replacement for reducers
-//   module.hot.accept('./reducers/root_reducer', () => {
-//     const nextReducer = require('./reducers/root_reducer').default
-//     store.replaceReducer(nextReducer)
-//   })
-// }
+      localPersistence = compose(filter(["auth","currentOrgSlug"]))(localStorageAdapter(window.localStorage)),
+
+      sessionPersistence = compose(filter(["privkey"]))(localStorageAdapter(window.sessionStorage)),
+
+      enhancerCompose = devMode ? composeWithDevTools : compose,
+
+      enhancer = enhancerCompose(
+        applyMiddleware(...middlewares),
+        persistState(localPersistence, 'session'),
+        persistState(sessionPersistence, 'pgp')
+      ),
+
+      store = createStore(reducer, enhancer),
+
+      history = syncHistoryWithStore(browserHistory, store)
 
 sagaMiddleware.run(rootSaga)
 

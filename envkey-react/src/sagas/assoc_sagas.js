@@ -34,7 +34,7 @@ import {
   getAppUser,
   getRawEnvWithPendingForApp
 } from 'selectors'
-import { assocTable } from 'lib/assoc/helpers'
+import {getAssocUrl} from 'lib/assoc/helpers'
 
 const
   addRemoveAssocApiSaga = ({method, actionTypes})=> {
@@ -43,9 +43,10 @@ const
       method: method,
       actionTypes: actionTypes,
       urlFn: ({meta})=> {
-        const {parentType, parentId, targetId} = meta,
-              parentTable = decamelize(pluralize(parentType))
-        return `/${parentTable}/${parentId}/${assocTable(meta)}${targetId ? ('/' + targetId): ''}.json`
+        const {targetId} = meta,
+              targetPath = targetId ? ('/' + targetId) : ''
+
+        return getAssocUrl(meta, targetPath)
       }
     })
   },
@@ -54,11 +55,7 @@ const
     authenticated: true,
     method: "patch",
     actionTypes: [GENERATE_ASSOC_KEY_SUCCESS, GENERATE_ASSOC_KEY_FAILED],
-    urlFn: ({meta})=> {
-      const {parentType, parentId, targetId} = meta,
-            parentTable = decamelize(pluralize(parentType))
-      return `/${parentTable}/${parentId}/${assocTable(meta)}/${targetId}/generate_key.json`
-    }
+    urlFn: ({meta})=> getAssocUrl(meta, `/${meta.targetId}/generate_key`)
   })
 
 function* onAddAssoc(action){

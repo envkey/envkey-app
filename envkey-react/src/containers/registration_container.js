@@ -3,6 +3,8 @@ import { connect } from 'react-redux'
 import { register, appLoaded } from 'actions'
 import {Link} from 'react-router'
 import R from 'ramda'
+import PasswordInput from 'components/shared/password_input'
+import {imagePath} from 'lib/ui'
 
 class Registration extends React.Component {
 
@@ -17,62 +19,61 @@ class Registration extends React.Component {
       firstName: this.refs.firstName.value,
       lastName: this.refs.lastName.value,
       email: this.refs.email.value,
-      password: this.refs.password.value,
+      password: this.refs.password.val(),
       org: {name: this.refs.orgName.value}
     })
   }
 
   render(){
-    return <form className="auth-form signup" onSubmit={::this.onSubmit}>
-      <h2>Create your organization.</h2>
+    return <div className="full-overlay">
+      <form className="auth-form signup" onSubmit={::this.onSubmit}>
+        <div className="logo"> <img src={imagePath("envkey-logo.svg")} /> </div>
+        <fieldset>
+          <input ref="orgName"
+                 placeholder="Organization name"
+                 required />
+        </fieldset>
 
-      <fieldset>
-        <input ref="orgName"
-               placeholder="Organization name"
-               required />
-      </fieldset>
+        <fieldset>
+          <input ref="firstName"
+                 placeholder="Your first name"
+                 required />
+        </fieldset>
 
-      <fieldset>
-        <input ref="firstName"
-               placeholder="Your first name"
-               required />
-      </fieldset>
+        <fieldset>
+          <input ref="lastName"
+                 placeholder="Your last name"
+                 required />
+        </fieldset>
 
-      <fieldset>
-        <input ref="lastName"
-               placeholder="Your last name"
-               required />
-      </fieldset>
+        <fieldset>
+          <input ref="email"
+                 type="email"
+                 placeholder="Your email"
+                 required />
+        </fieldset>
 
-      <fieldset>
-        <input ref="email"
-               type="email"
-               placeholder="Your email"
-               required />
-      </fieldset>
+        <fieldset>
+          <PasswordInput ref="password" />
+        </fieldset>
 
-      <fieldset>
-        <input ref="password"
-               type="password"
-               placeholder="Your password (10-256 characters)"
-               pattern=".{10,256}"
-               required />
-      </fieldset>
+        <fieldset>
+          {this._renderSubmit()}
+        </fieldset>
 
-      {this._renderSubmit()}
-
-      <div className="auth-toggle">
-        <p> Already have an account? </p>
-        <Link to="/login"> Login </Link>
-      </div>
-    </form>
+        <div className="auth-toggle">
+          <span> Already have an account? </span>
+          <Link to="/login"> Login </Link>
+        </div>
+      </form>
+    </div>
   }
 
   _renderSubmit(){
     if(this.props.isAuthenticating){
-      return <h5>Submitting...</h5>
+      return <button disabled={true}>Submitting... </button>
     } else {
-      return <button>Create</button>
+      return <button>Create Organization</button>
     }
   }
 }

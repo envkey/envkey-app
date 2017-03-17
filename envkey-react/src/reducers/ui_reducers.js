@@ -43,7 +43,6 @@ import {
   REMOVE_OBJECT_FAILED
 } from "actions"
 
-
 export const isCreating = (state = {}, action)=>{
   switch(action.type){
     case CREATE_OBJECT_REQUEST:
@@ -78,6 +77,7 @@ export const isCreating = (state = {}, action)=>{
 export const isAddingAssoc = (state = {}, action)=>{
   switch(action.type){
     case ADD_ASSOC_REQUEST:
+    case CREATE_ASSOC_REQUEST:
       return R.assocPath([action.meta.parentId,
                           action.meta.assocType,
                           (action.meta.role || "all"),
@@ -87,6 +87,7 @@ export const isAddingAssoc = (state = {}, action)=>{
 
     case ADD_ASSOC_SUCCESS:
     case ADD_ASSOC_FAILED:
+    case CREATE_ASSOC_FAILED:
       return R.dissocPath([action.meta.parentId,
                            action.meta.assocType,
                            (action.meta.role || "all"),

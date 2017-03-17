@@ -16,7 +16,7 @@ const EditableCellsParent = CellsParent => class extends CellsParent {
   }
 
   _preventClearEditingSelector(){
-    return ".cell"
+    return ".grid-content .cell"
   }
 
   _onBodyClick(e){

@@ -15,7 +15,7 @@ export default class ServiceForm extends React.Component {
   render(){
     return (
       <form ref="form"
-            className="keyable-form service-form"
+            className="object-form service-form"
             onSubmit={this._onSubmit.bind(this)}>
 
         <input className="service-name"

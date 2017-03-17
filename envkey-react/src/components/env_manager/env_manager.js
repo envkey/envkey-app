@@ -4,6 +4,9 @@ import h from "lib/ui/hyperscript_with_helpers"
 import EnvHeader from './env_header'
 import EnvGrid from './env_grid'
 import {AddAssoc} from 'components/assoc_manager'
+import DecryptForm from 'components/shared/decrypt_form'
+import DecryptLoader from 'components/shared/decrypt_loader'
+import {AwaitingAccessContainer} from 'containers'
 
 export default class EnvManager extends React.Component {
 
@@ -32,7 +35,8 @@ export default class EnvManager extends React.Component {
         this._isEmpty(nextProps)){
       this.setState({addVar: true, emptyOnInit: true})
     } else if (nextProps.parent.id != this.props.parent.id) {
-      this.setState({addVar: false, emptyOnInit: false})
+      const isEmpty = this._isEmpty(nextProps)
+      this.setState({addVar: isEmpty, emptyOnInit: isEmpty})
     }
   }
 
@@ -61,21 +65,23 @@ export default class EnvManager extends React.Component {
                       [this.props.parentType, "parent"].join("-") +
                       (this.state.addVar ? " add-var" : "") +
                       (this.state.addService ? " add-service" : "") +
-                      (this.props.isUpdatingEnv ? " updating-env" : "")
+                      (this.props.isUpdatingEnv ? " updating-env" : "") +
+                      (this._isEmpty() ? " empty" : "")
 
     return h.div({className}, this._renderContents())
   }
 
   _renderContents(){
-    if(this.props.envsAreDecrypted){
+    if (!this.props.envAccessGranted){
+      return [h(AwaitingAccessContainer)]
+    } else if(this.props.envsAreDecrypted || this.props.isDecrypting){
       return [
         this._renderHeader(),
-        this._renderBody()
+        this._renderBody(),
+        h(DecryptLoader, this.props)
       ]
-    } else if(this.props.isDecrypting){
-      return [this._renderDecryptingLoader()]
     }  else {
-      return [this._renderDecryptForm()]
+      return [h(DecryptForm, {onSubmit: this.props.decrypt})]
     }
   }
 
@@ -85,23 +91,6 @@ export default class EnvManager extends React.Component {
     } else {
       return this._renderGrid()
     }
-  }
-
-  _renderDecryptForm(){
-    return h.form(".decypt-envs", {
-      onSubmit: ::this._onSubmitDecryptionPassword
-    }, [
-      h.input(".password", {
-        ref: "password",
-        type: "password",
-        defaultValue: "password"
-      }),
-      h.button("Decrypt")
-    ])
-  }
-
-  _renderDecryptingLoader(){
-    return h.h2("Decrypting...")
   }
 
   _renderHeader(){

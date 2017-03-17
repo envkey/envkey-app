@@ -1,7 +1,7 @@
 .env-header
   box-sizing: border-box
   padding: 0 0
-  background:  linear-gradient(to right, hsl(0,0,25), hsl(0,0,20))
+  background: $dark-bg-gradient
   height: $app-tab-height / 2
 
   button.split-strong
@@ -88,7 +88,7 @@
   .updating-env-msg
     float: right
     opacity: 0
-    transition: opacity 0.3s ease-in
+    transition: opacity 0.8s ease-out 0.5s
     display: inline-block
     height: 100%
     margin-right: 25px
@@ -121,6 +121,7 @@
 .updating-env .env-header
   .updating-env-msg
     opacity: 1
+    transition: opacity 0.1s ease-out
 
 .service-parent .env-header
   .filter

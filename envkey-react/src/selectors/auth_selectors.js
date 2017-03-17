@@ -16,6 +16,14 @@ export const
 
   getInviteesNeedingAccess = db.path("inviteesNeedingAccess"),
 
+  getInviteesPendingAcceptance = db.path("inviteesPendingAcceptance"),
+
+  getIsPollingInviteesPendingAcceptance = db.path("isPollingInviteesPendingAcceptance"),
+
+  getEnvAccessGranted = db.path("envAccessGranted"),
+
+  getInvitedBy = db.path("invitedBy"),
+
   getEncryptedPrivkey = db.path("encryptedPrivkey"),
 
   getCurrentUserErr = db.path("currentUserErr"),

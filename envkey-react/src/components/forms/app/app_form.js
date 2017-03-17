@@ -1,5 +1,4 @@
 import React from 'react'
-import SmallLoader from 'components/shared/small_loader'
 
 export default class AppForm extends React.Component {
 
@@ -15,24 +14,26 @@ export default class AppForm extends React.Component {
   render(){
     return (
       <form ref="form"
-            className="keyable-form app-form"
+            className="object-form new-form app-form"
             onSubmit={this._onSubmit.bind(this)}>
 
-        <input className="app-name"
-               ref="name"
-               placeholder="App Name"
-               required />
+        <fieldset>
+          <input className="app-name"
+                 ref="name"
+                 placeholder="App Name"
+                 required />
+        </fieldset>
 
-        {this._renderSubmit()}
+        <fieldset>{this._renderSubmit()}</fieldset>
       </form>
     )
   }
 
   _renderSubmit(){
     if(this.props.isSubmitting){
-      return <SmallLoader />
+      return <button disabled={true}> Submitting... </button>
     } else {
-      return <button> <span>Create App</span> </button>
+      return <button> Create App </button>
     }
   }
 }

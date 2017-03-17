@@ -11,6 +11,7 @@ export default function({parentType,
                          hideValues,
                          isEmpty,
                          isUpdatingEnv,
+                         entries,
                          onToggleHideValues,
                          onFilter,
                          onAddVar,
@@ -18,7 +19,7 @@ export default function({parentType,
 
   const
     renderFilter = ()=> {
-      if(!addService){
+      if(!addService && entries.length > 1){
         return h(Filter, {placeholder: "Type here to filter...", onFilter})
       }
     },

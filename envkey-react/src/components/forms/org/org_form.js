@@ -15,7 +15,7 @@ export default class OrgForm extends React.Component {
   render(){
     return (
       <form ref="form"
-            className="keyable-form org-form"
+            className="object-form org-form"
             onSubmit={this._onSubmit.bind(this)}>
 
         <input className="org-name"

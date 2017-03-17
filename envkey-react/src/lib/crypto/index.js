@@ -50,7 +50,7 @@ export const
   emailSalt = (email)=> emailHash(email + "envkey-salt-of-pure-basalt"),
 
   hashedPassword = (email, password)=> sjcl.codec.hex.fromBits(
-    sjcl.misc.pbkdf2(password, emailSalt(email), 50000)
+    sjcl.misc.pbkdf2(password, emailSalt(email), 100000)
   ),
 
   generateKeys = ({id, passphrase}, worker=false)=>{

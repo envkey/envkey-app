@@ -27,12 +27,15 @@ import {
   REMOVE_OBJECT_FAILED,
 
   API_SUCCESS,
-  API_FAILED
+  API_FAILED,
+
+  CHECK_INVITES_ACCEPTED_REQUEST
 } from "actions"
 import {
   getCurrentOrg,
   getAppsForService,
-  getAppServiceBy
+  getAppServiceBy,
+  getIsPollingInviteesPendingAcceptance
 } from "selectors"
 
 // const fetchObjectDetails = apiSaga({
@@ -100,12 +103,25 @@ const
     if (resultType == API_SUCCESS) yield put(push(`/${currentOrg.slug}`))
   },
 
-  onCreateObjectSuccess = function*({meta: {createAssoc, objectType}, payload: {slug}}){
-    if(createAssoc)return
-    const currentOrg = yield select(getCurrentOrg),
-          path = `/${currentOrg.slug}/${pluralize(objectType)}/${slug}`
+  checkInvitesAcceptedUnlessAlreadyPolling = function*(){
+    const isPolling = yield select(getIsPollingInviteesPendingAcceptance)
+    if(!isPolling){
+      yield put({type: CHECK_INVITES_ACCEPTED_REQUEST})
+    }
+  },
 
-    yield put(push(path))
+  onCreateObjectSuccess = function*({meta: {createAssoc, objectType}, payload: {slug}}){
+    // If just invited user, begin check invite acceptance polling loop
+    if (objectType == "user"){
+      yield call(checkInvitesAcceptedUnlessAlreadyPolling)
+    }
+
+    if(!createAssoc){
+      const currentOrg = yield select(getCurrentOrg),
+            path = `/${currentOrg.slug}/${pluralize(objectType)}/${slug}`
+
+      yield put(push(path))
+    }
   }
 
 export default function* objectSagas(){
@@ -115,7 +131,6 @@ export default function* objectSagas(){
     takeEvery(UPDATE_OBJECT_SETTINGS_REQUEST, onUpdateObjectSettings),
     takeEvery(RENAME_OBJECT_REQUEST, onRenameObject),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
-
     takeLatest(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
   ]
 }

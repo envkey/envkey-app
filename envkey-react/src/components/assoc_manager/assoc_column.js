@@ -23,6 +23,11 @@ export default class AssocColumn extends React.Component {
     this.props.createAssoc(...args)
   }
 
+  _canAdd(){
+    return this.props.parentType == "user" ||
+           R.path([this.props.joinType, "create"], this.props.parent.permissions)
+  }
+
   render(){
     return h.div(".column.keyable-column", {
       className: [
@@ -38,7 +43,7 @@ export default class AssocColumn extends React.Component {
   _renderAddButton(){
     if (this.props.config.isAddingAssoc){
       return h(SmallLoader)
-    } else {
+    } else if (this._canAdd()) {
       return h.button({
         onClick: e => this.setState((state, props)=>({addMode: !state.addMode}))
       }, [

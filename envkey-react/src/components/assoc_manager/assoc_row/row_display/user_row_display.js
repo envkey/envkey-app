@@ -17,12 +17,13 @@ export default function ({params,
 
   const
     renderUserLabel = ()=>{
+      const name = [firstName, lastName].join(" ")
       if(canReadUser){
         return h.span(".primary", [
-          h(Link, {to: `/${params.orgSlug}/users/${slug}`},
-            [firstName, lastName].join(" ")
-          )
+          h(Link, {to: `/${params.orgSlug}/users/${slug}`}, name)
         ])
+      } else {
+        return h.span(".primary", name)
       }
     }
   return h.div([

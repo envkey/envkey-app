@@ -41,5 +41,5 @@ export const getAutocompleteOpts = ({entryKey,
 
         hasMatch = optIndex(searchStr, opts) > -1
 
-  return hasMatch ? opts : opts.filter(({val})=> val.indexOf(searchStr) == 0)
+  return hasMatch ? opts : opts.filter(({val})=> val && val.indexOf(searchStr) == 0)
 }

@@ -56,9 +56,6 @@ const AccountMenu = ({
                          `/${params.orgSlug}/my_account/settings`,
                          "keyhole-black.png")}
 
-          {renderMenuRow("Change Organization",
-                         "/select_org",
-                         "refresh-black.png")}
 
           {renderMenuRow("Sign Out",
                          "/sign_out",
@@ -76,5 +73,9 @@ const AccountMenu = ({
     {renderBody()}
   </div>
 }
+
+     // {renderMenuRow("Change Organization",
+     //                     "/select_org",
+     //                     "refresh-black.png")}
 
 export default AccountMenu

@@ -3,11 +3,13 @@ import EditableValCell from './editable_val_cell'
 import Removable from './traits/removable'
 import Autocompletable from './traits/autocompletable'
 import CopyableCell from './traits/copyable_cell'
+import CommitPromptable from './traits/commit_promptable'
 
 const EnvValCellBaseClass = R.pipe(
   CopyableCell,
   Removable,
-  Autocompletable
+  Autocompletable,
+  CommitPromptable
 )(EditableValCell)
 
 export default class EnvValCell extends EnvValCellBaseClass {

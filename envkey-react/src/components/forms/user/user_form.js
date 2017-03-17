@@ -27,46 +27,52 @@ export default class UserForm extends React.Component {
   }
 
   render(){
-    return h.form(".keyable-form.invite-new-user",{
+    return h.form(".object-form.new-form.invite-new-user",{
       ref: "form",
       onSubmit: ::this._onSubmit
     }, [
 
-      h.input('.first-name', {
-        ref: "firstName",
-        placeholder: "First Name",
-        required: true,
-        value: this.state.firstName,
-        onChange: e => this.setState({firstName: e.target.value})
-      }),
+      h.fieldset([
+        h.input('.first-name', {
+          ref: "firstName",
+          placeholder: "First Name",
+          required: true,
+          value: this.state.firstName,
+          onChange: e => this.setState({firstName: e.target.value})
+        })
+      ]),
 
-      h.input('.last-name', {
-        placeholder: "Last Name",
-        required: true,
-        value: this.state.lastName,
-        onChange: e => this.setState({lastName: e.target.value})
-      }),
+      h.fieldset([
+        h.input('.last-name', {
+          placeholder: "Last Name",
+          required: true,
+          value: this.state.lastName,
+          onChange: e => this.setState({lastName: e.target.value})
+        })
+      ]),
 
-      h.input('.email', {
-        type: "email",
-        placeholder: "Email",
-        required: true,
-        value: this.state.email,
-        onChange: e => this.setState({email: e.target.value})
-      }),
+      h.fieldset([
+        h.input('.email', {
+          type: "email",
+          placeholder: "Email",
+          required: true,
+          value: this.state.email,
+          onChange: e => this.setState({email: e.target.value})
+        })
+      ]),
 
       this._renderOrgRoleSelect(),
 
-      this._renderSubmit()
+      h.fieldset([this._renderSubmit()])
     ])
   }
 
   _renderOrgRoleSelect(){
     if (this.props.orgRolesAssignable && this.props.orgRolesAssignable.length){
-      return h.select(".org-role", {
+      return h.fieldset([h.select(".org-role", {
         value: this.state.orgRole,
         onChange: e => this.setState({orgRole: e.target.value})
-      }, this.props.orgRolesAssignable.map(::this._renderRoleOption))
+      }, this.props.orgRolesAssignable.map(::this._renderRoleOption))])
     }
   }
 

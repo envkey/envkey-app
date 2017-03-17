@@ -18,7 +18,10 @@ import {
 
   REMOVE_OBJECT_REQUEST,
   REMOVE_OBJECT_SUCCESS,
-  REMOVE_OBJECT_FAILED
+  REMOVE_OBJECT_FAILED,
+
+  LOGOUT,
+  SELECT_ORG
 } from "actions"
 import {
   rawEnv,
@@ -129,6 +132,10 @@ export const
 
       case REMOVE_OBJECT_SUCCESS:
         return removeObjectSuccessReducer(state, action)
+
+      case LOGOUT:
+      case SELECT_ORG:
+        return {}
 
       default:
         return state

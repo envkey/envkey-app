@@ -20,11 +20,16 @@ import {
   DECRYPT_ENVS_SUCCESS,
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
+  ACCEPT_INVITE_FAILED,
   GENERATE_USER_KEYPAIR,
   GENERATE_USER_KEYPAIR_SUCCESS,
   HASH_USER_PASSWORD,
   HASH_USER_PASSWORD_SUCCESS,
-  GRANT_ENV_ACCESS_SUCCESS
+  GRANT_ENV_ACCESS_SUCCESS,
+  CHECK_INVITES_ACCEPTED_REQUEST,
+  CHECK_INVITES_ACCEPTED_SUCCESS,
+  CHECK_INVITES_ACCEPTED_FAILED,
+  SELECT_ORG
 } from 'actions'
 import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
@@ -42,6 +47,7 @@ export const
       case LOGIN_FAILED:
       case REGISTER_SUCCESS:
       case REGISTER_FAILED:
+      case ACCEPT_INVITE_FAILED:
         return false
 
       default:
@@ -60,6 +66,7 @@ export const
       case LOGIN_FAILED:
       case REGISTER_SUCCESS:
       case REGISTER_FAILED:
+      case ACCEPT_INVITE_FAILED:
         return false
 
       default:
@@ -113,6 +120,7 @@ export const
         return action.payload
       case FETCH_CURRENT_USER_REQUEST:
       case LOGIN:
+      case LOGOUT:
         return null
       default:
         return state
@@ -126,6 +134,8 @@ export const
 
       case DECRYPT_ENVS_SUCCESS:
       case DECRYPT_ENVS_FAILED:
+      case LOGOUT:
+      case SELECT_ORG:
         return false
 
       default:
@@ -136,6 +146,8 @@ export const
   envsAreDecrypted = (state = false, action)=> {
     switch(action.type){
       case DECRYPT_ENVS:
+      case LOGOUT:
+      case SELECT_ORG:
         return false
 
       case DECRYPT_ENVS_SUCCESS:
@@ -174,6 +186,7 @@ export const
       case LOGIN:
       case LOGOUT:
       case TOKEN_INVALID:
+      case SELECT_ORG:
         return {}
       default:
         return state
@@ -188,6 +201,7 @@ export const
       case LOGIN:
       case LOGOUT:
       case TOKEN_INVALID:
+      case SELECT_ORG:
         return {}
       default:
         return state
@@ -204,6 +218,7 @@ export const
       case LOGOUT:
       case TOKEN_INVALID:
       case DECRYPT_PRIVKEY_SUCCESS:
+      case DECRYPT_PRIVKEY_FAILED:
       case DECRYPT_ENVS_SUCCESS:
         return null
       default:
@@ -218,6 +233,7 @@ export const
       case LOGIN:
       case LOGOUT:
       case TOKEN_INVALID:
+      case DECRYPT_ENVS_FAILED:
         return null
       default:
         return state
@@ -250,9 +266,72 @@ export const
   inviteesNeedingAccess = (state = [], action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case CHECK_INVITES_ACCEPTED_SUCCESS:
         return action.payload.inviteesNeedingAccess
       case GRANT_ENV_ACCESS_SUCCESS:
+      case LOGOUT:
+      case SELECT_ORG:
         return []
+      default:
+        return state
+    }
+  },
+
+  inviteesPendingAcceptance = (state = [], action)=>{
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+      case CHECK_INVITES_ACCEPTED_SUCCESS:
+        return action.payload.inviteesPendingAcceptance
+      case LOGOUT:
+      case SELECT_ORG:
+        return []
+      default:
+        return state
+    }
+  },
+
+  isPollingInviteesPendingAcceptance = (state = false, action)=>{
+    switch(action.type){
+      case CHECK_INVITES_ACCEPTED_REQUEST:
+        return true
+
+      case CHECK_INVITES_ACCEPTED_SUCCESS:
+        const inviteesPendingAcceptance = action.payload.inviteesPendingAcceptance
+        return inviteesPendingAcceptance.length > 0
+
+      case CHECK_INVITES_ACCEPTED_FAILED:
+      case LOGOUT:
+      case SELECT_ORG:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  envAccessGranted = (state = false, action)=> {
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+        return action.payload.envAccessGranted
+
+      case LOGOUT:
+      case SELECT_ORG:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  invitedBy = (state = null, action)=>{
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+        return action.payload.invitedBy
+
+      case LOGOUT:
+      case SELECT_ORG:
+        return null
+
       default:
         return state
     }

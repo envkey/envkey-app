@@ -15,6 +15,7 @@ const
       }}
     }, {}),
     editing: defaultEditing,
+    didCommit: {},
     entryKey: "",
     hoveringVals: false
   })
@@ -86,17 +87,21 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
               ...envEntry, //for 'val' and 'inherits'
               environments,
               environment,
+              didCommit: Boolean(R.path(["didCommit", environment], this.state)),
+              isEditing: this.state.editing.environment === environment,
+              entryKey: "entry",
+              envsWithMeta: this.state.envsWithMeta,
               onEditCell: ()=> this.setState({editing: {entryKey: "entry",environment}}),
               onCommit: (update)=> {
-                this.setState(R.assocPath(["envsWithMeta", environment, "entry"], update))
+                this.setState(R.pipe(
+                  R.assocPath(["envsWithMeta", environment, "entry"], update),
+                  R.assocPath(["didCommit", environment], true)
+                ))
                 this._clearEditing()
               },
               onChange: (val)=> {
                 this.setState(R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}))
-              },
-              isEditing: this.state.editing.environment === environment,
-              entryKey: "entry",
-              envsWithMeta: this.state.envsWithMeta
+              }
             })
           ])
         })

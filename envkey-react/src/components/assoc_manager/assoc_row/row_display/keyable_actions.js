@@ -8,27 +8,26 @@ import {capitalize} from "lib/utils/string"
 import SmallLoader from 'components/shared/small_loader'
 
 export default function ({
-  assocType,
-  parentType,
-  keyLabel,
   onRenew,
   onRevoke,
   isRemoving,
   getUserFn,
   isGeneratingAssocKey,
-  isCurrentUser=false,
   keyGeneratedAt,
   keyGeneratedById,
   envkey,
-  passphrase
+  passphrase,
+  permissions,
+  isCurrentUser=false,
+  currentUser
 }){
   const
-    canGenerate = ()=> !isRemoving,
+    canGenerate = ()=> permissions.generateKey && !isRemoving,
 
     renderUpdateButtons = ()=> h.div(".update-buttons", [
-        h.button(".revoke", {
-          onClick: onRevoke
-        }, "Revoke"),
+        // h.button(".revoke", {
+        //   onClick: onRevoke
+        // }, "Revoke"),
 
         renderGenerateButton()
     ]),
@@ -60,7 +59,7 @@ export default function ({
           h.span(".secondary", "Generating key...")
         ]
       } else if (keyGeneratedAt){
-        const {firstName, lastName} = getUserFn(keyGeneratedById),
+        const {firstName, lastName} = isCurrentUser ? currentUser : getUserFn(keyGeneratedById),
               fullName = [firstName, lastName].join(" ")
         contents = [
           h.span(".secondary", `${fullName} `),

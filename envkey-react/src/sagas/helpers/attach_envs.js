@@ -33,7 +33,7 @@ export function* envParamsWithAppUser({appId, userId, role, rawEnvOnly}, envPara
     envs.env = yield call(encryptJson, { data: rawEnv, pubkey: targetAppUser.pubkey })
   }
 
-  if(!rawEnvOnly){
+  if(pubkey && !rawEnvOnly){
     const app = yield select(getApp(appId)),
           envsWithMeta = yield select(getEnvsWithMetaWithPending({parentType: "app", parent: app})),
           encryptedEnvsWithMeta = {}
@@ -159,6 +159,7 @@ export function* attachAssocEnvs(action){
           userId: assocId,
           role: R.values(payload)[0].role
         })
+
         break
 
       case "service":

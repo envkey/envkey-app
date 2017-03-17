@@ -3,6 +3,8 @@ import { connect } from 'react-redux'
 import {appLoaded, acceptInvite} from 'actions'
 import R from 'ramda'
 import {Base64} from 'js-base64'
+import PasswordInput from 'components/shared/password_input'
+import {imagePath} from 'lib/ui'
 
 class AcceptInvite extends React.Component {
 
@@ -14,30 +16,31 @@ class AcceptInvite extends React.Component {
   onSubmit(e){
     e.preventDefault();
     this.props.onSubmit({
-      password: this.refs.password.value,
+      password: this.refs.password.val(),
       invitationToken: this.props.params.token,
       email: Base64.decode(this.props.params.emailbs64)
     })
   }
 
   render(){
-    return <form onSubmit={::this.onSubmit}>
-      <h2>Welcome to Envkey!</h2>
-      <p>Choose a password to login</p>
-      <input ref="password"
-             type="password"
-             defaultValue="password"
-             placeholder="Your password (10-256 characters)"
-             pattern=".{10,256}"
-             required />
+    return <div className="full-overlay">
+      <form className="auth-form accept-invite" onSubmit={::this.onSubmit}>
+        <div className="logo"> <img src={imagePath("envkey-logo.svg")} /> </div>
+        <div className="msg">
+          Welcome! Choose a password to login.
+        </div>
+        <fieldset>
+          <PasswordInput ref="password" />
+        </fieldset>
 
-      {this._renderSubmit()}
-    </form>
+        <fieldset>{this._renderSubmit()}</fieldset>
+      </form>
+    </div>
   }
 
   _renderSubmit(){
     if(this.props.isAuthenticating){
-      return <h5>Submitting...</h5>
+      return <button disabled={true}>Submitting... </button>
     } else {
       return <button>Login</button>
     }

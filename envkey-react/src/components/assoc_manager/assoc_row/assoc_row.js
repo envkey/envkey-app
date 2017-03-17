@@ -1,42 +1,52 @@
 import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
-import Flashable from 'components/shared/traits/flashable'
 import SmallLoader from 'components/shared/small_loader'
+import KeyGeneratable from './traits/key_generatable'
 import { imagePath } from 'lib/ui'
 
-const assocId = props => R.path(["relation", "id"], props.assoc) || props.assoc.id,
+const targetId = props => R.path(["relation", "id"], props.assoc) || props.assoc.id,
 
       canRemove = ({assoc}) => assoc.relation ? Boolean(assoc.relation.permissions.delete) :
                                                 Boolean(assoc.permissions.delete),
 
-      isRemoving = props => props.isRemovingFn(assocId(props)),
+      isRemoving = props => props.isRemovingFn(targetId(props)),
 
-      isGeneratingAssocKey = props => props.isGeneratingAssocKeyFn(assocId(props))
+      isGeneratingAssocKey = props => props.isGeneratingAssocKeyFn(targetId(props))
 
 class AssocRow extends React.Component{
 
   _onRemove(){
-    this.props.removeAssoc(assocId(this.props))
+    this.props.removeAssoc({targetId: targetId(this.props), assocId: this.props.assoc.id})
   }
 
   _onRenew(){
-    this.props.generateKey(assocId(this.props))
+    this.props.generateKey(targetId(this.props))
+  }
+
+  _classNames(){
+    return [
+      "association-row",
+      (canRemove(this.props) ? " deletable" : ""),
+      (isGeneratingAssocKey(this.props) ? " generating-key": "")
+    ]
   }
 
   render(){
-    return h.div(".association-row", {
-      className: (canRemove(this.props) ? "deletable" : "")
-    }, [
+    return h.div({className: this._classNames().join(" ")}, this._renderContents())
+  }
+
+  _renderContents(){
+    return [
       this._renderRemove(),
       h(this.props.rowDisplayType, {
         ...this.props,
-        onRenew: ::this._onRenew,
         isRemoving: isRemoving(this.props),
-        isGeneratingAssocKey: isGeneratingAssocKey(this.props)
-      }),
-      this._renderFlash()
-    ])
+        isGeneratingAssocKey: isGeneratingAssocKey(this.props),
+        showKeyGenerated: this.state.showKeyGenerated,
+        onRenew: ::this._onRenew
+      })
+    ]
   }
 
   _renderRemove(){
@@ -49,7 +59,6 @@ class AssocRow extends React.Component{
       ])
     }
   }
-
 }
 
-export default Flashable(AssocRow)
+export default KeyGeneratable(AssocRow)

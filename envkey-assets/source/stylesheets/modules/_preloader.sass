@@ -1,42 +1,17 @@
 #preloader-overlay
-  position: absolute
-  top: 0
-  left: 0
+  +overlay
   z-index: 99
-  transition: opacity 0.5s ease-out
-  opacity: 1
-  width: 100%
-  height: 100%
-  background: hsl(0,0,22)
-
-  &.hide
-    opacity: 0
-    pointer-events: none
 
 #preloader
-  position: absolute
-  top: 49%
-  left: 0
-  width: 100%
-  height: 300px
-  transform: translateY(-50%)
-
-  .contents
-    position: relative
-    top: 50%
-    transform: translateY(-50%)
+  +overlay-embed
 
   .logo
     display: block
     margin: 0 auto
-    width: 250px
-    height: 77.3px
-    max-width: 85%
-    margin-bottom: 25px
+    width: 185px
+    margin-bottom: 20px
 
   .spinner
     display: block
     margin: 0 auto
-    width: 50px
-    height: 50px
-
+    width: 40px

@@ -6,6 +6,7 @@
   width: calc(100% + 2px)
   opacity: 0
   pointer-events: none
+  z-index: 9
 
   .col-left, .col-right
     display: inline-block
@@ -30,6 +31,6 @@
       color: #fff
       margin-right: 2px
 
-.cell.edit-mode .commit-prompt.show
+.cell.editing .commit-prompt.show
   opacity: 1
   pointer-events: auto

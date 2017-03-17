@@ -22,6 +22,6 @@ export const
 
   APP_ROLES = ["development", "production", "admin", "org_admin", "org_owner"],
 
-  ORG_ROLES = ["basic", "service_admin", "org_admin", "org_owner"]
+  ORG_ROLES = ["basic", "org_admin", "org_owner"]
 
 

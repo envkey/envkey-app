@@ -14,7 +14,6 @@ import {
 } from 'actions'
 import {
   getEntries,
-  getServicesForApp,
   getCurrentAppUserForApp,
   getCurrentUser,
   getIsUpdatingEnvVal,
@@ -26,8 +25,8 @@ import {
   getIsDecrypting,
   getEnvsAreDecrypted,
   getIsUpdatingEnv,
-  dissocRelations,
-  getEnvsWithMetaWithPending
+  getEnvsWithMetaWithPending,
+  getEnvAccessGranted
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 
@@ -70,9 +69,10 @@ const EnvManagerContainerFactory = ({parentType})=> {
   const mapStateToProps = (state, ownProps) => {
     const parent = ownProps[parentType],
           parentId = parent.id,
+          currentUser = getCurrentUser(state),
           environments = (parentType == "app" ?
                             getCurrentAppUserForApp(parentId, state).environmentsAccessible :
-                            getCurrentUser(state).permittedServiceEnvironments),
+                            currentUser.permittedServiceEnvironments),
           envsWithMetaWithPending = getEnvsWithMetaWithPending({parent, parentType}, state),
           props = {
             envsWithMeta: envsWithMetaWithPending,
@@ -84,6 +84,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
             isRemovingServiceFn: id => getIsRemoving(id, state),
             isDecrypting: getIsDecrypting(state),
             envsAreDecrypted: getEnvsAreDecrypted(state),
+            envAccessGranted: getEnvAccessGranted(state),
             environments,
             parent,
             parentType

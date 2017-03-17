@@ -17,7 +17,8 @@ import {
   UPDATE_OBJECT_SETTINGS_SUCCESS,
   RENAME_OBJECT_SUCCESS,
   REMOVE_OBJECT_SUCCESS,
-  GENERATE_ASSOC_KEY_SUCCESS
+  GENERATE_ASSOC_KEY_SUCCESS,
+  CHECK_INVITES_ACCEPTED_SUCCESS
 } from 'actions'
 import { indexById } from './helpers'
 
@@ -54,14 +55,24 @@ const
     return state
   },
 
+  createAppAssocKeys = ["appUsers", "servers"],
+
   getCreateObjectReducer = objectTypePlural => (state, {
     meta: {objectType}, payload
   })=> {
     if(pluralize(objectType) == objectTypePlural){
+
       return R.assoc(payload.id, payload, state)
-    } else if (objectType == "app" && objectTypePlural == "appUsers"){
-      return R.assoc(payload.appUser.id, payload.appUser, state)
+
+    } else if (objectType == "app" && createAppAssocKeys.includes(objectTypePlural)){
+
+      const associations = payload[objectTypePlural]
+      return associations.reduce((acc, assoc)=>{
+        return {...acc, [assoc.id]: assoc}
+      }, state)
+
     }
+
     return state
   },
 
@@ -89,6 +100,20 @@ const
             withPassphrase = R.assoc("passphrase", passphrase, payload)
       return R.assoc(id, withPassphrase, state)
     }
+    return state
+  },
+
+  getCheckInvitesAcceptedReducer = objectTypePlural => (state, {
+    payload: {inviteesNeedingAccess}
+  })=> {
+    if(objectTypePlural == "users"){
+      if (inviteesNeedingAccess && inviteesNeedingAccess.length > 0){
+        return inviteesNeedingAccess.reduce((acc, {userId, pubkey}) => {
+          return R.assocPath([userId, "pubkey"], pubkey, acc)
+        }, state)
+      }
+    }
+
     return state
   },
 
@@ -124,6 +149,9 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
 
       case GENERATE_ASSOC_KEY_SUCCESS:
         return getGenerateKeyReducer(objectTypePlural)(state, action)
+
+      case CHECK_INVITES_ACCEPTED_SUCCESS:
+        return getCheckInvitesAcceptedReducer(objectTypePlural)(state, action)
 
       case LOGIN:
       case REGISTER:

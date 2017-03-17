@@ -14,15 +14,17 @@ export default class ServerForm extends React.Component {
 
   render(){
     return (
-      <form className="keyable-form add-server"
+      <form className="object-form add-server"
             onSubmit={this._onSubmit.bind(this)}>
 
-        <input className="server-name"
-               ref="name"
-               placeholder="Server Name"
-               required />
+        <fieldset>
+          <input className="server-name"
+                 ref="name"
+                 placeholder="Server Name"
+                 required />
+        </fieldset>
 
-        {this._renderSubmit()}
+        <fieldset>{this._renderSubmit()}</fieldset>
       </form>
     )
   }

@@ -13,13 +13,6 @@ const BaseClass = R.pipe(
 
 export default class FormValCell extends BaseClass {
 
-  constructor(props){
-    super(props)
-
-    if(!this.state)this.state = {}
-    this.state.didCommit = false
-  }
-
   _formCellPlaceholder(){
     return h.small([
       `Set ${this.props.environment} value`,
@@ -28,13 +21,12 @@ export default class FormValCell extends BaseClass {
   }
 
   _undefinedVal(){
-    return this.state.didCommit ?
+    return this.props.didCommit ?
       super._undefinedVal() :
       this._formCellPlaceholder()
   }
 
   _commit(update){
-    this.setState({didCommit: true})
     super._commit(update)
   }
 

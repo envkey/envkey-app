@@ -38,11 +38,14 @@ const adminUserPermissions = [
       ],
       productionUserPermissions = [
         h.span(["Can view + edit all environments."]),
-        h.span(["Can manage server access for all environments."])
+        h.span(["Can manage server access for all environments."]),
+        // h.span(["Can view (but not invite) collaborators."])
       ],
       developmentUserPermissions = [
         h.span(["Can view + edit development and staging environments."]),
-        h.span(["Can manage development and staging server access."])
+        // h.span(["Can manage development and staging server access."])
+        // h.span(["Can view (but not manage) servers."]),
+        // h.span(["Can view (but not invite) collaborators."])
       ]
 
 export default function({
@@ -114,7 +117,7 @@ export default function({
         columns: [
           {
             title: "Development",
-            subtitle: "Keys",
+            subtitle: "Servers",
             role: "development",
             groups: R.pick(["development"], serverGroups),
             keyLabel: "development",
@@ -124,7 +127,7 @@ export default function({
           },
           {
             title: "Staging",
-            subtitle: "Keys",
+            subtitle: "Servers",
             role: "staging",
             groups: R.pick(["staging"], serverGroups),
             keyLabel: "staging",
@@ -134,7 +137,7 @@ export default function({
           },
           {
             title: "Production",
-            subtitle: "Keys",
+            subtitle: "Servers",
             role: "production",
             groups: R.pick(["production"], serverGroups),
             keyLabel: "production",
@@ -215,7 +218,7 @@ export default function({
         addExistingTextFn: R.prop("name"),
         columns: [
           {
-            title: "Connected Applications",
+            title: "Connected Apps",
             groups: {apps: serviceApps},
             candidates: R.without(dissocRelations(serviceApps || []))(orgApps),
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id}, state),
