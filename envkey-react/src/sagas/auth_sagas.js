@@ -146,6 +146,7 @@ const
 
 function *onAppLoaded(){
   document.getElementById("preloader-overlay").className = "hide"
+  document.body.className = document.body.className.replace("no-scroll","")
 }
 
 function *onLogin({payload}){

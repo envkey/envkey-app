@@ -102,9 +102,9 @@ export default class Routes extends React.Component {
 
           <Route path="apps/:slug" component={SelectedObjectContainerFactory({objectType: "app"})} >
 
-            <IndexRedirect to="environments" />
+            <IndexRedirect to="vars" />
 
-            <Route path="environments" component={EnvManagerContainerFactory({parentType: "app"})} />
+            <Route path="vars" component={EnvManagerContainerFactory({parentType: "app"})} />
 
             <Route path="dev_key" component={DevKeyManagerContainer} />
 

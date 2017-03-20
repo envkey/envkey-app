@@ -4,7 +4,7 @@ import R from 'ramda'
 import {imagePath} from 'lib/ui'
 
 const config = {
-  environments: ["environments", "Environments", 34, 26],
+  vars: ["vars", "Vars", 34, 26],
   collaborators: ["collaborators", "Collaborators", 30.8, 39.6, {objectPermissionPath: ["appUser", "read"]}],
   server_keys: ["server_keys", "Server Keys", 34, 39, {objectPermissionPath: ["server", "read"]}],
   dev_key: ["dev_key", "Dev Key", 49.275, 23.625],
