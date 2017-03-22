@@ -5,48 +5,49 @@ import {imagePath, orgRoleLabel} from 'lib/ui'
 const AccountMenu = ({
   currentUser,
   currentOrg,
-  route,
+  router,
   params,
-  isLoadingAppState,
-  onToggleExpanded,
+  isOpen,
+  onToggle,
   logout
 })=>{
 
-  const renderMenuRow = (label, path, img, onClick)=>{
-    return <Link to={path}
-                 onClick={onClick}
-                 className={label.split(" ").join("-").toLowerCase() +
-                           (route.path == path ? " selected" : "")}>
-            <img src={imagePath(img)} />
-            <span>{label}</span>
-          </Link>
-  }
+  const
+    renderMenuRow = (label, path, img, onClick)=>{
+      return <Link to={path}
+                   onClick={onClick}
+                   className={label.split(" ").join("-").toLowerCase() +
+                             (router.location.pathname == path ? " selected" : "")}>
+              <img src={imagePath(img)} />
+              <span>{label}</span>
+            </Link>
+    },
 
-  const renderBody = ()=>{
-    if (isLoadingAppState){
-      return <h4> Loading... </h4>
-    } else {
-      return <div>
-          <section className="basic-menu">
-          <div className="row-top">
-            <span className="col-left user">
-              <label>{[currentUser.firstName, currentUser.lastName].join(" ")}</label>
-            </span>
-            <span className="col-right role">
-              <label>{orgRoleLabel(currentUser.role)}</label>
-            </span>
-          </div>
-          <div className="row-bottom">
-            <span className="col-left org">
-              <label>{currentOrg.name}</label>
-            </span>
-            <span className="col-right expand"
-                  onClick={e => onToggleExpanded()}>
-              <img src={imagePath("gear-white.png")} />
-            </span>
-          </div>
-        </section>
-        <section className="expanded-menu">
+    renderMenuHeader = ()=> {
+      return <section className="basic-menu">
+        <div className="row-top">
+          <span className="col-left user">
+            <label>{[currentUser.firstName, currentUser.lastName].join(" ")}</label>
+          </span>
+          <span className="col-right role">
+            <label>{orgRoleLabel(currentUser.role)}</label>
+          </span>
+        </div>
+        <div className="row-bottom">
+          <span className="col-left org">
+            <label>{currentOrg.name}</label>
+          </span>
+          <span className="col-right toggle"
+                onClick={e => onToggle()}>
+            <img src={imagePath("gear-white.png")} />
+          </span>
+        </div>
+      </section>
+    },
+
+    renderMenuBody = ()=>{
+      if (isOpen){
+        return <section className="menu-body">
           {currentUser.role == "org_owner" ? renderMenuRow("My Organization",
                                                            `/${params.orgSlug}/my_org/settings`,
                                                            "briefcase-black.png") :
@@ -65,12 +66,12 @@ const AccountMenu = ({
                           logout()
                          })}
         </section>
-      </div>
+      }
     }
-  }
 
   return <div className="account-menu">
-    {renderBody()}
+    {renderMenuHeader()}
+    {renderMenuBody()}
   </div>
 }
 

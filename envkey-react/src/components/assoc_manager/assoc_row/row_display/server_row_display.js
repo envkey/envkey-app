@@ -5,10 +5,6 @@ import KeyableActions from "./keyable_actions"
 
 export default function(props){
   return h.div([
-    h.div(".top-row", [
-      h.span(".primary", props.assoc.name)
-    ]),
-
     h.div(".bottom-row", [
       h(KeyableActions, {
         ...props,

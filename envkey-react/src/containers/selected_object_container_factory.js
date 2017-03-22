@@ -23,8 +23,6 @@ const SelectedObjectContainerFactory = ({objectType})=> {
       if (pathFn(this.props) != pathFn(nextProps)){
         this.setState({showTransitionOverlay: true})
         setTimeout(()=>{ this.setState({showTransitionOverlay: false}) }, 1)
-
-
       }
     }
 

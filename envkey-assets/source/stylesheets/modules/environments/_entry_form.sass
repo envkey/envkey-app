@@ -1,4 +1,10 @@
 .env-grid .entry-form
+  position: fixed
+  top: $app-tab-height / 2
+  z-index: 2
+  width: calc(100% - #{$sidemenu-width})
+  background: #fff
+
   .entry-row
     box-sizing: border-box
     border-top: 1px solid transparent
@@ -42,6 +48,7 @@
     border-radius: 0
     background: $orange
     outline: none
+    font-size: 14px
     &:hover
       background: darken(desaturate($orange, 5%), 5%)
 

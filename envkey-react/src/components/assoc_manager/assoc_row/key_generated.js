@@ -33,8 +33,13 @@ export default class KeyGenerated extends React.Component {
         (this.state.copied ? h.span(".copied", "Key copied.") : "")
       ]),
       h.div(".bottom-row", [
-        h.p(`Key generated. Now set your ${{server: "server's", appUser: "app's local"}[this.props.joinType]} ENVKEY environment variable. Don't store or send it anywhere else.`),
-        h.p("Envkey doesn't store the whole key, and therefore can't retrieve it, but you can always generate a new one."),
+        h.p([
+          `Key generated. Now set your ${{server: "server's", appUser: "app's local"}[this.props.joinType]}`,
+           h.strong([h.em(" ENVKEY"), " environment variable"]),
+           ".",
+           h.br(),
+           "We can't retrieve your key, but you can always generate a new one."
+        ]),
         h.a({href: "https://www.envkey.com/#integration", target: "__blank"}, "Integration quickstart ‣")
       ])
     ])

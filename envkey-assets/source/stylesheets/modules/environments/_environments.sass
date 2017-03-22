@@ -5,7 +5,7 @@
   .env-header
     position: fixed
     width: calc(100% - #{$sidebar-width + $app-tab-width})
-    margin-bottom: $app-tab-height
+    // margin-bottom: $app-tab-height
     top: 0
     z-index: 4
     left: $sidebar-width + $app-tab-width
@@ -14,17 +14,9 @@
     box-sizing: border-box
     padding-top: $env-grid-header-height
 
+  .env-grid
+    padding-top: $app-tab-height / 2
+
   &.app-parent.add-service .add-assoc
     width: 33%
     border-right: 1px solid hsl(0,0,90)
-
-  &.empty
-    .env-header
-      display: none
-      margin-bottom: 0
-
-    .env-grid
-      padding-top: $app-tab-height / 2
-
-    .label-row
-      top: 0

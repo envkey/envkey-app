@@ -1,5 +1,5 @@
 .sidebar
-  overflow-y: hidden
+  overflow: hidden
   position: fixed
   top: $header-height
   height: calc(100% - #{$header-height})
@@ -8,19 +8,25 @@
   background: $dark-bg-gradient
 
   .menu-sections
+    box-sizing: border-box
     background: $dark-bg-gradient
     position: absolute
     width: 100%
     // transition: height 0.15s ease-out
     bottom: 0
     // top: $sidebar-account-menu-height
+    height: calc(100% - #{$sidebar-account-menu-height})
+    overflow-y: auto
+    transition: opacity 0.15s ease-out
+    &.hide
+      opacity: 0
+      pointer-events: none
 
-    &, > div
-      height: calc(100% - #{$sidebar-account-menu-height})
-
+    &:hover
+      width: 100%
+      padding-right: 0
 
   .menu-content
-    height: calc(100% - #{$sidebar-tab-height})
     box-sizing: border-box
 
   .menu-section
@@ -38,16 +44,3 @@
     .menu-tab
       pointer-events: none
 
-  .menu-section
-    &.apps
-      z-index: 1
-    &.services
-      z-index: 2
-    &.users
-      z-index: 3
-
-  &.account-menu-expanded
-    .menu-sections
-      height: $sidebar-tab-height * 2
-      transition: height 0.0s linear
-      // transition-delay: 0.2s

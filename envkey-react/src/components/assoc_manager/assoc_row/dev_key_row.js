@@ -11,10 +11,6 @@ class DevKeyRow extends React.Component {
 
   _renderContents(){
     return [
-      h.div(".top-row", [
-        h.span(".primary", "Your Development Key")
-      ]),
-
       h.div(".bottom-row", [
         h(KeyableActions, {
           ...this.props,

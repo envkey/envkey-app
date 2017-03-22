@@ -1,0 +1,108 @@
+.key-manager
+  max-width: 450px
+
+  .key-section-head
+    padding: 20px 0 20px 25px
+    h4
+      margin-bottom: 7px
+      font-size: 14px
+      font-family: $condensed-font
+      color: hsl(0,0,60)
+      font-weight: 200
+
+    h2
+      font-family: $condensed-font
+      font-size: 22px
+      font-weight: 300
+      text-transform: uppercase
+      color: hsl(0,0,40)
+      margin-bottom: 15px
+
+      strong
+        font-weight: 500
+        color: $dark-blue
+
+    p
+      font-size: 13px
+      line-height: 150%
+      color: hsl(0,0,40)
+
+      a, a:visited
+        color: $dark-blue
+        text-decoration: none
+        &:hover
+          text-decoration: underline
+
+  .key-section-content
+    padding-left: 25px
+
+  .association-row, .key-manager .assocation-row
+    +clearfix
+    border: none
+    height: 69px
+    background: hsl(0,0,96)
+
+    padding: 20px
+
+    > .bottom-row, > div:not(.key-generated) > .bottom-row
+      padding: 0
+
+  .development-key-section
+    margin-bottom: 5px
+    .head .title
+      color: $light-orange
+
+  .association-manager
+    .column
+      float: none
+      width: 100%
+      border: none
+      height: auto
+      margin-top: 10px
+      margin-bottom: 40px
+
+      .column-header
+        +clearfix
+        margin-bottom: 5px
+
+      .column-body
+        height: auto
+        .sections
+          height: auto
+          width: 100%
+          overflow: hidden
+
+      .head
+        height: auto
+        float: left
+        padding: 0
+
+      .head .title
+        font-weight: 300
+        font-size: 15px
+        color: hsl(0,0,75)
+        em
+          font-weight: 500
+
+      .head .parent-name
+        display: none
+
+      .permissions
+        background: none
+        float: right
+        display: inline-block
+        height: auto
+        padding: 0
+
+        li
+          color: hsl(0,0,65)
+          font-size: 11.5px
+
+        li::before
+          content: ""
+
+    .keyable-column .section:last-of-type
+      border: none
+
+
+

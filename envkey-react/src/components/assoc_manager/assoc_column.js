@@ -41,6 +41,9 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderAddButton(){
+    if (this.props.columnsConfig.noAdd){
+      return
+    }
     if (this.props.config.isAddingAssoc){
       return h(SmallLoader)
     } else if (this._canAdd()) {
@@ -64,9 +67,13 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderHeader(){
-    const {title, subtitle} = this.props.config
+    const {title, subtitle} = this.props.config,
+          parentNameFn = this.props.columnsConfig.parentNameFn,
+          parentName = parentNameFn ? parentNameFn(this.props.parent) : this.props.parent.name
+
     return h.div(".column-header", [
       h.div(".head", [
+        h.h6(".parent-name", parentName),
         h.h4(".title", [
           h.em(title),
           (subtitle ? [" ", subtitle] : "")

@@ -18,6 +18,14 @@
       box-sizing: border-box
       padding: 0 15px
       background: #fff
+      position: relative
+
+    .parent-name
+      font-size: 14px
+      font-family: $condensed-font
+      color: hsl(0,0,60)
+      position: absolute
+      top: 12px
 
     .title, button, .small-loader
       position: relative
@@ -25,13 +33,17 @@
       transform: translateY(-50%)
 
     .title
-      font-family: $heading-condensed-font
+      font-family: $condensed-font
       text-transform: uppercase
-      color: $dark-text
-      font-size: 18px
-      font-weight: 400
+      color: hsl(0,0,40)
+      font-size: 20px
+      font-weight: 200
       position: relative
       float: left
+      top: calc(50% + 5px)
+
+      em
+        font-weight: 400
 
     button
       float: right
@@ -47,7 +59,7 @@
 
       > span
         position: relative
-        top: 1px
+        top: -4.5px
 
       &:hover
         background: rgba($dark-blue, 0.05)
@@ -56,7 +68,7 @@
       float: right
 
   .column-body
-    height: calc(100% - #{$app-tab-height * 2})
+    height: calc(100% - #{$app-tab-height * 2 + 1px})
 
   &.admin .column-header .title em
     color: $orange
@@ -71,6 +83,8 @@
     background: $darker-blue
     color: #fff
     font-size: 16px
+    span
+      top: -1px
 
   .permissions
     height: $app-tab-height
@@ -117,9 +131,6 @@
 
 .association-manager.app-server
   .keyable-column
-    .column-body
-      height: calc(100% - #{$app-tab-height * 1.5})
-
     &.production .column-header .head .title em
       color: $light-blue
 
@@ -128,12 +139,3 @@
 
     &.development .column-header .head .title em
       color: lighten($dark-text, 25%)
-
-  .permissions
-    height: $app-tab-height / 2
-
-    li::before
-      content: ""
-
-    span > strong
-      font-weight: 600

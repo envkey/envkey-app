@@ -4,6 +4,7 @@
     transition: box-shadow 0.1s linear
     border: 1px solid rgba(#fff, 0.0)
     position: relative
+    box-sizing: border-box
 
     &, span, input
       font-family: $code-font
@@ -37,7 +38,6 @@
     border-bottom: 1px solid rgba(#000,0.05)
     box-sizing: border-box
     padding-left: 15px
-    overflow-x: hidden
 
     span
       transition: color 0.1s linear
@@ -149,13 +149,17 @@
     transform: translateY(-50%)
     left: 100%
     transition: left 0.1s linear
+    visibility: hidden
 
   .cell.confirming
+    overflow-x: hidden
+
     .cell-contents
       right: calc(100% + 10px)
       transition: right 0.1s linear
 
     .confirm-action
+      visibility: visible
       left: 15px
       transition: left 0.1s linear 0.05s
 

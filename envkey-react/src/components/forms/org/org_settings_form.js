@@ -17,6 +17,9 @@ const label = "Organization"
 
   return h.div(".org-settings", [
     h(BasicRenameForm, {label, isRenaming, onRename, name: currentOrg.name}),
-    h(DeleteField, {label, isRemoving, onRemove})
+    h.div(".danger-zone", [
+      h.h3("Danger Zone"),
+      h(DeleteField, {label, isRemoving, onRemove, confirmName: currentOrg.name})
+    ])
   ])
 }

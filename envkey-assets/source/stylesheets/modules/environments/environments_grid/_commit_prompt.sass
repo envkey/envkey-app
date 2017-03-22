@@ -5,6 +5,7 @@
   left: -1px
   width: calc(100% + 2px)
   opacity: 0
+  visibility: hidden
   pointer-events: none
   z-index: 9
 
@@ -34,3 +35,8 @@
 .cell.editing .commit-prompt.show
   opacity: 1
   pointer-events: auto
+  visibility: visible
+
+.entry-cell .commit-prompt
+  width: calc(100% + 7px)
+  left: -6px

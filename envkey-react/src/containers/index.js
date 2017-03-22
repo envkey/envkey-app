@@ -11,3 +11,4 @@ export {default as SettingsFormContainerFactory } from './settings_form_containe
 export {default as DevKeyManagerContainer} from './dev_key_manager_container'
 export {default as AwaitingAccessContainer} from './awaiting_access_container'
 export {default as DemoLoginContainer} from './demo_login_container'
+export {default as KeyManagerContainer} from './key_manager_container'

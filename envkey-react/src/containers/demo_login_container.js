@@ -12,6 +12,7 @@ class DemoLoginContainer extends React.Component {
       const credentials = JSON.parse(Base64.decode(this.props.params.credentialsbs64))
 
       if (credentials && credentials.email && credentials.password){
+        console.log(credentials)
         this.props.login(R.pick(["email", "password"],credentials))
       } else {
         this._invalid()

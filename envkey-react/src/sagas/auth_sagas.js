@@ -260,6 +260,7 @@ function *onDecryptPrivkey({payload: passphrase}){
     })
 
     yield put({type: DECRYPT_PRIVKEY_SUCCESS, payload: privkey})
+    yield put({type: DECRYPT_ENVS})
   } catch (err){
     yield put({type: DECRYPT_PRIVKEY_FAILED, error: true, payload: err})
   }

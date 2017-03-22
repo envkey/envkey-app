@@ -1,7 +1,53 @@
 .side-menu
   box-sizing: border-box
-  padding-bottom: 5px
-  height: 100%
+
+  .menu-label
+    box-sizing: border-box
+    padding: 5px 8px 0
+    height: 38px
+    position: relative
+    overflow-x: hidden
+    background: rgba(#fff, 0.1)
+    line-height: 0
+    margin-bottom: 1px
+
+    label
+      font-family: $condensed-font
+      font-weight: 400
+      color: #fff // $light-orange
+      text-transform: uppercase
+      font-size: 14px
+      margin-right: 18px
+      transition: color 0.15s ease-out
+      display: inline-block
+
+    .line
+      width: 100%
+      opacity: 0.5
+
+    .toggle-icon
+      width: 12px
+      margin-right: 8px
+      position: relative
+      top: 1px
+
+    .type-icon
+      opacity: 0.6
+      width: 12px
+      margin-right: 8px
+      position: relative
+
+    &, *
+      cursor: pointer
+
+    &:hover
+      background: rgba(#fff, 0.2)
+
+  .menu-content
+    padding-bottom: 12px
+
+  &:last-of-type .menu-content
+    padding-bottom: 28px
 
   .menu-list
     margin-bottom: 10px
@@ -62,6 +108,9 @@
       img
         opacity: 0.8
 
+  .menu-list > .menu-item:first-of-type
+    border-top: 1px solid hsl(0,0,30)
+
   .menu-group .menu-item:last-of-type
     border-bottom: none
 
@@ -80,14 +129,18 @@
   .new-btn
     border: 1px solid rgba(#000, 0.8)
     background: none
-    margin: 0 9px
-    width: calc(100% - 18px)
+    margin: 10px 9px
+    width: calc(100% - 22px)
     box-shadow: 0px 0px 1px rgba(#fff, 0.2)
     outline-color: rgba(#fff, 0.1)
     z-index: 1
     position: relative
-    padding-bottom: 0
     height: $sidebar-menu-item-height
+    font-size: 13.5px
+
+
+    img
+      width: 17px
 
     &:hover
       background: rgba(#fff, 0.1)
@@ -96,3 +149,27 @@
     &.selected
       background: $darker-blue
       pointer-events: none
+
+  &.apps
+    .menu-label
+      padding-top: 5px
+      .type-icon
+        top: 4px
+        width: 11px
+        margin-right: 10px
+
+  &.users
+    .menu-label
+      padding-top: 6.5px
+      .type-icon
+        width: 13px
+        top: 4px
+
+  &.open
+    .menu-label
+      label
+        color: $light-orange
+
+      .toggle-icon
+        transform: rotate(90deg)
+

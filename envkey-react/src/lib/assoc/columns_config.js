@@ -114,34 +114,36 @@ export default function({
         rowDisplayType: ServerRowDisplay,
         addFormType: ServerForm,
         addLabel: "+",
+        noAdd: true,
+
         columns: [
           {
-            title: "Development",
-            subtitle: "Servers",
+            title: "Test",
+            subtitle: "Server Key",
             role: "development",
             groups: R.pick(["development"], serverGroups),
             keyLabel: "development",
-            permissionCopyLines: [h.span(["Connect to the ", h.strong("development"), " environment."])],
+            permissionCopyLines: [h.span(["Connects to the ", h.strong("development"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "development"}, state)
           },
           {
             title: "Staging",
-            subtitle: "Servers",
+            subtitle: "Server Key",
             role: "staging",
             groups: R.pick(["staging"], serverGroups),
             keyLabel: "staging",
-            permissionCopyLines: [h.span(["Connect to the ", h.strong("staging"), " environment."])],
+            permissionCopyLines: [h.span(["Connects to the ", h.strong("staging"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "staging"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "staging"}, state)
           },
           {
             title: "Production",
-            subtitle: "Servers",
+            subtitle: "Server Key",
             role: "production",
             groups: R.pick(["production"], serverGroups),
             keyLabel: "production",
-            permissionCopyLines: [h.span(["Connect to the ", h.strong("production"), " environment."])],
+            permissionCopyLines: [h.span(["Connects to the ", h.strong("production"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "production"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "production"}, state)
           }

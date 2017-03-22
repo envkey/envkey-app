@@ -23,8 +23,8 @@ import {
   ObjectFormContainerFactory,
   SettingsFormContainerFactory,
   AcceptInviteContainer,
-  DevKeyManagerContainer,
-  DemoLoginContainer
+  DemoLoginContainer,
+  KeyManagerContainer
 } from 'containers'
 
 const
@@ -105,13 +105,11 @@ export default class Routes extends React.Component {
 
           <Route path="apps/:slug" component={SelectedObjectContainerFactory({objectType: "app"})} >
 
-            <IndexRedirect to="vars" />
+            <IndexRedirect to="variables" />
 
-            <Route path="vars" component={EnvManagerContainerFactory({parentType: "app"})} />
+            <Route path="variables" component={EnvManagerContainerFactory({parentType: "app"})} />
 
-            <Route path="dev_key" component={DevKeyManagerContainer} />
-
-            <Route path="server_keys" component={AssocManagerContainerFactory({parentType: "app", assocType: "server"})} />
+            <Route path="keys" component={KeyManagerContainer} />
 
             <Route path="collaborators" component={AssocManagerContainerFactory({parentType: "app", assocType: "user", isManyToMany: true})} />
 
@@ -127,7 +125,7 @@ export default class Routes extends React.Component {
 
             <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", joinType: "appUser", isManyToMany: true})} />
 
-            <Route path="settings" component={SettingsFormContainerFactory({objectType: "user"})}/>
+            {/*<Route path="settings" component={SettingsFormContainerFactory({objectType: "user"})}/>*/}
 
           </Route>
 

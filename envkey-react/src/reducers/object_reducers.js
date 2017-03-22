@@ -61,9 +61,7 @@ const
     meta: {objectType}, payload
   })=> {
     if(pluralize(objectType) == objectTypePlural){
-
       return R.assoc(payload.id, payload, state)
-
     } else if (objectType == "app" && createAppAssocKeys.includes(objectTypePlural)){
 
       const associations = payload[objectTypePlural]

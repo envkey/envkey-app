@@ -17,6 +17,9 @@ export default function({
 
   return h.div(".app-settings", [
     h(BasicRenameForm, {label, isRenaming, onRename, name: app.name}),
-    h(DeleteField, {label, isRemoving, onRemove})
+    h.div(".danger-zone", [
+      h.h3("Danger Zone"),
+      h(DeleteField, {label, isRemoving, onRemove, confirmName: app.name})
+    ])
   ])
 }

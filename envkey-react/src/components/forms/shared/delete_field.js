@@ -2,21 +2,40 @@ import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from 'components/shared/small_loader'
 
-export default function({
-  label,
-  isRemoving,
-  onRemove,
-}){
+export default class DeleteField extends React.Component {
 
-  const renderButton = ()=> {
-    if(isRemoving){
-      return h(SmallLoader)
+  _onRemoveClick(){
+    if (this.props.confirmName){
+      if (this.refs.confirm.value == this.props.confirmName){
+        this.props.onRemove()
+      }
     } else {
-      return h.button({onClick: onRemove}, `Delete ${label}`)
+      this.props.onRemove()
     }
   }
 
-  return h.div(".delete-field", [
-    renderButton()
-  ])
+  render(){
+    return h.div(".delete-field", [
+      this._renderConfirmation(),
+      this._renderButton()
+    ])
+  }
+
+  _renderButton(){
+    if(this.props.isRemoving){
+      return h(SmallLoader)
+    } else {
+      return h.button({onClick: ::this._onRemoveClick}, `Delete ${this.props.label}`)
+    }
+  }
+
+  _renderConfirmation(){
+    if(this.props.confirmName){
+      const confirmPrompt = this.props.confirmPrompt || `the ${this.props.label.toLowerCase()} name`
+
+      return h.div(".delete-confirmation", [
+        h.input({ref: "confirm", placeholder: `To confirm, type ${confirmPrompt} here.`} )
+      ])
+    }
+  }
 }

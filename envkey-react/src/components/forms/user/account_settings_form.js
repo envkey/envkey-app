@@ -20,6 +20,15 @@ export default function({
       onSubmit: onUpdateSettings
     }),
 
-    h(DeleteField, {label: "My Account", isRemoving, onRemove})
+    h.div(".danger-zone", [
+      h.h3("Danger Zone"),
+      h(DeleteField, {
+        label: "Your Account",
+        isRemoving,
+        onRemove,
+        confirmName: [currentUser.firstName, currentUser.lastName].join(" "),
+        confirmPrompt: "your full name"
+      })
+    ])
   ])
 }

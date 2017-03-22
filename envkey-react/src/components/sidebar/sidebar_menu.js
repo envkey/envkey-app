@@ -6,21 +6,28 @@ import R from 'ramda'
 
 export default class SidebarMenu extends React.Component {
 
-  componentDidMount(){
-    this._scrollToSelected()
-  }
-
-  _scrollToSelected(){
-    if(this.refs.selected){
-      let containerHeight = this.refs.menuList.clientHeight,
-          rowHeight = this.refs.selected.clientHeight,
-          offset = this.refs.selected.offsetTop
-
-      if (offset + rowHeight > containerHeight){
-        this.refs.menuList.scrollTop = (offset + rowHeight)
-      }
+  constructor(props){
+    super(props)
+    this.state = {
+      open: this.props.defaultOpen || false
     }
   }
+
+  // componentDidMount(){
+  //   this._scrollToSelected()
+  // }
+
+  // _scrollToSelected(){
+  //   if(this.refs.selected){
+  //     let containerHeight = this.refs.menuList.clientHeight,
+  //         rowHeight = this.refs.selected.clientHeight,
+  //         offset = this.refs.selected.offsetTop
+
+  //     if (offset + rowHeight > containerHeight){
+  //       this.refs.menuList.scrollTop = (offset + rowHeight)
+  //     }
+  //   }
+  // }
 
   _label(item){
     return this.props.labelFn ? this.props.labelFn(item) : item.name
@@ -28,14 +35,33 @@ export default class SidebarMenu extends React.Component {
 
   render(){
     return (
-      <div className="side-menu">
-        <div ref="menuList" className="menu-list">
+      <div className={"side-menu " + this.props.type + (this.state.open ? " open" : "")}>
+        {this._renderMenuLabel()}
+        {this._renderMenuContent()}
+      </div>
+    )
+  }
+
+  _renderMenuLabel(){
+    return <div className="menu-label"
+                onClick={()=> this.setState({open: !this.state.open})}>
+      <img className="toggle-icon" src={imagePath("menu-toggle-black.svg")} />
+      <img className="type-icon" src={imagePath(this.props.icon)} />
+      <label>{this.props.label}</label>
+      <span className="line" />
+    </div>
+  }
+
+  _renderMenuContent(){
+    if (this.state.open){
+      return <div className="menu-content">
+        {this._renderNewButton()}
+        <div className="menu-list">
           {this.props.groups ? this._renderGroups() :
                                this._renderList(this.props.items)}
         </div>
-        {this._renderNewButton()}
       </div>
-    )
+    }
   }
 
   _renderGroups(){
@@ -54,7 +80,7 @@ export default class SidebarMenu extends React.Component {
 
   _renderList(items){
     return items.map((item, i)=>{
-      let itemSelected = this.props.selected && this.props.params.slug == item.slug,
+      let itemSelected = this.props.params.slug == item.slug,
           selectedClass = itemSelected ? "selected" : "",
           arrowIconPath ="menu-right-arrow-white.png",
           path = this.props.location.pathname.includes(`/${this.props.type}/${this.props.params.slug}`) ?
@@ -75,10 +101,10 @@ export default class SidebarMenu extends React.Component {
 
   _renderNewButton(){
     if (this.props.permissions.create[pluralize.singular(this.props.type)]){
-      const newSelected = this.props.selected && this.props.location.pathname.endsWith(`/${this.props.type}/new`)
+      const newSelected = this.props.location.pathname.endsWith(`/${this.props.type}/new`)
       return <Link to={`/${this.props.params.orgSlug}/${this.props.type}/new`}
                    className={"button img-button new-btn" + (newSelected ? " selected" : "")}>
-        <img src={imagePath("circle-plus.png")} />
+        <img src={imagePath(newSelected ? "circle-plus-white.svg" : "circle-plus-orange.svg")} />
         <span>{this.props.newBtnLabel}</span>
       </Link>
     }

@@ -96,7 +96,7 @@ var MultiSelect = React.createClass({
   render: function() {
     return (
       <div className="multi-select">
-        <Filter onFilter={this.onFilter} value={this.state.filter} placeholder={this.props.placeholder || "Filter candidates..."} />
+        <Filter onFilter={this.onFilter} value={this.state.filter} placeholder={this.props.placeholder || "Type here to filter..."} />
         <ul>{this.props.items.map(this.createItem)}</ul>
       </div>
     )

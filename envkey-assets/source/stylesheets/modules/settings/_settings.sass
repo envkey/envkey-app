@@ -1,0 +1,47 @@
+.settings
+  padding: 25px
+  max-width: 300px
+
+  input, button
+    width: 100%
+
+  input
+    margin-bottom: 10px
+
+
+  form.rename, form.object-form
+    padding: 0
+    margin-bottom: 25px
+    padding-bottom: 25px
+    border-bottom: 1px solid hsl(0,0,93)
+
+  form.object-form
+    button, input[type=submit]
+      background: lighten($darker-blue, 5%)
+
+      &:not([disabled]):hover
+        background: darken($darker-blue, 5%)
+
+
+  .danger-zone
+    h3
+      font-family: $condensed-font
+      text-transform: uppercase
+      font-size: 16px
+      border-bottom: 1px solid $light-orange
+      padding: 10px
+      color: #fff
+      background: $orange
+      font-weight: 400
+
+  .delete-field
+    padding: 20px 20px
+    width: 100%
+    box-sizing: border-box
+    border: 1px solid hsl(0,0,95)
+    border-top: none
+
+    // button
+    //   background: $orange
+    //   &:hover
+    //     background: darken($orange, 5%)

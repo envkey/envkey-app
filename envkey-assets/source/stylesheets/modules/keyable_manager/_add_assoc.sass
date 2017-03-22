@@ -1,6 +1,5 @@
 .add-assoc
   position: relative
-  top: -1px
   width: 100%
   height: 100%
   .tabs
@@ -10,7 +9,7 @@
       width: 50%
       text-align: center
       height: $app-tab-height / 2 - 1px
-      font-family: $heading-condensed-font
+      font-family: $condensed-font
       font-size: 13.5px
       background: #fff
       color: $darker-blue
@@ -34,4 +33,10 @@
         position: relative
         top: 45%
         transform: translateY(-50%)
+
+  &.has-tabs
+    top: -1px
+
+    .multi-select-form
+      height: calc(100% - #{$app-tab-height / 2})
 

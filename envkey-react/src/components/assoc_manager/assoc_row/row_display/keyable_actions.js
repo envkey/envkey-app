@@ -6,6 +6,7 @@ import copy from 'copy-to-clipboard'
 import {imagePath} from "lib/ui"
 import {capitalize} from "lib/utils/string"
 import SmallLoader from 'components/shared/small_loader'
+import KeyIcon from "components/shared/key_icon"
 
 export default function ({
   onRenew,
@@ -74,9 +75,15 @@ export default function ({
       return h.span(".key-label", contents)
     }
 
-  return h.div(".keyable-actions",[
+  return h.div(".keyable-actions", {
+    className: [
+      (keyGeneratedAt ? "has-key" : ""),
+      (isGeneratingAssocKey ? "generating-key" : "")
+    ].join(" ")
+
+  },[
     h.div(".key-info", [
-      h.img(".key-icon",{src: imagePath("envkey-small-icon-black.png")}),
+      h(KeyIcon),
       renderKeyLabel()
     ]),
     h.div(".actions", [

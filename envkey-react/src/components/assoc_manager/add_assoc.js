@@ -19,7 +19,9 @@ export default class AddAssoc extends React.Component {
   }
 
   render(){
-    return h.div(".add-assoc", [
+    return h.div(".add-assoc", {
+      className: (hasTabs(this.props) ? "has-tabs" : "")
+    }, [
       this._renderTabs(),
       this._renderContainer()
     ])
@@ -79,7 +81,7 @@ export default class AddAssoc extends React.Component {
       }),
       isSubmitting: this.props.isAddingAssoc,
       submitLabelFn: this.props.addExistingSubmitLabelFn,
-      placeholder: "Filter candidates...",
+      placeholder: "Type here to filter...",
       onSubmit: ids => this.props.addAssoc({ids, role: this.props.role})
     })
   }

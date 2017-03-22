@@ -12,7 +12,9 @@ const KeyGeneratable = AssociationRow => class extends AssociationRow {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.assoc.envkey &&
+    if (nextProps.assoc.id != this.props.assoc.id){
+      this.setState({showKeyGenerated: false})
+    } else if(nextProps.assoc.envkey &&
        nextProps.assoc.passphrase &&
        nextProps.assoc.keyGeneratedAt != this.props.assoc.keyGeneratedAt){
       this.setState({showKeyGenerated: true})

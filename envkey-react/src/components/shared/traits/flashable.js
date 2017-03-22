@@ -18,9 +18,11 @@ const Flashable = Wrapped => class extends Wrapped {
   }
 
   _renderFlash(){
-    return h.div(".msg-flash", {className: (this.state.showFlash ? "show": "")},[
-      h.span(this.state.flashText)
-    ])
+    if (this.state.showFlash){
+      return h.div(".msg-flash", {className: (this.state.showFlash && this.state.flashText ? "show": "")},[
+        h.span(this.state.flashText)
+      ])
+    }
   }
 
 }

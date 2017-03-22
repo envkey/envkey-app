@@ -1,10 +1,15 @@
 import React from 'react'
+import R from 'ramda'
 import EditableEntryCell from './editable_entry_cell'
 import Removable from './traits/removable'
 import OnRemoveConfirmable from './traits/on_remove_confirmable'
+import CommitPromptable from './traits/commit_promptable'
 
 // Make editable/removable cell class for base class
-const EditableRemovableCell = Removable(EditableEntryCell)
+const EditableRemovableCell = R.pipe(
+  Removable,
+  CommitPromptable
+)(EditableEntryCell)
 
 class EnvEntryCell extends EditableRemovableCell {
 

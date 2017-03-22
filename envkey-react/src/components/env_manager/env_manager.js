@@ -13,7 +13,7 @@ export default class EnvManager extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      addVar: false,
+      addVar: true,
       addService: false,
       hideValues: true,
       filter: "",
@@ -21,24 +21,24 @@ export default class EnvManager extends React.Component {
     }
   }
 
-  componentDidMount() {
-    if (this.props.envsAreDecrypted &&
-        !this.state.emptyOnInit &&
-        this._isEmpty(this.props)){
-      this.setState({addVar: true, emptyOnInit: true})
-    }
-  }
+  // componentDidMount() {
+  //   if (this.props.envsAreDecrypted &&
+  //       !this.state.emptyOnInit &&
+  //       this._isEmpty(this.props)){
+  //     this.setState({addVar: true, emptyOnInit: true})
+  //   }
+  // }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.envsAreDecrypted &&
-        !this.state.emptyOnInit &&
-        this._isEmpty(nextProps)){
-      this.setState({addVar: true, emptyOnInit: true})
-    } else if (nextProps.parent.id != this.props.parent.id) {
-      const isEmpty = this._isEmpty(nextProps)
-      this.setState({addVar: isEmpty, emptyOnInit: isEmpty})
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (this.props.envsAreDecrypted &&
+  //       !this.state.emptyOnInit &&
+  //       this._isEmpty(nextProps)){
+  //     this.setState({addVar: true, emptyOnInit: true})
+  //   } else if (nextProps.parent.id != this.props.parent.id) {
+  //     const isEmpty = this._isEmpty(nextProps)
+  //     this.setState({addVar: isEmpty, emptyOnInit: isEmpty})
+  //   }
+  // }
 
   _isEmpty(arg=null){
     const props = arg || this.props

@@ -1,8 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 
-let showedCommitPrompt = false // just using a dirty dirty global to show prompt once per session only
-
 const CommitPromptable = Editable => class extends Editable {
 
   constructor(props){
@@ -10,19 +8,24 @@ const CommitPromptable = Editable => class extends Editable {
 
     this.state = {
       ...(this.state || {}),
-      showCommitPrompt: false
+      showCommitPrompt: false,
+      showedPrompt: false
     }
   }
 
   _onEdit(){
     super._onEdit()
-    if(!showedCommitPrompt)this._flashCommitPrompt()
+    this.setState({showCommitPrompt: false, showedPrompt: false})
+  }
+
+  _onInputChange(e){
+    super._onInputChange(e)
+    if(!this.state.showedPrompt)this._flashCommitPrompt()
   }
 
   _flashCommitPrompt(){
-    this.setState({showCommitPrompt: true})
-    setTimeout(this.setState.bind(this, {showCommitPrompt: false}), 3000)
-    showedCommitPrompt = true
+    this.setState({showCommitPrompt: true, showedPrompt: true})
+    setTimeout(this.setState.bind(this, {showCommitPrompt: false}), 5000)
   }
 
   _renderCellContents(){
@@ -33,6 +36,10 @@ const CommitPromptable = Editable => class extends Editable {
 
   _renderCommitPrompt(){
     const className = "commit-prompt " + (this.state.showCommitPrompt ? "show" : "")
+
+    if (className.endsWith("show")){
+      console.log(className)
+    }
 
     return h.div({className}, [
       h.div(".col-left",[

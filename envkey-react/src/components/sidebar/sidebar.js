@@ -19,8 +19,7 @@ const defaultSelected = props => {
 
 const defaultState = props => {
   return {
-    selected: defaultSelected(props),
-    accountMenuExpanded: defaultAccountMenuExpanded(props)
+    accountMenuOpen: defaultAccountMenuExpanded(props)
   }
 }
 
@@ -40,80 +39,71 @@ export default class Sidebar extends React.Component {
     this.setState(defaultState(props))
   }
 
-  _menuSelectedClass(type){
-    return (!this.state.accountMenuExpanded && this.state.selected == type ? "selected" : "")
-  }
-
   _onTabClick(type, e){
-    this.setState({selected: type, accountMenuExpanded: false})
+    this.setState({selected: type, accountMenuOpen: false})
   }
 
   render(){
     return (
       <div>
         <div className={"sidebar"  +
-                       (this.state.accountMenuExpanded ? " account-menu-expanded" : "")} >
+                       (this.state.accountMenuOpen ? " account-menu-open" : "")} >
 
           <AccountMenu {...this.props}
-                       onToggleExpanded={()=> this.setState(state => ({accountMenuExpanded: !state.accountMenuExpanded}))} />
+                       isOpen={this.state.accountMenuOpen}
+                       onToggle={()=> this.setState(state => ({accountMenuOpen: !state.accountMenuOpen}))} />
 
-          <section className="menu-sections">
-
-            {this._renderMenuListSection("users",
-                                         "User",
-                                         this.props.users,
-                                         {pathFn: (item => `/${this.props.currentOrg.slug}/users/${item.slug}/apps`),
-                                          labelFn: (item => [<span key="0">{item.firstName + " "}</span>,
-                                                             <strong key="1">{item.lastName}</strong>]),
-                                          newBtnLabel: "Invite User",
-                                          groups: R.reverse(ORG_ROLES),
-                                          groupLabelFn: orgRoleGroupLabel})}
-
-            {this._renderMenuListSection("apps",
-                                         "App",
-                                         this.props.apps,
-                                         {pathFn: (item => `/${this.props.currentOrg.slug}/apps/${item.slug}/environments`),
-                                          newBtnLabel: "New App"})}
-
-          </section>
+          {this._renderMenuSections()}
 
         </div>
       </div>
     )
   }
 
-  // {this._renderMenuListSection("services",
-  //                                        "Mixin",
-  //                                        this.props.services,
-  //                                        {pathFn: (item => `/${this.props.currentOrg.slug}/services/${item.slug}/environments`),
-  //                                         newBtnLabel: "New Mixin" })}
+  _renderMenuSections(){
+    const selected = defaultSelected(this.props)
+    return <section className={[
+      "menu-sections",
+      (this.state.accountMenuOpen ? " hide" : "")
+      ].join(" ")}>
 
-  _renderMenuSection(type, label, contents){
-    return <section className={["menu-section",
-                                type,
-                                this._menuSelectedClass(type)].join(" ")}>
-      <div className="menu-tab"
-           onClick={this._onTabClick.bind(this, type)}>
-        <label>{label}</label>
-        <span className="line" />
-      </div>
-      <div className="menu-content">
-        {contents}
-      </div>
+      {this._renderMenuListSection("apps",
+                                   "Apps",
+                                   this.props.apps,
+                                   "menu-lightning-white.svg",
+                                   {defaultOpen: selected == "apps",
+                                    pathFn: (item => `/${this.props.currentOrg.slug}/apps/${item.slug}`),
+                                    newBtnLabel: "New App"})}
+
+      {this._renderMenuListSection("users",
+                                   "Users",
+                                   this.props.users,
+                                   "menu-user-white.svg",
+                                   {defaultOpen: selected == "users",
+                                    pathFn: (item => `/${this.props.currentOrg.slug}/users/${item.slug}/apps`),
+                                    labelFn: (item => [<span key="0">{item.firstName + " "}</span>,
+                                                       <strong key="1">{item.lastName}</strong>]),
+                                    newBtnLabel: "Invite User",
+                                    groups: R.reverse(ORG_ROLES),
+                                    groupLabelFn: orgRoleGroupLabel})}
+
+
+
     </section>
   }
 
-  _renderMenuListSection(type, label, items, componentParams){
-    if (this.props.permissions.read[pluralize.singular(type)]){
-      let selected = type == this.state.selected,
-          menu = <SidebarMenu {...this.props}
-                              {...componentParams}
-                              selected={selected}
-                              type={type}
-                              items={items}
-                              menuLabel={label} />
+  // {this._renderMenuListSection("services",
+  //                                        "Mixin",
+  //                                        this.props.services,
+  //                                        {pathFn: (item => `/${this.props.currentOrg.slug}/services/${item.slug}`),
+  //                                         newBtnLabel: "New Mixin" })}
 
-      return this._renderMenuSection(type, (label + "s"), menu)
+
+  _renderMenuListSection(type, label, items, icon, componentParams){
+    if (this.props.permissions.read[pluralize.singular(type)]){
+      return <SidebarMenu {...this.props}
+                          {...componentParams}
+                          {...{type, items, label, icon}} />
     }
   }
 

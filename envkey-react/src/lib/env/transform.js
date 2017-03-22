@@ -1,11 +1,12 @@
 import R from 'ramda'
 import {inheritedVal} from './inheritance'
 
-const getMetaToValFn = (envsWithMeta)=> (meta, entryKey)=>{
-  return meta.inherits ?
-    inheritedVal({entryKey, envsWithMeta, inherits: meta.inherits}) :
-    (meta.val || undefined)
-}
+const
+  getMetaToValFn = (envsWithMeta)=> (meta, entryKey)=>{
+    return meta.inherits ?
+      inheritedVal({entryKey, envsWithMeta, inherits: meta.inherits}) :
+      (meta.val || undefined)
+  }
 
 export const
   rawEnv = ({envsWithMeta, environment})=> {

@@ -64,15 +64,13 @@ export default function({parentType,
 
     renderShowHide = ()=> {
       if (!addService && !isEmpty){
-        return h.button(".split-strong.show-hide-toggle", {
-          onClick: onToggleHideValues
-        }, [
-          // h.img({src: imagePath("eye-black.svg")}),
-          h.span([
-            (hideValues ? "Show" : "Hide"),
-            " ",
-            h.strong("Values")
-          ])
+        return h.label(".show-hide",[
+          h.input({
+            type: "checkbox",
+            checked: hideValues,
+            onClick: onToggleHideValues
+          }),
+          "Hide values"
         ])
       }
     },
@@ -86,9 +84,9 @@ export default function({parentType,
 
 
   return h.header(".env-header", [
-    renderFilter(),
-    renderAddVar(),
-    renderAddService(),
+    // renderFilter(),
+    // renderAddVar(),
+    // renderAddService(),
     renderShowHide(),
     renderUpdatingEnv()
   ])

@@ -1,5 +1,4 @@
 .account-menu
-  height: calc(100% - #{$sidebar-tab-height * 2})
   width: 100%
   color: #fff
   box-sizing: border-box
@@ -11,7 +10,7 @@
     background: hsl(0,0,12)
     height: $sidebar-account-menu-height
     width: 100%
-    font-family: $heading-condensed-font
+    font-family: $condensed-font
     font-size: 12.5px
     transition: background 0.15s ease-out
 
@@ -41,7 +40,7 @@
     float: right
     width: 38%
 
-  .expand
+  .toggle
     text-align: center
     transition: background 0.15s ease-out
     cursor: pointer
@@ -79,7 +78,7 @@
   .org
     color: $lighter-blue
 
-  .expanded-menu
+  .menu-body
 
     > a
       display: block
@@ -87,7 +86,7 @@
       font-size: 11.5px
       font-weight: 300
       border-bottom: 1px solid rgba(#fff, 0.1)
-      height: $sidebar-menu-item-height
+      height: $sidebar-menu-item-height * 1.2
       box-sizing: border-box
       padding-left: 8px
       position: relative
@@ -103,7 +102,7 @@
       > span
         margin-left: 10px
         position: relative
-        top: 10px
+        top: 13px
         color: rgba(#fff, 0.9)
         transition: color 0.15s ease-out
 
@@ -121,10 +120,8 @@
         border-bottom: none
 
 
-.account-menu-expanded .account-menu
-  height: calc(100% - #{$sidebar-tab-height * 2})
-
-  .expand
+.account-menu-open .account-menu
+  .toggle
     background: $light-blue
     > img
       opacity: 1

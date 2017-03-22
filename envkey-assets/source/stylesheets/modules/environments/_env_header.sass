@@ -1,15 +1,12 @@
 .env-header
   box-sizing: border-box
   padding: 0 0
-  background: $dark-bg-gradient
-  height: $app-tab-height / 2
 
   button.split-strong
     float: left
     width: 12.5%
     height: 100%
     box-sizing: border-box
-    font-size: 12.5px
     border-radius: 0
     color: $light-orange
     background: hsla(0,0,28,0)
@@ -35,11 +32,35 @@
     &.show-hide-toggle
       color: $lighter-blue
 
-  .filter
-    width: 25%
-    font-size: 13px
+  .show-hide
     position: absolute
-    top: 100%
+    top: 0
+    padding: 9px 12px
+    right: 75%
+    font-size: 11px
+    font-weight: 400
+    text-transform: uppercase
+    font-family: $condensed-font
+    border-left: 1px solid rgba(#fff, 0.1)
+    transition: background 0.15s ease-out
+    color: #fff
+    &:hover
+      background: rgba(#000,0.05)
+
+    input
+      margin-right: 8px
+
+    &, *
+      cursor: pointer
+
+
+  .filter
+    width: calc(25% - #{$sidemenu-width / 4})
+    height: auto
+    font-size: 13px
+    position: fixed
+    right: 0
+    top: $app-tab-height
     input
       width: calc(100% - 35px)
       border-bottom: 1px solid rgba(#000,0.05)
@@ -51,7 +72,7 @@
     top: $app-tab-height / 2
     height: $env-grid-header-height
     width: $env-grid-fixed-col-width
-    font-family: $heading-condensed-font
+    font-family: $condensed-font
     font-size: 14px
     font-weight: 300
     left: $sidebar-width + $app-tab-width
@@ -86,42 +107,46 @@
       pointer-events: none
 
   .updating-env-msg
-    float: right
+    float: left
+    height: $app-tab-height / 2
     opacity: 0
+    pointer-events: none
     transition: opacity 0.8s ease-out 0.5s
-    display: inline-block
-    height: 100%
-    margin-right: 25px
-
-    padding-left: 30px
+    display: block
+    padding-left: 50px
     position: relative
+    box-sizing: border-box
+    width: 25%
+    background: lighten($dark-bg, 4%)
 
     > span
       color: rgba(#fff, 0.9)
-      font-family: $heading-condensed-font
+      font-family: $condensed-font
       text-transform: uppercase
-      font-weight: 600
-      font-size: 11px
+      font-weight: 400
+      font-size: 12px
       position: relative
-      top: 11px
+      top: 9px
 
     .broadcast-loader
       position: absolute
-      top: calc(50% - 10px)
-      left: 0
+      top: 8px
+      left: 20px
       opacity: 0.8
 
       > svg
-        width: 20px
-        height: 20px
+        width: 18px
+        height: 18px
 
         circle, path
           fill: $light-orange
 
-.updating-env .env-header
+.updating-env
+
   .updating-env-msg
     opacity: 1
     transition: opacity 0.1s ease-out
+    pointer-events: default
 
 .service-parent .env-header
   .filter
