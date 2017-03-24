@@ -6,7 +6,7 @@ require 'rack/rewrite'
 
 build_env =
   if build?
-    ENV["PRODUCTION_BUILD"] ? "production" : "staging"
+    ENV["PRODUCTION_BUILD"] ? "production" : (ENV["DEMO_BUILD"] ? "demo" : "staging")
   else
     "development"
   end
