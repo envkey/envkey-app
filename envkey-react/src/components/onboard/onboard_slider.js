@@ -103,7 +103,7 @@ export const
 
     h.div(".slide-1", [
 
-      h.h1(["It turned ", h.em(".blue", " blue.")]),
+      h.h1(["It turned ", h.em(".blue", " blue!")]),
 
       h.p("That means a new OpenPGP keypair was generated and your config was encrypted with the public key. "),
 
