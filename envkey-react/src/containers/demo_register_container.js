@@ -11,7 +11,7 @@ class DemoRegister extends React.Component {
       lastName: "Ofdemo",
       email: `demo-${secureRandomAlphanumeric(6)}@envkeydemo.com`,
       password: secureRandomAlphanumeric(10),
-      org: {name: `Demo Org ${secureRandomAlphanumeric(4)}`}
+      org: {name: `Demo Org-${secureRandomAlphanumeric(4)}`}
     })
   }
 
