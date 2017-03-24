@@ -16,29 +16,9 @@ export default class EnvManager extends React.Component {
       addVar: true,
       addService: false,
       hideValues: true,
-      filter: "",
-      emptyOnInit: false,
+      filter: ""
     }
   }
-
-  // componentDidMount() {
-  //   if (this.props.envsAreDecrypted &&
-  //       !this.state.emptyOnInit &&
-  //       this._isEmpty(this.props)){
-  //     this.setState({addVar: true, emptyOnInit: true})
-  //   }
-  // }
-
-  // componentWillReceiveProps(nextProps) {
-  //   if (this.props.envsAreDecrypted &&
-  //       !this.state.emptyOnInit &&
-  //       this._isEmpty(nextProps)){
-  //     this.setState({addVar: true, emptyOnInit: true})
-  //   } else if (nextProps.parent.id != this.props.parent.id) {
-  //     const isEmpty = this._isEmpty(nextProps)
-  //     this.setState({addVar: isEmpty, emptyOnInit: isEmpty})
-  //   }
-  // }
 
   _isEmpty(arg=null){
     const props = arg || this.props
@@ -60,15 +40,21 @@ export default class EnvManager extends React.Component {
     this.props.createService(...args)
   }
 
-  render(){
-    const className = "environments " +
-                      [this.props.parentType, "parent"].join("-") +
-                      (this.state.addVar ? " add-var" : "") +
-                      (this.state.addService ? " add-service" : "") +
-                      (this.props.isUpdatingEnv ? " updating-env" : "") +
-                      (this._isEmpty() ? " empty" : "")
+  _classNames(){
+    return [
+      "environments",
+      [this.props.parentType, "parent"].join("-"),
+      (this.state.addVar ? "add-var" : ""),
+      (this.state.addService ? "add-service" : ""),
+      (this.props.isUpdatingEnv ? "updating-env" : ""),
+      (this._isEmpty() ? "empty" : ""),
+      (this.state.hideValues ? "hide-values" : ""),
+      (this.props.hasAnyVal ? "" : "has-no-val")
+    ]
+  }
 
-    return h.div({className}, this._renderContents())
+  render(){
+    return h.div({className: this._classNames().join(" ")}, this._renderContents())
   }
 
   _renderContents(){
@@ -96,7 +82,7 @@ export default class EnvManager extends React.Component {
   _renderHeader(){
     return h(EnvHeader, {
       ...this.props,
-      ...R.pick(["addVar", "addService", "hideValues", "emptyOnInit"], this.state),
+      ...R.pick(["addVar", "addService", "hideValues"], this.state),
       isEmpty: this._isEmpty(),
       onFilter: s => this.setState({filter: s.trim().toLowerCase()}),
       onToggleHideValues: ()=> this.setState(state => ({hideValues: !state.hideValues})),
@@ -119,5 +105,5 @@ export default class EnvManager extends React.Component {
       ...R.pick(["hideValues", "filter", "addVar"], this.state)
     })
   }
-
 }
+

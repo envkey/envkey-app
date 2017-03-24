@@ -12,6 +12,7 @@ export default function({parentType,
                          isEmpty,
                          isUpdatingEnv,
                          entries,
+                         hasAnyVal,
                          onToggleHideValues,
                          onFilter,
                          onAddVar,
@@ -63,14 +64,14 @@ export default function({parentType,
     },
 
     renderShowHide = ()=> {
-      if (!addService && !isEmpty){
+      if (!addService && !isEmpty && hasAnyVal){
         return h.label(".show-hide",[
           h.input({
             type: "checkbox",
             checked: hideValues,
             onClick: onToggleHideValues
           }),
-          "Hide values"
+          h.img({src: imagePath("hide-white.svg")})
         ])
       }
     },

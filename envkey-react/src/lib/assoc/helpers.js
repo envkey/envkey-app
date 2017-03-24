@@ -1,5 +1,6 @@
 import {camelize, decamelize} from 'xcase'
 import pluralize from 'pluralize'
+import R from 'ramda'
 
 export const
   getJoinType = ({parentType, assocType, isManyToMany})=> {
@@ -27,4 +28,15 @@ export const
            joinTable = decamelize(pluralize(joinType || getJoinType(meta)))
 
     return `/${parentTable}/${parentId}/${joinTable}${targetPath}.json`
-  }
+  },
+
+  getColumnsFlattened = R.pipe(
+    R.map(
+      R.pipe(
+        R.prop('groups'),
+        R.values
+      )
+    ),
+
+    R.flatten
+  )

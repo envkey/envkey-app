@@ -9,3 +9,4 @@ ReactDOM.render(<Routes />, document.getElementById('wrap'))
 
 crypto.init()
 
+document.body.className += " react-loaded"

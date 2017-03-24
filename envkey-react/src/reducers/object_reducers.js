@@ -70,7 +70,6 @@ const
       }, state)
 
     }
-
     return state
   },
 

@@ -5,7 +5,7 @@ import { push } from 'react-router-redux'
 import R from 'ramda'
 import {Base64} from 'js-base64'
 
-class DemoLoginContainer extends React.Component {
+class DemoLogin extends React.Component {
 
   componentDidMount(){
     try {
@@ -46,5 +46,5 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DemoLoginContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(DemoLogin)
 

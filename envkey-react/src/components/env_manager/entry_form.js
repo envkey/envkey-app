@@ -33,7 +33,7 @@ export default class EntryForm extends React.Component {
   }
 
   _renderSubmit(){
-    return h.button(".submit",{onClick: ::this._onSubmit}, "Add Var")
+    return h.button(".submit",{onClick: ::this._onSubmit}, "Add Variable")
   }
 
 }

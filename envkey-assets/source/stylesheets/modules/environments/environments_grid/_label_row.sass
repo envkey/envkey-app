@@ -3,9 +3,10 @@
 
 .label-row
   position: fixed
-  right: 0
+  left: $sidemenu-width
   top: 0
   width: calc(100% - #{$sidemenu-width})
+  min-width: $min-width - $sidemenu-width
   z-index: 3
   background: $dark-bg-gradient
 
@@ -62,7 +63,8 @@
         display: none
       label
         text-align: left
-        margin-left: 15px
+        box-sizing: border-box
+        padding: 0 15px
         text-transform: none
         font-family: $default-font
         font-weight: 200
@@ -72,11 +74,10 @@
         white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
-        width: calc(100% - 118px)
+        width: calc(100% - 65px)
         line-height: 16px
 
 
-
-
-
+.has-no-val .label-cell.title-cell label
+  width: 100%
 

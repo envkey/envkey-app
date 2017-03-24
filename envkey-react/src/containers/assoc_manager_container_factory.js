@@ -22,7 +22,13 @@ import {
 import AssocManager from 'components/assoc_manager'
 import {getTrueParentAssoc, getJoinType} from "lib/assoc/helpers"
 
-export default function({parentType, assocType, joinType, isManyToMany=false}){
+export default function({
+  AssocManagerClass,
+  parentType,
+  assocType,
+  joinType,
+  isManyToMany=false
+}){
 
   const mapStateToProps = (state, ownProps) => {
     const parent = ownProps[parentType]
@@ -71,5 +77,5 @@ export default function({parentType, assocType, joinType, isManyToMany=false}){
     }
   }
 
-  return connect(mapStateToProps, mapDispatchToProps)(AssocManager)
+  return connect(mapStateToProps, mapDispatchToProps)(AssocManagerClass || AssocManager)
 }

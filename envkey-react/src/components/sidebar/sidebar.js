@@ -19,7 +19,8 @@ const defaultSelected = props => {
 
 const defaultState = props => {
   return {
-    accountMenuOpen: defaultAccountMenuExpanded(props)
+    accountMenuOpen: defaultAccountMenuExpanded(props),
+    scrollX: 0
   }
 }
 
@@ -28,6 +29,14 @@ export default class Sidebar extends React.Component {
     super(props)
     this.state = defaultState(props)
   }
+
+  // componentDidMount() {
+  //   if(window)window.addEventListener("scroll",::this._onWindowScroll)
+  // }
+
+  // componentWillUnmount() {
+  //   if(window)window.removeEventListener("scroll",::this._onWindowScroll)
+  // }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.location.pathname != nextProps.location.pathname || !R.equals(this.props.params, nextProps.params)){
@@ -43,11 +52,20 @@ export default class Sidebar extends React.Component {
     this.setState({selected: type, accountMenuOpen: false})
   }
 
+  _onWindowScroll(){
+    const scrollX = window.scrollX
+    if (scrollX > 0 && this.state.scrollX != scrollX){
+      this.setState({scrollX: -scrollX})
+    }
+  }
+
   render(){
     return (
       <div>
         <div className={"sidebar"  +
-                       (this.state.accountMenuOpen ? " account-menu-open" : "")} >
+                       (this.state.accountMenuOpen ? " account-menu-open" : "")}
+
+             style={{left: this.state.scrollX}}  >
 
           <AccountMenu {...this.props}
                        isOpen={this.state.accountMenuOpen}

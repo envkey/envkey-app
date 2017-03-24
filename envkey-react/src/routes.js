@@ -24,8 +24,12 @@ import {
   SettingsFormContainerFactory,
   AcceptInviteContainer,
   DemoLoginContainer,
-  KeyManagerContainer
+  DemoRegisterContainer,
+  KeyManagerContainer,
+  OnboardOverlayContainer,
+  AppCollaboratorsContainer
 } from 'containers'
+import OnboardAppForm from 'components/onboard/onboard_app_form'
 
 const
   UserAuthenticated = UserAuthWrapper({
@@ -95,11 +99,21 @@ export default class Routes extends React.Component {
 
         <Route path="/demo/:credentialsbs64" component={DemoLoginContainer} />
 
+        <Route path="/demo" component={DemoRegisterContainer} />
+
         <Route path="/select_org" component={OrgsLoaded(UserAuthenticated(SelectOrgContainer))} />
 
         <Route path="/:orgSlug" component={OrgSelected(UserAuthenticated(MainContainer))}>
 
           <IndexRoute />
+
+          <Route path="onboard" component={OnboardOverlayContainer} >
+
+            <IndexRedirect to="1" />
+
+            <Route path="1" component={OnboardAppForm} />
+
+          </Route>
 
           <Route path="apps/new" component={ObjectFormContainerFactory({objectType: "app"})} />
 
@@ -111,7 +125,7 @@ export default class Routes extends React.Component {
 
             <Route path="keys" component={KeyManagerContainer} />
 
-            <Route path="collaborators" component={AssocManagerContainerFactory({parentType: "app", assocType: "user", isManyToMany: true})} />
+            <Route path="collaborators" component={AppCollaboratorsContainer} />
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "app"})}/>
 

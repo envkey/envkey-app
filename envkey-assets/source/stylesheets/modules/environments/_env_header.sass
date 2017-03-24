@@ -48,7 +48,13 @@
       background: rgba(#000,0.05)
 
     input
-      margin-right: 8px
+      margin-right: 10px
+      float: left
+
+    img
+      width: 23px
+      transition: opacity 0.15s ease-out
+      opacity: 0.4
 
     &, *
       cursor: pointer
@@ -142,11 +148,13 @@
           fill: $light-orange
 
 .updating-env
-
   .updating-env-msg
     opacity: 1
     transition: opacity 0.1s ease-out
     pointer-events: default
+
+  .show-hide
+    opacity: 0
 
 .service-parent .env-header
   .filter
@@ -159,6 +167,9 @@
     .env-header button.split-strong.selected
       color: $lighter-blue
 
+.hide-values .env-header
+  .show-hide img
+    opacity: 1
 
 
 

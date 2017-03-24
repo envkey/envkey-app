@@ -31,6 +31,13 @@ export const
     R.sort(R.ascend(R.identity))
   )),
 
+  getHasAnyVal = defaultMemoize(R.pipe(
+    R.values,
+    R.map(R.values),
+    R.flatten,
+    R.any(R.prop('val'))
+  )),
+
   getAppEnvironmentsAccessible = db.path("appEnvironmentsAccessible"),
 
   getEnvsWithMetaWithPending = (opts, state)=> {

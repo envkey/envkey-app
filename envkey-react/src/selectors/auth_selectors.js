@@ -24,6 +24,8 @@ export const
 
   getInvitedBy = db.path("invitedBy"),
 
+  getIsOnboarding = db.path("isOnboarding"),
+
   getEncryptedPrivkey = db.path("encryptedPrivkey"),
 
   getCurrentUserErr = db.path("currentUserErr"),

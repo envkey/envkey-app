@@ -206,6 +206,7 @@ export default function({
         addLabel: "+",
         addExistingSubmitLabelFn: (n)=> "Add Apps",
         addExistingTextFn: R.prop("name"),
+        parentNameFn: ({firstName, lastName})=> [firstName, lastName].join(" "),
         columns
       }
 

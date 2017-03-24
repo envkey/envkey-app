@@ -145,11 +145,12 @@ const
   })
 
 function *onAppLoaded(){
-  document.getElementById("preloader-overlay").className = "hide"
+  document.getElementById("preloader-overlay").className += " hide"
   document.body.className = document.body.className.replace("no-scroll","")
 }
 
 function *onLogin({payload}){
+  document.body.className += " preloader-authenticate"
   yield call(delay, 50)
   yield put({type: HASH_USER_PASSWORD, payload})
   const {payload: {hashedPassword}} = yield take(HASH_USER_PASSWORD_SUCCESS)
@@ -175,6 +176,7 @@ function *onHashPasswordAndGenerateKeys({payload}){
 }
 
 function *onAcceptInvite({payload}){
+  document.body.className += " preloader-authenticate"
   yield call(delay, 50)
 
   yield put({type: HASH_PASSWORD_AND_GENERATE_KEYS, payload})
@@ -189,7 +191,8 @@ function *onAcceptInvite({payload}){
 }
 
 function *onRegister({payload}){
-  yield call(delay, 50)
+  document.body.className += " preloader-register"
+  yield call(delay, 500)
 
   yield put({type: HASH_PASSWORD_AND_GENERATE_KEYS, payload})
 
@@ -325,7 +328,7 @@ function *redirectFromOrgIndexIfNeeded(){
     if (apps.length){
       yield put(replace(`/${orgSlug}/apps/${apps[0].slug}`))
     } else if (permissions.create.app){
-      yield put(replace(`/${orgSlug}/apps/new`))
+      yield put(replace(`/${orgSlug}/onboard`))
     }
   }
 }

@@ -6,37 +6,44 @@ import DecryptForm from 'components/shared/decrypt_form'
 import DecryptLoader from 'components/shared/decrypt_loader'
 import {AwaitingAccessContainer} from 'containers'
 
-export default function(props) {
-  const
-    {columnsConfig} = props,
+export default class AssocManager extends React.Component {
 
-    renderColumns = ()=> columnsConfig.columns.map((config, i) => {
+  _classNames(){
+    return [
+      `${this.props.parentType}-${this.props.assocType}`
+    ]
+  }
+
+  render(){
+    return h.div(".association-manager",
+      {className: this._classNames().join(" ")},
+      this._renderContents()
+    )
+  }
+
+  _renderContents(){
+    if (!this.props.envAccessGranted){
+      return [h(AwaitingAccessContainer)]
+    } else if(this.props.envsAreDecrypted || this.props.isDecrypting){
+      return this._renderColumns().concat([
+        h(DecryptLoader, this.props)]
+      )
+    }  else {
+      return [h(DecryptForm, {onSubmit: this.props.decrypt})]
+    }
+  }
+
+  _renderColumns(){
+    const {columnsConfig} = this.props
+    return columnsConfig.columns.map((config, i) => {
       const hideWhenFn = config.hideWhenFn
       if(!(hideWhenFn && hideWhenFn))
       return h(AssocColumn, {
-        ...props,
+        ...this.props,
         config,
         key: i,
         rowDisplayType: columnsConfig.rowDisplayType
       })
-    }),
-
-    renderContents = ()=> {
-      if (!props.envAccessGranted){
-        return [h(AwaitingAccessContainer)]
-      } else if(props.envsAreDecrypted || props.isDecrypting){
-        return [
-          renderColumns().concat([
-            h(DecryptLoader, props)]
-          )
-        ]
-      }  else {
-        return [h(DecryptForm, {onSubmit: props.decrypt})]
-      }
-    }
-
-  return h.div(".association-manager",
-    {className: `${props.parentType}-${props.assocType}`},
-    renderContents()
-  )
+    })
+  }
 }

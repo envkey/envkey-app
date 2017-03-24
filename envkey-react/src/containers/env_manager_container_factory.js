@@ -26,9 +26,13 @@ import {
   getEnvsAreDecrypted,
   getIsUpdatingEnv,
   getEnvsWithMetaWithPending,
-  getEnvAccessGranted
+  getEnvAccessGranted,
+  getHasAnyVal,
+  getIsOnboarding
 } from 'selectors'
 import EnvManager from 'components/env_manager'
+import {AppEnvSlider} from 'components/onboard/onboard_slider'
+import Onboardable from 'components/onboard/traits/onboardable'
 
 const withServices = (props, {parentType, parent, state}) => {
   const {
@@ -66,57 +70,70 @@ const withServices = (props, {parentType, parent, state}) => {
 
 const EnvManagerContainerFactory = ({parentType})=> {
 
-  const mapStateToProps = (state, ownProps) => {
-    const parent = ownProps[parentType],
-          parentId = parent.id,
-          currentUser = getCurrentUser(state),
-          environments = (parentType == "app" ?
-                            getCurrentAppUserForApp(parentId, state).environmentsAccessible :
-                            currentUser.permittedServiceEnvironments),
-          envsWithMetaWithPending = getEnvsWithMetaWithPending({parent, parentType}, state),
-          props = {
-            envsWithMeta: envsWithMetaWithPending,
-            entries: getEntries(envsWithMetaWithPending),
-            isUpdatingEnv: getIsUpdatingEnv(parentId, state),
-            isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({parentId, entryKey, environment}, state),
-            isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({parentId, entryKey}, state),
-            isCreatingEntry: getIsCreatingEnvEntry(parentId, state),
-            isRemovingServiceFn: id => getIsRemoving(id, state),
-            isDecrypting: getIsDecrypting(state),
-            envsAreDecrypted: getEnvsAreDecrypted(state),
-            envAccessGranted: getEnvAccessGranted(state),
-            environments,
-            parent,
-            parentType
-          }
+  const
+    mapStateToProps = (state, ownProps) => {
+      const parent = ownProps[parentType],
+            parentId = parent.id,
+            currentUser = getCurrentUser(state),
+            environments = (parentType == "app" ?
+                              getCurrentAppUserForApp(parentId, state).environmentsAccessible :
+                              currentUser.permittedServiceEnvironments),
+            envsWithMetaWithPending = getEnvsWithMetaWithPending({parent, parentType}, state),
+            props = {
+              envsWithMeta: envsWithMetaWithPending,
+              entries: getEntries(envsWithMetaWithPending),
+              isUpdatingEnv: getIsUpdatingEnv(parentId, state),
+              isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({parentId, entryKey, environment}, state),
+              isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({parentId, entryKey}, state),
+              isCreatingEntry: getIsCreatingEnvEntry(parentId, state),
+              isRemovingServiceFn: id => getIsRemoving(id, state),
+              isDecrypting: getIsDecrypting(state),
+              envsAreDecrypted: getEnvsAreDecrypted(state),
+              envAccessGranted: getEnvAccessGranted(state),
+              hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
+              isOnboarding: getIsOnboarding(state),
+              environments,
+              parent,
+              parentType
+            }
 
-    return parentType == "app" ? withServices(props, {
-      parentType,
-      parent,
-      state
-    }) : props
-  }
+      return parentType == "app" ? withServices(props, {
+        parentType,
+        parent,
+        state
+      }) : props
+    },
 
-  const mapDispatchToProps = (dispatch, ownProps) => {
-    const parent = ownProps[parentType],
-          baseProps = {parent, parentType, parentId: parent.id}
-    return {
-      createEntry: ({entryKey, vals})=> dispatch(createEntry({...baseProps, entryKey, vals })),
-      updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey})),
-      removeEntry: (entryKey)=> dispatch(removeEntry({...baseProps, entryKey})),
-      updateEntryVal: (entryKey, environment, update)=> dispatch(updateEntryVal({...baseProps,  entryKey, environment, update})),
-      addServices: ({ids})=> {
-        ids.forEach(id => {
-          dispatch(addAssoc({...baseProps, assocType: "service", isManyToMany: true, assocId: id}))
-        })
-      },
-      removeService: targetId => dispatch(removeAssoc({...baseProps, assocType: "service", isManyToMany: true, targetId})),
-      createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params})),
-      decrypt: password => dispatch(decrypt(password))
-    }
-  }
+    mapDispatchToProps = (dispatch, ownProps) => {
+      const parent = ownProps[parentType],
+            baseProps = {parent, parentType, parentId: parent.id}
+      return {
+        createEntry: ({entryKey, vals})=> dispatch(createEntry({...baseProps, entryKey, vals })),
+        updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey})),
+        removeEntry: (entryKey)=> dispatch(removeEntry({...baseProps, entryKey})),
+        updateEntryVal: (entryKey, environment, update)=> dispatch(updateEntryVal({...baseProps,  entryKey, environment, update})),
+        addServices: ({ids})=> {
+          ids.forEach(id => {
+            dispatch(addAssoc({...baseProps, assocType: "service", isManyToMany: true, assocId: id}))
+          })
+        },
+        removeService: targetId => dispatch(removeAssoc({...baseProps, assocType: "service", isManyToMany: true, targetId})),
+        createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params})),
+        decrypt: password => dispatch(decrypt(password))
+      }
+    },
 
-  return connect(mapStateToProps, mapDispatchToProps)(EnvManager)
+    startedOnboardingFn = (props, state)=> props.entries.length == 0 && !state.finishedOnboarding,
+
+    finishedOnboardingFn = (props, state)=> props.entries.length > 0,
+
+    selectedIndexFn = (props, state)=> props.entries.length == 0 ? 0 : 1,
+
+    OnboardableEnvManager = Onboardable(EnvManager, AppEnvSlider, {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn})
+
+
+
+  return connect(mapStateToProps, mapDispatchToProps)(OnboardableEnvManager)
 }
 
 export default EnvManagerContainerFactory

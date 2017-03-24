@@ -1,9 +1,10 @@
-#preloader-overlay
+.full-overlay
   +overlay
   z-index: 99
 
 #preloader
   +overlay-embed
+  // transition: all 0.2s ease-out
 
   .logo
     display: block
@@ -15,3 +16,20 @@
     display: block
     margin: 0 auto
     width: 40px
+
+  span
+    display: none
+    font-size: 18px
+    color: rgba(#fff, 0.9)
+    font-weight: 300
+    font-family: $condensed-font
+    margin-top: 20px
+
+.preloader-authenticate
+  #preloade span.authenticating
+    display: inline-block
+
+.preloader-register
+  #preloader span.registering
+    display: inline-block
+

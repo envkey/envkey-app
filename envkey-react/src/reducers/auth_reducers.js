@@ -335,6 +335,16 @@ export const
       default:
         return state
     }
+  },
+
+  isOnboarding = (state = false, action)=>{
+    switch (action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+        return action.payload.apps.length <= 1
+
+      default:
+        return state
+    }
   }
 
 

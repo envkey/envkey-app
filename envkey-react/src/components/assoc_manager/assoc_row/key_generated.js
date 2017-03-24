@@ -34,12 +34,26 @@ export default class KeyGenerated extends React.Component {
       ]),
       h.div(".bottom-row", [
         h.p([
-          `Key generated. Now set your ${{server: "server's", appUser: "app's local"}[this.props.joinType]}`,
-           h.strong([h.em(" ENVKEY"), " environment variable"]),
-           ".",
-           h.br(),
-           "We can't retrieve your key, but you can always generate a new one."
-        ]),
+          "Key generated. "
+        ].concat(
+          {
+            server: [
+              "Copy and set it as an",
+              h.strong(" environment variable"),
+              " on your server."
+            ],
+
+            appUser: [
+              "Copy it into a",
+              h.strong(" .env file"),
+              " at the root of your project directory."
+            ]
+          }[this.props.joinType]).concat([
+            h.br(),
+            "We can't retrieve your key, but you can always generate a new one."
+          ])
+        ),
+
         h.a({href: "https://www.envkey.com/#integration", target: "__blank"}, "Integration quickstart ‣")
       ])
     ])
