@@ -4,7 +4,8 @@ var webpack = require('webpack'),
     projectRoot = process.env.PWD
 
 var isProd = process.env.PRODUCTION_BUILD == "true",
-    buildEnv = isProd ? "production" : "staging",
+    isDemo = process.env.DEMO_BUILD == "true",
+    buildEnv = isProd ? "production" : (isDemo ? "demo" : "staging"),
     env = dotenv.load({path: `./.env.${buildEnv}`}),
     defineParams = { NODE_ENV: JSON.stringify(process.env.NODE_ENV), BUILD_ENV: JSON.stringify(buildEnv) }
 
