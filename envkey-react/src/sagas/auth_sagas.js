@@ -263,7 +263,7 @@ function *onDecryptPrivkey({payload: passphrase}){
     })
 
     yield put({type: DECRYPT_PRIVKEY_SUCCESS, payload: privkey})
-    yield put({type: DECRYPT_ENVS})
+    yield call(dispatchDecryptEnvsIfNeeded)
   } catch (err){
     yield put({type: DECRYPT_PRIVKEY_FAILED, error: true, payload: err})
   }
@@ -300,7 +300,7 @@ function *onDecrypt(action){
         encryptedPrivkey = yield select(getEncryptedPrivkey)
 
   if(privkey){
-    yield put({type: DECRYPT_ENVS})
+    yield call(dispatchDecryptEnvsIfNeeded)
   } else if (encryptedPrivkey) {
     yield put({...action, type: DECRYPT_PRIVKEY})
   }
@@ -384,7 +384,6 @@ function *checkAccessGrantedIfNeeded(){
 function *onCheckAccessGrantedSuccess(action){
   if (action.payload.envAccessGranted){
     yield put({...action, type: FETCH_CURRENT_USER_SUCCESS})
-    yield call(dispatchDecryptEnvsIfNeeded)
   } else {
     yield call(delay, 5 * 1000) // 5 second polling loop
 
