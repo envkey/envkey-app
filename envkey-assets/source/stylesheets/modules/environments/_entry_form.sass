@@ -15,6 +15,13 @@
     position: relative
     top: -1px
 
+  .cell.entry-cell input
+    +safari_only
+      +placeholder
+        position: relative
+        top: -2px
+
+
   .cell.val-cell:not(:hover):not(.editing)
     box-sizing: border-box
     border-bottom: 1px solid transparent !important
@@ -50,6 +57,10 @@
     background: $orange
     outline: none
     font-size: 14px
+
+    +safari_only
+      font-weight: 600
+
     &:hover
       background: darken(desaturate($orange, 5%), 5%)
 

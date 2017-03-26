@@ -81,6 +81,10 @@
     border-bottom: 1px solid hsl(0,0,30)
     transition: background 0.15s ease-out, color 0.15s ease-out
 
+    +safari_only
+      padding-top: 9px
+      font-weight: 500
+
     img
       width: 6.5px
       position: absolute
@@ -137,6 +141,9 @@
     position: relative
     height: $sidebar-menu-item-height
     font-size: 13.5px
+
+    +safari_only
+      font-weight: 600
 
 
     img

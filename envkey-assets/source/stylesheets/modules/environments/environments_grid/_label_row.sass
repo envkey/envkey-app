@@ -1,6 +1,9 @@
 .grid .label-row
   height: $env-grid-header-height
 
+
+
+
 .label-row
   position: fixed
   left: $sidemenu-width
@@ -23,6 +26,9 @@
     position: relative
     top: -2px
 
+    +safari_only
+      top: 0
+
     &:first-of-type
       width: calc(25% + 1px)
 
@@ -41,6 +47,9 @@
       position: relative
       top: 10px
       width: 100%
+
+      +safari_only
+        font-weight: 600
 
     &.env-development
       background: darken($darker-blue, 3.5%)
@@ -76,6 +85,12 @@
         text-overflow: ellipsis
         width: calc(100% - 65px)
         line-height: 16px
+
+        +safari_only
+          top: 9px
+          font-weight: 400
+
+
 
 
 .has-no-val .label-cell.title-cell label
