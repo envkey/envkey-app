@@ -47,8 +47,11 @@
         letter-spacing: 0.2px
         cursor: pointer
 
-        +safari_only
-          font-weight: 600
+        +safari-only
+          +retina
+            font-weight: 400
+          +non-retina
+            font-weight: 600
 
     &:hover
       // background: hsl(0,0,99)

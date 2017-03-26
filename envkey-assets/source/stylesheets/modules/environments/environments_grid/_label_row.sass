@@ -26,7 +26,7 @@
     position: relative
     top: -2px
 
-    +safari_only
+    +safari-only
       top: 0
 
     &:first-of-type
@@ -48,8 +48,11 @@
       top: 10px
       width: 100%
 
-      +safari_only
-        font-weight: 600
+      +safari-only
+        +retina
+          font-weight: 400
+        +non-retina
+          font-weight: 600
 
     &.env-development
       background: darken($darker-blue, 3.5%)
@@ -86,7 +89,7 @@
         width: calc(100% - 65px)
         line-height: 16px
 
-        +safari_only
+        +safari-only
           top: 9px
           font-weight: 400
 

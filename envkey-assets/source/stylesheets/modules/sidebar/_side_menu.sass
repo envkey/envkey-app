@@ -21,6 +21,11 @@
       transition: color 0.15s ease-out
       display: inline-block
 
+      +safari-only
+        +non-retina
+          font-weight: 600
+
+
     .line
       width: 100%
       opacity: 0.5
@@ -81,7 +86,7 @@
     border-bottom: 1px solid hsl(0,0,30)
     transition: background 0.15s ease-out, color 0.15s ease-out
 
-    +safari_only
+    +safari-only
       padding-top: 9px
       font-weight: 500
 
@@ -142,8 +147,11 @@
     height: $sidebar-menu-item-height
     font-size: 13.5px
 
-    +safari_only
-      font-weight: 600
+    +safari-only
+      +retina
+        font-weight: 400
+      +non-retina
+        font-weight: 600
 
 
     img
