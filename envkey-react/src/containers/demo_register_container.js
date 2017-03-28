@@ -1,11 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { register } from 'actions'
+import { register, startDemo } from 'actions'
 import { secureRandomAlphanumeric } from 'lib/crypto'
 
 class DemoRegister extends React.Component {
 
   componentDidMount(){
+    this.props.startDemo()
+
     this.props.register({
       firstName: "Tester",
       lastName: "Ofdemo",
@@ -28,6 +30,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
+    startDemo: ()=> dispatch(startDemo()),
     register: (params) => dispatch(register(params))
   }
 }

@@ -8,7 +8,8 @@ import {
   FETCH_CURRENT_USER_REQUEST,
   LOGOUT,
   DECRYPT,
-  GRANT_ENV_ACCESS_REQUEST
+  GRANT_ENV_ACCESS_REQUEST,
+  START_DEMO
 } from './action_types'
 
 export const
@@ -30,5 +31,7 @@ export const
     GRANT_ENV_ACCESS_REQUEST,
     R.pick(['envs']),
     R.pick(['orgUserId'])
-  )
+  ),
+
+  startDemo = createAction(START_DEMO)
 

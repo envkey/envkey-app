@@ -26,6 +26,8 @@ export const
 
   getIsOnboarding = db.path("isOnboarding"),
 
+  getIsDemo = db.path("isDemo"),
+
   getEncryptedPrivkey = db.path("encryptedPrivkey"),
 
   getCurrentUserErr = db.path("currentUserErr"),

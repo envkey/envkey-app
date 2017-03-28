@@ -66,7 +66,8 @@ import {
   getEnvAccessGranted,
   getCurrentRoute,
   getCurrentOrgSlug,
-  getPermissions
+  getPermissions,
+  getIsDemo
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
@@ -192,7 +193,10 @@ function *onAcceptInvite({payload}){
 
 function *onRegister({payload}){
   document.body.className += " preloader-register"
-  yield call(delay, 500)
+
+  const isDemo = yield select(getIsDemo)
+
+  if (!isDemo) yield call(delay, 500)
 
   yield put({type: HASH_PASSWORD_AND_GENERATE_KEYS, payload})
 
@@ -213,7 +217,8 @@ function *onRegister({payload}){
 }
 
 function *onHashUserPassword({payload: {email, password}}){
-  const hashedPassword = crypto.hashedPassword(email, password)
+  const isDemo = yield select(getIsDemo),
+        hashedPassword = crypto.hashedPassword(email, password, (isDemo ? 1 : undefined))
 
   yield put({type: HASH_USER_PASSWORD_SUCCESS, payload: {email, hashedPassword}})
 }

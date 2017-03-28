@@ -49,9 +49,12 @@ export const
 
   emailSalt = (email)=> emailHash(email + "envkey-salt-of-pure-basalt"),
 
-  hashedPassword = (email, password)=> sjcl.codec.hex.fromBits(
-    sjcl.misc.pbkdf2(password, emailSalt(email), 100000)
-  ),
+  hashedPassword = (email, password, tries=100000)=> {
+    console.log("TRIES: ", tries)
+    return sjcl.codec.hex.fromBits(
+      sjcl.misc.pbkdf2(password, emailSalt(email), tries)
+    )
+  },
 
   generateKeys = ({id, passphrase}, worker=false)=>{
     const opts = {

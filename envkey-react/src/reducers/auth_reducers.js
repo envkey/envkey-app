@@ -29,7 +29,8 @@ import {
   CHECK_INVITES_ACCEPTED_REQUEST,
   CHECK_INVITES_ACCEPTED_SUCCESS,
   CHECK_INVITES_ACCEPTED_FAILED,
-  SELECT_ORG
+  SELECT_ORG,
+  START_DEMO
 } from 'actions'
 import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
@@ -345,7 +346,9 @@ export const
       default:
         return state
     }
-  }
+  },
+
+  isDemo = (state = false, {type})=> type == START_DEMO ? true : state
 
 
 
