@@ -3,9 +3,13 @@ import {inheritedVal} from './inheritance'
 
 const
   getMetaToValFn = (envsWithMeta)=> (meta, entryKey)=>{
-    return meta.inherits ?
-      inheritedVal({entryKey, envsWithMeta, inherits: meta.inherits}) :
-      (meta.val || undefined)
+    if (meta.inherits){
+      return inheritedVal({entryKey, envsWithMeta, inherits: meta.inherits})
+    } else if (meta.val || meta.val === ""){
+      return meta.val
+    } else if (meta.val === ""){
+      return undefined
+    }
   }
 
 export const
