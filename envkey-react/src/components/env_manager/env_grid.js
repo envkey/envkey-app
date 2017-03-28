@@ -1,18 +1,42 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
+import moment from 'moment'
 import EntryRow from './entry_row'
 import LabelRow from './label_row'
 import ServiceBlock from './service_block'
 import EditableCellsParent from './traits/editable_cells_parent'
 import EntryForm from './entry_form'
 
+const HIGHLIGHT_ROW_DELAY = 4000
+
 export default class EnvGrid extends EditableCellsParent(React.Component) {
 
   constructor(props){
     super(props)
     this.state = {
-      editing: {}
+      editing: {},
+      highlightRows: {}
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.lastAddedEntry != nextProps.lastAddedEntry){
+      if (nextProps.lastAddedEntry){
+        const {entryKey, timestamp} = nextProps.lastAddedEntry,
+              diff = moment().valueOf() - timestamp
+
+        if (diff < 1000){
+          this.setState(R.assocPath(["highlightRows", entryKey], true))
+
+          setTimeout(()=> {
+            this.setState(R.dissocPath(["highlightRows", entryKey]))
+          }, HIGHLIGHT_ROW_DELAY)
+        }
+
+      } else {
+        this.setState({highlightRow: null})
+      }
     }
   }
 
@@ -52,6 +76,7 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
     if(filter && !entryKey.toLowerCase().includes(filter))return
     return h(EntryRow, {
       key: i,
+      highlightRow: Boolean(this.state.highlightRows[entryKey]),
       entryKey,
       ...this.props,
       editing: this.state.editing,

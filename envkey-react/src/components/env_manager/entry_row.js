@@ -5,8 +5,10 @@ import EnvValCell from './env_cell/env_val_cell'
 import h from "lib/ui/hyperscript_with_helpers"
 
 export default function(props) {
-  const {entryKey, envsWithMeta, environments, editing} = props
-  return h.div(".row.entry-row", [
+  const {entryKey, envsWithMeta, environments, editing, highlightRow} = props
+  return h.div(".row.entry-row", {
+    className: (highlightRow ? "highlight-row" : "")
+  }, [
     h.div(".entry-col",[
       h(EnvEntryCell, {
         ...props,

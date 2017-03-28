@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import R from 'ramda'
+import moment from 'moment'
 import columnsConfig from 'lib/assoc/columns_config'
 import {
   createEntry,
@@ -28,7 +29,8 @@ import {
   getEnvsWithMetaWithPending,
   getEnvAccessGranted,
   getHasAnyVal,
-  getIsOnboarding
+  getIsOnboarding,
+  getLastAddedEntry
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 import {AppEnvSlider} from 'components/onboard/onboard_slider'
@@ -92,6 +94,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
               envAccessGranted: getEnvAccessGranted(state),
               hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
               isOnboarding: getIsOnboarding(state),
+              lastAddedEntry: getLastAddedEntry(parentId, state),
               environments,
               parent,
               parentType
@@ -108,8 +111,8 @@ const EnvManagerContainerFactory = ({parentType})=> {
       const parent = ownProps[parentType],
             baseProps = {parent, parentType, parentId: parent.id}
       return {
-        createEntry: ({entryKey, vals})=> dispatch(createEntry({...baseProps, entryKey, vals })),
-        updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey})),
+        createEntry: ({entryKey, vals})=> dispatch(createEntry({...baseProps, entryKey, vals, timestamp: moment().valueOf()})),
+        updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, timestamp: moment().valueOf()})),
         removeEntry: (entryKey)=> dispatch(removeEntry({...baseProps, entryKey})),
         updateEntryVal: (entryKey, environment, update)=> dispatch(updateEntryVal({...baseProps,  entryKey, environment, update})),
         addServices: ({ids})=> {

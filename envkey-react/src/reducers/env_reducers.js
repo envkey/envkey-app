@@ -140,4 +140,17 @@ export const
       default:
         return state
     }
+  },
+
+  lastAddedEntry = (state = {}, action)=>{
+    switch(action.type){
+      case CREATE_ENTRY:
+      case UPDATE_ENTRY:
+        const {meta: {parentId, timestamp}, payload: {entryKey, newKey}} = action,
+              res = action.type == UPDATE_ENTRY ? {entryKey: newKey, timestamp} : {entryKey, timestamp}
+
+          return R.assoc(parentId, res)(state)
+      default:
+        return state
+    }
   }

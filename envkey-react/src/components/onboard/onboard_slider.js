@@ -1,4 +1,5 @@
 import React from 'react'
+import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import {imagePath} from "lib/ui"
 
@@ -20,7 +21,9 @@ export const
       h.h1([h.em(".orange","Nice."), " You created your first app."]),
 
       h.p([
-        "If you look to the left, you’ll see that it’s selected in your spiffy new ",
+        "If you look to the left, you’ll see that ",
+        h.strong(".app-name", props.parent.name),
+        " is selected in your spiffy new ",
         h.em(".blue", "sidebar.")
       ]),
 
@@ -31,10 +34,15 @@ export const
       h.div(".small-divider"),
 
       h.p([
-        "To the right of the sidebar, you’ll notice several ",
+        "Next to the sidebar, you’ll notice several ",
         h.em(".blue", "tabs"),
-        ," running vertically down the page. ",
-        "For now let’s focus on the tab you’re on:",
+        ," running vertically down the page: ",
+        h.em(".blue.condensed", " Variables,"),
+        h.em(".blue.condensed", " Keys,"),
+        h.em(".blue.condensed", " Collaborators,"),
+        " and ",
+        h.em(".blue.condensed", " Settings. "),
+        "Let’s start with the tab you’re on:",
         h.em(".blue.condensed", " Variables.")
       ]),
 
@@ -47,7 +55,7 @@ export const
 
 
     h.div(".slide-1", [
-      h.h1(".code", ["NEW_VAR=", h.em(".orange","ENCRYPTED_AND_SAVED")]),
+      h.h1(".code", [`${R.path(["lastAddedEntry", "entryKey"], props)}=`, h.em(".orange","ENCRYPTED_AND_SAVED")]),
 
       h.p([
         "Easy, right? ",
@@ -71,7 +79,9 @@ export const
       h.p([
         "You might have noticed that any value you set is masked with a bunch of dots. If you want to reveal your config, uncheck the ",
         h.em(".blue", "mask toggle "),
-        "next to your app’s name:",
+        "next to your app’s name at the top of the ",
+        h.em(".blue.condensed", " Variables "),
+        "tab: ",
         h.img(".mask-icon",{src: imagePath("mask-icon-ss.png")})
       ]),
 

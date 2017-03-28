@@ -7,7 +7,7 @@ import {
   UPDATE_ENTRY_VAL
 } from './action_types'
 
-const pickMeta = R.pick(["parent", "parentType", "parentId"])
+const pickMeta = R.pick(["parent", "parentType", "parentId", "timestamp"])
 
 export const
 

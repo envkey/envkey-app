@@ -56,7 +56,7 @@ const Onboardable = (Component, OnboardSlider, {
 
   _renderOnboard(){
     if (this.state.startedOnboarding){
-      return h(OnboardSlider, {selectedIndex: selectedIndexFn(this.props, this.state)})
+      return h(OnboardSlider, {...this.props, selectedIndex: selectedIndexFn(this.props, this.state)})
     }
   }
 }

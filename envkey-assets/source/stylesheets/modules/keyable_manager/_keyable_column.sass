@@ -70,6 +70,22 @@
   .column-body
     height: calc(100% - #{$app-tab-height * 2 + 1px})
 
+    .empty-state
+      width: 100%
+      text-align: center
+      padding: 40px 0
+      p
+        font-size: 13px
+        color: hsl(0,0,75)
+        line-height: 150%
+
+        strong
+          font-weight: 400
+
+        .title, .subtitle
+          text-transform: lowercase
+
+
   &.admin .column-header .title em
     color: $orange
 

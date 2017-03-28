@@ -38,6 +38,8 @@ export const
     R.any(R.prop('val'))
   )),
 
+  getLastAddedEntry = (parentId, state)=> db.path("lastAddedEntry", parentId)(state),
+
   getAppEnvironmentsAccessible = db.path("appEnvironmentsAccessible"),
 
   getEnvsWithMetaWithPending = (opts, state)=> {

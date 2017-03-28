@@ -1,6 +1,8 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 
+const PROMPT_FADE_DELAY = 5000
+
 const CommitPromptable = Editable => class extends Editable {
 
   constructor(props){
@@ -25,7 +27,7 @@ const CommitPromptable = Editable => class extends Editable {
 
   _flashCommitPrompt(){
     this.setState({showCommitPrompt: true, showedPrompt: true})
-    setTimeout(this.setState.bind(this, {showCommitPrompt: false}), 5000)
+    setTimeout(this.setState.bind(this, {showCommitPrompt: false}), PROMPT_FADE_DELAY)
   }
 
   _renderCellContents(){
