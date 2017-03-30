@@ -21,9 +21,9 @@ export const
       h.h1([h.em(".orange","Nice."), " You created your first app."]),
 
       h.p([
-        "If you look to the left, you’ll see that ",
+        "If you look left, you’ll see that ",
         h.strong(".app-name", props.parent.name),
-        " is selected in your spiffy new ",
+        " is selected in your new ",
         h.em(".blue", "sidebar.")
       ]),
 
@@ -42,8 +42,8 @@ export const
         h.em(".blue.condensed", " Collaborators,"),
         " and ",
         h.em(".blue.condensed", " Settings. "),
-        "Let’s start with the tab you’re on:",
-        h.em(".blue.condensed", " Variables.")
+        "Let’s start with ",
+        h.em(".blue.condensed", "Variables.")
       ]),
 
       h.p([
