@@ -48,7 +48,7 @@ export const
 
       h.p([
         "This is where you set your app’s config variables and their values for each environment. ",
-        "Go to the top of the screen and try ",
+        "Go to the top of the page and try ",
         h.em(".orange", "adding a new variable.")
       ]),
     ]),
