@@ -4,7 +4,7 @@ import R from 'ramda'
 import { orgRoleGroupLabel } from 'lib/ui'
 import moment from 'moment'
 
-db.init("apps", "services", "users", "appUsers", "servers", "appServices")
+db.init("apps", "services", "users", "appUsers", "orgUsers", "servers", "appServices")
 
 export const
 
@@ -86,6 +86,15 @@ export const
 
   getServer = db.servers.find(),
 
+  getOrgUserForUser = db.orgUsers.findBy("userId"),
+
+  getUserWithOrgUserBySlug = (slug, state)=> {
+    const user = getUserBySlug(slug, state),
+          orgUser = getOrgUserForUser(user.id, state)
+
+    return R.assoc("orgUser", orgUser, user)
+  },
+
   dissocRelations = R.map(R.dissoc("relation")),
 
   getUsersForService = (serviceId, state)=>{
@@ -106,6 +115,8 @@ export const
             R.uniq
           )(apps)
   }
+
+
 
 
 

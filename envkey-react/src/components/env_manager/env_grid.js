@@ -8,7 +8,7 @@ import ServiceBlock from './service_block'
 import EditableCellsParent from './traits/editable_cells_parent'
 import EntryForm from './entry_form'
 
-const HIGHLIGHT_ROW_DELAY = 4000
+const HIGHLIGHT_ROW_DELAY = 1800
 
 export default class EnvGrid extends EditableCellsParent(React.Component) {
 

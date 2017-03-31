@@ -5,19 +5,16 @@ import {
   addAssoc,
   createAssoc,
   removeAssoc,
-  generateKey,
-  decrypt
+  generateKey
 } from 'actions'
 import {
-  getIsRemoving,
-  getIsGeneratingAssocKey,
+  getIsRemovingById,
+  getIsGeneratingAssocKeyById,
   getPermissions,
   getUser,
-  getIsDecrypting,
-  getEnvsAreDecrypted,
-  getEnvAccessGranted,
   getCurrentUser,
-  getCurrentOrg
+  getCurrentOrg,
+  getIsGrantingEnvAccessByUserId
 } from 'selectors'
 import AssocManager from 'components/assoc_manager'
 import {getTrueParentAssoc, getJoinType} from "lib/assoc/helpers"
@@ -37,15 +34,13 @@ export default function({
       assocType,
       parent,
       joinType: joinType || getJoinType({parentType, assocType, isManyToMany}),
-      envAccessGranted: getEnvAccessGranted(state),
       currentUser: getCurrentUser(state),
       columnsConfig: columnsConfig({parentType, assocType, parent, state}),
-      isRemovingFn: id => getIsRemoving(id, state),
-      isGeneratingAssocKeyFn: id => getIsGeneratingAssocKey(id, state),
-      getUserFn: id => getUser(id, state),
       permissions: getPermissions(state),
-      isDecrypting: getIsDecrypting(state),
-      envsAreDecrypted: getEnvsAreDecrypted(state)
+      isRemovingById: getIsRemovingById(state),
+      isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
+      isGrantingEnvAccessByUserId: getIsGrantingEnvAccessByUserId(state),
+      getUserFn: userId => getUser(userId, state)
     }
   }
 
@@ -72,8 +67,7 @@ export default function({
         }
 
       },
-      generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId})),
-      decrypt: password => dispatch(decrypt(password))
+      generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId}))
     }
   }
 

@@ -2,7 +2,7 @@ import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
-import {orgRoleLabel} from 'lib/ui'
+import OrgRoleSelect from './org_role_select'
 
 export default class UserForm extends React.Component {
 
@@ -69,15 +69,12 @@ export default class UserForm extends React.Component {
 
   _renderOrgRoleSelect(){
     if (this.props.orgRolesAssignable && this.props.orgRolesAssignable.length){
-      return h.fieldset([h.select(".org-role", {
+      return h(OrgRoleSelect, {
         value: this.state.orgRole,
-        onChange: e => this.setState({orgRole: e.target.value})
-      }, this.props.orgRolesAssignable.map(::this._renderRoleOption))])
+        onChange: e => this.setState({orgRole: e.target.value}),
+        orgRolesAssignable: this.props.orgRolesAssignable
+      })
     }
-  }
-
-  _renderRoleOption(orgRole, i){
-    return h.option({key: i, value: orgRole}, orgRoleLabel(orgRole))
   }
 
   _renderSubmit(){

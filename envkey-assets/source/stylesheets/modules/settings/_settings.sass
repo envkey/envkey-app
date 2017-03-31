@@ -9,7 +9,7 @@
     margin-bottom: 10px
 
 
-  form.rename, form.object-form
+  form.rename, form.object-form, .details
     padding: 0
     margin-bottom: 25px
     padding-bottom: 25px
@@ -45,3 +45,26 @@
     //   background: $orange
     //   &:hover
     //     background: darken($orange, 5%)
+
+  fieldset
+    > label
+      text-transform: uppercase
+      font-family: $condensed-font
+      font-weight: 600
+      font-size: 13px
+      display: block
+      margin-bottom: 10px
+      color: hsl(0,0,75)
+
+    > span
+      font-size: 14px
+
+
+  .details
+    fieldset:not(:last-of-type)
+      margin-bottom: 20px
+
+
+
+
+

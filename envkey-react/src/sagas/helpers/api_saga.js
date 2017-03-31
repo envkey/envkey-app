@@ -1,3 +1,4 @@
+import {delay} from 'redux-saga'
 import { call, select, put } from 'redux-saga/effects'
 import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
@@ -16,7 +17,8 @@ export default function apiSaga({
   method,
   urlSelector,
   skipOrg,
-  urlFn
+  urlFn,
+  minDelay
 }){
 
   if (typeof authenticated !== 'boolean'){
@@ -55,7 +57,9 @@ export default function apiSaga({
             params = orgParams,
             data = decamelizeKeys(requestAction.payload || {}),
             config = {method, url, params, data},
-            res = yield call(client, config)
+            [res] = minDelay ?
+              yield [ call(client, config), call(delay, minDelay) ] :
+              yield [ call(client, config) ]
 
       yield put({type: API_SUCCESS})
 

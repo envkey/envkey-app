@@ -128,6 +128,7 @@ const
     authenticated: true,
     method: "patch",
     actionTypes: [GRANT_ENV_ACCESS_SUCCESS, GRANT_ENV_ACCESS_FAILED],
+    minDelay: 2000,
     urlFn: (action)=> `/org_users/${action.meta.orgUserId}/grant_env_access.json`
   }),
 
@@ -358,7 +359,7 @@ function *grantEnvAccessIfNeeded(){
 function *onGrantEnvAccess({payload: invitees}){
   for (let invitee of invitees){
     const envs = yield call(envParamsForInvitee, invitee)
-    yield put(grantEnvAccessRequest({envs, orgUserId: invitee.orgUserId}))
+    yield put(grantEnvAccessRequest({envs, ...R.pick(["orgUserId", "userId"], invitee)}))
   }
 }
 

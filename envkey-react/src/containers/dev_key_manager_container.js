@@ -1,16 +1,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {
-  generateKey,
-  decrypt
-} from 'actions'
+import {  generateKey } from 'actions'
 import {
   getIsGeneratingAssocKey,
-  getIsDecrypting,
-  getEnvsAreDecrypted,
   getCurrentUser,
   getCurrentAppUserForApp,
-  getEnvAccessGranted
 } from 'selectors'
 import {DevKeyManager} from 'components/assoc_manager'
 
@@ -20,10 +14,7 @@ import {DevKeyManager} from 'components/assoc_manager'
       joinType: "appUser",
       currentUser: getCurrentUser(state),
       assoc: getCurrentAppUserForApp(appId, state),
-      isGeneratingAssocKeyFn: id => getIsGeneratingAssocKey(id, state),
-      isDecrypting: getIsDecrypting(state),
-      envsAreDecrypted: getEnvsAreDecrypted(state),
-      envAccessGranted: getEnvAccessGranted(state)
+      isGeneratingAssocKeyFn: id => getIsGeneratingAssocKey(id, state)
     }
   }
 
@@ -31,8 +22,7 @@ import {DevKeyManager} from 'components/assoc_manager'
     const parent = ownProps.app,
           assocParams = {parent, parentType: "app", assocType: "appUser", parentId: parent.id}
     return {
-      generateKey: targetId => dispatch(generateKey({...assocParams, targetId})),
-      decrypt: password => dispatch(decrypt(password))
+      generateKey: targetId => dispatch(generateKey({...assocParams, targetId}))
     }
   }
 

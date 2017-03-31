@@ -18,7 +18,9 @@ import {
   RENAME_OBJECT_SUCCESS,
   REMOVE_OBJECT_SUCCESS,
   GENERATE_ASSOC_KEY_SUCCESS,
-  CHECK_INVITES_ACCEPTED_SUCCESS
+  CHECK_INVITES_ACCEPTED_SUCCESS,
+  GRANT_ENV_ACCESS_SUCCESS,
+  UPDATE_ORG_ROLE_SUCCESS
 } from 'actions'
 import { indexById } from './helpers'
 
@@ -122,6 +124,8 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
       case DECRYPT_ENVS_SUCCESS:
+      case GRANT_ENV_ACCESS_SUCCESS:
+      case UPDATE_ORG_ROLE_SUCCESS:
         let objects = action.payload[objectTypePlural]
         return objects ? indexById(objects) : state
 

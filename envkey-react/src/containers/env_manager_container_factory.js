@@ -10,8 +10,7 @@ import {
   updateEntryVal,
   addAssoc,
   removeAssoc,
-  createAssoc,
-  decrypt
+  createAssoc
 } from 'actions'
 import {
   getEntries,
@@ -23,11 +22,8 @@ import {
   getIsRemoving,
   getIsAddingAssoc,
   getIsCreating,
-  getIsDecrypting,
-  getEnvsAreDecrypted,
   getIsUpdatingEnv,
   getEnvsWithMetaWithPending,
-  getEnvAccessGranted,
   getHasAnyVal,
   getIsOnboarding,
   getLastAddedEntry
@@ -89,9 +85,6 @@ const EnvManagerContainerFactory = ({parentType})=> {
               isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({parentId, entryKey}, state),
               isCreatingEntry: getIsCreatingEnvEntry(parentId, state),
               isRemovingServiceFn: id => getIsRemoving(id, state),
-              isDecrypting: getIsDecrypting(state),
-              envsAreDecrypted: getEnvsAreDecrypted(state),
-              envAccessGranted: getEnvAccessGranted(state),
               hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
               isOnboarding: getIsOnboarding(state),
               lastAddedEntry: getLastAddedEntry(parentId, state),
@@ -121,8 +114,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
           })
         },
         removeService: targetId => dispatch(removeAssoc({...baseProps, assocType: "service", isManyToMany: true, targetId})),
-        createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params})),
-        decrypt: password => dispatch(decrypt(password))
+        createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params}))
       }
     },
 

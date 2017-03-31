@@ -1,12 +1,15 @@
 import R from 'ramda'
 import db from 'lib/db'
 import {flattenObj} from 'lib/utils/object'
+import {getOrgUserForUser} from './object_selectors'
 
 export const
 
   getCurrentRoute = db.path("routing", "locationBeforeTransitions"),
 
-  getIsRemoving = (id, state)=> db.path("isRemoving", id)(state),
+  getIsRemovingById = db.path("isRemoving"),
+
+  getIsRemoving = (id, state)=> getIsRemovingById(state)[id] || false,
 
   getIsCreating = ({objectType, parentId, assocType, role}, state)=> {
     const path = ["isCreating"].concat(objectType ? [objectType] : [parentId, assocType, (role || "all")])
@@ -17,12 +20,16 @@ export const
 
   getIsUpdatingSettings = (id, state)=> db.path("isUpdatingSetings", id)(state),
 
+  getIsUpdatingOrgRole = (userId, state)=> db.path("isUpdatingOrgRole", userId)(state),
+
   getIsAddingAssoc = ({parentId, assocType, role}, state)=> {
     const isAdding = db.path("isAddingAssoc", parentId, assocType, (role || "all"))(state)
     return isAdding && !R.isEmpty(isAdding)
   },
 
-  getIsGeneratingAssocKey = (id, state)=> db.path("isGeneratingAssocKey", id)(state),
+  getIsGeneratingAssocKeyById = db.path("isGeneratingAssocKey"),
+
+  getIsGeneratingAssocKey = (id, state)=> getIsGeneratingAssocKeyById(state)[id] || false,
 
   getIsUpdatingEnv = (parentId, state)=> {
     return getIsCreatingEnvEntry(parentId, state) || R.pipe(
@@ -43,4 +50,11 @@ export const
 
   getIsCreatingEnvEntry = (parentId, state)=>{
     return db.path("isCreatingEnvEntry", parentId)(state)
+  },
+
+  getIsGrantingEnvAccessByUserId = db.path("isGrantingEnvAccess"),
+
+  getIsGrantingEnvAccess = (userId, state)=> {
+    return getIsGrantingEnvAccessByUserId(state)[userId] || false
   }
+

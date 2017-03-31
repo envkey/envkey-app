@@ -5,11 +5,27 @@ import pluralize from 'pluralize'
 import SelectedTabs from 'components/shared/selected_tabs'
 import {childrenWithProps} from 'lib/ui'
 import {capitalize} from 'lib/utils/string'
-import * as selectors from "selectors"
-
+import {
+  getCurrentOrg,
+  getCurrentUser,
+  getAppBySlug,
+  getServiceBySlug,
+  getUserWithOrgUserBySlug,
+  getPermissions,
+  getIsDecrypting,
+  getEnvsAreDecrypted,
+  getEnvAccessGranted
+} from "selectors"
+import { decrypt } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
+import DecryptForm from 'components/shared/decrypt_form'
+import DecryptLoader from 'components/shared/decrypt_loader'
+import {AwaitingAccessContainer} from 'containers'
 
-const SelectedObjectContainerFactory = ({objectType})=> {
+const SelectedObjectContainerFactory = ({
+  objectType,
+  objectPermissionPath=["permissions"]
+})=> {
 
   class SelectedObjectContainer extends React.Component {
 
@@ -42,33 +58,70 @@ const SelectedObjectContainerFactory = ({objectType})=> {
 
       return h.div(".selected-object-container.show-page", [
         h.div(".transition-overlay", {className: (this.state.showTransitionOverlay ? "" : "hide")}),
-        h(SelectedTabs, {...R.pick(["permissions"], this.props), objectPermissions: obj.permissions, tabs, path, selectedTab}),
-        childrenWithProps(this.props.children, this.props)
+        h(SelectedTabs, {
+          ...R.pick(["permissions"], this.props),
+          objectPermissions: R.path(objectPermissionPath, obj),
+          tabs,
+          path,
+          selectedTab
+        }),
+
+
+        h.div(".selected-object", this._renderContents())
       ])
     }
-  }
 
-  const mapStateToProps = (state, ownProps) => {
-    let obj
-
-    if (objectType == "currentOrg"){
-      obj = selectors.getCurrentOrg(state)
-    } else if (objectType == "currentUser"){
-      obj = selectors.getCurrentUser(state)
-    } else {
-      const slug = ownProps.params.slug,
-          method = `get${capitalize(pluralize.singular(objectType))}BySlug`
-
-      obj = selectors[method](slug, state)
+    _renderContents(){
+      if (!this.props.envAccessGranted){
+        return [h(AwaitingAccessContainer)]
+      } else if(this.props.envsAreDecrypted || this.props.isDecrypting){
+        return [
+          this._renderChildren(),
+          h(DecryptLoader, this.props)
+        ]
+      }  else {
+        return [h(DecryptForm, {onSubmit: this.props.decrypt})]
+      }
     }
 
-    return {
-      [objectType]: obj,
-      permissions: selectors.getPermissions(state)
+    _renderChildren(){
+      return childrenWithProps(this.props.children, this.props)
     }
   }
 
-  return connect(mapStateToProps)(SelectedObjectContainer)
+  const
+    mapStateToProps = (state, ownProps) => {
+      let obj
+
+      if (objectType == "currentOrg"){
+        obj = getCurrentOrg(state)
+      } else if (objectType == "currentUser"){
+        obj = getCurrentUser(state)
+      } else {
+        const slug = ownProps.params.slug,
+              method = {
+                app: getAppBySlug,
+                service: getServiceBySlug,
+                user: getUserWithOrgUserBySlug
+              }[objectType]
+
+        obj = method(slug, state)
+      }
+
+      return {
+        [objectType]: obj,
+        permissions: getPermissions(state),
+        isDecrypting: getIsDecrypting(state),
+        envsAreDecrypted: getEnvsAreDecrypted(state),
+        envAccessGranted: getEnvAccessGranted(state)
+      }
+    },
+
+    mapDispatchToProps = (dispatch, ownProps) => ({
+      decrypt: password => dispatch(decrypt(password))
+    })
+
+  return connect(mapStateToProps, mapDispatchToProps)(SelectedObjectContainer)
 }
 
 export default SelectedObjectContainerFactory

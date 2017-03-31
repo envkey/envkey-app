@@ -11,6 +11,7 @@ export default function ({params,
                           onRenew,
                           isRemoving,
                           isGeneratingAssocKey,
+                          isGrantingEnvAccess,
                           permissions: {read: {user: canReadUser}},
                           assoc: {firstName, lastName, email, slug, relation, isCurrentUser},
                           config: {keyLabel}}){
@@ -26,6 +27,7 @@ export default function ({params,
         return h.span(".primary", name)
       }
     }
+
   return h.div([
     h.div(".top-row", [
       renderUserLabel(),
@@ -33,23 +35,12 @@ export default function ({params,
     ]),
 
     h.div(".bottom-row", [
-      h(AppUserStatus, relation.accessStatus)
+      h(AppUserStatus, {
+        ...relation.accessStatus,
+        isGrantingEnvAccess
+      })
     ])
 
-    // h.div(".bottom-row", [
-    //   h(KeyableActions, {
-    //     parentType,
-    //     assocType,
-    //     keyLabel,
-    //     isCurrentUser,
-    //     onCopy,
-    //     onRenew,
-    //     isRemoving,
-    //     isGeneratingAssocKey,
-    //     envkey: relation.envkey,
-    //     createdAt: relation.createdAt
-    //   })
-    // ])
   ])
 
 }

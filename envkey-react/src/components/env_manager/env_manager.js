@@ -4,9 +4,6 @@ import h from "lib/ui/hyperscript_with_helpers"
 import EnvHeader from './env_header'
 import EnvGrid from './env_grid'
 import {AddAssoc} from 'components/assoc_manager'
-import DecryptForm from 'components/shared/decrypt_form'
-import DecryptLoader from 'components/shared/decrypt_loader'
-import {AwaitingAccessContainer} from 'containers'
 
 export default class EnvManager extends React.Component {
 
@@ -23,11 +20,6 @@ export default class EnvManager extends React.Component {
   _isEmpty(arg=null){
     const props = arg || this.props
     return props.entries.length + R.keys(props.entriesByServiceId) == 0
-  }
-
-  _onSubmitDecryptionPassword(e){
-    e.preventDefault()
-    this.props.decrypt(this.refs.password.value)
   }
 
   _onAddServices(...args){
@@ -58,17 +50,10 @@ export default class EnvManager extends React.Component {
   }
 
   _renderContents(){
-    if (!this.props.envAccessGranted){
-      return [h(AwaitingAccessContainer)]
-    } else if(this.props.envsAreDecrypted || this.props.isDecrypting){
-      return [
-        this._renderHeader(),
-        this._renderBody(),
-        h(DecryptLoader, this.props)
-      ]
-    }  else {
-      return [h(DecryptForm, {onSubmit: this.props.decrypt})]
-    }
+    return [
+      this._renderHeader(),
+      this._renderBody()
+    ]
   }
 
   _renderBody(){

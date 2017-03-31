@@ -1,6 +1,7 @@
 import R from 'ramda'
 import { select, call } from 'redux-saga/effects'
 import {encryptJson} from 'lib/crypto'
+import {orgRoleIsAdmin} from 'lib/org/roles'
 import {
   getUser,
   getApp,
@@ -13,7 +14,9 @@ import {
   getCurrentUserEnvironmentsAssignableToServiceUser,
   getEnvsWithMetaWithPending,
   getRawEnvWithPendingForApp,
-  getAppUserBy
+  getAppUserBy,
+  getApps,
+  getServices
 } from 'selectors'
 import {
   ADD_ASSOC_REQUEST,
@@ -119,6 +122,34 @@ export function *envParamsForInvitee({userId, permittedAppIds, permittedServiceI
 
   return envParams
 }
+
+export function *envParamsForUpdateOrgRole({userId, role: newRole}){
+  const {orgRole: currentRole} = yield select(getUser(userId)),
+
+        isCurrentAdmin = orgRoleIsAdmin(currentRole),
+
+        isUpdatingToAdmin = orgRoleIsAdmin(newRole),
+
+        isUpdatingNonAdminToAdmin = !isCurrentAdmin && isUpdatingToAdmin
+
+  if (!isUpdatingNonAdminToAdmin) return {}
+
+  let envParams = {}
+
+  const apps = yield select(getApps),
+        services = yield select(getServices)
+
+  for (let {id: appId} of apps){
+    envParams = yield call(envParamsWithAppUser, {userId, appId}, envParams)
+  }
+
+  for (let {id: serviceId} of services){
+    envParams = yield call(envParamsWithServiceUser, {userId, serviceId}, envParams)
+  }
+
+  return envParams
+}
+
 
 export function* appServiceEnvs(appId){
   const users = yield select(getUsersForApp(appId)),

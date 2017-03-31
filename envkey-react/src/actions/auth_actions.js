@@ -30,7 +30,7 @@ export const
   grantEnvAccessRequest = createAction(
     GRANT_ENV_ACCESS_REQUEST,
     R.pick(['envs']),
-    R.pick(['orgUserId'])
+    R.pick(['orgUserId', 'userId'])
   ),
 
   startDemo = createAction(START_DEMO)

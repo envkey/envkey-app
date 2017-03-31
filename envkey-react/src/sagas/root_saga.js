@@ -4,7 +4,8 @@ const sagaPaths = [
   "auth",
   "assoc",
   "env",
-  "object"
+  "object",
+  "org"
 ]
 
 export default function* rootSaga(){

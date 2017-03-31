@@ -1,10 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
+import R from 'ramda'
 import {
   renameObject,
   removeObject,
-  updateObjectSettings
+  updateObjectSettings,
+  updateOrgRole
 } from 'actions'
 import {
   AppSettingsForm,
@@ -17,10 +19,11 @@ import {
   getIsRemoving,
   getIsRenaming,
   getIsUpdatingSettings,
+  getIsUpdatingOrgRole,
   getOrgRolesAssignable
 } from 'selectors'
 
-const SettingsFormContainerFactory = ({objectType})=> {
+const SettingsFormContainerFactory = ({objectType, targetObjectType, targetObjectPath})=> {
   const
     formClass = {
       app: AppSettingsForm,
@@ -35,11 +38,13 @@ const SettingsFormContainerFactory = ({objectType})=> {
 
     mapStateToProps = (state, ownProps) => {
       const obj = ownProps[objectType],
+            target = targetObjectPath ? R.path(targetObjectPath, obj) : obj,
             props = {
               [objectType]: obj,
-              isRenaming: getIsRenaming(obj.id, state),
-              isRemoving: getIsRemoving(obj.id, state),
-              isUpdatingSettings: getIsUpdatingSettings(obj.id, state)
+              isRenaming: getIsRenaming(target.id, state),
+              isRemoving: getIsRemoving(target.id, state),
+              isUpdatingSettings: getIsUpdatingSettings(target.id, state),
+              isUpdatingOrgRole: getIsUpdatingOrgRole(obj.id, state)
             }
 
       if (objectType == "user"){
@@ -50,12 +55,14 @@ const SettingsFormContainerFactory = ({objectType})=> {
     },
 
     mapDispatchToProps = (dispatch, ownProps) => {
-      const {id: targetId} = ownProps[objectType],
-            baseParams = {objectType, targetId}
+      const obj = ownProps[objectType],
+            {id: targetId} = targetObjectPath ? R.path(targetObjectPath, obj) : obj,
+            baseParams = {objectType: targetObjectType || objectType, targetId}
       return {
         onRename: params => dispatch(renameObject({...baseParams, params})),
         onRemove: ()=> dispatch(removeObject(baseParams)),
-        onUpdateSettings: params => dispatch(renameObject({...baseParams, params}))
+        onUpdateSettings: params => dispatch(renameObject({...baseParams, params})),
+        onUpdateOrgRole: ({role}) => dispatch(updateOrgRole({role, userId: obj.id, orgUserId: targetId}))
       }
     }
 

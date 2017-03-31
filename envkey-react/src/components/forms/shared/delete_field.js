@@ -25,7 +25,10 @@ export default class DeleteField extends React.Component {
     if(this.props.isRemoving){
       return h(SmallLoader)
     } else {
-      return h.button({onClick: ::this._onRemoveClick}, `Delete ${this.props.label}`)
+      return h.button(
+        {onClick: ::this._onRemoveClick},
+        (this.props.fullLabel || `Delete ${this.props.label}`)
+      )
     }
   }
 

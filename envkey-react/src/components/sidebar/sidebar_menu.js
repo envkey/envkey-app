@@ -100,7 +100,10 @@ export default class SidebarMenu extends React.Component {
   }
 
   _renderNewButton(){
-    if (this.props.permissions.create[pluralize.singular(this.props.type)]){
+    if (
+      this.props.permissions.create[pluralize.singular(this.props.type)] &&
+      this.props.newBtnLabel
+    ){
       const newSelected = this.props.location.pathname.endsWith(`/${this.props.type}/new`)
       return <Link to={`/${this.props.params.orgSlug}/${this.props.type}/new`}
                    className={"button img-button new-btn" + (newSelected ? " selected" : "")}>

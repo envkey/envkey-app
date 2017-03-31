@@ -28,6 +28,7 @@
 
   .bottom-row
     padding: 0 15px 13px
+    position: relative
 
   .primary
     a
@@ -50,6 +51,8 @@
     display: inline-block
     position: relative
     top: 5px
+    background: transparent
+    transition: background 0.3s ease-out
 
     &.status
       float: left
@@ -58,6 +61,34 @@
         font-style: normal
         color: hsl(0,0,30)
         font-weight: 400
+
+    &.granting-env-access
+
+      background: $light-blue
+      color: #fff
+      display: block
+      position: absolute
+      left: 0
+      width: 100%
+      box-sizing: border-box
+      padding: 0 15px
+
+      > span
+        font-size: 11.5px
+        position: relative
+        top: 8px
+        font-weight: 400
+
+
+      .small-loader
+        top: 0
+        float: right
+
+        > svg
+          width: 20px
+
+          path, rect
+            fill: #fff
 
   .small-label
     font-family: $condensed-font
@@ -84,3 +115,5 @@
 
   &.key-generated
     height: $app-tab-height + 40px
+
+
