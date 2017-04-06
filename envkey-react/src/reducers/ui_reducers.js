@@ -87,10 +87,11 @@ export const
     switch(action.type){
       case ADD_ASSOC_REQUEST:
       case CREATE_ASSOC_REQUEST:
+        if(action.meta.createAssoc)return state
         return R.assocPath([action.meta.parentId,
                             action.meta.assocType,
                             (action.meta.role || "all"),
-                            action.meta.assocId],
+                            (action.meta.assocId || "create")],
                            true,
                            state)
 
@@ -98,10 +99,11 @@ export const
       case ADD_ASSOC_FAILED:
       case CREATE_ASSOC_SUCCESS:
       case CREATE_ASSOC_FAILED:
+        if(action.meta.createAssoc)return state
         return R.dissocPath([action.meta.parentId,
                              action.meta.assocType,
                              (action.meta.role || "all"),
-                             action.meta.assocId],
+                             (action.meta.assocId || "create")],
                             state)
 
       default:

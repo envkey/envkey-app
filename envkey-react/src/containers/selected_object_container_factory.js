@@ -56,7 +56,9 @@ const SelectedObjectContainerFactory = ({
         path = "/" + [this.props.params.orgSlug, pluralize(objectType), this.props.params.slug].join("/")
       }
 
-      return h.div(".selected-object-container.show-page", [
+      return h.div(".selected-object-container.show-page", {
+        className: (objectType == "app" ? `app-role-${obj.role}` : "")
+      }, [
         h.div(".transition-overlay", {className: (this.state.showTransitionOverlay ? "" : "hide")}),
         h(SelectedTabs, {
           ...R.pick(["permissions"], this.props),
@@ -65,7 +67,6 @@ const SelectedObjectContainerFactory = ({
           path,
           selectedTab
         }),
-
 
         h.div(".selected-object", this._renderContents())
       ])

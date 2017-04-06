@@ -1,4 +1,5 @@
 import React from 'react'
+import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import MultiSelectForm from "components/shared/multi_select_form"
 
@@ -63,6 +64,8 @@ export default class AddAssoc extends React.Component {
 
   _renderNew(){
     return h(this.props.addFormType, {
+      ...R.pick(["role"], this.props),
+      addAssoc: true,
       isSubmitting: this.props.isCreating,
       onSubmit: attr => this.props.createAssoc(attr, this.props.role)
     })

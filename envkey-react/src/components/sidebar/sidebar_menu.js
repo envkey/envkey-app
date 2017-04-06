@@ -3,13 +3,14 @@ import {Link} from 'react-router'
 import { imagePath } from 'lib/ui'
 import pluralize from 'pluralize'
 import R from 'ramda'
+import {orgRoleIsAdmin} from 'lib/roles'
 
 export default class SidebarMenu extends React.Component {
 
   constructor(props){
     super(props)
     this.state = {
-      open: this.props.defaultOpen || false
+      open: this.props.selected || false
     }
   }
 
@@ -29,8 +30,22 @@ export default class SidebarMenu extends React.Component {
   //   }
   // }
 
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.selected != this.props.selected && nextProps.selected != this.state.open){
+      this.setState({open: nextProps.selected})
+    }
+  }
+
+  _onClickLabel(){
+    if(this._isOrgAdmin())this.setState({open: !this.state.open})
+  }
+
   _label(item){
     return this.props.labelFn ? this.props.labelFn(item) : item.name
+  }
+
+  _isOrgAdmin(){
+    return orgRoleIsAdmin(this.props.currentUser.role)
   }
 
   render(){
@@ -44,12 +59,18 @@ export default class SidebarMenu extends React.Component {
 
   _renderMenuLabel(){
     return <div className="menu-label"
-                onClick={()=> this.setState({open: !this.state.open})}>
-      <img className="toggle-icon" src={imagePath("menu-toggle-black.svg")} />
+                onClick={::this._onClickLabel}>
+      {this._renderToggleIcon()}
       <img className="type-icon" src={imagePath(this.props.icon)} />
       <label>{this.props.label}</label>
       <span className="line" />
     </div>
+  }
+
+  _renderToggleIcon(){
+    if (this._isOrgAdmin()){
+      return <img className="toggle-icon" src={imagePath("menu-toggle-black.svg")} />
+    }
   }
 
   _renderMenuContent(){

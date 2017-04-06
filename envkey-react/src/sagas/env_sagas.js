@@ -21,6 +21,7 @@ const updateEnvApiSaga = apiSaga({
   authenticated: true,
   method: "patch",
   actionTypes: [UPDATE_ENV_SUCCESS, UPDATE_ENV_FAILED],
+  minDelay: 800,
   urlFn: ({meta: {parentType, parentId}})=> {
     const parent = decamelize(pluralize(parentType))
     return `/${parent}/${parentId}/update_envs.json`

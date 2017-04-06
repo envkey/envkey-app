@@ -13,6 +13,7 @@ import { getApps,
          getCurrentOrg,
          getCurrentOrgSlug } from 'selectors'
 import {fetchCurrentUser, selectOrg, logout} from 'actions'
+import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
 
 const appStateLoaded = (props)=>{
@@ -46,10 +47,17 @@ class Main extends React.Component {
     ensureCurrentUser(nextProps)
   }
 
+  _classNames(){
+    return [
+      ("role-" + this.props.currentUser.role),
+      (orgRoleIsAdmin(this.props.currentUser.role) ? "is-org-admin" : "")
+    ]
+  }
+
   render(){
     if (appStateLoaded(this.props)){
 
-      return <div>
+      return <div className={this._classNames().join(" ")}>
         <Header />
 
         <Sidebar {...this.props} />

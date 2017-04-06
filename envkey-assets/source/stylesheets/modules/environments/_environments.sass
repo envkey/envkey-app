@@ -22,9 +22,28 @@
     border-right: 1px solid hsl(0,0,90)
 
   .onboard-slider
-    max-width: 625px
-    margin: 40px
+    position: fixed
+    bottom: 0
+    z-index: 4
+    left: $sidemenu-width
+    width: calc(100% - #{$sidemenu-width})
+    min-width: 800px
+    border-left: none
+    border-right: none
+    border-bottom: none
 
     .slide-1 .small-divider
       margin-top: 25px
+
+.environments.is-onboarding
+  margin-bottom: 500px
+
+.app-role-org_owner .environments
+  &.is-onboarding
+    margin-bottom: 0
+  .onboard-slider
+    position: static
+    max-width: 625px
+    margin: 40px
+    border: 1px solid hsl(0,0,90)
 

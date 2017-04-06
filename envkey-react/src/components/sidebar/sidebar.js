@@ -8,7 +8,7 @@ import {orgRoleGroupLabel} from 'lib/ui'
 
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 
-const defaultSelected = props => {
+const menuSelected = props => {
   for (let type of ["apps", "services", "users"]){
     ; // fix Sublime highlights
     if(props.location.pathname.indexOf(`/${type}/`) != -1)return type
@@ -79,7 +79,7 @@ export default class Sidebar extends React.Component {
   }
 
   _renderMenuSections(){
-    const selected = defaultSelected(this.props)
+    const selected = menuSelected(this.props)
     return <section className={[
       "menu-sections",
       (this.state.accountMenuOpen ? " hide" : "")
@@ -89,7 +89,7 @@ export default class Sidebar extends React.Component {
                                    "Apps",
                                    this.props.apps,
                                    "menu-lightning-white.svg",
-                                   {defaultOpen: selected == "apps",
+                                   {selected: selected == "apps",
                                     pathFn: (item => `/${this.props.currentOrg.slug}/apps/${item.slug}`),
                                     newBtnLabel: "New App"})}
 
@@ -97,7 +97,7 @@ export default class Sidebar extends React.Component {
                                    "Users",
                                    this.props.users,
                                    "menu-user-white.svg",
-                                   {defaultOpen: selected == "users",
+                                   {selected: selected == "users",
                                     pathFn: (item => `/${this.props.currentOrg.slug}/users/${item.slug}/apps`),
                                     labelFn: (item => [<span key="0">{item.firstName + " "}</span>,
                                                        <strong key="1">{item.lastName}</strong>]),

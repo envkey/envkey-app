@@ -7,7 +7,8 @@ import OnboardOverlay from 'components/onboard/onboard_overlay'
 
 const
   mapStateToProps = (state, ownProps) => ({
-    currentUser: getCurrentUser(state)
+    currentUser: getCurrentUser(state),
+    isCreating: getIsCreating({objectType: "app"},state)
   }),
 
   mapDispatchToProps = (dispatch, ownProps) => ({

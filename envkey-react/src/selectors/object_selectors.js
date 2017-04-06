@@ -65,6 +65,8 @@ export const
     return state ? fn(state)[0] : R.pipe(fn, R.head)
   },
 
+  getServersForApp = db.apps.hasMany("servers"),
+
   getKeyableServersForApp = db.apps.hasMany("servers", {
     where: {pubkey: R.complement(R.isNil)}
   }),

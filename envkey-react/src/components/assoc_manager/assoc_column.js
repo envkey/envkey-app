@@ -54,7 +54,7 @@ export default class AssocColumn extends React.Component {
       return
     }
 
-    if (this.props.config.isAddingAssoc){
+    if (this.props.config.isAddingAssoc || this.props.config.isCreating){
       return h(SmallLoader)
     } else if (this._canAdd()) {
       return h.button({
@@ -135,7 +135,7 @@ export default class AssocColumn extends React.Component {
       return h.div(".section", {key: k}, [
         this._renderSectionTitle(k),
         h.div(".associations",
-          associations.map(assoc => h(AssocRow, {...this.props, assoc}) )
+          associations.map(assoc => h(AssocRow, {...this.props, assoc}))
         )
       ])
     }

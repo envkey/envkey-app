@@ -79,8 +79,10 @@ export default function({
             sectionLabelFn: appRoleGroupLabel,
             permissionCopyLines: adminUserPermissions,
             keyLabel: "development",
-            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "admin"}, state),
-            isCreating: getIsCreating({assocType, parentId: parent.id, role: "admin"}, state),
+            isAddingAssoc: (getIsAddingAssoc({assocType, parentId: parent.id, role: "admin"}, state) ||
+                            getIsAddingAssoc({assocType, parentId: parent.id, role: "org_admin"}, state)),
+            isCreating: (getIsCreating({assocType, parentId: parent.id, role: "admin"}, state) ||
+                         getIsCreating({assocType, parentId: parent.id, role: "org_admin"}, state)),
             candidates
           },
           {

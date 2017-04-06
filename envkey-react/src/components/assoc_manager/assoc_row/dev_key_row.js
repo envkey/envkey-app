@@ -28,6 +28,4 @@ class DevKeyRow extends React.Component {
   }
 }
 
-
-
 export default KeyGeneratable(DevKeyRow)

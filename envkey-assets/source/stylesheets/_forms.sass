@@ -90,6 +90,62 @@ form.object-form
     position: relative
     top: -1px
 
+.org-admin-toggle
+  +clearfix
+  display: block
+  padding: 10px
+  border: 1px solid hsl(0,0,90)
+  border-radius: 3px
+  margin-bottom: 15px
+  transition: background 0.2s ease-out
+
+  > span
+    font-family: $condensed-font
+    font-weight: 600
+    font-size: 13px
+    text-transform: uppercase
+    color: hsl(0,0,70)
+
+    em
+      color: rgba($light-blue, 0.8)
+
+  > input
+    float: right
+    font-size: 16px
+
+  > small
+    display: block
+    color: hsl(0,0,75)
+    font-size: 11px
+    margin-top: 10px
+
+  &, *
+    cursor: pointer
+
+  &:hover
+    background: rgba($light-blue, 0.025)
+    > span
+      color: hsl(0,0,65)
+
+      em
+        color: rgba($light-blue, 0.9)
+
+    > small
+      color: hsl(0,0,70)
+
+  &.selected, &.selected:hover
+    background: rgba($light-blue, 0.075)
+    > span
+      color: hsl(0,0,60)
+
+      em
+        color: rgba($light-blue, 1)
+
+    > small
+      color: hsl(0,0,65)
+
+
+
 .new-page .new-form
   width: 300px
 

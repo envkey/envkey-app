@@ -57,27 +57,27 @@ const
     return state
   },
 
-  createAppAssocKeys = ["appUsers", "servers"],
-
   getCreateObjectReducer = objectTypePlural => (state, {
     meta: {objectType}, payload
   })=> {
     if(pluralize(objectType) == objectTypePlural){
       return R.assoc(payload.id, payload, state)
-    } else if (objectType == "app" && createAppAssocKeys.includes(objectTypePlural)){
-
+    } else {
       const associations = payload[objectTypePlural]
-      return associations.reduce((acc, assoc)=>{
-        return {...acc, [assoc.id]: assoc}
-      }, state)
 
+      if (associations && associations.length){
+        return associations.reduce((acc, assoc)=>{
+          return {...acc, [assoc.id]: assoc}
+        }, state)
+      }
     }
     return state
   },
 
-  getRemoveObjectReducer = objectTypePlural => (state, {meta: {objectType, targetId}})=>{
-    if(pluralize(objectType) == objectTypePlural){
-      return R.dissoc(targetId, state)
+  getRemoveObjectReducer = objectTypePlural => (state, {payload})=>{
+    const ids = payload[objectTypePlural]
+    if(ids){
+      return R.pick(ids, state)
     }
     return state
   },

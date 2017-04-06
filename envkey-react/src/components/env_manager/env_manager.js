@@ -87,7 +87,7 @@ export default class EnvManager extends React.Component {
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "filter", "addVar"], this.state)
+      ...R.pick(["hideValues", "filter", "addVar", "startedOnboarding"], this.state)
     })
   }
 }

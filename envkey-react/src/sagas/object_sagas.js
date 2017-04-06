@@ -2,7 +2,7 @@ import { takeEvery, takeLatest, take, put, select, call, fork} from 'redux-saga/
 import {push} from 'react-router-redux'
 import R from 'ramda'
 import merge from 'lodash/merge'
-import {apiSaga, appServiceEnvs} from './helpers'
+import {apiSaga, appServiceEnvs, redirectFromOrgIndexIfNeeded} from './helpers'
 import pluralize from 'pluralize'
 import {decamelize} from 'xcase'
 import {
@@ -99,8 +99,16 @@ const
       urlFn:  getUpdateUrlFn()
     }), actionWithEnvs)
 
-    const {type: resultType} = yield take([API_SUCCESS, API_FAILED])
-    if (resultType == API_SUCCESS) yield put(push(`/${currentOrg.slug}`))
+    const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
+    if (apiResultType == API_SUCCESS) {
+      yield put(push(`/${currentOrg.slug}`))
+    }
+
+    const {type: resultType} = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
+    if (resultType == REMOVE_OBJECT_SUCCESS){
+      yield call(redirectFromOrgIndexIfNeeded)
+    }
+
   },
 
   checkInvitesAcceptedUnlessAlreadyPolling = function*(){

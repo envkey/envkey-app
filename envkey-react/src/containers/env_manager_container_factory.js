@@ -26,11 +26,19 @@ import {
   getEnvsWithMetaWithPending,
   getHasAnyVal,
   getIsOnboarding,
-  getLastAddedEntry
+  getIsInvitee,
+  getLastAddedEntry,
+  getApps
 } from 'selectors'
 import EnvManager from 'components/env_manager'
-import {AppEnvSlider} from 'components/onboard/onboard_slider'
+import {
+  OrgOwnerAppEnvSlider,
+  OrgAdminAppEnvSlider,
+  AppAdminAppEnvSlider,
+  NonAdminAppEnvSlider
+} from 'components/onboard/onboard_slider'
 import Onboardable from 'components/onboard/traits/onboardable'
+import {orgRoleIsAdmin, appRoleIsAdmin} from 'lib/roles'
 
 const withServices = (props, {parentType, parent, state}) => {
   const {
@@ -87,7 +95,9 @@ const EnvManagerContainerFactory = ({parentType})=> {
               isRemovingServiceFn: id => getIsRemoving(id, state),
               hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
               isOnboarding: getIsOnboarding(state),
+              isInvitee: getIsInvitee(state),
               lastAddedEntry: getLastAddedEntry(parentId, state),
+              numApps: getApps(state).length,
               environments,
               parent,
               parentType
@@ -118,15 +128,42 @@ const EnvManagerContainerFactory = ({parentType})=> {
       }
     },
 
-    startedOnboardingFn = (props, state)=> props.entries.length == 0 && !state.finishedOnboarding,
+    startedOnboardingFn = (props, state)=> {
+      return ((props.parent.role == "org_owner" && props.entries.length == 0 && props.numApps < 2) ||
+              (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry)) &&
+             !state.finishedOnboarding
+    },
 
-    finishedOnboardingFn = (props, state)=> props.entries.length > 0,
+    finishedOnboardingFn = (props, state)=> {
+      return (props.parent.role == "org_owner" && props.entries.length > 0) ||
+              props.lastAddedEntry
+    },
 
-    selectedIndexFn = (props, state)=> props.entries.length == 0 ? 0 : 1,
+    selectedIndexFn = (props, state)=> {
+      if (props.parent.role == "org_owner"){
+        return props.entries.length > 0 ? 1 : 0
+      } else {
+        return props.lastAddedEntry ? 1 : 0
+      }
+    },
 
-    OnboardableEnvManager = Onboardable(EnvManager, AppEnvSlider, {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn})
+    OnboardSlider = props => {
+      if(props.parent.role == "org_owner"){
+        return OrgOwnerAppEnvSlider(props)
+      } else if (props.parent.role == "org_admin"){
+        return OrgAdminAppEnvSlider(props)
+      } else if (appRoleIsAdmin(props.parent.role)){
+        return AppAdminAppEnvSlider(props)
+      } else {
+        return NonAdminAppEnvSlider(props)
+      }
+    },
 
-
+    OnboardableEnvManager = Onboardable(
+      EnvManager,
+      OnboardSlider,
+      {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn}
+    )
 
   return connect(mapStateToProps, mapDispatchToProps)(OnboardableEnvManager)
 }

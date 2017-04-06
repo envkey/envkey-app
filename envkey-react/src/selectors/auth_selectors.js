@@ -24,7 +24,9 @@ export const
 
   getInvitedBy = db.path("invitedBy"),
 
-  getIsOnboarding = db.path("isOnboarding"),
+  getIsInvitee = db.path("isInvitee"),
+
+  getIsOnboarding = (state)=> db.path("hasSingleApp")(state) || getIsInvitee(state),
 
   getIsDemo = db.path("isDemo"),
 

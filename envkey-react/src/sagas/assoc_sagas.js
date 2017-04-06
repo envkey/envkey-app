@@ -90,16 +90,19 @@ function* onCreateAssoc({meta, payload}){
   const createResultAction = yield take([CREATE_OBJECT_SUCCESS, CREATE_OBJECT_FAILED])
 
   if (createResultAction.type == CREATE_OBJECT_SUCCESS){
-    yield put(addAssoc({...meta, assocId: createResultAction.payload.id}))
-
-    const addResultAction = yield take([ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED])
-
-    if (addResultAction.type == ADD_ASSOC_SUCCESS){
+    if(meta.createOnly){
       yield put({type: CREATE_ASSOC_SUCCESS, meta})
     } else {
-      failAction = addResultAction
-    }
+      yield put(addAssoc({...meta, assocId: createResultAction.payload.id}))
 
+      const addResultAction = yield take([ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED])
+
+      if (addResultAction.type == ADD_ASSOC_SUCCESS){
+        yield put({type: CREATE_ASSOC_SUCCESS, meta})
+      } else {
+        failAction = addResultAction
+      }
+    }
   } else {
     failAction = createResultAction
   }

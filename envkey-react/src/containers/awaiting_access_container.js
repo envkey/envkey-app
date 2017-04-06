@@ -14,7 +14,7 @@ const AwaitingAccess = ({envAccessGranted, invitedBy})=>{
     className: (envAccessGranted ? "hide" : "")
   }, [
     h.div(".awaiting-access", [
-      h.h3("Awaiting config access..."),
+      h.h3("Waiting for encrypted config access..."),
 
       h.p([
         "Because Envkey uses end-to-end encryption, ",

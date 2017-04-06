@@ -50,7 +50,6 @@ class AssocRow extends React.Component{
         isRemoving: isRemoving(this.props),
         isGeneratingAssocKey: isGeneratingAssocKey(this.props),
         isGrantingEnvAccess: isGrantingEnvAccess(this.props),
-        showKeyGenerated: this.state.showKeyGenerated,
         onRenew: ::this._onRenew
       })
     ]

@@ -5,7 +5,8 @@ import {
   addAssoc,
   createAssoc,
   removeAssoc,
-  generateKey
+  generateKey,
+  createObject
 } from 'actions'
 import {
   getIsRemovingById,
@@ -59,7 +60,11 @@ export default function({
       removeAssoc: ({targetId, assocId}) => dispatch(removeAssoc({...getTrueAssocParams({assocId}), targetId})),
       createAssoc: (params, role) => {
         if ((parentType == "app" && assocType == "user") || (parentType == "user" && assocType == "app")){
-          dispatch(createAssoc({...getTrueAssocParams(), params, role, orgRole: "basic"}))
+          if (params.orgRole == "org_admin"){
+            dispatch(createAssoc({...getTrueAssocParams(), params: {...params, role: params.orgRole}, role: params.orgRole, createOnly: true}))
+          } else {
+            dispatch(createAssoc({...getTrueAssocParams(), params, role}))
+          }
         } else if (parentType == "app" && assocType == "server"){
           dispatch(addAssoc({...baseAssocParams, ...params, role}))
         } else {

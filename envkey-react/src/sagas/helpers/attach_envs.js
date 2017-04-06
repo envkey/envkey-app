@@ -1,7 +1,7 @@
 import R from 'ramda'
 import { select, call } from 'redux-saga/effects'
 import {encryptJson} from 'lib/crypto'
-import {orgRoleIsAdmin} from 'lib/org/roles'
+import {orgRoleIsAdmin} from 'lib/roles'
 import {
   getUser,
   getApp,

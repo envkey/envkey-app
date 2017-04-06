@@ -1,14 +1,17 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import moment from 'moment'
+import scrollIntoView from 'scroll-into-view'
 import EntryRow from './entry_row'
 import LabelRow from './label_row'
 import ServiceBlock from './service_block'
 import EditableCellsParent from './traits/editable_cells_parent'
 import EntryForm from './entry_form'
+import {toClass} from 'recompose'
 
-const HIGHLIGHT_ROW_DELAY = 1800
+const HIGHLIGHT_ROW_DELAY = 2000
 
 export default class EnvGrid extends EditableCellsParent(React.Component) {
 
@@ -35,7 +38,23 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
         }
 
       } else {
-        this.setState({highlightRow: null})
+        this.setState({highlightRows: {}})
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(this.state.highlightRows){
+      const keysAdded = R.difference(
+                          R.keys(this.state.highlightRows),
+                          R.keys(prevState.highlightRows)
+                        )
+
+      if (keysAdded.length){
+        const key = R.last(keysAdded),
+              row = ReactDOM.findDOMNode(this.refs[`row-${key}`])
+
+        scrollIntoView(row, {time: 150, align: {top: 0, topOffset: 210}})
       }
     }
   }
@@ -71,11 +90,12 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
     ])
   }
 
-  _renderEntryRow(entryKey, i){
+  _renderEntryRow(entryKey){
     const filter = this.props.filter
     if(filter && !entryKey.toLowerCase().includes(filter))return
-    return h(EntryRow, {
-      key: i,
+    return h(toClass(EntryRow), {
+      key: entryKey,
+      ref: `row-${entryKey}`,
       highlightRow: Boolean(this.state.highlightRows[entryKey]),
       entryKey,
       ...this.props,

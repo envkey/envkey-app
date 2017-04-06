@@ -1,7 +1,7 @@
 .env-grid .entry-form
   position: fixed
   top: $app-tab-height / 2
-  z-index: 2
+  z-index: 4
   width: calc(100% - #{$sidemenu-width})
   min-width: $min-width - $sidemenu-width
   background: #fff
@@ -67,3 +67,7 @@
   .cell.entry-cell .actions-overlay > span.edit
     width: calc(100% - 30px)
     padding-right: 10px
+
+.app-role-development .entry-form
+  .submit
+    width: 33.33%

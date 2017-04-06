@@ -1,8 +1,8 @@
 import {delay} from 'redux-saga'
 import { takeLatest, put, select, call, fork, take } from 'redux-saga/effects'
-import {push, replace } from 'react-router-redux'
+import {push } from 'react-router-redux'
 import R from 'ramda'
-import {apiSaga, envParamsForInvitee} from './helpers'
+import {apiSaga, envParamsForInvitee, redirectFromOrgIndexIfNeeded} from './helpers'
 import {
   APP_LOADED,
   FETCH_CURRENT_USER_REQUEST,
@@ -54,7 +54,6 @@ import {
   getAuth,
   getOrgs,
   getApps,
-  getAppsSortedByUpdatedAt,
   getServices,
   getPassword,
   getPrivkey,
@@ -64,9 +63,6 @@ import {
   getInviteesNeedingAccess,
   getInviteesPendingAcceptance,
   getEnvAccessGranted,
-  getCurrentRoute,
-  getCurrentOrgSlug,
-  getPermissions,
   getIsDemo
 } from "selectors"
 import * as crypto from 'lib/crypto'
@@ -179,6 +175,9 @@ function *onHashPasswordAndGenerateKeys({payload}){
 
 function *onAcceptInvite({payload}){
   document.body.className += " preloader-authenticate"
+  const overlay = document.getElementById("preloader-overlay")
+  overlay.className = overlay.className.replace("hide", "")
+  document.body.className += " no-scroll"
   yield call(delay, 50)
 
   yield put({type: HASH_PASSWORD_AND_GENERATE_KEYS, payload})
@@ -314,37 +313,20 @@ function *onDecrypt(action){
 
 function *onFetchCurrentUserSuccess(action){
   yield put(appLoaded())
-  const privkey = yield select(getPrivkey)
-  if(privkey)yield call(dispatchDecryptEnvsIfNeeded)
   yield [
+    call(dispatchDecryptEnvsIfNeeded),
     call(checkAccessGrantedIfNeeded),
     call(redirectFromOrgIndexIfNeeded)
   ]
 }
 
-function *redirectFromOrgIndexIfNeeded(){
-  const currentRoute = yield select(getCurrentRoute),
-        orgSlug = yield select(getCurrentOrgSlug),
-        isOrgIndex = currentRoute.pathname == `/${orgSlug}`
-
-  if (isOrgIndex){
-    const apps = yield select(getAppsSortedByUpdatedAt),
-          permissions = yield select(getPermissions)
-
-    if (apps.length){
-      yield put(replace(`/${orgSlug}/apps/${apps[0].slug}`))
-    } else if (permissions.create.app){
-      yield put(replace(`/${orgSlug}/onboard`))
-    }
-  }
-}
-
 function *dispatchDecryptEnvsIfNeeded(){
-  const isDecryptingEnvs = yield select(getIsDecryptingEnvs),
+  const privkey = yield select(getPrivkey),
+        isDecryptingEnvs = yield select(getIsDecryptingEnvs),
         envsAreDecrypted = yield select(getEnvsAreDecrypted),
         envAccessGranted = yield select(getEnvAccessGranted)
 
-  if(envAccessGranted && !isDecryptingEnvs && !envsAreDecrypted){
+  if(privkey && envAccessGranted && !isDecryptingEnvs && !envsAreDecrypted){
     yield put({type: DECRYPT_ENVS})
   }
 }

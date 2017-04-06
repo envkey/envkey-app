@@ -20,6 +20,7 @@ import {
   DECRYPT_ENVS_SUCCESS,
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
+  ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
   GENERATE_USER_KEYPAIR,
   GENERATE_USER_KEYPAIR_SUCCESS,
@@ -219,7 +220,6 @@ export const
       case LOGOUT:
       case TOKEN_INVALID:
       case DECRYPT_PRIVKEY_SUCCESS:
-      case DECRYPT_PRIVKEY_FAILED:
       case DECRYPT_ENVS_SUCCESS:
         return null
       default:
@@ -338,10 +338,33 @@ export const
     }
   },
 
-  isOnboarding = (state = false, action)=>{
+  hasSingleApp = (state = false, action)=>{
     switch (action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case REGISTER_SUCCESS:
         return action.payload.apps.length <= 1
+
+      case LOGIN:
+      case LOGOUT:
+      case REGISTER:
+      case TOKEN_INVALID:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isInvitee = (state = false, action)=>{
+    switch (action.type){
+      case ACCEPT_INVITE_SUCCESS:
+        return true
+
+      case LOGIN:
+      case LOGOUT:
+      case REGISTER:
+      case TOKEN_INVALID:
+        return false
 
       default:
         return state

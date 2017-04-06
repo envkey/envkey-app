@@ -8,7 +8,10 @@ export default class UserForm extends React.Component {
 
   constructor(props){
     super(props)
-    this.state = this.props.user || {orgRole: "basic"}
+    this.state = {
+      ...(this.props.user || {}),
+      orgRole: "basic"
+    }
   }
 
   componentDidMount(){
@@ -17,7 +20,7 @@ export default class UserForm extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if(R.path(["user", "id"], this.props) != R.path(["user", "id"], nextProps)){
-      this.setState(nextProps.user || {orgRole: "basic"})
+      this.setState({...(nextProps.user || {}), orgRole: "basic"})
     }
   }
 
@@ -61,14 +64,32 @@ export default class UserForm extends React.Component {
         })
       ]),
 
+      this._renderOrgAdminToggle(),
+
       this._renderOrgRoleSelect(),
 
       h.fieldset([this._renderSubmit()])
     ])
   }
 
+  _renderOrgAdminToggle(){
+    if (this.props.addAssoc && this.props.role == "admin"){
+      return h.label(".org-admin-toggle", {
+        className: (this.state.orgRole == "org_admin" ? "selected" : "")
+      }, [
+        h.span(this.state.firstName ? ["Make ", h.em(this.state.firstName), " an org admin"] : "Make org admin"),
+        h.input({
+          type: "checkbox",
+          checked: this.state.orgRole == "org_admin",
+          onChange: ()=> this.setState({orgRole: (this.state.orgRole == "org_admin" ? "basic" : "org_admin")})
+        }),
+        h.small("Grant admin access to all your organization's apps.")
+      ])
+    }
+  }
+
   _renderOrgRoleSelect(){
-    if (this.props.orgRolesAssignable && this.props.orgRolesAssignable.length){
+    if (!this.props.addAssoc && this.props.orgRolesAssignable && this.props.orgRolesAssignable.length){
       return h(OrgRoleSelect, {
         value: this.state.orgRole,
         onChange: e => this.setState({orgRole: e.target.value}),

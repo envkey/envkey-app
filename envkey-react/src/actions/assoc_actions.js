@@ -39,7 +39,8 @@ const
     "targetId",
     "isManyToMany",
     "role",
-    "passphrase"
+    "passphrase",
+    "createOnly"
   ])
 
 export const
