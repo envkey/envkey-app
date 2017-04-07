@@ -5,6 +5,7 @@
     border: 1px solid rgba(#fff, 0.0)
     position: relative
     box-sizing: border-box
+    padding: 0 15px
 
     &, span, input
       font-family: $code-font
@@ -25,6 +26,7 @@
     .val
       white-space: nowrap
       overflow: hidden
+      text-overflow: ellipsis
       line-height: 110%
 
     &.val-cell
@@ -54,7 +56,7 @@
       +cell-glow($light-blue)
 
     &, span, input
-      font-size: 11.5px
+      font-size: 11px
 
   .val-cols .cell
     color: lighten($dark-text, 25%)
@@ -70,7 +72,7 @@
         position: relative
 
       &, span, input
-        font-size: 11.5px
+        font-size: 11px
 
     &:last-of-type
       border-bottom: 1px solid #fff
@@ -78,7 +80,7 @@
         border-bottom: 1px solid rgba($light-blue, 0.6)
 
     &, span, input
-      font-size: 10.5px
+      font-size: 10px
 
   &.vals-masked .val-cols .cell
     color: hsl(0,0,75)
