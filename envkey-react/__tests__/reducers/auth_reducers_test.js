@@ -1,5 +1,5 @@
 import {isAuthenticating, currentUser} from 'reducers/auth_reducers'
-import {LOGIN_REQUEST,
+import {LOGIN,
         LOGIN_SUCCESS,
         LOGIN_FAILED,
         TOKEN_INVALID} from 'actions'
@@ -11,8 +11,7 @@ describe("isAuthenticating", ()=>{
   })
 
   it("should return true for a login request", ()=>{
-    expect(isAuthenticating(undefined, {type: LOGIN_REQUEST})).toEqual(true)
+    expect(isAuthenticating(undefined, {type: LOGIN})).toEqual(true)
   })
-
 
 })

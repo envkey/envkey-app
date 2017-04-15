@@ -10,7 +10,8 @@ import {
   updateEntryVal,
   addAssoc,
   removeAssoc,
-  createAssoc
+  createAssoc,
+  broadcastUpdateEnvsStatus
 } from 'actions'
 import {
   getEntries,
@@ -28,7 +29,12 @@ import {
   getIsOnboarding,
   getIsInvitee,
   getLastAddedEntry,
-  getApps
+  getApps,
+  getSocketUserUpdatingEnvs,
+  getSocketRemovingEntry,
+  getSocketEditingEntry,
+  getSocketEditingEntryVal,
+  getSocketAddingEntry
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 import {
@@ -98,6 +104,11 @@ const EnvManagerContainerFactory = ({parentType})=> {
               isInvitee: getIsInvitee(state),
               lastAddedEntry: getLastAddedEntry(parentId, state),
               numApps: getApps(state).length,
+              socketUserUpdatingEnvs: getSocketUserUpdatingEnvs(parentId, state),
+              socketRemovingEntry: getSocketRemovingEntry(state),
+              socketEditingEntry: getSocketEditingEntry(state),
+              socketEditingEntryVal: getSocketEditingEntryVal(state),
+              socketAddingEntry: getSocketAddingEntry(state),
               environments,
               parent,
               parentType
@@ -114,6 +125,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
       const parent = ownProps[parentType],
             baseProps = {parent, parentType, parentId: parent.id}
       return {
+        dispatch,
         createEntry: ({entryKey, vals})=> dispatch(createEntry({...baseProps, entryKey, vals, timestamp: moment().valueOf()})),
         updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, timestamp: moment().valueOf()})),
         removeEntry: (entryKey)=> dispatch(removeEntry({...baseProps, entryKey})),
@@ -125,6 +137,51 @@ const EnvManagerContainerFactory = ({parentType})=> {
         },
         removeService: targetId => dispatch(removeAssoc({...baseProps, assocType: "service", isManyToMany: true, targetId})),
         createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params}))
+      }
+    },
+
+    mergeProps = (stateProps, dispatchProps, ownProps) => {
+      const {dispatch} = dispatchProps,
+            {environments, parent} = stateProps,
+            entries = getEntries(parent.envsWithMeta),
+            indexByEntryKey = R.invertObj(entries),
+            indexByEnvironment = R.invertObj(environments)
+      return {
+        ...ownProps,
+        ...stateProps,
+        ...dispatchProps,
+
+        removeEntry: (entryKey)=> {
+          dispatch(broadcastUpdateEnvsStatus({
+            removingEntry: indexByEntryKey[entryKey],
+            editingEntry: false,
+            editingEntryVal: false,
+            addingEntry: false
+          }))
+          dispatchProps.removeEntry(entryKey)
+        },
+
+        editCell: (entryKey, environment)=>{
+          if (entryKey && environment){
+            dispatch(broadcastUpdateEnvsStatus({
+              editingEntry: false,
+              addingEntry: false,
+              editingEntryVal: [indexByEntryKey[entryKey], indexByEnvironment[environment]]
+            }))
+          } else if (entryKey){
+            dispatch(broadcastUpdateEnvsStatus({
+              editingEntry: indexByEntryKey[entryKey],
+              editingEntryVal: false,
+              addingEntry: false
+            }))
+          }
+        },
+
+        stoppedEditing: ()=> dispatch(broadcastUpdateEnvsStatus({editingEntry: false, editingEntryVal: false})),
+
+        addingEntry: ()=> dispatch(broadcastUpdateEnvsStatus({addingEntry: true, editingEntry: false, editingEntryVal: false})),
+
+        stoppedAddingEntry: ()=> dispatch(broadcastUpdateEnvsStatus({addingEntry: false}))
       }
     },
 
@@ -165,7 +222,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
       {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn}
     )
 
-  return connect(mapStateToProps, mapDispatchToProps)(OnboardableEnvManager)
+  return connect(mapStateToProps, mapDispatchToProps, mergeProps)(OnboardableEnvManager)
 }
 
 export default EnvManagerContainerFactory

@@ -1,9 +1,12 @@
 var webpack = require('webpack'),
-    dotenv = require('dotenv'),
+    envkey = require('envkey/loader'),
     path = require('path'),
     projectRoot = process.env.PWD
 
-var env = dotenv.load({path: './.env.development'}),
+var env = envkey.load({
+      dotEnvFile: '.env.development',
+      permitted: ["API_HOST", "ASSET_HOST", "PUSHER_APP_KEY"]
+    }),
     defineParams = { NODE_ENV: JSON.stringify(process.env.NODE_ENV) }
 
 for (k in env) defineParams[k] = JSON.stringify(env[k]);

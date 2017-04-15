@@ -12,11 +12,11 @@ import {
   getServiceBySlug,
   getUserWithOrgUserBySlug,
   getPermissions,
-  getIsDecrypting,
-  getEnvsAreDecrypted,
-  getEnvAccessGranted
+  getEnvAccessGranted,
+  getIsDecryptingAll,
+  getDecryptedAll
 } from "selectors"
-import { decrypt } from 'actions'
+import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
 import DecryptForm from 'components/shared/decrypt_form'
 import DecryptLoader from 'components/shared/decrypt_loader'
@@ -27,18 +27,32 @@ const SelectedObjectContainerFactory = ({
   objectPermissionPath=["permissions"]
 })=> {
 
+  const idPathFn = R.path([objectType, "id"]),
+
+        triggerSelectedObject = (props)=> {
+          if(props.envsAreDecrypted && props[objectType]){
+            props.selectedObject(props[objectType])
+          }
+        }
+
   class SelectedObjectContainer extends React.Component {
 
     constructor(props){
       super(props)
       this.state = {showTransitionOverlay: false}
+      triggerSelectedObject(props)
     }
 
     componentWillReceiveProps(nextProps){
-      const pathFn = R.path([objectType, "id"])
-      if (pathFn(this.props) != pathFn(nextProps)){
+      const currentId = idPathFn(this.props),
+            nextId = idPathFn(nextProps)
+
+      if (currentId != nextId){
         this.setState({showTransitionOverlay: true})
         setTimeout(()=>{ this.setState({showTransitionOverlay: false}) }, 1)
+        triggerSelectedObject(nextProps)
+      } else if (!this.props.envsAreDecrypted && nextProps.envsAreDecrypted){
+        triggerSelectedObject(nextProps)
       }
     }
 
@@ -112,14 +126,15 @@ const SelectedObjectContainerFactory = ({
       return {
         [objectType]: obj,
         permissions: getPermissions(state),
-        isDecrypting: getIsDecrypting(state),
-        envsAreDecrypted: getEnvsAreDecrypted(state),
+        isDecrypting: getIsDecryptingAll(state),
+        envsAreDecrypted: getDecryptedAll(state),
         envAccessGranted: getEnvAccessGranted(state)
       }
     },
 
     mapDispatchToProps = (dispatch, ownProps) => ({
-      decrypt: password => dispatch(decrypt(password))
+      decrypt: password => dispatch(decryptAll({password})),
+      selectedObject: object => dispatch(selectedObject({...object, objectType}))
     })
 
   return connect(mapStateToProps, mapDispatchToProps)(SelectedObjectContainer)

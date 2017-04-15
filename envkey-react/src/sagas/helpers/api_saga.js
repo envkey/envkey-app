@@ -18,7 +18,8 @@ export default function apiSaga({
   urlSelector,
   skipOrg,
   urlFn,
-  minDelay
+  minDelay,
+  debounce
 }){
 
   if (typeof authenticated !== 'boolean'){
@@ -47,17 +48,22 @@ export default function apiSaga({
   const [SUCCESS_TYPE, FAILURE_TYPE] = actionTypes
 
   return function* (requestAction){
+    if(debounce && debounce > 0){
+      yield call(delay, debounce)
+    }
+
+    const auth = yield select(getAuth),
+          orgSlug = skipOrg ? undefined : (yield select(getCurrentOrgSlug)),
+          client = authenticated ? authenticatedClient(auth) : api,
+          urlArg = urlSelector ? (yield select(urlSelector)) : null,
+          url = urlFn(requestAction, urlArg),
+          orgParams = {org_id: orgSlug},
+          params = orgParams,
+          data = decamelizeKeys(requestAction.payload || {}),
+          config = {method, url, params, data}
+
     try {
-      const auth = yield select(getAuth),
-            orgSlug = skipOrg ? undefined : (yield select(getCurrentOrgSlug)),
-            client = authenticated ? authenticatedClient(auth) : api,
-            urlArg = urlSelector ? (yield select(urlSelector)) : null,
-            url = urlFn(requestAction, urlArg),
-            orgParams = {org_id: orgSlug},
-            params = orgParams,
-            data = decamelizeKeys(requestAction.payload || {}),
-            config = {method, url, params, data},
-            [res] = minDelay ?
+      const [res] = minDelay ?
               yield [ call(client, config), call(delay, minDelay) ] :
               yield [ call(client, config) ]
 

@@ -1,0 +1,25 @@
+.socket-entry-overlay, .env-grid .socket-entry-overlay, .env-grid .cell .socket-entry-overlay
+  position: absolute
+  width: 100%
+  height: 100%
+  left: 0
+  top: 0
+  background: $update-flash-bg
+  z-index: 2
+  padding: 8px 15px
+  box-sizing: border-box
+  transition: opacity 0.3s ease-out
+  pointer-events: none
+  opacity: 0
+
+  span
+    +socket-update-text
+    font-size: 11.5px
+
+  &.show
+    opacity: 1
+    pointer-events: auto
+
+    &, *
+      cursor: default
+

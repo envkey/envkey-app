@@ -1,6 +1,7 @@
 import db from 'lib/db'
 import { defaultMemoize } from 'reselect'
 import R from 'ramda'
+import pluralize from 'pluralize'
 import { orgRoleGroupLabel } from 'lib/ui'
 import moment from 'moment'
 
@@ -116,6 +117,16 @@ export const
             R.concat(serviceAdmins),
             R.uniq
           )(apps)
+  },
+
+  getEnvParents = (state) => getApps(state).concat(getServices(state)),
+
+  getSelectedObjectType = db.path("selectedObjectType"),
+
+  getSelectedObject = state => {
+    const type = getSelectedObjectType(state),
+          id = state.selectedObjectId
+    return db(pluralize(type)).find()(id, state)
   }
 
 

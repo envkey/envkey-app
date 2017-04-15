@@ -1,12 +1,15 @@
 var webpack = require('webpack'),
-    dotenv = require('dotenv'),
+    envkey = require('envkey/loader'),
     path = require('path'),
     projectRoot = process.env.PWD
 
 var isProd = process.env.PRODUCTION_BUILD == "true",
     isDemo = process.env.DEMO_BUILD == "true",
     buildEnv = isProd ? "production" : (isDemo ? "demo" : "staging"),
-    env = dotenv.load({path: `./.env.${buildEnv}`}),
+    env = envkey.load({
+      dotEnvFile: `.env.${buildEnv}`,
+      permitted: ["API_HOST", "ASSET_HOST", "PUSHER_APP_KEY"]
+    }),
     defineParams = { NODE_ENV: JSON.stringify(process.env.NODE_ENV), BUILD_ENV: JSON.stringify(buildEnv) }
 
 console.log("buildEnv: ", buildEnv)

@@ -3,40 +3,62 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILED,
+
   REGISTER,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
   REGISTER_FAILED,
+
   LOGOUT,
+
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
+
   TOKEN_INVALID,
-  DECRYPT_PRIVKEY,
-  DECRYPT_PRIVKEY_FAILED,
-  DECRYPT_PRIVKEY_SUCCESS,
-  DECRYPT_ENVS,
-  DECRYPT_ENVS_FAILED,
-  DECRYPT_ENVS_SUCCESS,
+
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
   ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
-  GENERATE_USER_KEYPAIR,
-  GENERATE_USER_KEYPAIR_SUCCESS,
+
   HASH_USER_PASSWORD,
   HASH_USER_PASSWORD_SUCCESS,
+
   GRANT_ENV_ACCESS_SUCCESS,
+
   CHECK_INVITES_ACCEPTED_REQUEST,
   CHECK_INVITES_ACCEPTED_SUCCESS,
   CHECK_INVITES_ACCEPTED_FAILED,
+
   SELECT_ORG,
+
   START_DEMO
 } from 'actions'
 import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
 
 export const
+
+  auth = (state = null, action)=> {
+    switch(action.type){
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+        return {
+          ...R.pick(["slug", "id"], action.payload),
+          ...R.pick(["access-token", "uid", "client"], action.meta.headers)
+        }
+
+      case LOGIN:
+      case REGISTER:
+      case LOGOUT:
+      case TOKEN_INVALID:
+        return null
+
+      default:
+        return state
+    }
+  },
 
   isAuthenticating = (state = false, action)=> {
     switch(action.type){
@@ -129,57 +151,6 @@ export const
     }
   },
 
-  isDecryptingEnvs = (state = false, action)=> {
-    switch(action.type){
-      case DECRYPT_ENVS:
-        return true
-
-      case DECRYPT_ENVS_SUCCESS:
-      case DECRYPT_ENVS_FAILED:
-      case LOGOUT:
-      case SELECT_ORG:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  envsAreDecrypted = (state = false, action)=> {
-    switch(action.type){
-      case DECRYPT_ENVS:
-      case LOGOUT:
-      case SELECT_ORG:
-        return false
-
-      case DECRYPT_ENVS_SUCCESS:
-        return true
-
-      default:
-        return state
-    }
-  },
-
-  auth = (state = null, action)=> {
-    switch(action.type){
-      case LOGIN_SUCCESS:
-      case REGISTER_SUCCESS:
-        return {
-          ...R.pick(["slug", "id"], action.payload),
-          ...R.pick(["access-token", "uid", "client"], action.meta.headers)
-        }
-
-      case LOGIN:
-      case REGISTER:
-      case LOGOUT:
-      case TOKEN_INVALID:
-        return null
-
-      default:
-        return state
-    }
-  },
-
   permissions = (state = {}, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
@@ -205,60 +176,6 @@ export const
       case TOKEN_INVALID:
       case SELECT_ORG:
         return {}
-      default:
-        return state
-    }
-  },
-
-  encryptedPrivkey = (state = null, action)=>{
-    switch(action.type){
-      case LOGIN_SUCCESS:
-      case FETCH_CURRENT_USER_SUCCESS:
-      case REGISTER_SUCCESS:
-        return action.payload.encryptedPrivkey
-      case LOGIN:
-      case LOGOUT:
-      case TOKEN_INVALID:
-      case DECRYPT_PRIVKEY_SUCCESS:
-      case DECRYPT_ENVS_SUCCESS:
-        return null
-      default:
-        return state
-    }
-  },
-
-  privkey = (state = null, action)=>{
-    switch(action.type){
-      case DECRYPT_PRIVKEY_SUCCESS:
-        return action.payload
-      case LOGIN:
-      case LOGOUT:
-      case TOKEN_INVALID:
-      case DECRYPT_ENVS_FAILED:
-        return null
-      default:
-        return state
-    }
-  },
-
-  isDecryptingPrivkey = (state = false, action)=>{
-    switch(action.type){
-      case DECRYPT_PRIVKEY:
-        return true
-      case DECRYPT_PRIVKEY_SUCCESS:
-      case DECRYPT_PRIVKEY_FAILED:
-        return false
-      default:
-        return state
-    }
-  },
-
-  isGeneratingUserKey = (state = false, action)=>{
-    switch(action.type){
-      case GENERATE_USER_KEYPAIR:
-        return true
-      case GENERATE_USER_KEYPAIR_SUCCESS:
-        return false
       default:
         return state
     }

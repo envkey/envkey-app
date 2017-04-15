@@ -6,9 +6,12 @@ import {apiSaga, appServiceEnvs, redirectFromOrgIndexIfNeeded} from './helpers'
 import pluralize from 'pluralize'
 import {decamelize} from 'xcase'
 import {
-  // FETCH_OBJECT_DETAILS_REQUEST,
-  // FETCH_OBJECT_DETAILS_SUCCESS,
-  // FETCH_OBJECT_DETAILS_FAILED,
+  SELECTED_OBJECT,
+
+  FETCH_OBJECT_DETAILS_REQUEST,
+  FETCH_OBJECT_DETAILS_API_SUCCESS,
+  FETCH_OBJECT_DETAILS_SUCCESS,
+  FETCH_OBJECT_DETAILS_FAILED,
 
   CREATE_OBJECT_REQUEST,
   CREATE_OBJECT_SUCCESS,
@@ -29,7 +32,11 @@ import {
   API_SUCCESS,
   API_FAILED,
 
-  CHECK_INVITES_ACCEPTED_REQUEST
+  CHECK_INVITES_ACCEPTED_REQUEST,
+
+  SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
+
+  socketSubscribeObjectChannel
 } from "actions"
 import {
   getCurrentOrg,
@@ -37,13 +44,9 @@ import {
   getAppServiceBy,
   getIsPollingInviteesPendingAcceptance
 } from "selectors"
-
-// const fetchObjectDetails = apiSaga({
-//   authenticated: true,
-//   method: "get",
-//   actionTypes: [FETCH_OBJECT_DETAILS_SUCCESS, FETCH_OBJECT_DETAILS_FAILED],
-//   urlFn: ({meta: {objectType}, payload: id})=> `/${pluralize(objectType)}/${id}.json`
-// })
+import {
+  decryptEnvParent
+} from './helpers'
 
 const
   getUpdateUrlFn = (path)=> ({meta: {objectType, targetId}}) => {
@@ -70,6 +73,22 @@ const
     actionTypes: [RENAME_OBJECT_SUCCESS, RENAME_OBJECT_FAILED],
     urlFn: getUpdateUrlFn("rename")
   }),
+
+  onFetchObjectDetails = action => apiSaga({
+    authenticated: true,
+    method: "get",
+    minDelay: (action.meta && action.meta.socketUpdate ? 2000 : 0),
+    actionTypes: [FETCH_OBJECT_DETAILS_API_SUCCESS, FETCH_OBJECT_DETAILS_FAILED],
+    urlFn: ({meta: {objectType, targetId}})=> `/${pluralize(objectType)}/${targetId}.json`
+  })(action),
+
+  onSelectedObject = function*({payload: object}){
+    yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
+    const currentOrg = yield select(getCurrentOrg)
+    if (object && object.broadcastChannel && object.id != currentOrg.id){
+      yield put(socketSubscribeObjectChannel(object))
+    }
+  },
 
   onRemoveObject = function*(action){
     let actionWithEnvs
@@ -111,6 +130,15 @@ const
 
   },
 
+  onFetchObjectDetailsApiSuccess = function*(action){
+    if (action.meta.decryptEnvs){
+      const decrypted = yield call(decryptEnvParent, action.payload)
+      yield put({...action, type: FETCH_OBJECT_DETAILS_SUCCESS, payload: decrypted})
+    } else {
+      yield put({...action, type: FETCH_OBJECT_DETAILS_SUCCESS})
+    }
+  },
+
   checkInvitesAcceptedUnlessAlreadyPolling = function*(){
     const isPolling = yield select(getIsPollingInviteesPendingAcceptance)
     if(!isPolling){
@@ -134,11 +162,13 @@ const
 
 export default function* objectSagas(){
   yield [
-    // takeEvery(FETCH_OBJECT_DETAILS_REQUEST, fetchObjectDetails)
+    takeLatest(SELECTED_OBJECT, onSelectedObject),
+    takeEvery(FETCH_OBJECT_DETAILS_REQUEST, onFetchObjectDetails),
+    takeEvery(FETCH_OBJECT_DETAILS_API_SUCCESS, onFetchObjectDetailsApiSuccess),
     takeEvery(CREATE_OBJECT_REQUEST, onCreateObject),
     takeEvery(UPDATE_OBJECT_SETTINGS_REQUEST, onUpdateObjectSettings),
     takeEvery(RENAME_OBJECT_REQUEST, onRenameObject),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
-    takeLatest(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
+    takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
   ]
 }

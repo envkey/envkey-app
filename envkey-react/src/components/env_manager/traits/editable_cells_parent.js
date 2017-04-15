@@ -23,12 +23,18 @@ const EditableCellsParent = CellsParent => class extends CellsParent {
     const tg = traversty(e.target)
     if ((this.state.editing.entryKey) &&
         !tg.closest(this._preventClearEditingSelector()).length){
-      this._clearEditing()
+      this._deselect()
     }
   }
 
   _onKeyDown(e){
-    if (e.key == "Escape" && (this.state.editing.entryKey))this._clearEditing()
+    if (e.key == "Escape" && (this.state.editing.entryKey)){
+      this._deselect()
+    }
+  }
+
+  _deselect(){
+    this._clearEditing()
   }
 
   _clearEditing(){

@@ -6,7 +6,7 @@ import {Link} from "react-router"
 import {
   getIsOnboarding,
   getCurrentAppUserForApp,
-  getEnvsAreDecrypted,
+  getDecryptedAll,
   getServersForApp,
   getApps
 } from 'selectors'
@@ -82,7 +82,7 @@ const
   mapStateToProps = (state, ownProps) => ({
     isOnboarding: getIsOnboarding(state),
     currentAppUser: getCurrentAppUserForApp(ownProps.app.id, state),
-    envsAreDecrypted: getEnvsAreDecrypted(state),
+    envsAreDecrypted: getDecryptedAll(state),
     servers: getServersForApp(ownProps.app.id, state)
   }),
 

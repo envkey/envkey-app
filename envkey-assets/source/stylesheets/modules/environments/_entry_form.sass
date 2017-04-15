@@ -35,7 +35,6 @@
   .cell.entry-cell:not(.editing) input
     pointer-events: none
     position: relative
-    left: -10px
 
   .entry-row.editing-entry
     +cell-glow($light-orange)
@@ -49,7 +48,7 @@
     background: hsl(0,0,96)
 
   .submit
-    width: 25%
+    width: calc(25% + 1px)
     height: calc(100% + 1px)
     position: relative
     top: -2px

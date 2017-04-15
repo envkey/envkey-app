@@ -1,13 +1,15 @@
 import { fork } from 'redux-saga/effects'
 
-const sagaPaths = [
+const sagaFiles = [
   "auth",
   "assoc",
   "env",
   "object",
-  "org"
+  "org",
+  "socket",
+  "crypto"
 ]
 
 export default function* rootSaga(){
-  yield sagaPaths.map(path => fork(require(`./${path}_sagas`).default))
+  yield sagaFiles.map(path => fork(require(`./${path}_sagas`).default))
 }

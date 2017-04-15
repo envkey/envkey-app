@@ -48,7 +48,9 @@ import {
 
   UPDATE_ORG_ROLE,
   UPDATE_ORG_ROLE_FAILED,
-  UPDATE_ORG_ROLE_SUCCESS
+  UPDATE_ORG_ROLE_SUCCESS,
+
+  SOCKET_UPDATE_ENVS
 } from "actions"
 
 export const
@@ -169,10 +171,22 @@ export const
 
       case UPDATE_ENV_SUCCESS:
       case UPDATE_ENV_FAILED:
-        return R.pipe(
-          R.dissocPath([action.meta.parentId, action.meta.transformPayload.entryKey, action.meta.transformPayload.environment]),
-          R.dissocPath([action.meta.parentId, action.meta.transformPayload.entryKey, "key"])
-        )(state)
+        if (R.path(["payload", "response", "data", "error"], action) == "envs_outdated"){
+          return state
+        } else {
+          const updateActionTypes = [UPDATE_ENTRY_VAL, UPDATE_ENTRY, REMOVE_ENTRY],
+                dissocFns = R.pipe(
+                  R.filter(R.propSatisfies(t => updateActionTypes.includes(t),'type')),
+                  R.map(
+                    ({payload: {entryKey, environment}})=> R.pipe(
+                      R.dissocPath([action.meta.parentId, entryKey, environment]),
+                      R.dissocPath([action.meta.parentId, entryKey, "key"])
+                    )
+                  )
+                )(action.meta.pendingEnvActions)
+
+          return dissocFns.length ? R.pipe(...dissocFns)(state) : state
+        }
 
       default:
         return state
@@ -182,11 +196,20 @@ export const
   isCreatingEnvEntry = (state = {}, action)=>{
     switch(action.type){
       case CREATE_ENTRY:
-        return R.assoc(action.meta.parentId, true, state)
+        return R.assocPath([action.meta.parentId, action.payload.entryKey], true, state)
 
       case UPDATE_ENV_SUCCESS:
       case UPDATE_ENV_FAILED:
-        return R.dissoc(action.meta.parentId, state)
+        if (R.path(["payload", "response", "data", "error"], action) == "envs_outdated"){
+          return state
+        } else {
+          const dissocFns = R.pipe(
+                  R.filter(R.propEq('type', CREATE_ENTRY)),
+                  R.map(({payload: {entryKey}})=> R.dissocPath([action.meta.parentId, entryKey]))
+                )(action.meta.pendingEnvActions)
+
+          return dissocFns.length ? R.pipe(...dissocFns)(state) : state
+        }
 
       default:
         return state
@@ -238,6 +261,7 @@ export const
         return state
     }
   }
+
 
 
 

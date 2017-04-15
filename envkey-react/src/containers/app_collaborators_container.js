@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import { getColumnsFlattened } from "lib/assoc/helpers"
-import { getIsOnboarding, getEnvsAreDecrypted } from 'selectors'
+import { getIsOnboarding, getDecryptedAll } from 'selectors'
 import { AssocManagerContainerFactory } from 'containers'
 import Onboardable from 'components/onboard/traits/onboardable'
 import {AppCollaboratorsSlider} from 'components/onboard/onboard_slider'
@@ -49,7 +49,7 @@ class AppCollaborators extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
   isOnboarding: getIsOnboarding(state),
-  envsAreDecrypted: getEnvsAreDecrypted(state)
+  envsAreDecrypted: getDecryptedAll(state)
 })
 
 export default connect(mapStateToProps)(AppCollaborators)

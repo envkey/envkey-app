@@ -4,6 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import EnvHeader from './env_header'
 import EnvGrid from './env_grid'
 import {AddAssoc} from 'components/assoc_manager'
+import SmallLoader from 'components/shared/small_loader'
 
 export default class EnvManager extends React.Component {
 
@@ -13,7 +14,15 @@ export default class EnvManager extends React.Component {
       addVar: true,
       addService: false,
       hideValues: true,
-      filter: ""
+      filter: "",
+      lastSocketUserUpdatingEnvs: null
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.socketUserUpdatingEnvs &&
+       nextProps.socketUserUpdatingEnvs != this.state.lastSocketUserUpdatingEnvs){
+      this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
     }
   }
 
@@ -41,7 +50,8 @@ export default class EnvManager extends React.Component {
       (this.props.isUpdatingEnv ? "updating-env" : ""),
       (this._isEmpty() ? "empty" : ""),
       (this.state.hideValues ? "hide-values" : ""),
-      (this.props.hasAnyVal ? "" : "has-no-val")
+      (this.props.hasAnyVal ? "" : "has-no-val"),
+      (this.props.socketUserUpdatingEnvs ? "receiving-socket-update" : "")
     ]
   }
 
@@ -52,7 +62,8 @@ export default class EnvManager extends React.Component {
   _renderContents(){
     return [
       this._renderHeader(),
-      this._renderBody()
+      this._renderBody(),
+      this._renderSocketUpdate()
     ]
   }
 
@@ -89,6 +100,18 @@ export default class EnvManager extends React.Component {
       ...this.props,
       ...R.pick(["hideValues", "filter", "addVar", "startedOnboarding"], this.state)
     })
+  }
+
+  _renderSocketUpdate(){
+    const {firstName, lastName} = (this.state.lastSocketUserUpdatingEnvs || {})
+    return h.div(".socket-update-envs", [
+      h.label([
+        h.span("Receiving update from "),
+        h.span(".name", [firstName, lastName].join(" ")),
+        // h.span(["..."])
+      ]),
+      h(SmallLoader)
+    ])
   }
 }
 

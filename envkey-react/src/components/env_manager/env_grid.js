@@ -59,8 +59,14 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
     }
   }
 
+  _deselect(){
+    super._deselect()
+    this.props.stoppedEditing()
+  }
+
   _onEditCell(entryKey, environment){
     this.setState({editing: {entryKey, environment}})
+    this.props.editCell(entryKey, environment)
   }
 
   _onCommitEntryVal(entryKey, environment, update){
@@ -78,10 +84,20 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
       h(LabelRow, this.props),
       this._renderAddVar(),
       h.div(".grid-content", [
+        this._renderSocketAddingEntries(),
         this._renderEntryRows(),
         this._renderServiceBlocks()
       ])
     ])
+  }
+
+  _renderSocketAddingEntries(){
+    return h.div(".socket-adding-entries-block", this.props.socketAddingEntry.map(({firstName, lastName})=>{
+      return h.div([
+        h.span(".name", [firstName, lastName].join(" ")),
+        h.span(" is adding a variable")
+      ])
+    }))
   }
 
   _renderEntryRows(){
@@ -94,15 +110,17 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
     const filter = this.props.filter
     if(filter && !entryKey.toLowerCase().includes(filter))return
     return h(toClass(EntryRow), {
+      entryKey,
+      ...this.props,
       key: entryKey,
       ref: `row-${entryKey}`,
       highlightRow: Boolean(this.state.highlightRows[entryKey]),
-      entryKey,
-      ...this.props,
       editing: this.state.editing,
+      socketUserEditingEntry: this.props.socketEditingEntry[entryKey],
+      socketUserRemovingEntry: this.props.socketRemovingEntry[entryKey],
       onEditCell: ::this._onEditCell,
       onCommitEntry: ::this._onCommitEntry,
-      onCommitEntryVal: ::this._onCommitEntryVal
+      onCommitEntryVal: ::this._onCommitEntryVal,
     })
   }
 
@@ -128,9 +146,7 @@ export default class EnvGrid extends EditableCellsParent(React.Component) {
   _renderAddVar(){
     if (this.props.addVar){
       return h(EntryForm, {
-        parent: this.props.parent,
-        isSubmitting: this.props.isCreatingEntry,
-        environments: this.props.environments,
+        ...this.props,
         onSubmit: this.props.createEntry
       })
     }

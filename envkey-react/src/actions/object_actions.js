@@ -5,10 +5,12 @@ import {
   CREATE_OBJECT_REQUEST,
   RENAME_OBJECT_REQUEST,
   REMOVE_OBJECT_REQUEST,
-  UPDATE_OBJECT_SETTINGS_REQUEST
+  SELECTED_OBJECT,
+  UPDATE_OBJECT_SETTINGS_REQUEST,
+  FETCH_OBJECT_DETAILS_REQUEST
 } from './action_types'
 
-const pickMeta = R.pick(["objectType", "targetId"]),
+const pickMeta = R.pick(["objectType", "targetId", "decryptEnvs", "socketUpdate", "socketActorId"]),
       payloadFn = ({objectType, params})=> ({[decamelize(objectType)]: params})
 
 export const
@@ -19,7 +21,11 @@ export const
 
   removeObject = createAction(REMOVE_OBJECT_REQUEST, R.always({}), pickMeta),
 
-  updateObjectSettings = createAction(UPDATE_OBJECT_SETTINGS_REQUEST, payloadFn, pickMeta)
+  updateObjectSettings = createAction(UPDATE_OBJECT_SETTINGS_REQUEST, payloadFn, pickMeta),
+
+  selectedObject = createAction(SELECTED_OBJECT),
+
+  fetchObjectDetails = createAction(FETCH_OBJECT_DETAILS_REQUEST, R.always({}), pickMeta)
 
 
 

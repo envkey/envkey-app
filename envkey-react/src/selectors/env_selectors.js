@@ -24,10 +24,12 @@ const
   }
 
 export const
+
   getEntries = defaultMemoize(R.pipe(
     R.values,
-    R.head,
-    R.keys,
+    R.map(R.keys),
+    R.flatten,
+    R.uniq,
     R.sort(R.ascend(R.identity))
   )),
 
@@ -37,6 +39,10 @@ export const
     R.flatten,
     R.any(R.prop('val'))
   )),
+
+  getEnvActionsPending = R.curry((id, state) => {
+    return db.path("pendingEnvActions", id)(state)
+  }),
 
   getLastAddedEntry = (parentId, state)=> db.path("lastAddedEntry", parentId)(state),
 
@@ -48,6 +54,11 @@ export const
           pending = R.path(["envsPending", parent.id, "envsWithMeta"], state)
 
     return pending || parent.envsWithMeta || {}
+  },
+
+  getHasPendingEnvsWithMeta = (id, state)=> {
+    if(!state)return R.partial(getHasPendingEnvsWithMeta, [id])
+    return Boolean(R.path(["envsPending", id], state))
   },
 
   getRawEnvShallowWithPending = (opts, state)=>{

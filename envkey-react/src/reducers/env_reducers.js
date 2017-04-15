@@ -55,7 +55,7 @@ const
     )
   },
 
-  updateEnvSuccessReducer = (state = {}, action)=>{
+  updateEnvCompleteReducer = (state = {}, action)=>{
     return R.dissocPath([action.meta.parentId, "envsWithMeta"], state)
   },
 
@@ -117,7 +117,8 @@ export const
         return transformEnvReducer(state, action)
 
       case UPDATE_ENV_SUCCESS:
-        return updateEnvSuccessReducer(state, action)
+      case UPDATE_ENV_FAILED:
+        return updateEnvCompleteReducer(state, action)
 
       case ADD_ASSOC_REQUEST:
       case REMOVE_ASSOC_REQUEST:
@@ -150,7 +151,40 @@ export const
               res = action.type == UPDATE_ENTRY ? {entryKey: newKey, timestamp} : {entryKey, timestamp}
 
           return R.assoc(parentId, res)(state)
+
+      case LOGOUT:
+      case SELECT_ORG:
+        return {}
+
       default:
         return state
     }
+  },
+
+  pendingEnvActions = (state = {}, action)=>{
+    switch(action.type){
+      case CREATE_ENTRY:
+      case UPDATE_ENTRY:
+      case REMOVE_ENTRY:
+      case UPDATE_ENTRY_VAL:
+        return R.mergeWith(
+          R.concat,
+          {[action.meta.parentId]: [action]}
+        )(state)
+
+      case UPDATE_ENV_SUCCESS:
+        return R.dissoc(action.meta.parentId, state)
+
+      case LOGOUT:
+      case SELECT_ORG:
+        return {}
+
+      default:
+        return state
+    }
+
   }
+
+
+
+

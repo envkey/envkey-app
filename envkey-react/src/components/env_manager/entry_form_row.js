@@ -23,8 +23,14 @@ const
 export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   constructor(props) {
-      super(props)
+    super(props)
     this.state = defaultState(props)
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if (!this._isEditing(this.state) && this._isEditing(nextState) && !this._formEmpty(nextState)){
+      this.props.addingEntry()
+    }
   }
 
   formData() {
@@ -38,8 +44,29 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     this.setState(defaultState(this.props))
   }
 
-  _vals(){
-    return R.mapObjIndexed(R.prop("entry"), this.state.envsWithMeta)
+  _onChangeFn(prevState){
+    return nextState => {
+      if (this._formEmpty(prevState) && !this._formEmpty(nextState)){
+        this.props.addingEntry()
+      } else if (this._formEmpty(nextState) && !this._formEmpty(prevState)){
+        this.props.stoppedAddingEntry()
+      }
+    }
+  }
+
+  _formEmpty(state=null){
+    return !(state || this.state).entryKey && this._valsEmpty(state)
+  }
+
+  _valsEmpty(state=null){
+    return R.pipe(
+      R.values,
+      R.none(R.pipe(R.props(["val", "inherits"]), R.any(Boolean)))
+    )(this._vals(state))
+  }
+
+  _vals(state=null){
+    return R.mapObjIndexed(R.prop("entry"), (state || this.state).envsWithMeta)
   }
 
   _preventClearEditingSelector(){
@@ -47,7 +74,11 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   }
 
   _clearEditing(){
-    this.setState((state, props)=>({editing: {}}))
+    this.setState({editing: {}})
+  }
+
+  _isEditing(state=null){
+    return !R.isEmpty((state || this.state).editing)
   }
 
   _isEditingEntry(){
@@ -69,7 +100,8 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
             this._clearEditing()
           },
           onChange: (val)=> {
-            this.setState({entryKey: val.trim().toUpperCase()})
+            let state = this.state
+            this.setState({entryKey: val.trim().toUpperCase()}, this._onChangeFn(state))
           },
           val: this.state.entryKey.toUpperCase(),
           isEditing: this._isEditingEntry()
@@ -81,7 +113,14 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
         onMouseOut: ()=> this.setState({hoveringVals: false})
       }, [
         environments.map((environment,i)=>{
-          const envEntry = this.state.envsWithMeta[environment].entry
+          let envEntry
+          envEntry = this.state.envsWithMeta[environment].entry
+          // try {
+          //   envEntry = this.state.envsWithMeta[environment].entry
+          // } catch (e){
+          //   debugger
+          // }
+
           return h.div(".val-col", {key: i}, [
             h(FormValCell, {
               ...envEntry, //for 'val' and 'inherits'
@@ -100,7 +139,11 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
                 this._clearEditing()
               },
               onChange: (val)=> {
-                this.setState(R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}))
+                let state = this.state
+                this.setState(
+                  R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}),
+                  this._onChangeFn(state)
+                )
               }
             })
           ])

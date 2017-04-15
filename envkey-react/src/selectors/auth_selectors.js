@@ -12,8 +12,6 @@ export const
 
   getAuth = db.path("auth"),
 
-  getPrivkey = db.path("privkey"),
-
   getInviteesNeedingAccess = db.path("inviteesNeedingAccess"),
 
   getInviteesPendingAcceptance = db.path("inviteesPendingAcceptance"),
@@ -30,27 +28,15 @@ export const
 
   getIsDemo = db.path("isDemo"),
 
-  getEncryptedPrivkey = db.path("encryptedPrivkey"),
-
   getCurrentUserErr = db.path("currentUserErr"),
 
   getIsLoadingAppState = db.path("isFetchingCurrentUser"),
-
-  getIsDecrypting = state => getIsDecryptingEnvs(state) || getIsDecryptingPrivkey(state),
-
-  getIsDecryptingEnvs = db.path("isDecryptingEnvs"),
-
-  getIsDecryptingPrivkey = db.path("isDecryptingPrivkey"),
 
   getIsHashingPassword = db.path("isHashingPassword"),
 
   getIsAuthenticating = db.path("isAuthenticating"),
 
   getIsAuthenticatingServer = db.path("isAuthenticatingServer"),
-
-  getIsGeneratingUserKey = db.path("isGeneratingUserKey"),
-
-  getEnvsAreDecrypted = db.path("envsAreDecrypted"),
 
   getCurrentUser = state => {
     const auth = getAuth(state)

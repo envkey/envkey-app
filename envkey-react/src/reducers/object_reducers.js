@@ -17,19 +17,25 @@ import {
   UPDATE_OBJECT_SETTINGS_SUCCESS,
   RENAME_OBJECT_SUCCESS,
   REMOVE_OBJECT_SUCCESS,
+  FETCH_OBJECT_DETAILS_SUCCESS,
   GENERATE_ASSOC_KEY_SUCCESS,
   CHECK_INVITES_ACCEPTED_SUCCESS,
   GRANT_ENV_ACCESS_SUCCESS,
-  UPDATE_ORG_ROLE_SUCCESS
+  UPDATE_ORG_ROLE_SUCCESS,
+  SELECTED_OBJECT
 } from 'actions'
 import { indexById } from './helpers'
 
 const
   getUpdateEnvReducer = objectTypePlural => (state, {
+    payload: {envsUpdatedAt},
     meta: {parentType, parentId, updatedEnvsWithMeta}
   })=> {
     if(pluralize(parentType) == objectTypePlural){
-      return R.assocPath([parentId, "envsWithMeta"], updatedEnvsWithMeta, state)
+      return R.pipe(
+        R.assocPath([parentId, "envsWithMeta"], updatedEnvsWithMeta),
+        R.assocPath([parentId, "envsUpdatedAt"], envsUpdatedAt)
+      )(state)
     }
     return state
   },
@@ -116,6 +122,27 @@ const
     return state
   },
 
+  getDecryptEnvsReducer = objectTypePlural => (state, {
+    meta: {objectType}, payload
+  })=>{
+    if (pluralize(objectType) == objectTypePlural){
+      return R.assoc(payload.id, payload, state)
+    }
+
+    return state
+  },
+
+  getFetchObjectReducer = objectTypePlural => (state, {
+    meta: {objectType}, payload
+  })=>{
+
+    if (pluralize(objectType) == objectTypePlural){
+      return R.assoc(payload.id, payload, state)
+    }
+
+    return state
+  },
+
   objectReducers = {}
 
 ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
@@ -123,11 +150,16 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
-      case DECRYPT_ENVS_SUCCESS:
       case GRANT_ENV_ACCESS_SUCCESS:
       case UPDATE_ORG_ROLE_SUCCESS:
         let objects = action.payload[objectTypePlural]
         return objects ? indexById(objects) : state
+
+      case DECRYPT_ENVS_SUCCESS:
+        return getDecryptEnvsReducer(objectTypePlural)(state, action)
+
+      case FETCH_OBJECT_DETAILS_SUCCESS:
+        return getFetchObjectReducer(objectTypePlural)(state, action)
 
       case UPDATE_ENV_SUCCESS:
         return getUpdateEnvReducer(objectTypePlural)(state, action)
@@ -165,6 +197,27 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
     }
   }
 })
+
+objectReducers.selectedObjectType = (state=null, action)=>{
+  switch(action.type){
+    case SELECTED_OBJECT:
+      return action.payload.objectType
+
+    default:
+      return state
+  }
+}
+
+objectReducers.selectedObjectId = (state=null, action)=>{
+  switch(action.type){
+    case SELECTED_OBJECT:
+      return action.payload.id
+
+    default:
+      return state
+  }
+}
+
 
 export default objectReducers
 

@@ -2,7 +2,13 @@ import {delay} from 'redux-saga'
 import { takeLatest, put, select, call, fork, take } from 'redux-saga/effects'
 import {push } from 'react-router-redux'
 import R from 'ramda'
-import {apiSaga, envParamsForInvitee, redirectFromOrgIndexIfNeeded} from './helpers'
+import {
+  apiSaga,
+  envParamsForInvitee,
+  redirectFromOrgIndexIfNeeded,
+  decryptEnvs,
+  dispatchDecryptAllIfNeeded
+} from './helpers'
 import {
   APP_LOADED,
   FETCH_CURRENT_USER_REQUEST,
@@ -16,23 +22,18 @@ import {
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
   REGISTER_FAILED,
-  DECRYPT,
   DECRYPT_PRIVKEY,
-  DECRYPT_PRIVKEY_SUCCESS,
-  DECRYPT_PRIVKEY_FAILED,
-  DECRYPT_ENVS,
-  DECRYPT_ENVS_SUCCESS,
-  DECRYPT_ENVS_FAILED,
+  DECRYPT_ALL_SUCCESS,
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
   ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
   HASH_USER_PASSWORD,
   HASH_USER_PASSWORD_SUCCESS,
-  GENERATE_USER_KEYPAIR,
-  GENERATE_USER_KEYPAIR_SUCCESS,
   HASH_PASSWORD_AND_GENERATE_KEYS,
   HASH_PASSWORD_AND_GENERATE_KEYS_SUCCESS,
+  GENERATE_USER_KEYPAIR,
+  GENERATE_USER_KEYPAIR_SUCCESS,
   SELECT_ORG,
   GRANT_ENV_ACCESS,
   GRANT_ENV_ACCESS_REQUEST,
@@ -44,14 +45,15 @@ import {
   CHECK_ACCESS_GRANTED_REQUEST,
   CHECK_ACCESS_GRANTED_SUCCESS,
   CHECK_ACCESS_GRANTED_FAILED,
+  SOCKET_SUBSCRIBE_ORG_CHANNEL,
   appLoaded,
   login,
   selectOrg,
-  decryptPrivkey,
   grantEnvAccessRequest
 } from "actions"
 import {
   getAuth,
+  getCurrentOrg,
   getOrgs,
   getApps,
   getServices,
@@ -67,27 +69,6 @@ import {
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
-
-function* decryptEnvs(envParents, privkey){
-  const res = []
-
-  for (let parent of envParents){
-    if (parent.envsWithMeta){
-      let decrypted = {}
-      for (let environment in parent.envsWithMeta){
-        let encrypted = parent.envsWithMeta[environment]
-        decrypted[environment] = encrypted && !R.isEmpty(encrypted) ?
-          (yield crypto.decryptJson({encrypted, privkey})) :
-          {}
-      }
-      res.push(R.assoc("envsWithMeta", decrypted, parent))
-    } else {
-      res.push(parent)
-    }
-  }
-
-  return res
-}
 
 const
   onFetchCurrentUserRequest = apiSaga({
@@ -223,17 +204,6 @@ function *onHashUserPassword({payload: {email, password}}){
   yield put({type: HASH_USER_PASSWORD_SUCCESS, payload: {email, hashedPassword}})
 }
 
-function *onGenerateUserKeypair({payload: {email, password}}){
-  const {
-    privateKeyArmored: encryptedPrivkey,
-    publicKeyArmored: pubkey
-  } = yield call(crypto.generateKeys, {
-    id: crypto.emailHash(email),
-    passphrase: password
-  })
-
-  yield put({type: GENERATE_USER_KEYPAIR_SUCCESS, payload: {encryptedPrivkey, pubkey}})
-}
 
 function *onAcceptInviteSuccess({meta: {rawPassword, requestPayload: {email, password}}}){
   yield put({type: LOGIN_REQUEST, payload: {email, password}, meta: {rawPassword}})
@@ -243,7 +213,7 @@ function* onLoginSuccess(action){
   const orgs = yield select(getOrgs)
   yield [
     (orgs.length == 1 ? put(selectOrg(orgs[0].slug)) : put(push("/select_org"))),
-    put({type: DECRYPT_PRIVKEY, payload: action.meta.rawPassword})
+    put({type: DECRYPT_PRIVKEY, payload: {password: action.meta.rawPassword}})
   ]
 }
 
@@ -251,7 +221,7 @@ function* onRegisterSuccess(action){
   const orgs = yield select(getOrgs)
   yield [
     put(selectOrg(orgs[0].slug)),
-    put({type: DECRYPT_PRIVKEY, payload: action.meta.rawPassword})
+    put({type: DECRYPT_PRIVKEY, payload: {password: action.meta.rawPassword}})
   ]
 }
 
@@ -259,76 +229,21 @@ function* onSelectOrg({payload: slug}){
   yield put(push(`/${slug}`))
 }
 
-function *onDecryptPrivkey({payload: passphrase}){
-  const encryptedPrivkey = yield select(getEncryptedPrivkey)
-
-  try {
-    const privkey = yield crypto.decryptPrivateKey({
-      privkey: encryptedPrivkey, passphrase
-    })
-
-    yield put({type: DECRYPT_PRIVKEY_SUCCESS, payload: privkey})
-    yield call(dispatchDecryptEnvsIfNeeded)
-  } catch (err){
-    yield put({type: DECRYPT_PRIVKEY_FAILED, error: true, payload: err})
-  }
-}
-
-function *onDecryptEnvs(action){
-  try {
-    const apps = yield select(getApps),
-          services = yield select(getServices),
-          privkey = yield select(getPrivkey),
-          [decryptedApps, decryptedServices] = yield [
-            call(decryptEnvs, apps, privkey),
-            call(decryptEnvs, services, privkey)
-          ]
-
-    yield put({type: DECRYPT_ENVS_SUCCESS, payload: {
-      apps: decryptedApps,
-      services: decryptedServices
-    }})
-  } catch (err){
-    yield put({type: DECRYPT_ENVS_FAILED, error: true, payload: err})
-  }
-}
-
-function *onDecryptEnvsSuccess(action){
+function *onDecryptAllSuccess(action){
   yield [
     call(grantEnvAccessIfNeeded),
     call(checkInvitesAcceptedIfNeeded)
   ]
 }
 
-function *onDecrypt(action){
-  const privkey = yield select(getPrivkey),
-        encryptedPrivkey = yield select(getEncryptedPrivkey)
-
-  if(privkey){
-    yield call(dispatchDecryptEnvsIfNeeded)
-  } else if (encryptedPrivkey) {
-    yield put({...action, type: DECRYPT_PRIVKEY})
-  }
-}
-
 function *onFetchCurrentUserSuccess(action){
   yield put(appLoaded())
   yield [
-    call(dispatchDecryptEnvsIfNeeded),
+    put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL}),
+    call(dispatchDecryptAllIfNeeded),
     call(checkAccessGrantedIfNeeded),
     call(redirectFromOrgIndexIfNeeded)
   ]
-}
-
-function *dispatchDecryptEnvsIfNeeded(){
-  const privkey = yield select(getPrivkey),
-        isDecryptingEnvs = yield select(getIsDecryptingEnvs),
-        envsAreDecrypted = yield select(getEnvsAreDecrypted),
-        envAccessGranted = yield select(getEnvAccessGranted)
-
-  if(privkey && envAccessGranted && !isDecryptingEnvs && !envsAreDecrypted){
-    yield put({type: DECRYPT_ENVS})
-  }
 }
 
 function *grantEnvAccessIfNeeded(){
@@ -391,18 +306,19 @@ export default function* authSagas(){
     takeLatest(REGISTER_REQUEST, onRegisterRequest),
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
-    takeLatest(DECRYPT_ENVS, onDecryptEnvs),
-    takeLatest(DECRYPT_ENVS_SUCCESS, onDecryptEnvsSuccess),
-    takeLatest(DECRYPT_PRIVKEY, onDecryptPrivkey),
-    takeLatest(DECRYPT, onDecrypt),
+
+    takeLatest(DECRYPT_ALL_SUCCESS, onDecryptAllSuccess),
+
     takeLatest(ACCEPT_INVITE, onAcceptInvite),
     takeLatest(ACCEPT_INVITE_REQUEST, onAcceptInviteRequest),
     takeLatest(ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
+
     takeLatest(HASH_USER_PASSWORD, onHashUserPassword),
     takeLatest(HASH_PASSWORD_AND_GENERATE_KEYS, onHashPasswordAndGenerateKeys),
-    takeLatest(GENERATE_USER_KEYPAIR, onGenerateUserKeypair),
+
     takeLatest(GRANT_ENV_ACCESS, onGrantEnvAccess),
     takeLatest(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest),
+
     takeLatest(CHECK_INVITES_ACCEPTED_REQUEST, onCheckInvitesAcceptedRequest),
     takeLatest(CHECK_INVITES_ACCEPTED_SUCCESS, onCheckInvitesAcceptedSuccess),
     takeLatest(CHECK_ACCESS_GRANTED_REQUEST, onCheckAccessGrantedRequest),

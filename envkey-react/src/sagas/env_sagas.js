@@ -1,11 +1,13 @@
 import R from 'ramda'
-import { take, put, call, select, takeEvery } from 'redux-saga/effects'
+import { take, put, call, select, takeEvery, takeLatest } from 'redux-saga/effects'
+import { delay } from 'redux-saga'
 import pluralize from 'pluralize'
 import {decamelize} from 'xcase'
 import {apiSaga, envParamsForApp, envParamsForService} from './helpers'
 import {
   getEnvsWithMetaWithPending,
   getRawEnvWithPendingForApp,
+  getEnvActionsPending
 } from 'selectors'
 import {
   UPDATE_ENV_REQUEST,
@@ -14,24 +16,28 @@ import {
   CREATE_ENTRY,
   UPDATE_ENTRY,
   REMOVE_ENTRY,
-  UPDATE_ENTRY_VAL
+  UPDATE_ENTRY_VAL,
+  FETCH_OBJECT_DETAILS_SUCCESS,
+  fetchObjectDetails
 } from "actions"
 
-const updateEnvApiSaga = apiSaga({
+const onUpdateEnvRequest = apiSaga({
   authenticated: true,
   method: "patch",
   actionTypes: [UPDATE_ENV_SUCCESS, UPDATE_ENV_FAILED],
-  minDelay: 800,
+  debounce: 1000,
   urlFn: ({meta: {parentType, parentId}})=> {
-    const parent = decamelize(pluralize(parentType))
-    return `/${parent}/${parentId}/update_envs.json`
+    const urlSafeParentType = decamelize(pluralize(parentType))
+    return `/${urlSafeParentType}/${parentId}/update_envs.json`
   }
 })
 
 function* onTransformEnv(action){
   const {meta, payload} = action,
         {parent, parentType, parentId} = meta,
-        envsWithMeta = yield select(getEnvsWithMetaWithPending({parent, parentType}))
+        envsWithMeta = yield select(getEnvsWithMetaWithPending({parent, parentType})),
+        pendingEnvActions = yield select(getEnvActionsPending(parentId))
+
 
   let envParams
   if (parentType == "app"){
@@ -42,9 +48,34 @@ function* onTransformEnv(action){
 
   yield put({
     type: UPDATE_ENV_REQUEST,
-    meta: {...meta, updatedEnvsWithMeta: envsWithMeta, transformPayload: payload},
-    payload: {envs: envParams}
+    meta: {...meta, pendingEnvActions, updatedEnvsWithMeta: envsWithMeta, transformPayload: payload },
+    payload: {envs: envParams, envsUpdatedAt: parent.envsUpdatedAt}
   })
+}
+
+function* onUpdateEnvFailed({payload, meta: {parentType, parentId}}){
+  const error = R.path(["response", "data", "error"], payload)
+  if (error == "envs_outdated"){
+    yield put(fetchObjectDetails({
+      objectType: parentType,
+      targetId: parentId,
+      decryptEnvs: true
+    }))
+
+    yield take(FETCH_OBJECT_DETAILS_SUCCESS)
+
+    const pendingEnvActions = yield select(getEnvActionsPending(parentId))
+
+    for (let pendingAction of pendingEnvActions){
+      try {
+        yield put(pendingAction)
+      } catch (e){
+        console.log("Replay pending envs error")
+        console.log(e)
+        alert(`There was a problem applying your update to ${pendingAction.payload.entryKey}. The key may have been deleted or renamed by another user.`)
+      }
+    }
+  }
 }
 
 export default function* envSagas(){
@@ -56,6 +87,8 @@ export default function* envSagas(){
       UPDATE_ENTRY_VAL
     ], onTransformEnv),
 
-    takeEvery(UPDATE_ENV_REQUEST, updateEnvApiSaga)
+    takeLatest(UPDATE_ENV_REQUEST, onUpdateEnvRequest),
+
+    takeLatest(UPDATE_ENV_FAILED, onUpdateEnvFailed)
   ]
 }

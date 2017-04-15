@@ -1,0 +1,27 @@
+.socket-update-envs
+  position: fixed
+  width: calc(100% - #{$sidemenu-width})
+  left: $sidemenu-width
+  bottom: 0
+  background: $update-flash-bg
+  transition: opacity 0.8s ease-out
+  padding: 10px 15px
+  box-sizing: border-box
+  opacity: 0
+  pointer-events: none
+
+  label
+    position: relative
+    top: 7px
+
+    span
+      +socket-update-text
+      font-size: 14px
+
+  .small-loader
+    float: right
+
+.receiving-socket-update .socket-update-envs
+  opacity: 1
+  pointer-events: auto
+  transition: opacity 0.2s ease-out

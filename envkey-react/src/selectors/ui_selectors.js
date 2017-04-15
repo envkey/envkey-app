@@ -50,7 +50,8 @@ export const
   },
 
   getIsCreatingEnvEntry = (parentId, state)=>{
-    return db.path("isCreatingEnvEntry", parentId)(state)
+    const val = db.path("isCreatingEnvEntry", parentId)(state)
+    return val && !R.isEmpty(val)
   },
 
   getIsGrantingEnvAccessByUserId = db.path("isGrantingEnvAccess"),

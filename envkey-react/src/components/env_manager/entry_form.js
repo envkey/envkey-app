@@ -1,4 +1,5 @@
 import React from 'react'
+import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import LabelRow from './label_row'
 import EntryFormRow from './entry_form_row'
@@ -24,7 +25,7 @@ export default class EntryForm extends React.Component {
     return h.div(".entry-form", [
 
       h(EntryFormRow, {
-        environments: this.props.environments,
+        ...this.props,
         ref: "entryFormRow"
       }),
 

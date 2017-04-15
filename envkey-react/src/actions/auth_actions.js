@@ -7,7 +7,6 @@ import {
   ACCEPT_INVITE,
   FETCH_CURRENT_USER_REQUEST,
   LOGOUT,
-  DECRYPT,
   GRANT_ENV_ACCESS_REQUEST,
   START_DEMO
 } from './action_types'
@@ -24,8 +23,6 @@ export const
   fetchCurrentUser = createAction(FETCH_CURRENT_USER_REQUEST),
 
   logout = createAction(LOGOUT),
-
-  decrypt = createAction(DECRYPT),
 
   grantEnvAccessRequest = createAction(
     GRANT_ENV_ACCESS_REQUEST,

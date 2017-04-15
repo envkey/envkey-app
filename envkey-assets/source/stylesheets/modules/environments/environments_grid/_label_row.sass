@@ -9,6 +9,7 @@
   min-width: $min-width - $sidemenu-width
   z-index: 3
   background: $dark-bg-gradient
+  white-space: nowrap
 
   .cols
     width: 100%
@@ -17,7 +18,7 @@
   .label-cell
     box-sizing: border-box
     display: inline-block
-    width: 25%
+    width: calc(25% - 0.25px)
     height: 100%
     border-right: 1px solid rgba(#000, 0.1)
     position: relative
@@ -31,7 +32,7 @@
 
     &:last-of-type
       border-right: none
-      width: calc(25% - 1px)
+      // width: calc(25% - 1px)
 
     label
       color: #fff
