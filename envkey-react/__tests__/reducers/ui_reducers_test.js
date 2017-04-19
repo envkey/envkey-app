@@ -51,7 +51,7 @@ describe("isUpdatingEnv", ()=>{
           }
         }, {
           type: UPDATE_ENV_FAILED,
-          meta: {parentId, pendingEnvActions: [updateEntryAction, updateEntryValAction, createEntryAction]}
+          meta: {parentId, envActionsPending: [updateEntryAction, updateEntryValAction, createEntryAction]}
         })).toEqual({
           parent1: {
             TEST_REMOVE_ENTRY: {key: true},
@@ -73,7 +73,7 @@ describe("isUpdatingEnv", ()=>{
           }
         }, {
           type: UPDATE_ENV_SUCCESS,
-          meta: {parentId, pendingEnvActions: [updateEntryAction, removeEntryAction, createEntryAction]}
+          meta: {parentId, envActionsPending: [updateEntryAction, removeEntryAction, createEntryAction]}
         })).toEqual({
           parent1: {
             TEST_REMOVE_ENTRY: {},
@@ -108,7 +108,7 @@ describe("isCreatingEnvEntry", ()=>{
           parent1: { TEST_CREATE_ENTRY: true }
         }, {
           type: UPDATE_ENV_FAILED,
-          meta: {parentId, pendingEnvActions: [updateEntryAction, createEntryAction]}
+          meta: {parentId, envActionsPending: [updateEntryAction, createEntryAction]}
         })).toEqual({
           parent1: { }
         })
@@ -122,7 +122,7 @@ describe("isCreatingEnvEntry", ()=>{
           parent1: { TEST_CREATE_ENTRY: true }
         }, {
           type: UPDATE_ENV_SUCCESS,
-          meta: {parentId, pendingEnvActions: [updateEntryAction, createEntryAction]}
+          meta: {parentId, envActionsPending: [updateEntryAction, createEntryAction]}
         })).toEqual({
           parent1: { }
         })

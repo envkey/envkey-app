@@ -4,44 +4,73 @@ export const
 
   /*
   To avoid transmitting sensitive data, sockets communicate environment
-  editing status using indices. This function converts the indices back
-  to entry keys and environments so they're easier to work with and don't
-  get out of sync after local updates.
+  editing status using indices. These function convert back and forth between
+  indices / entry keys and environments.
   */
 
-  processSocketUpdateEnvStatus = (
+  deanonymizeEnvStatus = (
     status,
     entries,
     environments
   )=> {
     const indexToEntry = i => entries[i],
-          indexToEnvironment = i => environments[i],
-          res = {
-            userId: status.userId,
-            ...R.pick(["addingEntry"], status)
-          }
+          indexToEnvironment = i => environments[i]
 
-    for (let k of ["removingEntry", "editingEntry"]){
-      let val = status[k]
-      if (val === false){
-        res[k] = false
-      } else if (val){
-        res[k] = indexToEntry(val)
-      }
-    }
+    return R.map(R.evolve({
 
-    if (status.editingEntryVal === false){
-      res.editingEntryVal = false
-    } else if (status.editingEntryVal){
-      const [entryIndex, envIndex] = status.editingEntryVal
-      res.editingEntryVal = [indexToEntry(entryIndex), indexToEnvironment(envIndex)]
-    }
+      removingEntry: R.map(indexToEntry),
 
-    if (status.addingEntry === true){
-      res.addingEntry = true
-    } else if (status.addingEntry === false){
-      res.addingEntry = false
-    }
+      editingEntry: R.map(indexToEntry),
 
-    return res
-  }
+      editingEntryVal: R.map(R.pipe(
+        R.over(R.lensIndex(0), indexToEntry),
+        R.over(R.lensIndex(1), indexToEnvironment)
+      )),
+
+      addingEntry: R.identity
+
+    }))(status)
+  },
+
+  anonymizeEnvStatus = (
+    status,
+    entries,
+    environments
+  )=>{
+    const indexByEntry = R.invertObj(entries),
+          indexByEnvironment = R.invertObj(environments),
+          entryToIndex = entry => parseInt(indexByEntry[entry]),
+          environmentToIndex = environment => parseInt(indexByEnvironment[environment])
+
+    return R.map(R.evolve({
+
+      removingEntry: R.map(entryToIndex),
+
+      editingEntry: R.map(entryToIndex),
+
+      editingEntryVal: R.map(R.pipe(
+        R.over(R.lensIndex(0), entryToIndex),
+        R.over(R.lensIndex(1), environmentToIndex)
+      )),
+
+      addingEntry: R.identity
+
+    }))(status)
+  },
+
+  statusKeysToArrays = R.evolve({
+    removingEntry: R.keys,
+
+    editingEntry: R.keys,
+
+    editingEntryVal: R.pipe(
+      R.mapObjIndexed((v,k)=> R.pipe(
+        R.keys,
+        R.map(k2 => [k,k2])
+      )(v)),
+      R.values,
+      R.unnest
+    ),
+
+    addingEntry: R.identity
+  })

@@ -1,5 +1,11 @@
 import R from 'ramda'
 import {inheritedVal} from './inheritance'
+import {
+  CREATE_ENTRY,
+  UPDATE_ENTRY,
+  REMOVE_ENTRY,
+  UPDATE_ENTRY_VAL
+} from 'actions'
 
 const
   getMetaToValFn = (envsWithMeta)=> (meta, entryKey)=>{
@@ -40,6 +46,17 @@ export const
 
   updateEntryVal = ({envsWithMeta, entryKey, environment, update})=>{
     return R.assocPath([environment, entryKey], update, envsWithMeta)
+  },
+
+  transformEnv = (envsWithMeta, {type, payload})=> {
+    const updateEnvFn = {
+            [CREATE_ENTRY]: createEntry,
+            [UPDATE_ENTRY]: updateEntry,
+            [REMOVE_ENTRY]: removeEntry,
+            [UPDATE_ENTRY_VAL]: updateEntryVal
+          }[type]
+
+    return updateEnvFn({envsWithMeta, ...payload})
   }
 
 

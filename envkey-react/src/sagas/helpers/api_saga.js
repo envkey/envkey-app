@@ -63,7 +63,7 @@ export default function apiSaga({
           config = {method, url, params, data}
 
     try {
-      const [res] = minDelay ?
+      const [res] = (minDelay && !R.path(["meta", "skipDelay"], requestAction)) ?
               yield [ call(client, config), call(delay, minDelay) ] :
               yield [ call(client, config) ]
 

@@ -1,141 +1,127 @@
 import R from 'ramda'
 import {
-  PROCESSED_SOCKET_UPDATE_ENVS,
+  CREATE_ENTRY,
+  UPDATE_ENTRY,
+  REMOVE_ENTRY,
+  UPDATE_ENTRY_VAL,
+
   SOCKET_USER_UNSUBSCRIBED_OBJECT_CHANNEL,
+
   PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
 
+  FETCH_OBJECT_DETAILS_REQUEST,
   FETCH_OBJECT_DETAILS_SUCCESS,
   FETCH_OBJECT_DETAILS_FAILED,
 
   SELECTED_OBJECT,
+  UPDATE_ENV_REQUEST,
   UPDATE_ENV_SUCCESS,
 
-  BROADCAST_UPDATE_ENVS_STATUS
+  SOCKET_UPDATE_LOCAL_STATUS
 } from "actions"
-
-const
-  clearSocketStatus = {
-    removingEntry: false,
-    editingEntry: false,
-    editingEntryVal: false,
-    addingEntry: false
-  },
-
-  defaultSocketEnvsStatus = {
-    removingEntry: {},
-    editingEntry: {},
-    editingEntryVal: {},
-    addingEntry: {}
-  },
-
-  defaultLocalSocketEnvsStatus = clearSocketStatus,
-
-  processedSocketUpdateEnvsStatusReducer = (state, action)=>{
-    const payload = action.payload,
-          {userId} = payload,
-          res = {}
-
-    for (let k of ["removingEntry", "editingEntry"]){
-      let entryKey = payload[k]
-      if (entryKey === false){
-        res[k] = R.pipe(
-          R.invertObj,
-          R.dissoc(userId),
-          R.invertObj
-        )(state[k])
-      } else if (entryKey){
-        res[k] = R.pipe(
-          R.invertObj,
-          R.dissoc(userId),
-          R.invertObj,
-          R.assoc(entryKey, userId)
-        )(state[k])
-      } else {
-        res[k] = state[k]
-      }
-    }
-
-    for (let k of ["editingEntryVal", "addingEntry"]){
-      if (payload[k] === false){
-        res[k] = R.dissoc(userId, state[k])
-      } else if (payload[k]){
-        res[k] = R.assoc(userId, payload[k], state[k])
-      } else {
-        res[k] = state[k]
-      }
-    }
-
-    return res
-  },
-
-  socketUserUnsubscribedObjectChannelReducer = (state, action)=>{
-    const payload = action.payload,
-          {userId} = payload
-  }
 
 export const
 
   socketIsUpdatingEnvs = (state = {}, action)=>{
     switch(action.type){
-      case PROCESSED_SOCKET_UPDATE_ENVS:
-        return R.assoc(action.payload.targetId, action.payload.actorId, state)
+      case FETCH_OBJECT_DETAILS_REQUEST:
+        if (action.meta.socketUpdate){
+          return R.assoc(action.meta.targetId, action.meta.socketActorId, state)
+        } else {
+          return state
+        }
 
       case FETCH_OBJECT_DETAILS_SUCCESS:
       case FETCH_OBJECT_DETAILS_FAILED:
-        return R.dissoc(action.meta.targetId, state)
+        if (action.meta.socketUpdate){
+          return R.dissoc(action.meta.targetId, state)
+        } else {
+          return state
+        }
 
       default:
         return state
     }
   },
 
-  socketEnvsStatus = (state = defaultSocketEnvsStatus, action)=>{
+  socketEnvsStatus = (state = {}, action)=>{
     switch(action.type){
 
       case PROCESSED_SOCKET_UPDATE_ENVS_STATUS:
-        return processedSocketUpdateEnvsStatusReducer(state, action)
+        return R.assoc(action.meta.userId, action.payload, state)
 
       case SOCKET_USER_UNSUBSCRIBED_OBJECT_CHANNEL:
-        return processedSocketUpdateEnvsStatusReducer(state, {
-          payload: {
-            ...action.payload,
-            ...clearSocketStatus
-          }
-        })
+        return R.dissoc(action.payload.userId, state)
 
       case FETCH_OBJECT_DETAILS_SUCCESS:
       case FETCH_OBJECT_DETAILS_FAILED:
-        if(action.meta && action.meta.socketUpdate && action.meta.socketActorId){
-          return processedSocketUpdateEnvsStatusReducer(state, {
-            payload: {
-              userId: action.meta.socketActorId,
-              ...clearSocketStatus
-            }
-          })
+        if(action.meta && action.meta.socketUpdate){
+          return R.pipe(
+            R.dissocPath([action.meta.socketActorId, action.meta.socketEnvUpdateId]),
+            R.reject(R.isEmpty)
+          )(state)
         } else {
           return state
         }
 
       case SELECTED_OBJECT:
-        return defaultSocketEnvsStatus
+        return {}
 
       default:
         return state
     }
   },
 
-  localSocketEnvsStatus = (state = defaultLocalSocketEnvsStatus, action)=>{
+  localSocketEnvsStatus = (state = {}, action)=>{
     switch(action.type){
-      case BROADCAST_UPDATE_ENVS_STATUS:
-        return R.merge(state, action.payload)
+      case SOCKET_UPDATE_LOCAL_STATUS:
+        return action.payload
 
       case SELECTED_OBJECT:
-        return defaultLocalSocketEnvsStatus
+      case UPDATE_ENV_REQUEST:
+        return {}
+
+      default:
+        return state
+    }
+  },
+
+  pendingLocalSocketEnvsStatus = (state = {}, action)=>{
+    switch(action.type){
+
+      case CREATE_ENTRY:
+        return R.assocPath([action.meta.envUpdateId, "addingEntry"], true, state)
+
+      case UPDATE_ENTRY:
+        return R.assocPath(
+          [action.meta.envUpdateId, "editingEntry", action.payload.entryKey],
+          true,
+          state
+        )
+
+      case REMOVE_ENTRY:
+        return R.assocPath(
+          [action.meta.envUpdateId, "removingEntry", action.payload.entryKey],
+          true,
+          state
+        )
+
+      case UPDATE_ENTRY_VAL:
+        return R.assocPath(
+          [action.meta.envUpdateId, "editingEntryVal", action.payload.entryKey, action.payload.environment],
+          true,
+          state
+        )
 
       case UPDATE_ENV_SUCCESS:
-        return defaultLocalSocketEnvsStatus
+        return R.dissoc(action.meta.envUpdateId, state)
+
+      case SELECTED_OBJECT:
+        return {}
 
       default:
         return state
     }
   }
+
+

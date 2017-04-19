@@ -36,13 +36,16 @@ import {
 
   SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
 
-  socketSubscribeObjectChannel
+  socketSubscribeObjectChannel,
+
+  generateEnvUpdateId
 } from "actions"
 import {
   getCurrentOrg,
   getAppsForService,
   getAppServiceBy,
-  getIsPollingInviteesPendingAcceptance
+  getIsPollingInviteesPendingAcceptance,
+  getEnvUpdateId
 } from "selectors"
 import {
   decryptEnvParent
@@ -85,8 +88,16 @@ const
   onSelectedObject = function*({payload: object}){
     yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
     const currentOrg = yield select(getCurrentOrg)
+
     if (object && object.broadcastChannel && object.id != currentOrg.id){
       yield put(socketSubscribeObjectChannel(object))
+    }
+
+    if (["app", "service"].includes(object.objectType)){
+      const envUpdateId = yield select(getEnvUpdateId(object.id))
+      if (!envUpdateId){
+        yield put(generateEnvUpdateId({parentId: object.id, parentType: object.objectType}))
+      }
     }
   },
 

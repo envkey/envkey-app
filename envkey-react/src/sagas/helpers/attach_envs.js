@@ -38,7 +38,7 @@ export function* envParamsWithAppUser({appId, userId, role, rawEnvOnly}, envPara
 
   if(pubkey && !rawEnvOnly){
     const app = yield select(getApp(appId)),
-          envsWithMeta = yield select(getEnvsWithMetaWithPending({parentType: "app", parent: app})),
+          envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
           encryptedEnvsWithMeta = {}
     for (let environment of environments){
       encryptedEnvsWithMeta[environment] = yield call(encryptJson, {
@@ -64,7 +64,7 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
 
 export function* envParamsWithServiceUser({serviceId, userId}, envParams={}){
   const service = yield select(getService(serviceId)),
-        envsWithMeta = yield select(getEnvsWithMetaWithPending({parentType: "service", parent: service})),
+        envsWithMeta = yield select(getEnvsWithMetaWithPending("service", serviceId)),
         {pubkey} = yield select(getUser(userId)),
         encryptedEnvsWithMeta = {},
         environments = yield select(getCurrentUserEnvironmentsAssignableToServiceUser({serviceId, userId}))

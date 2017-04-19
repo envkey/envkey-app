@@ -52,6 +52,7 @@ import {
 
   SOCKET_UPDATE_ENVS
 } from "actions"
+import {isOutdatedEnvsResponse} from 'lib/actions'
 
 export const
   isCreating = (state = {}, action)=>{
@@ -171,7 +172,7 @@ export const
 
       case UPDATE_ENV_SUCCESS:
       case UPDATE_ENV_FAILED:
-        if (R.path(["payload", "response", "data", "error"], action) == "envs_outdated"){
+        if (isOutdatedEnvsResponse(action)){
           return state
         } else {
           const updateActionTypes = [UPDATE_ENTRY_VAL, UPDATE_ENTRY, REMOVE_ENTRY],
@@ -183,7 +184,7 @@ export const
                       R.dissocPath([action.meta.parentId, entryKey, "key"])
                     )
                   )
-                )(action.meta.pendingEnvActions)
+                )(action.meta.envActionsPending)
 
           return dissocFns.length ? R.pipe(...dissocFns)(state) : state
         }
@@ -200,13 +201,13 @@ export const
 
       case UPDATE_ENV_SUCCESS:
       case UPDATE_ENV_FAILED:
-        if (R.path(["payload", "response", "data", "error"], action) == "envs_outdated"){
+        if (isOutdatedEnvsResponse(action)){
           return state
         } else {
           const dissocFns = R.pipe(
                   R.filter(R.propEq('type', CREATE_ENTRY)),
                   R.map(({payload: {entryKey}})=> R.dissocPath([action.meta.parentId, entryKey]))
-                )(action.meta.pendingEnvActions)
+                )(action.meta.envActionsPending)
 
           return dissocFns.length ? R.pipe(...dissocFns)(state) : state
         }

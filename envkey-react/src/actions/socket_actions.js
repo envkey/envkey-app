@@ -3,11 +3,13 @@ import { camelizeKeys } from 'xcase'
 import R from 'ramda'
 import {
   SOCKET_SUBSCRIBE_OBJECT_CHANNEL,
-  BROADCAST_UPDATE_ENVS_STATUS,
+  SOCKET_BROADCAST_ENVS_STATUS,
   SOCKET_USER_UNSUBSCRIBED_ORG_CHANNEL,
   SOCKET_USER_UNSUBSCRIBED_OBJECT_CHANNEL,
   SOCKET_USER_SUBSCRIBED_ORG_CHANNEL,
-  SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL
+  SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL,
+  SOCKET_UPDATE_LOCAL_STATUS,
+  PROCESSED_SOCKET_UPDATE_ENVS_STATUS
 } from 'actions'
 
 export const
@@ -25,4 +27,12 @@ export const
 
   socketUserSubscribedObjectChannel = createAction(SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL),
 
-  broadcastUpdateEnvsStatus = createAction(BROADCAST_UPDATE_ENVS_STATUS)
+  socketBroadcastEnvsStatus = createAction(SOCKET_BROADCAST_ENVS_STATUS),
+
+  socketUpdateLocalStatus = createAction(SOCKET_UPDATE_LOCAL_STATUS),
+
+  processedSocketUpdateEnvStatus = createAction(
+    PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
+    R.prop("status"),
+    R.pick(["userId"])
+  )

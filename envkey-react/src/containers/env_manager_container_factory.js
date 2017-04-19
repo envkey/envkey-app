@@ -11,7 +11,7 @@ import {
   addAssoc,
   removeAssoc,
   createAssoc,
-  broadcastUpdateEnvsStatus
+  socketUpdateLocalStatus
 } from 'actions'
 import {
   getEntries,
@@ -34,7 +34,11 @@ import {
   getSocketRemovingEntry,
   getSocketEditingEntry,
   getSocketEditingEntryVal,
-  getSocketAddingEntry
+  getSocketAddingEntry,
+  getIsRequestingEnvUpdate,
+  getEnvironmentsAccessible,
+  getIsUpdatingOutdatedEnvs,
+  getIsRebasingOutdatedEnvs
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 import {
@@ -87,10 +91,8 @@ const EnvManagerContainerFactory = ({parentType})=> {
       const parent = ownProps[parentType],
             parentId = parent.id,
             currentUser = getCurrentUser(state),
-            environments = (parentType == "app" ?
-                              getCurrentAppUserForApp(parentId, state).environmentsAccessible :
-                              currentUser.permittedServiceEnvironments),
-            envsWithMetaWithPending = getEnvsWithMetaWithPending({parent, parentType}, state),
+            environments = getEnvironmentsAccessible(parentType, parentId, state),
+            envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, parentId, state),
             props = {
               envsWithMeta: envsWithMetaWithPending,
               entries: getEntries(envsWithMetaWithPending),
@@ -109,6 +111,9 @@ const EnvManagerContainerFactory = ({parentType})=> {
               socketEditingEntry: getSocketEditingEntry(state),
               socketEditingEntryVal: getSocketEditingEntryVal(state),
               socketAddingEntry: getSocketAddingEntry(state),
+              isRequestingEnvUpdate: getIsRequestingEnvUpdate(parentId, state),
+              isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(parentId, state),
+              isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(parentId, state),
               environments,
               parent,
               parentType
@@ -136,52 +141,20 @@ const EnvManagerContainerFactory = ({parentType})=> {
           })
         },
         removeService: targetId => dispatch(removeAssoc({...baseProps, assocType: "service", isManyToMany: true, targetId})),
-        createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params}))
-      }
-    },
-
-    mergeProps = (stateProps, dispatchProps, ownProps) => {
-      const {dispatch} = dispatchProps,
-            {environments, parent} = stateProps,
-            entries = getEntries(parent.envsWithMeta),
-            indexByEntryKey = R.invertObj(entries),
-            indexByEnvironment = R.invertObj(environments)
-      return {
-        ...ownProps,
-        ...stateProps,
-        ...dispatchProps,
-
-        removeEntry: (entryKey)=> {
-          dispatch(broadcastUpdateEnvsStatus({
-            removingEntry: indexByEntryKey[entryKey],
-            editingEntry: false,
-            editingEntryVal: false,
-            addingEntry: false
-          }))
-          dispatchProps.removeEntry(entryKey)
-        },
-
+        createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params})),
         editCell: (entryKey, environment)=>{
           if (entryKey && environment){
-            dispatch(broadcastUpdateEnvsStatus({
-              editingEntry: false,
-              addingEntry: false,
-              editingEntryVal: [indexByEntryKey[entryKey], indexByEnvironment[environment]]
-            }))
+            dispatch(socketUpdateLocalStatus({editingEntryVal: {[entryKey]: {[environment]: true}}}))
           } else if (entryKey){
-            dispatch(broadcastUpdateEnvsStatus({
-              editingEntry: indexByEntryKey[entryKey],
-              editingEntryVal: false,
-              addingEntry: false
-            }))
+            dispatch(socketUpdateLocalStatus({editingEntry: {[entryKey]: true}}))
           }
         },
 
-        stoppedEditing: ()=> dispatch(broadcastUpdateEnvsStatus({editingEntry: false, editingEntryVal: false})),
+        stoppedEditing: ()=> dispatch(socketUpdateLocalStatus({})),
 
-        addingEntry: ()=> dispatch(broadcastUpdateEnvsStatus({addingEntry: true, editingEntry: false, editingEntryVal: false})),
+        addingEntry: ()=> dispatch(socketUpdateLocalStatus({addingEntry: true})),
 
-        stoppedAddingEntry: ()=> dispatch(broadcastUpdateEnvsStatus({addingEntry: false}))
+        stoppedAddingEntry: ()=> dispatch(socketUpdateLocalStatus({}))
       }
     },
 
@@ -222,7 +195,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
       {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn}
     )
 
-  return connect(mapStateToProps, mapDispatchToProps, mergeProps)(OnboardableEnvManager)
+  return connect(mapStateToProps, mapDispatchToProps)(OnboardableEnvManager)
 }
 
 export default EnvManagerContainerFactory

@@ -10,10 +10,15 @@ import { routerMiddleware, syncHistoryWithStore } from 'react-router-redux'
 import createSagaMiddleware from 'redux-saga'
 import rootReducer from './reducers/root_reducer'
 import rootSaga from './sagas/root_saga'
+import appMiddlewares from 'middleware'
 
 const devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
       sagaMiddleware = createSagaMiddleware(),
-      middlewares = [routerMiddleware(browserHistory), sagaMiddleware]
+      middlewares = [
+        ...appMiddlewares,
+        routerMiddleware(browserHistory),
+        sagaMiddleware
+      ]
 
 if (devMode) {
   const createLogger = require("redux-logger"),

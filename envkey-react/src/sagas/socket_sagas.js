@@ -1,17 +1,19 @@
-import { takeLatest, takeEvery, put, select, call } from 'redux-saga/effects'
+import { takeLatest, takeEvery, take, put, select, call } from 'redux-saga/effects'
 import {
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   SOCKET_SUBSCRIBE_ORG_USER_CHANNEL,
   SOCKET_SUBSCRIBE_OBJECT_CHANNEL,
   SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
   SOCKET_UPDATE_ENVS,
-  PROCESSED_SOCKET_UPDATE_ENVS,
-  BROADCAST_UPDATE_ENVS_STATUS,
+  SOCKET_BROADCAST_ENVS_STATUS,
   SOCKET_UPDATE_ENVS_STATUS,
-  PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
   SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL,
+  PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
+  SOCKET_UPDATE_LOCAL_STATUS,
+  FETCH_OBJECT_DETAILS_SUCCESS,
   fetchObjectDetails,
-  broadcastUpdateEnvsStatus
+  socketBroadcastEnvsStatus,
+  processedSocketUpdateEnvStatus
 } from 'actions'
 import {
   getAuth,
@@ -23,7 +25,9 @@ import {
   getSelectedObjectType,
   getCurrentUser,
   getCurrentAppUserForApp,
-  getLocalSocketEnvsStatus
+  getLocalSocketEnvsStatus,
+  getEnvironmentsAccessible,
+  getAnonSocketEnvsStatus
 } from 'selectors'
 import {
   UPDATE_ENVS,
@@ -36,7 +40,8 @@ import {
   broadcastOrgChannel,
   broadcastObjectChannel
 } from 'lib/socket'
-import { processSocketUpdateEnvStatus } from 'lib/env/update_status'
+import { deanonymizeEnvStatus } from 'lib/env/update_status'
+import {dispatchEnvUpdateRequestIfNeeded} from './helpers'
 
 function *ensureSocketReady(){
   const auth = yield select(getAuth),
@@ -64,7 +69,7 @@ function *onSubscribeObjectChannel({payload: object}){
 
 function *onSocketUpdateEnvs(action){
   const auth = yield select(getAuth),
-        {objectType, targetId, actorId} = action.payload
+        {objectType, targetId, actorId, envUpdateId} = action.payload
 
   // Do nothing if update message originated with this user
   if(auth.id == actorId)return
@@ -73,14 +78,23 @@ function *onSocketUpdateEnvs(action){
         object = yield select(selector)
 
   if (object){
-    yield put({...action, type: PROCESSED_SOCKET_UPDATE_ENVS})
     yield put(fetchObjectDetails({
       objectType,
       targetId,
       decryptEnvs: true,
       socketUpdate: true,
-      socketActorId: actorId
+      socketActorId: actorId,
+      socketEnvUpdateId: envUpdateId
     }))
+
+    yield take(FETCH_OBJECT_DETAILS_SUCCESS)
+
+    yield call(dispatchEnvUpdateRequestIfNeeded, {
+      parent: object,
+      parentType: objectType,
+      parentId: targetId,
+      skipDelay: true
+    })
   }
 }
 
@@ -88,32 +102,26 @@ function *onSocketUpdateEnvsStatus(action){
   const selectedObject = yield select(getSelectedObject),
         entries = yield call(getEntries, selectedObject.envsWithMeta),
         selectedObjectType = yield select(getSelectedObjectType),
-        currentUser = yield select(getCurrentUser)
+        currentUser = yield select(getCurrentUser),
+        environments = yield select(getEnvironmentsAccessible(selectedObjectType, selectedObject.id)),
+        deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments)
 
-  let environments
-
-  if (selectedObjectType == "app"){
-    const currentAppUser = yield select(getCurrentAppUserForApp(selectedObject.id))
-    environments = currentAppUser.environmentsAccessible
-  } else if (selectedObject == "service"){
-    environments = currentUser.permittedServiceEnvironments
-  }
-
-  yield put({
-    ...action,
-    type: PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
-    payload: processSocketUpdateEnvStatus(action.payload, entries, environments)
-  })
+  yield put(processedSocketUpdateEnvStatus({status: deanonStatus, userId: action.payload.userId}))
 }
 
-function *onBroadcastUpdateEnvsStatus({payload}){
-  const {id: userId} = yield select(getAuth)
-  broadcastObjectChannel(userId, UPDATE_ENVS_STATUS, payload)
+function *onSocketBroadcastEnvsStatus(action){
+  const {id: userId} = yield select(getAuth),
+        anonStatus = yield select(getAnonSocketEnvsStatus)
+
+  broadcastObjectChannel(userId, UPDATE_ENVS_STATUS, {status: anonStatus})
 }
 
-function *onSocketUserSubscribedObjectChannel({payload: {userId}}){
-  const localSocketEnvsStatus = yield select(getLocalSocketEnvsStatus)
-  yield put(broadcastUpdateEnvsStatus(localSocketEnvsStatus))
+function *onSocketUserSubscribedObjectChannel(action){
+  yield put(socketBroadcastEnvsStatus())
+}
+
+function *onSocketUpdateLocalStatus(action){
+  yield put(socketBroadcastEnvsStatus())
 }
 
 export default function* socketSagas(){
@@ -128,7 +136,9 @@ export default function* socketSagas(){
 
     takeEvery(SOCKET_UPDATE_ENVS_STATUS, onSocketUpdateEnvsStatus),
 
-    takeEvery(BROADCAST_UPDATE_ENVS_STATUS, onBroadcastUpdateEnvsStatus),
+    takeEvery(SOCKET_UPDATE_LOCAL_STATUS, onSocketUpdateLocalStatus),
+
+    takeEvery(SOCKET_BROADCAST_ENVS_STATUS, onSocketBroadcastEnvsStatus),
 
     takeEvery(SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL, onSocketUserSubscribedObjectChannel)
   ]

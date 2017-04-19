@@ -109,8 +109,13 @@ export const
     } else {
       return R.without(["org_owner"], ORG_ROLES)
     }
-  }
+  },
 
+  getEnvironmentsAccessible = R.curry((parentType, parentId, state)=>{
+    return parentType == "app" ?
+      getCurrentAppUserForApp(parentId, state).environmentsAccessible :
+      getCurrentUser(state).permittedServiceEnvironments
+  })
 
 
 

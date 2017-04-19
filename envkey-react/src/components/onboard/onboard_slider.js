@@ -130,7 +130,7 @@ export const
         "This is where you set your app’s config variables for each environment. ",
         "Go to the top of the page and try ",
         h.em(".orange", "adding a new variable."),
-        " It's ok if you don't actually need to add one right now--you can delete it right away."
+        " It's ok if you don't actually need to add one right now—you can delete it right away."
       ]),
     ]),
 
@@ -171,7 +171,7 @@ export const
         "This is where you set your app’s config variables for each environment. ",
         "Go to the top of the page and try ",
         h.em(".orange", "adding a new variable."),
-        " It's ok if you don't actually need to add one right now--you can delete it right away."
+        " It's ok if you don't actually need to add one right now—you can delete it right away."
       ]),
     ]),
 

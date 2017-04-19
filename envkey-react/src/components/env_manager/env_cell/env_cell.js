@@ -1,9 +1,29 @@
 import React from 'react'
+import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from 'components/shared/small_loader'
 import {imagePath} from 'lib/ui'
 
 export default class EnvCell extends React.Component {
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if(nextProps.isRebasingOutdatedEnvs){
+  //     return false
+  //   }
+
+  //   const p = [
+  //     "val",
+  //     "inherits",
+  //     "isEditing",
+  //     "isUpdating",
+  //     "socketUserEditingEntryVal"
+  //   ]
+  //   if(R.equals(R.pick(p, this.props), R.pick(p, nextProps)) &&
+  //      R.equals(this.state, nextState)){
+  //     return false
+  //   }
+  //   return true
+  // }
 
   _actions(){ return [] }
 
@@ -32,7 +52,6 @@ export default class EnvCell extends React.Component {
 
   _renderCellContents(){
     return [
-      // this.props.isUpdating ? h(SmallLoader) : "",
       this._renderVal(),
       this._renderActions()
     ]

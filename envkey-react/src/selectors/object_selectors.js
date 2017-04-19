@@ -123,11 +123,19 @@ export const
 
   getSelectedObjectType = db.path("selectedObjectType"),
 
+  getObject = R.curry((type, id, state)=>{
+    return db(pluralize(type)).find()(id, state)
+  }),
+
+  getSelectedObjectId = db.path("selectedObjectId"),
+
   getSelectedObject = state => {
     const type = getSelectedObjectType(state),
-          id = state.selectedObjectId
-    return db(pluralize(type)).find()(id, state)
+          id = getSelectedObjectId(state)
+    return getObject(type, id, state)
   }
+
+
 
 
 

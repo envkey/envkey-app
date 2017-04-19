@@ -10,7 +10,15 @@ import {
   FETCH_OBJECT_DETAILS_REQUEST
 } from './action_types'
 
-const pickMeta = R.pick(["objectType", "targetId", "decryptEnvs", "socketUpdate", "socketActorId"]),
+const pickMeta = R.pick([
+                  "objectType",
+                  "targetId",
+                  "decryptEnvs",
+                  "socketUpdate",
+                  "socketActorId",
+                  "socketEnvUpdateId",
+                  "isOutdatedEnvsRequest"
+                 ]),
       payloadFn = ({objectType, params})=> ({[decamelize(objectType)]: params})
 
 export const
