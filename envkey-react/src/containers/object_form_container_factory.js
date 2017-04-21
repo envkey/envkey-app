@@ -1,4 +1,5 @@
 import React from 'react'
+import R from 'ramda'
 import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import {createObject} from 'actions'
@@ -17,11 +18,23 @@ const
     if(objectType == "user"){
       props.orgRolesAssignable = getOrgRolesAssignable(state)
     }
+
+    if(objectType == "app"){
+      props.renderImporter = true
+      props.environments = ["development", "staging", "production"]
+    }
+
     return props
   },
 
   mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: params => dispatch(createObject({objectType, params}))
+    onSubmit: params => {
+      dispatch(createObject({
+        objectType,
+        params: (params.params || params),
+        toImport: params.toImport
+      }))
+    }
   })
 
   return connect(mapStateToProps, mapDispatchToProps)(ObjectFormContainer)

@@ -74,9 +74,22 @@ form.object-form
 
   button
     background: $orange
+    transition: opacity 0.15s ease-out, background 0.15s ease-out
 
-    &:hover
+    &:not([disabled]):hover
       background: darken(desaturate($orange, 5%), 5%)
+
+    &[disabled]
+      cursor: not-allowed
+      opacity: 0.5
+
+    &.secondary
+      background: transparent
+      border: 1px solid rgba(#000, 0.1)
+
+      &:not([disabled]):hover
+        background: rgba(#fff, 0.1)
+
 
 .org-role-select
   +clearfix
@@ -144,8 +157,25 @@ form.object-form
     > small
       color: hsl(0,0,65)
 
-
-
 .new-page .new-form
   width: 300px
+
+form .radio-opts
+  label
+    +clearfix
+    display: block
+    margin-bottom: 10px
+    line-height: 100%
+    padding: 7.5px 15px
+    text-align: left
+    cursor: pointer
+
+    input
+      width: auto
+      display: inline-block
+      cursor: pointer
+
+    > strong
+      display: inline-block
+      float: right
 

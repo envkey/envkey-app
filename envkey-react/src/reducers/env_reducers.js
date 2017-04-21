@@ -28,7 +28,9 @@ import {
   REMOVE_OBJECT_FAILED,
 
   LOGOUT,
-  SELECT_ORG
+  SELECT_ORG,
+
+  COMMIT_IMPORT_ACTIONS
 } from "actions"
 import {
   rawEnv,
@@ -98,64 +100,33 @@ const
     return R.path(path, state) ?
       R.over(R.lensPath(path), R.concat([queueAction]), state) :
       R.assocPath(path, [queueAction], state)
+  },
+
+  envActionsPendingCommitImportReducer = (state, action)=>{
+    const {parentId, envUpdateId} = action.meta,
+          path = [parentId, envUpdateId],
+          queueActions = action.payload.map(pendingAction => ({
+            ...pendingAction,
+            meta: {...pendingAction.meta, importAction: false, queued: true}
+          }))
+
+    return R.path(path, state) ?
+      R.over(R.lensPath(path), R.concat(queueActions), state) :
+      R.assocPath(path, queueActions, state)
   }
 
 export const
-
-  // envsPending = (state = {}, action)=> {
-  //   switch(action.type){
-  //     case CREATE_ENTRY:
-  //     case UPDATE_ENTRY:
-  //     case REMOVE_ENTRY:
-  //     case UPDATE_ENTRY_VAL:
-  //       return transformEnvReducer(state, action)
-
-  //     case UPDATE_ENV_SUCCESS:
-  //     case UPDATE_ENV_FAILED:
-  //       if(action.meta.hasMoreUpdatesPending){
-  //         return state
-  //       } else {
-  //         R.dissoc(action.meta.parentId, state)
-  //       }
-
-  //     case FETCH_OBJECT_DETAILS_SUCCESS:
-  //       if (action.meta && (action.meta.socketUpdate || action.meta.isOutdatedEnvsRequest)){
-  //         return R.dissoc(action.meta.targetId)
-  //       } else {
-  //         return state
-  //       }
-
-  //     case ADD_ASSOC_REQUEST:
-  //     case REMOVE_ASSOC_REQUEST:
-  //       return addOrRemoveAssocRequestReducer(state, action)
-
-  //     case ADD_ASSOC_SUCCESS:
-  //     case REMOVE_ASSOC_SUCCESS:
-  //       return addOrRemoveAssocSuccessReducer(state, action)
-
-  //     case REMOVE_OBJECT_REQUEST:
-  //       return removeObjectRequestReducer(state, action)
-
-  //     case REMOVE_OBJECT_SUCCESS:
-  //       return removeObjectSuccessReducer(state, action)
-
-  //     case LOGOUT:
-  //     case SELECT_ORG:
-  //       return {}
-
-  //     default:
-  //       return state
-  //   }
-  // },
 
   lastAddedEntry = (state = {}, action)=>{
     switch(action.type){
       case CREATE_ENTRY:
       case UPDATE_ENTRY:
+        if(action.meta.importAction)return state
+
         const {meta: {parentId, timestamp}, payload: {entryKey, newKey}} = action,
               res = action.type == UPDATE_ENTRY ? {entryKey: newKey, timestamp} : {entryKey, timestamp}
 
-          return R.assoc(parentId, res)(state)
+        return R.assoc(parentId, res)(state)
 
       case LOGOUT:
       case SELECT_ORG:
@@ -172,7 +143,14 @@ export const
       case UPDATE_ENTRY:
       case REMOVE_ENTRY:
       case UPDATE_ENTRY_VAL:
-        return envActionsPendingTransformEnvReducer(state, action)
+        if(action.meta.importAction){
+          return state
+        } else {
+          return envActionsPendingTransformEnvReducer(state, action)
+        }
+
+      case COMMIT_IMPORT_ACTIONS:
+        return envActionsPendingCommitImportReducer(state, action)
 
       case UPDATE_ENV_SUCCESS:
         return R.pipe(

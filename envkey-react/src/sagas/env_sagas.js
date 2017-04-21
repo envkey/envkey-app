@@ -35,9 +35,11 @@ const onUpdateEnvRequest = apiSaga({
 })
 
 function* onTransformEnv(action){
-  yield call(dispatchEnvUpdateRequestIfNeeded, {...action, ...action.meta})
-  if(!action.meta.queued){
-    yield put(socketBroadcastEnvsStatus())
+  if(!action.meta.importAction){
+    yield call(dispatchEnvUpdateRequestIfNeeded, {...action, ...action.meta})
+    if(!action.meta.queued){
+      yield put(socketBroadcastEnvsStatus())
+    }
   }
 }
 

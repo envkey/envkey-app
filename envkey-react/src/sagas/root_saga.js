@@ -7,7 +7,8 @@ const sagaFiles = [
   "object",
   "org",
   "socket",
-  "crypto"
+  "crypto",
+  "import"
 ]
 
 export default function* rootSaga(){

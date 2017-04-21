@@ -29,7 +29,7 @@ import {
   OnboardOverlayContainer,
   AppCollaboratorsContainer
 } from 'containers'
-import OnboardAppForm from 'components/onboard/onboard_app_form'
+import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
 const
   UserAuthenticated = UserAuthWrapper({
@@ -113,6 +113,8 @@ export default class Routes extends React.Component {
 
             <Route path="1" component={OnboardAppForm} />
 
+            <Route path="2" component={OnboardAppImporter} />
+
           </Route>
 
           <Route path="apps/new" component={ObjectFormContainerFactory({objectType: "app"})} />
@@ -164,8 +166,6 @@ export default class Routes extends React.Component {
       </Router>
     </Provider>
   }
-
-
 }
 
 

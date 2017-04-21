@@ -218,11 +218,18 @@ objectReducers.selectedObjectId = (state=null, action)=>{
   }
 }
 
+objectReducers.onboardAppId = (state=null, action)=>{
+  if (action.type == CREATE_OBJECT_SUCCESS &&
+      action.meta.objectType == "app" &&
+      action.meta.isOnboardAction){
+    return action.payload.id
+  } else if (action.type == REMOVE_OBJECT_SUCCESS &&
+             action.meta.objectType == "app" &&
+             action.meta.isOnboardAction){
+    return null
+  } else {
+    return state
+  }
+}
 
 export default objectReducers
-
-
-
-
-
-

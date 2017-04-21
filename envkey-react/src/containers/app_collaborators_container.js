@@ -5,8 +5,8 @@ import R from 'ramda'
 import { getColumnsFlattened } from "lib/assoc/helpers"
 import { getIsOnboarding, getDecryptedAll } from 'selectors'
 import { AssocManagerContainerFactory } from 'containers'
-import Onboardable from 'components/onboard/traits/onboardable'
-import {AppCollaboratorsSlider} from 'components/onboard/onboard_slider'
+import {Onboardable} from 'components/onboard'
+import {AppCollaboratorsSlider} from 'components/onboard'
 import AssocManager from 'components/assoc_manager'
 
 const

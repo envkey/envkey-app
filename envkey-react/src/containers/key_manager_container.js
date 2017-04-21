@@ -14,12 +14,12 @@ import {
   DevKeyManagerContainer,
   AssocManagerContainerFactory
 } from 'containers'
-import Onboardable from 'components/onboard/traits/onboardable'
+import {Onboardable} from 'components/onboard'
 import {
   AdminAppKeysSlider,
   ProdAccessAppKeysSlider,
   DevAccessAppKeysSlider
-} from 'components/onboard/onboard_slider'
+} from 'components/onboard'
 import {appRoleHasProdAccess, appRoleIsAdmin} from 'lib/roles'
 
 const canGenerateServerKeys = (props)=> R.any(R.path(["permissions", "generateKey"]), props.servers)

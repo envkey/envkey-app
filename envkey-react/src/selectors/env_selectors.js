@@ -10,6 +10,7 @@ import {
   getObject,
   getSelectedObjectId
 } from './object_selectors'
+import {getImportActionsPending} from './import_selectors'
 import {rawEnv, transformEnv} from 'lib/env/transform'
 import R from 'ramda'
 
@@ -83,7 +84,18 @@ export const
     const parent = getObject(parentType, parentId, state),
           pendingActions = getAllEnvActionsPending(parentId, state)
 
+    console.log("with pending")
+
     return pendingActions.reduce(transformEnv, parent.envsWithMeta)
+  })),
+
+  getEnvsWithMetaWithPendingWithImports = defaultMemoize(R.curry((parentType, parentId, state)=>{
+    const envsWithMeta = getEnvsWithMetaWithPending(parentType, parentId, state),
+          pendingActions = getImportActionsPending(parentId, state)
+
+    console.log("with pending imports")
+
+    return pendingActions.reduce(transformEnv, envsWithMeta)
   })),
 
 

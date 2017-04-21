@@ -133,11 +133,9 @@ export const
     const type = getSelectedObjectType(state),
           id = getSelectedObjectId(state)
     return getObject(type, id, state)
-  }
+  },
 
-
-
-
+  getOnboardAppId = db.path("onboardAppId")
 
 
 

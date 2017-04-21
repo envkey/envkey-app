@@ -50,7 +50,15 @@ import {
   UPDATE_ORG_ROLE_FAILED,
   UPDATE_ORG_ROLE_SUCCESS,
 
-  SOCKET_UPDATE_ENVS
+  SOCKET_UPDATE_ENVS,
+
+  IMPORT_ENVIRONMENT,
+  IMPORT_ENVIRONMENT_SUCCESS,
+  IMPORT_ENVIRONMENT_FAILED,
+
+  IMPORT_ALL_ENVIRONMENTS,
+  IMPORT_ALL_ENVIRONMENTS_SUCCESS,
+  IMPORT_ALL_ENVIRONMENTS_FAILED
 } from "actions"
 import {isOutdatedEnvsResponse} from 'lib/actions'
 
@@ -160,6 +168,9 @@ export const
   },
 
   isUpdatingEnv = (state = {}, action)=>{
+    if(action.meta && action.meta.importAction){
+      return state
+    }
     switch(action.type){
       case UPDATE_ENTRY_VAL:
         return R.assocPath([action.meta.parentId, action.payload.entryKey, action.payload.environment], true, state)
@@ -195,6 +206,9 @@ export const
   },
 
   isCreatingEnvEntry = (state = {}, action)=>{
+    if(action.meta && action.meta.importAction){
+      return state
+    }
     switch(action.type){
       case CREATE_ENTRY:
         return R.assocPath([action.meta.parentId, action.payload.entryKey], true, state)
@@ -257,6 +271,30 @@ export const
       case UPDATE_ORG_ROLE_SUCCESS:
       case UPDATE_ORG_ROLE_FAILED:
         return R.dissoc(action.meta.userId, state)
+
+      default:
+        return state
+    }
+  },
+
+  isImportingConfig = (state = {}, action)=>{
+    switch(action.type){
+      case IMPORT_ENVIRONMENT:
+        return R.assocPath([action.meta.parentId, action.payload.environment], true, state)
+
+      case IMPORT_ENVIRONMENT_SUCCESS:
+      case IMPORT_ENVIRONMENT_FAILED:
+        return R.pipe(
+          R.dissocPath([action.meta.parentId, action.meta.environment]),
+          R.reject(R.isEmpty)
+        )(state)
+
+      case IMPORT_ALL_ENVIRONMENTS:
+        return R.assocPath([action.meta.parentId, "all"], true, state)
+
+      case IMPORT_ALL_ENVIRONMENTS_SUCCESS:
+      case IMPORT_ALL_ENVIRONMENTS_FAILED:
+        return R.dissoc(action.meta.parentId, state)
 
       default:
         return state

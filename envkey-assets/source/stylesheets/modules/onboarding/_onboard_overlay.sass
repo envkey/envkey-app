@@ -40,7 +40,7 @@
     font-size: 18px
     color: #fff
     line-height: 170%
-    margin: 40px auto
+    margin: 30px auto
     width: 90%
     max-width: 425px
     font-weight: 200
@@ -65,3 +65,41 @@
     button
       max-width: 150px
       font-size: 16px
+
+    .import-opts label
+      color: #fff
+      background: rgba(#fff, 0.05)
+      margin-bottom: 20px
+
+      > strong
+        font-size: 17px
+
+      > input, > strong
+        position: relative
+        top: 5px
+
+      &.selected
+        background: rgba($dark-blue, 0.4)
+        > strong
+          color: #fff
+
+  .onboard-app-importer
+    .tab-bar
+      background: rgba(#000, 0.2)
+      > span
+        color: #fff
+        background: rgba(#fff, 0.08)
+        border-bottom: 1px solid rgba(#000, 0.8)
+
+        > small
+          color: $light-blue
+
+        &.selected
+          background: $darker-blue
+          > small
+            color: lighten($light-blue, 10%)
+
+    button.secondary
+      border: 1px solid rgba(#fff, 0.3)
+
+

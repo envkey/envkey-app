@@ -38,7 +38,8 @@ import {
   getIsRequestingEnvUpdate,
   getEnvironmentsAccessible,
   getIsUpdatingOutdatedEnvs,
-  getIsRebasingOutdatedEnvs
+  getIsRebasingOutdatedEnvs,
+  getDidOnboardImport
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 import {
@@ -46,8 +47,8 @@ import {
   OrgAdminAppEnvSlider,
   AppAdminAppEnvSlider,
   NonAdminAppEnvSlider
-} from 'components/onboard/onboard_slider'
-import Onboardable from 'components/onboard/traits/onboardable'
+} from 'components/onboard'
+import {Onboardable} from 'components/onboard'
 import {orgRoleIsAdmin, appRoleIsAdmin} from 'lib/roles'
 
 const withServices = (props, {parentType, parent, state}) => {
@@ -103,6 +104,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
               isRemovingServiceFn: id => getIsRemoving(id, state),
               hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
               isOnboarding: getIsOnboarding(state),
+              didOnboardImport: getDidOnboardImport(parentId, state),
               isInvitee: getIsInvitee(state),
               lastAddedEntry: getLastAddedEntry(parentId, state),
               numApps: getApps(state).length,
@@ -159,22 +161,19 @@ const EnvManagerContainerFactory = ({parentType})=> {
     },
 
     startedOnboardingFn = (props, state)=> {
-      return ((props.parent.role == "org_owner" && props.entries.length == 0 && props.numApps < 2) ||
-              (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry)) &&
+      return ((props.parent.role == "org_owner" && props.entries.length == 0) ||
+              (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry) ||
+              props.didOnboardImport) &&
+              props.numApps < 2 &&
              !state.finishedOnboarding
     },
 
     finishedOnboardingFn = (props, state)=> {
-      return (props.parent.role == "org_owner" && props.entries.length > 0) ||
-              props.lastAddedEntry
+      return props.lastAddedEntry
     },
 
     selectedIndexFn = (props, state)=> {
-      if (props.parent.role == "org_owner"){
-        return props.entries.length > 0 ? 1 : 0
-      } else {
-        return props.lastAddedEntry ? 1 : 0
-      }
+      return props.lastAddedEntry ? 1 : 0
     },
 
     OnboardSlider = props => {

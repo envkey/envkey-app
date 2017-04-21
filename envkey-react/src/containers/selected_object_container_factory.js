@@ -56,6 +56,10 @@ const SelectedObjectContainerFactory = ({
       }
     }
 
+    _classNames(){
+
+    }
+
     render(){
       let path
       const tabs = R.pluck("path", this.props.route.childRoutes),

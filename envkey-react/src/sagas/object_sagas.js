@@ -38,7 +38,10 @@ import {
 
   socketSubscribeObjectChannel,
 
-  generateEnvUpdateId
+  generateEnvUpdateId,
+
+  importAllEnvironments
+
 } from "actions"
 import {
   getCurrentOrg,
@@ -129,16 +132,17 @@ const
       urlFn:  getUpdateUrlFn()
     }), actionWithEnvs)
 
-    const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
-    if (apiResultType == API_SUCCESS) {
-      yield put(push(`/${currentOrg.slug}`))
-    }
+    if(!action.meta.isOnboardAction){
+      const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
+      if (apiResultType == API_SUCCESS) {
+        yield put(push(`/${currentOrg.slug}`))
+      }
 
-    const {type: resultType} = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
-    if (resultType == REMOVE_OBJECT_SUCCESS){
-      yield call(redirectFromOrgIndexIfNeeded)
+      const {type: resultType} = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
+      if (resultType == REMOVE_OBJECT_SUCCESS){
+        yield call(redirectFromOrgIndexIfNeeded)
+      }
     }
-
   },
 
   onFetchObjectDetailsApiSuccess = function*(action){
@@ -157,17 +161,29 @@ const
     }
   },
 
-  onCreateObjectSuccess = function*({meta: {createAssoc, objectType}, payload: {slug}}){
+  onCreateObjectSuccess = function*({
+    meta: {createAssoc, objectType, isOnboardAction, willImport, toImport},
+    payload: {id, slug}
+  }){
     // If just invited user, begin check invite acceptance polling loop
     if (objectType == "user"){
       yield call(checkInvitesAcceptedUnlessAlreadyPolling)
     }
 
-    if(!createAssoc){
-      const currentOrg = yield select(getCurrentOrg),
-            path = `/${currentOrg.slug}/${pluralize(objectType)}/${slug}`
+    if (toImport){
+      yield put(importAllEnvironments({
+        ...toImport,
+        parentType: objectType,
+        parentId: id
+      }))
+    }
 
-      yield put(push(path))
+    const currentOrg = yield select(getCurrentOrg)
+
+    if (objectType == "app" && isOnboardAction && willImport){
+      yield put(push(`/${currentOrg.slug}/onboard/2`))
+    } else if(!createAssoc){
+      yield put(push(`/${currentOrg.slug}/${pluralize(objectType)}/${slug}`))
     }
   }
 

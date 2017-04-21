@@ -89,7 +89,8 @@ export const
       h.p([
         "This is where you set your app’s config variables for each environment. ",
         "Go to the top of the page and try ",
-        h.em(".orange", "adding a new variable.")
+        h.em(".orange", "adding a new variable."),
+        (props.didOnboardImport ? " It's ok if you don't actually need to add one right now—you can delete it right away." : "")
       ]),
     ]),
 
@@ -295,7 +296,8 @@ export const
       h.p([
         "Welcome to the ",
         h.em(".blue.condensed", " Keys "),
-        "tab. This is where you connect the config you just setup to your development environment."
+        "tab. This is where you connect the config you just setup to your development environment.",
+        h.p("Let’s start with your development environment. Go ahead and generate your development key.")
       ])
     ]),
 

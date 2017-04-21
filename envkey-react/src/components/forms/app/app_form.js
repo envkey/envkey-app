@@ -1,6 +1,13 @@
 import React from 'react'
+import {RadioGroup, Radio} from 'react-radio-group'
+import AppImporter from './app_importer'
 
 export default class AppForm extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = { importOption: "noImport" }
+  }
 
   componentDidMount(){
     this.refs.name.focus()
@@ -8,7 +15,15 @@ export default class AppForm extends React.Component {
 
   _onSubmit(e){
     e.preventDefault()
-    this.props.onSubmit({name: this.refs.name.value})
+    this.props.onSubmit({
+      willImport: this.state.importOption == "import",
+      toImport: this.props.renderImporter ? this.refs.appImporter.toImport() : undefined,
+      params: {name: this.refs.name.value}
+    })
+  }
+
+  _onImportOptionChange(val){
+    this.setState({importOption: val})
   }
 
   render(){
@@ -24,16 +39,41 @@ export default class AppForm extends React.Component {
                  required />
         </fieldset>
 
+        {this._renderImportOpts()}
+
+        {this._renderImporter()}
+
         <fieldset>{this._renderSubmit()}</fieldset>
       </form>
     )
   }
 
+  _renderImportOpts(){
+    return <fieldset className="radio-opts import-opts">
+      <RadioGroup selectedValue={this.state.importOption} onChange={::this._onImportOptionChange}>
+        <label className={this.state.importOption == "noImport" ? "selected" : ""}>
+          <Radio value="noImport" /> <strong>Start from scratch</strong>
+        </label>
+        <label className={this.state.importOption == "import" ? "selected" : ""}>
+          <Radio value="import" /><strong>Import existing config</strong>
+        </label>
+      </RadioGroup>
+    </fieldset>
+  }
+
+  _renderImporter(){
+    if(this.props.renderImporter && this.state.importOption == "import"){
+      return <AppImporter ref="appImporter"
+                          environments={this.props.environments}
+                          embeddedInAppForm={true} />
+    }
+  }
+
   _renderSubmit(){
     if(this.props.isSubmitting){
-      return <button disabled={true}> Submitting... </button>
+      return <button disabled={true}> Creating App... </button>
     } else {
-      return <button> Create App </button>
+      return <button> {!this.props.renderImporter && this.state.importOption == "import" ? 'Next' : 'Create App'} </button>
     }
   }
 }

@@ -87,8 +87,11 @@ export const
   },
 
   pendingLocalSocketEnvsStatus = (state = {}, action)=>{
-    switch(action.type){
+    if(action.meta && action.meta.importAction){
+      return state
+    }
 
+    switch(action.type){
       case CREATE_ENTRY:
         return R.assocPath([action.meta.envUpdateId, "addingEntry"], true, state)
 

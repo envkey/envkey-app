@@ -51,7 +51,8 @@ export default class EnvManager extends React.Component {
       (this._isEmpty() ? "empty" : ""),
       (this.state.hideValues ? "hide-values" : ""),
       (this.props.hasAnyVal ? "" : "has-no-val"),
-      (this.props.socketUserUpdatingEnvs ? "receiving-socket-update" : "")
+      (this.props.socketUserUpdatingEnvs ? "receiving-socket-update" : ""),
+      (this.props.didOnboardImport ? "did-onboard-import" : "")
     ]
   }
 

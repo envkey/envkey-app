@@ -17,7 +17,10 @@ const pickMeta = R.pick([
                   "socketUpdate",
                   "socketActorId",
                   "socketEnvUpdateId",
-                  "isOutdatedEnvsRequest"
+                  "isOutdatedEnvsRequest",
+                  "willImport",
+                  "isOnboardAction",
+                  "toImport"
                  ]),
       payloadFn = ({objectType, params})=> ({[decamelize(objectType)]: params})
 

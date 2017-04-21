@@ -1,0 +1,19 @@
+.app-form
+  .import-opts
+    label
+      background: hsl(0,0,96)
+      border-radius: 4px
+      transition: background 0.15s ease-out
+      color: hsl(0,0,50)
+
+      > strong
+        font-family: $condensed-font
+        font-size: 14px
+        text-transform: uppercase
+        margin-bottom: 5px
+
+      &.selected
+        background: rgba($dark-blue, 0.15)
+
+        > strong
+          color: $dark-blue

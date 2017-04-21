@@ -10,7 +10,7 @@ import {
   GENERATE_ENV_UPDATE_ID
 } from './action_types'
 
-const metaKeys = ["parent", "parentType", "parentId", "timestamp"],
+const metaKeys = ["parent", "parentType", "parentId", "timestamp", "importAction"],
       pickMeta = R.pick(metaKeys)
 
 export const

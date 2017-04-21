@@ -1,4 +1,5 @@
 export { default as AppForm } from './app/app_form'
+export { default as AppImporter } from './app/app_importer'
 export { default as ServerForm } from './server/server_form'
 export { default as ServiceForm } from './service/service_form'
 export { default as UserForm } from './user/user_form'
