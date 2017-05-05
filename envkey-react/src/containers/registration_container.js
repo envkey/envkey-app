@@ -8,6 +8,16 @@ import {imagePath} from 'lib/ui'
 
 class Registration extends React.Component {
 
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      firstName: props.params.firstName || "",
+      lastName: props.params.lastName || "",
+      email: props.params.email || "",
+    }
+  }
+
   componentDidMount() {
     this.refs.orgName.focus()
     this.props.onLoad()
@@ -16,9 +26,7 @@ class Registration extends React.Component {
   onSubmit(e){
     e.preventDefault()
     this.props.onSubmit({
-      firstName: this.refs.firstName.value,
-      lastName: this.refs.lastName.value,
-      email: this.refs.email.value,
+      ...this.state,
       password: this.refs.password.val(),
       org: {name: this.refs.orgName.value}
     })
@@ -37,12 +45,16 @@ class Registration extends React.Component {
         <fieldset>
           <input ref="firstName"
                  placeholder="Your first name"
+                 value={this.state.firstName}
+                 onChange={(e)=> this.setState({firstName: e.target.value})}
                  required />
         </fieldset>
 
         <fieldset>
           <input ref="lastName"
                  placeholder="Your last name"
+                 value={this.state.lastName}
+                 onChange={(e)=> this.setState({lastName: e.target.value})}
                  required />
         </fieldset>
 
@@ -50,6 +62,8 @@ class Registration extends React.Component {
           <input ref="email"
                  type="email"
                  placeholder="Your email"
+                 value={this.state.email}
+                 onChange={(e)=> this.setState({email: e.target.value})}
                  required />
         </fieldset>
 
