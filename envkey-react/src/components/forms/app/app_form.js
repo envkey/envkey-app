@@ -17,13 +17,17 @@ export default class AppForm extends React.Component {
     e.preventDefault()
     this.props.onSubmit({
       willImport: this.state.importOption == "import",
-      toImport: this.props.renderImporter ? this.refs.appImporter.toImport() : undefined,
+      toImport: this._willImport() ? this.refs.appImporter.toImport() : undefined,
       params: {name: this.refs.name.value}
     })
   }
 
   _onImportOptionChange(val){
     this.setState({importOption: val})
+  }
+
+  _willImport(){
+    return this.props.renderImporter && this.state.importOption == "import"
   }
 
   render(){
@@ -62,7 +66,7 @@ export default class AppForm extends React.Component {
   }
 
   _renderImporter(){
-    if(this.props.renderImporter && this.state.importOption == "import"){
+    if(this._willImport()){
       return <AppImporter ref="appImporter"
                           environments={this.props.environments}
                           embeddedInAppForm={true} />
