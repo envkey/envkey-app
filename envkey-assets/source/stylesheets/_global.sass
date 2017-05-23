@@ -1,5 +1,15 @@
 html, body, #wrap, div[data-reactroot]
   height: 100%
 
-body.no-scroll
+body.no-scroll, body.mobile-or-tablet
   overflow: hidden
+
+.mobile-or-tablet #wrap
+  display: none
+
+#mobile-splash
+  display: none
+
+.mobile-or-tablet #mobile-splash
+  display: block
+

@@ -1,0 +1,43 @@
+.register-prompt
+  position: fixed
+  bottom: -100%
+  transition: bottom 0.6s ease-out
+  width: $sidemenu-width
+  background: hsl(0,0,20)
+  text-align: center
+
+  &.show
+    bottom: 0
+
+  .header
+    background: linear-gradient(to right, lighten($light-blue, 6%), darken($light-blue, 6%))
+    font-family: $condensed-font
+    font-size: 20px
+    font-weight: 300
+    padding: 16px 0 18px
+    color: rgba(#fff, 0.9)
+    border-top: 1px solid rgba(#000, 0.1)
+
+  .body
+    box-sizing: border-box
+    padding: 25px 10px
+
+  .copy
+    color: rgba(#fff, 0.8)
+    font-size: 14px
+    font-weight: 200
+    line-height: 170%
+    margin-bottom: 20px
+
+  .cta-button
+    height: auto
+    padding: 14px 0 16px
+    width: calc(100% - 40px)
+    background: hsl(0,0,15)
+    border: 1px solid $light-orange
+    &:hover
+      background: #000
+    span
+      font-size: 16px
+
+
