@@ -26,7 +26,7 @@ const defaultState = props => {
   }
 }
 
-const isDemo = process.env.NODE_ENV == "demo",
+const isDemo = process.env.BUILD_ENV == "demo",
       demoPromptDelay = 45
 
 export default class Sidebar extends React.Component {
