@@ -13,7 +13,7 @@ export default function({show}){
       h.div(".copy", [
         h.p([
           "Start using Envkey to improve security and simplify ops. ",
-          "Integration takes minutes."
+          "Integration is easy."
         ])
       ]),
 

@@ -7,6 +7,8 @@ import {ORG_ROLES} from 'constants'
 import {orgRoleGroupLabel} from 'lib/ui'
 import RegisterPrompt from '../demo/register_prompt'
 
+let showRegisterPrompt = false
+
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 
 const menuSelected = props => {
@@ -22,12 +24,12 @@ const defaultState = props => {
   return {
     accountMenuOpen: defaultAccountMenuExpanded(props),
     scrollX: 0,
-    showRegisterPrompt: false
+    showRegisterPrompt: showRegisterPrompt
   }
 }
 
 const isDemo = process.env.BUILD_ENV == "demo",
-      demoPromptDelay = 45
+      demoPromptDelay = 20
 
 export default class Sidebar extends React.Component {
   constructor(props){
@@ -39,7 +41,10 @@ export default class Sidebar extends React.Component {
     // if(window)window.addEventListener("scroll",::this._onWindowScroll)
 
     if (isDemo){
-      setTimeout(()=> { this.setState({showRegisterPrompt: true}) }, demoPromptDelay * 1000)
+      setTimeout(()=> {
+        showRegisterPrompt = true
+        this.setState({showRegisterPrompt})
+      }, demoPromptDelay * 1000)
     }
   }
 
