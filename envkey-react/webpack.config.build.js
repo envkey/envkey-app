@@ -10,11 +10,17 @@ var isProd = process.env.PRODUCTION_BUILD == "true",
       dotEnvFile: `.env.${buildEnv}`,
       permitted: ["API_HOST", "ASSET_HOST", "PUSHER_APP_KEY"]
     }),
-    defineParams = { NODE_ENV: JSON.stringify(process.env.NODE_ENV), BUILD_ENV: JSON.stringify(buildEnv) }
+    defineParams = {
+      NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+      BUILD_ENV: JSON.stringify(buildEnv),
+      API_HOST: JSON.stringify(process.env.API_HOST)
+    }
 
 console.log("buildEnv: ", buildEnv)
 
 for (k in env) defineParams[k] = JSON.stringify(env[k]);
+
+console.log("defineParams: ", defineParams)
 
 var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
