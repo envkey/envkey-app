@@ -8,6 +8,7 @@ import {
   REGISTER_SUCCESS,
 
   LOGOUT,
+  SELECT_ORG,
 
   FETCH_CURRENT_USER_SUCCESS,
 
@@ -37,6 +38,8 @@ export const
 
       case DECRYPT_ALL_SUCCESS:
       case DECRYPT_ENVS_FAILED:
+      case LOGOUT:
+      case SELECT_ORG:
         return false
 
       default:
@@ -47,6 +50,8 @@ export const
   decryptedAll = (state = false, action)=>{
     switch(action.type){
       case DECRYPT_ALL:
+      case LOGOUT:
+      case SELECT_ORG:
         return false
 
       case DECRYPT_ALL_SUCCESS:
@@ -66,6 +71,10 @@ export const
       case DECRYPT_ENVS_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
+      case LOGOUT:
+      case SELECT_ORG:
+        return {}
+
       default:
         return state
     }
@@ -75,6 +84,10 @@ export const
     switch(action.type){
       case DECRYPT_ENVS_SUCCESS:
         return R.assoc(action.meta.targetId, true, state)
+
+      case LOGOUT:
+      case SELECT_ORG:
+        return {}
 
       default:
         return state
@@ -119,6 +132,8 @@ export const
         return true
       case DECRYPT_PRIVKEY_SUCCESS:
       case DECRYPT_PRIVKEY_FAILED:
+      case LOGOUT:
+      case SELECT_ORG:
         return false
       default:
         return state

@@ -238,6 +238,10 @@ export const
           state :
           R.assoc(action.meta.parentId, action.meta.nextEnvUpdateId, state)
 
+      case LOGOUT:
+      case SELECT_ORG:
+        return {}
+
       default:
         return state
     }

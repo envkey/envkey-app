@@ -162,12 +162,16 @@ const
   },
 
   onCreateObjectSuccess = function*({
-    meta: {createAssoc, objectType, isOnboardAction, willImport, toImport},
-    payload: {id, slug}
+    meta: {status, createAssoc, objectType, isOnboardAction, willImport, toImport},
+    payload
   }){
-    // If just invited user, begin check invite acceptance polling loop
+    const {id, slug} = payload
+
+    // If new user created/invited, begin check invite acceptance polling loop
     if (objectType == "user"){
-      yield call(checkInvitesAcceptedUnlessAlreadyPolling)
+      if (status == 201 || (status == 200 && !payload.pubkey)){
+        yield call(checkInvitesAcceptedUnlessAlreadyPolling)
+      }
     }
 
     if (toImport){

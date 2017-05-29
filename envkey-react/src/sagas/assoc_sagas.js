@@ -19,6 +19,7 @@ import {
   GENERATE_ASSOC_KEY_REQUEST,
   GENERATE_ASSOC_KEY_SUCCESS,
   GENERATE_ASSOC_KEY_FAILED,
+  GRANT_ENV_ACCESS,
   addAssoc,
   generateKeyRequest
 } from "actions"
@@ -99,6 +100,15 @@ function* onCreateAssoc({meta, payload}){
 
       if (addResultAction.type == ADD_ASSOC_SUCCESS){
         yield put({type: CREATE_ASSOC_SUCCESS, meta})
+
+        // If just invited existing user to app, grant env access
+        if (meta.parentType == "app" &&
+            meta.assocType == "user" &&
+            createResultAction.meta.status == 200 &&
+            createResultAction.payload.pubkey){
+          yield put({type: GRANT_ENV_ACCESS, payload: [createResultAction.payload]})
+        }
+
       } else {
         failAction = addResultAction
       }

@@ -72,7 +72,12 @@ export default function apiSaga({
       yield put({
         type: SUCCESS_TYPE,
         payload: res.data,
-        meta: {...requestAction.meta, headers: res.headers, requestPayload: requestAction.payload}
+        meta: {
+          ...requestAction.meta,
+          headers: res.headers,
+          status: res.status,
+          requestPayload: requestAction.payload
+        }
       })
 
     } catch (err){

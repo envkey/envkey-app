@@ -203,6 +203,10 @@ objectReducers.selectedObjectType = (state=null, action)=>{
     case SELECTED_OBJECT:
       return action.payload.objectType
 
+    case LOGOUT:
+    case SELECT_ORG:
+      return null
+
     default:
       return state
   }
@@ -212,6 +216,10 @@ objectReducers.selectedObjectId = (state=null, action)=>{
   switch(action.type){
     case SELECTED_OBJECT:
       return action.payload.id
+
+    case LOGOUT:
+    case SELECT_ORG:
+      return null
 
     default:
       return state
@@ -226,6 +234,8 @@ objectReducers.onboardAppId = (state=null, action)=>{
   } else if (action.type == REMOVE_OBJECT_SUCCESS &&
              action.meta.objectType == "app" &&
              action.meta.isOnboardAction){
+    return null
+  } else if ([SELECT_ORG, LOGOUT].includes(action.type)){
     return null
   } else {
     return state
