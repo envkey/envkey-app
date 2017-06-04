@@ -40,7 +40,9 @@ import {
 
   generateEnvUpdateId,
 
-  importAllEnvironments
+  importAllEnvironments,
+
+  decryptEnvs
 
 } from "actions"
 import {
@@ -189,6 +191,12 @@ const
     } else if(!createAssoc){
       yield put(push(`/${currentOrg.slug}/${pluralize(objectType)}/${slug}`))
     }
+  },
+
+  onRenameObjectSuccess = function*({meta}){
+    if (["app", "service"].includes(meta.objectType)){
+      yield(put(decryptEnvs(meta)))
+    }
   }
 
 export default function* objectSagas(){
@@ -199,6 +207,7 @@ export default function* objectSagas(){
     takeEvery(CREATE_OBJECT_REQUEST, onCreateObject),
     takeEvery(UPDATE_OBJECT_SETTINGS_REQUEST, onUpdateObjectSettings),
     takeEvery(RENAME_OBJECT_REQUEST, onRenameObject),
+    takeEvery(RENAME_OBJECT_SUCCESS, onRenameObjectSuccess),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
     takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
   ]
