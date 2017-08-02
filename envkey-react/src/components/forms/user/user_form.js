@@ -73,7 +73,7 @@ export default class UserForm extends React.Component {
   }
 
   _renderOrgAdminToggle(){
-    if (this.props.addAssoc && this.props.role == "admin"){
+    if (this.props.addAssoc && this.props.orgRolesInvitable && this.props.orgRolesInvitable.includes("org_admin")){
       return h.label(".org-admin-toggle", {
         className: (this.state.orgRole == "org_admin" ? "selected" : "")
       }, [

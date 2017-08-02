@@ -17,12 +17,14 @@ import {
   UPDATE_OBJECT_SETTINGS_SUCCESS,
   RENAME_OBJECT_SUCCESS,
   REMOVE_OBJECT_SUCCESS,
+  FETCH_OBJECT_DETAILS_API_SUCCESS,
   FETCH_OBJECT_DETAILS_SUCCESS,
   GENERATE_ASSOC_KEY_SUCCESS,
   CHECK_INVITES_ACCEPTED_SUCCESS,
   GRANT_ENV_ACCESS_SUCCESS,
   UPDATE_ORG_ROLE_SUCCESS,
-  SELECTED_OBJECT
+  SELECTED_OBJECT,
+  VERIFY_INVITE_EMAIL_API_SUCCESS
 } from 'actions'
 import { indexById } from './helpers'
 
@@ -98,12 +100,11 @@ const
   },
 
   getGenerateKeyReducer = objectTypePlural => (state, {
-    meta: {assocType, passphrase}, payload
+    meta: {assocType}, payload
   })=> {
     if(pluralize(assocType) == objectTypePlural){
-      const {id} = payload,
-            withPassphrase = R.assoc("passphrase", passphrase, payload)
-      return R.assoc(id, withPassphrase, state)
+      const {id} = payload
+      return R.assoc(id, payload, state)
     }
     return state
   },
@@ -143,6 +144,21 @@ const
     return state
   },
 
+  getFetchObjectAssociationsReducer = objectTypePlural => (state, {
+    meta: {objectType}, payload
+  })=> {
+    if(pluralize(objectType) != objectTypePlural){
+      const associations = payload[objectTypePlural]
+
+      if (associations && associations.length){
+        return associations.reduce((acc, assoc)=>{
+          return {...acc, [assoc.id]: assoc}
+        }, state)
+      }
+    }
+    return state
+  },
+
   objectReducers = {}
 
 ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
@@ -152,6 +168,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case REGISTER_SUCCESS:
       case GRANT_ENV_ACCESS_SUCCESS:
       case UPDATE_ORG_ROLE_SUCCESS:
+      case VERIFY_INVITE_EMAIL_API_SUCCESS:
         let objects = action.payload[objectTypePlural]
         return objects ? indexById(objects) : state
 
@@ -160,6 +177,9 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
 
       case FETCH_OBJECT_DETAILS_SUCCESS:
         return getFetchObjectReducer(objectTypePlural)(state, action)
+
+      case FETCH_OBJECT_DETAILS_API_SUCCESS:
+        return getFetchObjectAssociationsReducer(objectTypePlural)(state, action)
 
       case UPDATE_ENV_SUCCESS:
         return getUpdateEnvReducer(objectTypePlural)(state, action)

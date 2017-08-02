@@ -6,23 +6,24 @@ import {
   CREATE_ASSOC_REQUEST,
   REMOVE_ASSOC_REQUEST,
   GENERATE_ASSOC_KEY,
-  GENERATE_ASSOC_KEY_REQUEST
+  GENERATE_ASSOC_KEY_REQUEST,
+  CLEAR_GENERATED_ASSOC_KEY
 } from './action_types'
 
 const
-  keyRequestEnv = ({appId, assocType, assocId, encryptedRawEnv})=>{
+  keyRequestEnv = ({appId, assocType, assocId, encryptedRawEnv, signedTrustedPubkeys})=>{
     switch (assocType){
       case "server":
         return {
           "servers": {
-            [assocId]: {env: encryptedRawEnv}
+            [assocId]: {env: encryptedRawEnv, signedTrustedPubkeys}
           }
         }
       case "appUser":
         return {
           users: {
             [assocId]: {
-              apps: { [appId]: {env: encryptedRawEnv} }
+              apps: { [appId]: {env: encryptedRawEnv, signedTrustedPubkeys} }
             }
           }
         }
@@ -66,12 +67,21 @@ export const
 
   generateKeyRequest = createAction(
     GENERATE_ASSOC_KEY_REQUEST,
-    ({encryptedPrivkey, pubkey, encryptedRawEnv, assocId, assocType, parentId})=> {
+    ({encryptedPrivkey,
+      signedTrustedPubkeys,
+      pubkey,
+      pubkeyFingerprint,
+      encryptedRawEnv,
+      assocId,
+      assocType,
+      parentId})=> {
 
       return {
-        [assocType]: {encryptedPrivkey, pubkey},
+        [assocType]: {encryptedPrivkey, pubkey, pubkeyFingerprint, signedTrustedPubkeys},
         envs: keyRequestEnv({appId: parentId, assocType, assocId, encryptedRawEnv})
       }
     },
     pickMeta
-  )
+  ),
+
+  clearGeneratedAssocKey = createAction(CLEAR_GENERATED_ASSOC_KEY)

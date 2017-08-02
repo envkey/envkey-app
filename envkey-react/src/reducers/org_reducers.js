@@ -1,11 +1,16 @@
-import {SELECT_ORG,
-        FETCH_CURRENT_USER_SUCCESS,
-        LOGIN,
-        LOGIN_SUCCESS,
-        REGISTER,
-        REGISTER_SUCCESS,
-        LOGOUT,
-        ORG_INVALID} from "actions"
+import {
+  SELECT_ORG,
+  FETCH_CURRENT_USER_SUCCESS,
+  LOGIN,
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  REGISTER,
+  REGISTER_SUCCESS,
+  LOGOUT,
+  ORG_INVALID,
+  LOAD_INVITE_SUCCESS,
+  ACCEPT_INVITE_SUCCESS
+} from "actions"
 import {indexById} from './helpers'
 
 export const currentOrgSlug = (state = null, action)=>{
@@ -13,7 +18,11 @@ export const currentOrgSlug = (state = null, action)=>{
     case SELECT_ORG:
       return action.payload
 
+    case LOAD_INVITE_SUCCESS:
+      return action.payload.org.slug
+
     case LOGIN:
+    case LOGIN_REQUEST:
     case REGISTER:
     case LOGOUT:
     case ORG_INVALID:
@@ -31,7 +40,11 @@ export const orgs = (state = {}, action)=>{
     case REGISTER_SUCCESS:
       return indexById(action.payload.orgs)
 
+    case LOAD_INVITE_SUCCESS:
+      return indexById([action.payload.org])
+
     case LOGIN:
+    case LOGIN_REQUEST:
     case REGISTER:
     case LOGOUT:
       return {}

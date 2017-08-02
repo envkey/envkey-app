@@ -3,13 +3,14 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import FormEntryCell from './env_cell/form_entry_cell'
 import FormValCell from './env_cell/form_val_cell'
+import LockedFormValCell from './env_cell/locked_form_val_cell'
 import EditableCellsParent from './traits/editable_cells_parent'
 
 const
   defaultEditing = {entryKey: "entry", environment: null},
 
   defaultState = props => ({
-    envsWithMeta: props.environments.reduce((acc, environment) => {
+    envsWithMeta: props.environmentsAssignable.reduce((acc, environment) => {
       return {...acc, [environment]: {
         "entry": {val: null, inherits: null}
       }}
@@ -85,6 +86,47 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     return this.state.editing.entryKey == "entry" && !this.state.editing.environment
   }
 
+  _renderFormCell(environment){
+    if ((this.props.app && this.props.app.role == "development") && environment == "production"){
+      return this._renderLockedCell()
+    } else {
+      return this._renderFormValCell(environment)
+    }
+  }
+
+  _renderFormValCell(environment){
+    let envEntry = this.state.envsWithMeta[environment].entry
+
+    return h(FormValCell, {
+      ...envEntry, //for 'val' and 'inherits'
+      environments: this.props.environmentsAssignable,
+      environment,
+      didCommit: Boolean(R.path(["didCommit", environment], this.state)),
+      isEditing: this.state.editing.environment === environment,
+      entryKey: "entry",
+      envsWithMeta: this.state.envsWithMeta,
+      onEditCell: ()=> this.setState({editing: {entryKey: "entry",environment}}),
+      onCommit: (update)=> {
+        this.setState(R.pipe(
+          R.assocPath(["envsWithMeta", environment, "entry"], update),
+          R.assocPath(["didCommit", environment], true)
+        ))
+        this._clearEditing()
+      },
+      onChange: (val)=> {
+        let state = this.state
+        this.setState(
+          R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}),
+          this._onChangeFn(state)
+        )
+      }
+    })
+  }
+
+  _renderLockedCell(){
+    return h(LockedFormValCell)
+  }
+
   render(){
     const {environments} = this.props
 
@@ -113,40 +155,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
         onMouseOut: ()=> this.setState({hoveringVals: false})
       }, [
         environments.map((environment,i)=>{
-          let envEntry
-          envEntry = this.state.envsWithMeta[environment].entry
-          // try {
-          //   envEntry = this.state.envsWithMeta[environment].entry
-          // } catch (e){
-          //   debugger
-          // }
-
-          return h.div(".val-col", {key: i}, [
-            h(FormValCell, {
-              ...envEntry, //for 'val' and 'inherits'
-              environments,
-              environment,
-              didCommit: Boolean(R.path(["didCommit", environment], this.state)),
-              isEditing: this.state.editing.environment === environment,
-              entryKey: "entry",
-              envsWithMeta: this.state.envsWithMeta,
-              onEditCell: ()=> this.setState({editing: {entryKey: "entry",environment}}),
-              onCommit: (update)=> {
-                this.setState(R.pipe(
-                  R.assocPath(["envsWithMeta", environment, "entry"], update),
-                  R.assocPath(["didCommit", environment], true)
-                ))
-                this._clearEditing()
-              },
-              onChange: (val)=> {
-                let state = this.state
-                this.setState(
-                  R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}),
-                  this._onChangeFn(state)
-                )
-              }
-            })
-          ])
+          return h.div(".val-col", {key: i}, [this._renderFormCell(environment)])
         })
       ])
 

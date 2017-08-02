@@ -17,6 +17,7 @@ import {
   REMOVE_ENTRY,
   UPDATE_ENTRY_VAL,
   FETCH_OBJECT_DETAILS_SUCCESS,
+  VERIFY_ORG_PUBKEYS_SUCCESS,
   fetchObjectDetails,
   updateEnvRequest,
   socketBroadcastEnvsStatus
@@ -69,7 +70,7 @@ function* onUpdateEnvFailed(action){
       } catch (e){
         console.log("Replay pending envs error")
         console.log(e)
-        alert(`There was a problem applying your update to ${pendingAction.payload.entryKey}. The key may have been deleted or renamed by another user.`)
+        alert(`There was a problem applying your update to ${pendingAction.payload.entryKey}. This variable may have been deleted or renamed by another user.`)
       }
     }
 

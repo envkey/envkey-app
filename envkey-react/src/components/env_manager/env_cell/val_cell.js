@@ -1,6 +1,5 @@
 import h from "lib/ui/hyperscript_with_helpers"
 import EnvCell from './env_cell'
-import {imagePath} from 'lib/ui'
 import {inheritedVal} from 'lib/env/inheritance'
 
 export default class ValCell extends EnvCell {
@@ -26,7 +25,7 @@ export default class ValCell extends EnvCell {
       ])
     }
 
-    if(this.props.val === null){
+    if(this.props.val === null && !(this.props.locked && this.props.hasVal)){
       return this._undefinedVal()
     }
 
@@ -34,7 +33,7 @@ export default class ValCell extends EnvCell {
       return h.small("empty string")
     }
 
-    if(!this.props.isUpdating && this.props.hideValues){
+    if(this.props.locked || (!this.props.isUpdating && this.props.hideValues)){
       return "●●●●●●●●●●●●";
     } else {
       return this.props.val
@@ -42,7 +41,7 @@ export default class ValCell extends EnvCell {
   }
 
   _valString(){
-    return this.props.inherits ? inheritedVal(this.props) : super._valString()
+    return this.props.inherits ? (inheritedVal(this.props) || this.props.inheritedVal) : super._valString()
   }
 
 }

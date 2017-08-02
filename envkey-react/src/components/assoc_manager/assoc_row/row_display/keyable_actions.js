@@ -68,7 +68,7 @@ export default function ({
         ]
       } else {
         contents = [
-          h.span(".secondary", "No key generated")
+          h.span(".secondary", "No envkey generated")
         ]
       }
 

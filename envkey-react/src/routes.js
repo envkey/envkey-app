@@ -99,7 +99,7 @@ export default class Routes extends React.Component {
 
         <Route path="/signup" component={RegistrationContainer} />
 
-        <Route path="/accept_invite/:emailbs64/:token" component={AcceptInviteContainer} />
+        <Route path="/accept_invite/:identityHash/:passphrase" component={AcceptInviteContainer} />
 
         <Route path="/demo/:credentialsbs64" component={DemoLoginContainer} />
 

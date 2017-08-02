@@ -1,19 +1,14 @@
 var webpack = require('webpack'),
-    envkey = require('envkey/loader'),
     path = require('path'),
+    EnvkeyWebpackPlugin = require('envkey-webpack-plugin'),
     projectRoot = process.env.PWD
-
-var env = envkey.load({
-      dotEnvFile: '.env.development',
-      permitted: ["API_HOST", "ASSET_HOST", "PUSHER_APP_KEY"]
-    }),
-    defineParams = { NODE_ENV: JSON.stringify(process.env.NODE_ENV) }
-
-for (k in env) defineParams[k] = JSON.stringify(env[k]);
 
 var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
-  new webpack.DefinePlugin({"process.env": defineParams}),
+  new EnvkeyWebpackPlugin({
+    dotEnvFile: '.env.development',
+    permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY"]
+  })
 ];
 
 var presets = ['es2015', 'react', 'stage-2', 'react-hmre'];

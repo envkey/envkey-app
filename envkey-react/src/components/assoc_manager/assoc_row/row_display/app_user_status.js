@@ -3,7 +3,7 @@ import {twitterShortTs} from 'lib/utils/date'
 import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from "components/shared/small_loader"
 
-export default function ({status, timestamp, envAccessGranted, isGrantingEnvAccess}){
+export default function ({status, timestamp, isGrantingEnvAccess}){
   const classStr = ".status.secondary",
         ts =  " ・ " + twitterShortTs(timestamp)
 
@@ -23,18 +23,10 @@ export default function ({status, timestamp, envAccessGranted, isGrantingEnvAcce
       ts
     ])
   } else if (status == "confirmed"){
-    if (envAccessGranted){
-      return h.span(classStr, [
-        "Access ",
-        h.em(".granted", "granted "),
-        ts
-      ])
-    } else {
-      return h.span(classStr, {className: "env-access-pending"}, [
-        "Access ",
-        h.em(".pending", "pending"),
-        ts
-      ])
-    }
+    return h.span(classStr, [
+      "Access ",
+      h.em(".granted", "granted "),
+      ts
+    ])
   }
 }

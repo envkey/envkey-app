@@ -6,7 +6,7 @@ import {imagePath} from 'lib/ui'
 const config = {
   variables: ["variables", "Variables", 34, 26],
   collaborators: ["collaborators", "Collaborators", 30.8, 39.6, {objectPermissionPath: ["appUser", "read"]}],
-  keys: ["keys", "Keys", 49.275, 23.625],
+  keys: ["keys", "Envkeys", 49.275, 23.625],
   integration: ["integration", "Integrate", 52, 25],
   settings: ["settings", "Settings", 33, 33, {objectPermissionPath: ["updateSettings"]}],
   apps: ["apps", "Apps", 36, 32],

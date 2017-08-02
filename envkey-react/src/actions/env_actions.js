@@ -25,7 +25,7 @@ export const
 
   updateEnvRequest = createAction(
     UPDATE_ENV_REQUEST,
-    R.pick(["envs", "envsUpdatedAt", "envUpdateId"]),
+    R.pick(["envs", "envsUpdatedAt", "keyablesUpdatedAt", "envUpdateId"]),
     R.pipe(
       R.pick(metaKeys.concat([
        "envUpdateId",

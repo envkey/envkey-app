@@ -137,7 +137,7 @@ function* onCommitImportActions({meta}){
   }
 }
 
-export default function* envSagas(){
+export default function* importSagas(){
   yield [
     takeEvery(IMPORT_ALL_ENVIRONMENTS, onImportAllEnvironments),
     takeEvery(IMPORT_ENVIRONMENT, onImportEnvironment),

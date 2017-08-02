@@ -6,7 +6,8 @@ import {
   createAssoc,
   removeAssoc,
   generateKey,
-  createObject
+  createObject,
+  clearGeneratedAssocKey
 } from 'actions'
 import {
   getIsRemovingById,
@@ -15,7 +16,8 @@ import {
   getUser,
   getCurrentUser,
   getCurrentOrg,
-  getIsGrantingEnvAccessByUserId
+  getIsGrantingEnvAccessByUserId,
+  getGeneratedEnvkeysById
 } from 'selectors'
 import AssocManager from 'components/assoc_manager'
 import {getTrueParentAssoc, getJoinType} from "lib/assoc/helpers"
@@ -41,6 +43,7 @@ export default function({
       isRemovingById: getIsRemovingById(state),
       isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
       isGrantingEnvAccessByUserId: getIsGrantingEnvAccessByUserId(state),
+      generatedEnvkeysById: getGeneratedEnvkeysById(state),
       getUserFn: userId => getUser(userId, state)
     }
   }
@@ -72,7 +75,8 @@ export default function({
         }
 
       },
-      generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId}))
+      generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId})),
+      clearGeneratedAssocKey: targetId => dispatch(clearGeneratedAssocKey(targetId))
     }
   }
 

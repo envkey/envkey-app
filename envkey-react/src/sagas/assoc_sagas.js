@@ -1,7 +1,11 @@
+import R from 'ramda'
 import { takeEvery, put, call, take, select } from 'redux-saga/effects'
-import pluralize from 'pluralize'
-import {decamelize} from 'xcase'
-import {apiSaga} from './helpers'
+import {
+  apiSaga,
+  signTrustedPubkeys,
+  inviteUser,
+  execCreateAssoc
+} from './helpers'
 import {
   ADD_ASSOC_REQUEST,
   ADD_ASSOC_SUCCESS,
@@ -21,19 +25,26 @@ import {
   GENERATE_ASSOC_KEY_FAILED,
   GRANT_ENV_ACCESS,
   addAssoc,
-  generateKeyRequest
+  generateKeyRequest,
+  addTrustedPubkey,
+  updateTrustedPubkeys
 } from "actions"
 import {attachAssocEnvs} from './helpers/attach_envs'
 import {
   generateKeys,
   secureRandomAlphanumeric,
-  encryptJson
+  encryptJson,
+  signPublicKey,
+  decryptPrivateKey,
+  getPubkeyFingerprint
 } from 'lib/crypto'
 import {
   getCurrentOrg,
+  getCurrentUser,
   getServer,
   getAppUser,
-  getRawEnvWithPendingForApp
+  getRawEnvWithPendingForApp,
+  getPrivkey
 } from 'selectors'
 import {getAssocUrl} from 'lib/assoc/helpers'
 
@@ -52,7 +63,7 @@ const
     })
   },
 
-  generateKeyApiSaga = apiSaga({
+  onGenerateKeyRequest = apiSaga({
     authenticated: true,
     method: "patch",
     actionTypes: [GENERATE_ASSOC_KEY_SUCCESS, GENERATE_ASSOC_KEY_FAILED],
@@ -79,47 +90,13 @@ function* onRemoveAssoc(action){
   yield call(apiSaga, actionWithEnvs)
 }
 
-function* onCreateAssoc({meta, payload}){
-  let failAction
-
-  yield put({
-    type: CREATE_OBJECT_REQUEST,
-    meta: {objectType: meta.assocType, createAssoc: true},
-    payload
-  })
-
-  const createResultAction = yield take([CREATE_OBJECT_SUCCESS, CREATE_OBJECT_FAILED])
-
-  if (createResultAction.type == CREATE_OBJECT_SUCCESS){
-    if(meta.createOnly){
-      yield put({type: CREATE_ASSOC_SUCCESS, meta})
-    } else {
-      yield put(addAssoc({...meta, assocId: createResultAction.payload.id}))
-
-      const addResultAction = yield take([ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED])
-
-      if (addResultAction.type == ADD_ASSOC_SUCCESS){
-        yield put({type: CREATE_ASSOC_SUCCESS, meta})
-      } else {
-        failAction = addResultAction
-      }
-    }
-
-    if (!failAction){
-      // If just invited existing user to app, grant env access
-      if (meta.parentType == "app" &&
-          meta.assocType == "user" &&
-          createResultAction.meta.status == 200 &&
-          createResultAction.payload.pubkey){
-        yield put({type: GRANT_ENV_ACCESS, payload: [createResultAction.payload]})
-      }
-    }
-
+function* onCreateAssoc(action){
+  const {meta} = action
+  if (meta.parentType == "app" && meta.assocType == "user"){
+    yield call(inviteUser, action)
   } else {
-    failAction = createResultAction
+    yield call(execCreateAssoc, action)
   }
-
-  if(failAction)yield put({...failAction, meta, type: CREATE_ASSOC_FAILED})
 }
 
 function* onGenerateKey(action){
@@ -136,31 +113,57 @@ function* onGenerateKey(action){
 
     environment = {server: target.role, appUser: "development"}[assocType],
 
-    passphrase = secureRandomAlphanumeric(14),
+    passphrase = secureRandomAlphanumeric(16),
 
     {
       privateKeyArmored: encryptedPrivkey,
       publicKeyArmored: pubkey
     } = yield call(generateKeys, {
-      id: [currentOrg.slug, app.slug, target.slug].join("-"),
+      email: ([currentOrg.slug, app.slug, target.slug].join("-") + "@envkey.com"),
       passphrase
     }),
 
+    decryptedPrivkey = yield decryptPrivateKey({
+      privkey: encryptedPrivkey, passphrase
+    }),
+
+    currentUserPrivkey = yield select(getPrivkey),
+
+    signedPubkey = yield signPublicKey({pubkey, privkey: currentUserPrivkey}),
+
     rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment})),
 
-    encryptedRawEnv = yield call(encryptJson, {
-      pubkey,
+    encryptedRawEnv = yield encryptJson({
+      pubkey: signedPubkey,
+      privkey: currentUserPrivkey,
       data: rawEnv
-    })
+    }),
+
+    signedTrustedPubkeys = yield call(signTrustedPubkeys, decryptedPrivkey)
 
   yield put(generateKeyRequest({
     ...action.meta,
     assocId,
     encryptedPrivkey,
-    pubkey,
     encryptedRawEnv,
-    passphrase
+    passphrase,
+    signedTrustedPubkeys,
+    pubkey: signedPubkey,
+    pubkeyFingerprint: getPubkeyFingerprint(signedPubkey)
   }))
+}
+
+function *onGenerateKeySuccess({meta: {assocType, targetId}}){
+  const
+    {id: orgId} = yield select(getCurrentOrg),
+
+    selector = {server: getServer, appUser: getAppUser}[assocType],
+
+    target = yield select(selector(targetId))
+
+  yield put(addTrustedPubkey({keyable: {type: assocType, ...target}, orgId}))
+
+  yield put(updateTrustedPubkeys())
 }
 
 export default function* assocSagas(){
@@ -169,6 +172,7 @@ export default function* assocSagas(){
     takeEvery(REMOVE_ASSOC_REQUEST, onRemoveAssoc),
     takeEvery(CREATE_ASSOC_REQUEST, onCreateAssoc),
     takeEvery(GENERATE_ASSOC_KEY, onGenerateKey),
-    takeEvery(GENERATE_ASSOC_KEY_REQUEST, generateKeyApiSaga)
+    takeEvery(GENERATE_ASSOC_KEY_REQUEST, onGenerateKeyRequest),
+    takeEvery(GENERATE_ASSOC_KEY_SUCCESS, onGenerateKeySuccess)
   ]
 }

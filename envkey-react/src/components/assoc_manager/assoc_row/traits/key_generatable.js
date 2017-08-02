@@ -3,32 +3,18 @@ import R from 'ramda'
 import KeyGenerated from "../key_generated"
 
 const KeyGeneratable = AssociationRow => class extends AssociationRow {
-  constructor(props){
-    super(props)
-    this.state = {
-      ...(this.state || {}),
-      showKeyGenerated: (
-        props.assoc.envkey &&
-        props.assoc.passphrase &&
-        props.assoc.keyGeneratedAt
-      )
-    }
+
+  _showKeyGenerated(){
+    return this.props.assoc.keyGeneratedAt && this._generatedEnvkey()
   }
 
-  componentWillReceiveProps(nextProps) {
-    if(super.componentWillReceiveProps)super.componentWillReceiveProps(props)
-    if (nextProps.assoc.id != this.props.assoc.id){
-      this.setState({showKeyGenerated: false})
-    } else if(nextProps.assoc.envkey &&
-       nextProps.assoc.passphrase &&
-       nextProps.assoc.keyGeneratedAt != this.props.assoc.keyGeneratedAt){
-      this.setState({showKeyGenerated: true})
-    }
+  _generatedEnvkey(){
+    return this.props.generatedEnvkeysById[this.props.assoc.id]
   }
 
   _classNames(){
     return super._classNames().concat([
-      (this.state.showKeyGenerated ? " key-generated" : "")
+      (this._showKeyGenerated() ? " key-generated" : "")
     ])
   }
 
@@ -39,11 +25,12 @@ const KeyGeneratable = AssociationRow => class extends AssociationRow {
   }
 
   _renderKeyGenerated(){
-    if (this.state.showKeyGenerated){
+    if (this._showKeyGenerated()){
       return h(KeyGenerated, {
         ...this.props,
         ...this.props.assoc,
-        onClose: ()=> this.setState({showKeyGenerated: false})
+        ...(this.props.generatedEnvkeysById[this.props.assoc.id] || {}),
+        onClose: ()=> this.props.clearGeneratedAssocKey(this.props.assoc.id)
       })
     }
   }

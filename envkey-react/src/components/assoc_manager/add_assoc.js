@@ -64,7 +64,7 @@ export default class AddAssoc extends React.Component {
 
   _renderNew(){
     return h(this.props.addFormType, {
-      ...R.pick(["role"], this.props),
+      ...R.pick(["role", "orgRolesAssignable", "orgRolesInvitable"], this.props),
       addAssoc: true,
       isSubmitting: this.props.isCreating,
       onSubmit: attr => this.props.createAssoc(attr, this.props.role)

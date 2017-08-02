@@ -12,7 +12,6 @@ import {
   getServiceBySlug,
   getUserWithOrgUserBySlug,
   getPermissions,
-  getEnvAccessGranted,
   getIsDecryptingAll,
   getDecryptedAll
 } from "selectors"
@@ -20,7 +19,6 @@ import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
 import DecryptForm from 'components/shared/decrypt_form'
 import DecryptLoader from 'components/shared/decrypt_loader'
-import {AwaitingAccessContainer} from 'containers'
 
 const SelectedObjectContainerFactory = ({
   objectType,
@@ -91,9 +89,7 @@ const SelectedObjectContainerFactory = ({
     }
 
     _renderContents(){
-      if (!this.props.envAccessGranted){
-        return [h(AwaitingAccessContainer)]
-      } else if(this.props.envsAreDecrypted || this.props.isDecrypting){
+      if(this.props.envsAreDecrypted || this.props.isDecrypting){
         return [
           this._renderChildren(),
           h(DecryptLoader, this.props)
@@ -131,8 +127,7 @@ const SelectedObjectContainerFactory = ({
         [objectType]: obj,
         permissions: getPermissions(state),
         isDecrypting: getIsDecryptingAll(state),
-        envsAreDecrypted: getDecryptedAll(state),
-        envAccessGranted: getEnvAccessGranted(state)
+        envsAreDecrypted: getDecryptedAll(state)
       }
     },
 

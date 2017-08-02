@@ -28,9 +28,12 @@ if (devMode) {
 
 const reducer = compose(mergePersistedState())(rootReducer),
 
-      localPersistence = compose(filter(["auth","currentOrgSlug"]))(localStorageAdapter(window.localStorage)),
+      localPersistence = compose(filter([
+        "auth",
+        "currentOrgSlug"
+      ]))(localStorageAdapter(window.localStorage)),
 
-      sessionPersistence = compose(filter(["privkey"]))(localStorageAdapter(window.sessionStorage)),
+      sessionPersistence = compose(filter(["privkey"]))(sessionStorageAdapter(window.sessionStorage)),
 
       enhancerCompose = devMode ? composeWithDevTools : compose,
 

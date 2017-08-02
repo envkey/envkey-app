@@ -3,7 +3,7 @@ import R from 'ramda'
 
 const opts =  {
   baseURL: process.env.API_HOST,
-  timeout: 8000
+  timeout: process.env.NODE_ENV == "development" ? 20000 : 8000
 }
 
 export const authenticatedClient = (auth={})=> {

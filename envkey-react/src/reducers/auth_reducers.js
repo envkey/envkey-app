@@ -25,15 +25,11 @@ import {
   HASH_USER_PASSWORD,
   HASH_USER_PASSWORD_SUCCESS,
 
-  GRANT_ENV_ACCESS_SUCCESS,
-
-  CHECK_INVITES_ACCEPTED_REQUEST,
-  CHECK_INVITES_ACCEPTED_SUCCESS,
-  CHECK_INVITES_ACCEPTED_FAILED,
-
   SELECT_ORG,
 
-  START_DEMO
+  START_DEMO,
+
+  VERIFY_INVITE_EMAIL_API_SUCCESS
 } from 'actions'
 import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
@@ -44,6 +40,7 @@ export const
     switch(action.type){
       case LOGIN_SUCCESS:
       case REGISTER_SUCCESS:
+      case VERIFY_INVITE_EMAIL_API_SUCCESS:
         return {
           ...R.pick(["slug", "id"], action.payload),
           ...R.pick(["access-token", "uid", "client"], action.meta.headers)
@@ -117,6 +114,7 @@ export const
       case REGISTER_FAILED:
         return action.payload
       case LOGIN:
+      case LOGIN_REQUEST:
       case REGISTER:
         return null
       default:
@@ -144,6 +142,7 @@ export const
         return action.payload
       case FETCH_CURRENT_USER_REQUEST:
       case LOGIN:
+      case LOGIN_REQUEST:
       case LOGOUT:
         return null
       default:
@@ -157,10 +156,28 @@ export const
       case REGISTER_SUCCESS:
         return action.payload.permissions
       case LOGIN:
+      case LOGIN_REQUEST:
       case LOGOUT:
       case TOKEN_INVALID:
       case SELECT_ORG:
         return {}
+      default:
+        return state
+    }
+  },
+
+  orgRolesInvitable = (state = [], action)=>{
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+      case REGISTER_SUCCESS:
+      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+        return action.payload.orgRolesInvitable
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case LOGOUT:
+      case TOKEN_INVALID:
+      case SELECT_ORG:
+        return []
       default:
         return state
     }
@@ -170,8 +187,10 @@ export const
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
+      case VERIFY_INVITE_EMAIL_API_SUCCESS:
         return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAccessible)
       case LOGIN:
+      case LOGIN_REQUEST:
       case LOGOUT:
       case TOKEN_INVALID:
       case SELECT_ORG:
@@ -181,75 +200,18 @@ export const
     }
   },
 
-  inviteesNeedingAccess = (state = [], action)=>{
+  appEnvironmentsAssignable = (state = {}, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
-      case CHECK_INVITES_ACCEPTED_SUCCESS:
-        return action.payload.inviteesNeedingAccess
-      case GRANT_ENV_ACCESS_SUCCESS:
+      case REGISTER_SUCCESS:
+      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+        return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAssignable)
+      case LOGIN:
+      case LOGIN_REQUEST:
       case LOGOUT:
+      case TOKEN_INVALID:
       case SELECT_ORG:
-        return []
-      default:
-        return state
-    }
-  },
-
-  inviteesPendingAcceptance = (state = [], action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case CHECK_INVITES_ACCEPTED_SUCCESS:
-        return action.payload.inviteesPendingAcceptance
-      case LOGOUT:
-      case SELECT_ORG:
-        return []
-      default:
-        return state
-    }
-  },
-
-  isPollingInviteesPendingAcceptance = (state = false, action)=>{
-    switch(action.type){
-      case CHECK_INVITES_ACCEPTED_REQUEST:
-        return true
-
-      case CHECK_INVITES_ACCEPTED_SUCCESS:
-        const inviteesPendingAcceptance = action.payload.inviteesPendingAcceptance
-        return inviteesPendingAcceptance.length > 0
-
-      case CHECK_INVITES_ACCEPTED_FAILED:
-      case LOGOUT:
-      case SELECT_ORG:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  envAccessGranted = (state = false, action)=> {
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-        return action.payload.envAccessGranted
-
-      case LOGOUT:
-      case SELECT_ORG:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  invitedBy = (state = null, action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-        return action.payload.invitedBy
-
-      case LOGOUT:
-      case SELECT_ORG:
-        return null
-
+        return {}
       default:
         return state
     }
@@ -262,22 +224,7 @@ export const
         return action.payload.apps.length <= 1
 
       case LOGIN:
-      case LOGOUT:
-      case REGISTER:
-      case TOKEN_INVALID:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  isInvitee = (state = false, action)=>{
-    switch (action.type){
-      case ACCEPT_INVITE_SUCCESS:
-        return true
-
-      case LOGIN:
+      case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
       case TOKEN_INVALID:

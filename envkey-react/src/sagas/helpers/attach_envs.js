@@ -1,7 +1,8 @@
 import R from 'ramda'
 import { select, call } from 'redux-saga/effects'
-import {encryptJson} from 'lib/crypto'
+import {encryptJson, signPublicKey} from 'lib/crypto'
 import {orgRoleIsAdmin} from 'lib/roles'
+import {keyableIsTrusted} from './crypto_helpers'
 import {
   getUser,
   getApp,
@@ -9,6 +10,7 @@ import {
   getService,
   getUsersForApp,
   getKeyableServersForApp,
+  getCurrentUser,
   getCurrentUserEnvironmentsAssignableToAppUser,
   getCurrentUserEnvironmentAssignableToServer,
   getCurrentUserEnvironmentsAssignableToServiceUser,
@@ -16,8 +18,10 @@ import {
   getRawEnvWithPendingForApp,
   getAppUserBy,
   getApps,
-  getServices
+  getServices,
+  getPrivkey
 } from 'selectors'
+import {productionInheritanceOverrides} from 'lib/env/inheritance'
 import {
   ADD_ASSOC_REQUEST,
   CREATE_ASSOC_SUCCESS,
@@ -25,24 +29,39 @@ import {
   REMOVE_OBJECT_REQUEST
 } from "actions"
 
-export function* envParamsWithAppUser({appId, userId, role, rawEnvOnly}, envParams={}){
-  const {pubkey} = yield select(getUser(userId)),
+export function* envParamsWithAppUser({
+  appId,
+  userId,
+  role,
+  rawEnvOnly,
+  withTrustedPubkey,
+  isAcceptingInvite=false
+}, envParams={}){
+
+  const privkey = yield select(getPrivkey),
+        user = yield select(getUser(userId)),
+        pubkey = withTrustedPubkey || user.pubkey || user.invitePubkey,
         environments = yield select(getCurrentUserEnvironmentsAssignableToAppUser({appId, userId, role})),
         targetAppUser = yield select(getAppUserBy({appId, userId})),
         envs = {}
 
-  if(targetAppUser && targetAppUser.pubkey){
-    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment: "development"}))
-    envs.env = yield call(encryptJson, { data: rawEnv, pubkey: targetAppUser.pubkey })
+  // Make productionMetaOnly assignable for a dev user when accepting an invitation
+  if(isAcceptingInvite && !environments.includes("productionMetaOnly")){
+    environments.push("productionMetaOnly")
   }
 
-  if(pubkey && !rawEnvOnly){
+  if(targetAppUser && targetAppUser.pubkey && (yield call(keyableIsTrusted, targetAppUser))){
+    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment: "development"}))
+    envs.env = yield encryptJson({ data: rawEnv, pubkey: targetAppUser.pubkey, privkey })
+  }
+
+  if(pubkey && !rawEnvOnly && (withTrustedPubkey || (yield call(keyableIsTrusted, user)))){
     const app = yield select(getApp(appId)),
           envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
           encryptedEnvsWithMeta = {}
     for (let environment of environments){
-      encryptedEnvsWithMeta[environment] = yield call(encryptJson, {
-        data: envsWithMeta[environment], pubkey
+      encryptedEnvsWithMeta[environment] = yield encryptJson({
+        data: envsWithMeta[environment], pubkey, privkey
       })
     }
     envs.envsWithMeta = encryptedEnvsWithMeta
@@ -53,25 +72,52 @@ export function* envParamsWithAppUser({appId, userId, role, rawEnvOnly}, envPara
 }
 
 export function* envParamsWithServer({appId, serverId}, envParams={}){
-  const {pubkey} = yield select(getServer(serverId)),
+  const privkey = yield select(getPrivkey),
+        server = yield select(getServer(serverId)),
+        {pubkey, role: serverRole} = server,
         environment = yield select(getCurrentUserEnvironmentAssignableToServer({appId, serverId}))
-  if(!environment)return envParams
-  const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment}))
-  return R.assocPath(["servers", serverId], {
-    env: yield call(encryptJson, { data: rawEnv, pubkey })
-  }, envParams)
+
+  if(!(yield call(keyableIsTrusted, server))) return envParams
+
+  if (environment){
+    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment}))
+    return R.assocPath(["servers", serverId], {
+      env: yield encryptJson({data: rawEnv, pubkey, privkey })
+    }, envParams)
+  } else {
+    const {role: appRole} =  yield select(getApp(appId))
+    if (appRole == "development" && serverRole == "production"){
+
+      const envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
+            inheritanceOverrides = productionInheritanceOverrides(envsWithMeta)
+
+      if (R.isEmpty(inheritanceOverrides)){
+        return envParams
+      } else {
+        return R.assocPath(["servers", serverId], {
+          inheritanceOverrides: yield encryptJson({ data: inheritanceOverrides, pubkey, privkey})
+        }, envParams)
+      }
+    } else {
+      return envParams
+    }
+  }
 }
 
 export function* envParamsWithServiceUser({serviceId, userId}, envParams={}){
-  const service = yield select(getService(serviceId)),
+  const user = yield select(getUser(userId)),
+        privkey = yield select(getPrivkey),
+        pubkey = user.pubkey || user.invitePubkey,
+        service = yield select(getService(serviceId)),
         envsWithMeta = yield select(getEnvsWithMetaWithPending("service", serviceId)),
-        {pubkey} = yield select(getUser(userId)),
         encryptedEnvsWithMeta = {},
         environments = yield select(getCurrentUserEnvironmentsAssignableToServiceUser({serviceId, userId}))
 
+  if(!(yield call(keyableIsTrusted, user)))return envParams
+
   for (let environment of environments){
-    encryptedEnvsWithMeta[environment] = yield call(encryptJson, {
-      data: envsWithMeta[environment], pubkey
+    encryptedEnvsWithMeta[environment] = yield encryptJson({
+      data: envsWithMeta[environment], pubkey, privkey
     })
   }
 
@@ -109,6 +155,7 @@ export function* envParamsForService({serviceId}){
   return envParams
 }
 
+
 export function *envParamsForInvitee({userId, permittedAppIds, permittedServiceIds}){
   let envParams = {}
 
@@ -118,6 +165,24 @@ export function *envParamsForInvitee({userId, permittedAppIds, permittedServiceI
 
   for (let serviceId of permittedServiceIds){
     envParams = yield call(envParamsWithServiceUser, {userId, serviceId}, envParams)
+  }
+
+  return { envs: envParams }
+}
+
+export function *envParamsForAcceptedInvite(withTrustedPubkey){
+  let envParams = {}
+
+  const {id: userId} = yield select(getCurrentUser),
+        apps = yield select(getApps),
+        services = yield select(getServices)
+
+  for (let {id: appId} of apps){
+    envParams = yield call(envParamsWithAppUser, {userId, appId, withTrustedPubkey, isAcceptingInvite: true}, envParams)
+  }
+
+  for (let {id: serviceId} of services){
+    envParams = yield call(envParamsWithServiceUser, {userId, serviceId, withTrustedPubkey}, envParams)
   }
 
   return envParams

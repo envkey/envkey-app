@@ -1,6 +1,7 @@
 import db from 'lib/db'
 import R from 'ramda'
 import { getEnvParents } from './object_selectors'
+// import {} from 'lib/crypto'
 
 export const
   getIsGeneratingUserKey = db.path("isGeneratingUserKey"),
@@ -14,6 +15,14 @@ export const
   getIsDecryptingAll = db.path("isDecryptingAll"),
 
   getDecryptedAll = db.path("decryptedAll"),
+
+  getSignedTrustedPubkeys = db.path("signedTrustedPubkeys"),
+
+  getTrustedPubkeys = db.path("trustedPubkeys"),
+
+  getGeneratedEnvkeysById = db.path("generatedEnvkeys"),
+
+  getTrustedPubkey = R.curry((keyableId, state)=> db.path("trustedPubkeys", keyableId, "pubkey")(state)),
 
   getEnvsAreDecrypting = (id, state) => {
     if(!state)return R.partial(getEnvsAreDecrypting, [id])

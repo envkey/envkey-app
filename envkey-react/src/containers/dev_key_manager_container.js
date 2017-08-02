@@ -1,10 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {  generateKey } from 'actions'
+import {  generateKey, clearGeneratedAssocKey } from 'actions'
 import {
   getIsGeneratingAssocKey,
   getCurrentUser,
   getCurrentAppUserForApp,
+  getGeneratedEnvkeysById
 } from 'selectors'
 import {DevKeyManager} from 'components/assoc_manager'
 
@@ -14,7 +15,8 @@ import {DevKeyManager} from 'components/assoc_manager'
       joinType: "appUser",
       currentUser: getCurrentUser(state),
       assoc: getCurrentAppUserForApp(appId, state),
-      isGeneratingAssocKeyFn: id => getIsGeneratingAssocKey(id, state)
+      isGeneratingAssocKeyFn: id => getIsGeneratingAssocKey(id, state),
+      generatedEnvkeysById: getGeneratedEnvkeysById(state)
     }
   }
 
@@ -22,7 +24,8 @@ import {DevKeyManager} from 'components/assoc_manager'
     const parent = ownProps.app,
           assocParams = {parent, parentType: "app", assocType: "appUser", parentId: parent.id}
     return {
-      generateKey: targetId => dispatch(generateKey({...assocParams, targetId}))
+      generateKey: targetId => dispatch(generateKey({...assocParams, targetId})),
+      clearGeneratedAssocKey: targetId => dispatch(clearGeneratedAssocKey(targetId))
     }
   }
 

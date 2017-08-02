@@ -1,0 +1,40 @@
+import R from 'ramda'
+import db from 'lib/db'
+
+export const
+
+  getIsInvitee = db.path("isInvitee"),
+
+  getInvitedBy = db.path("invitedBy"),
+
+  getInviteLoaded = db.path("inviteLoaded"),
+
+  getLoadInviteError = db.path("loadInviteError"),
+
+  getInviteParams = db.path("inviteParams"),
+
+  getInviteePubkey = db.path("inviteePubkey"),
+
+  getInviteeEncryptedPrivkey = db.path("inviteeEncryptedPrivkey"),
+
+  getInviteIdentityHash = db.path("inviteIdentityHash"),
+
+  getInvitePassphrase = db.path("invitePassphrase"),
+
+  getInviteParamsVerified = db.path("inviteParamsVerified"),
+
+  getInviteParamsInvalid = db.path("inviteParamsInvalid"),
+
+  getIsVerifyingInviteEmail = db.path("isVerifyingInviteEmail"),
+
+  getVerifyInviteEmailError = db.path("verifyInviteEmailError"),
+
+  getInviteEmailVerified = db.path("inviteEmailVerified"),
+
+  getAcceptInviteEmailError = db.path("acceptInviteEmailError"),
+
+  getIsGeneratingInviteLink = R.curry((parentId, state)=> db.path("isGeneratingInviteLink", parentId)(state)),
+
+  getInvitingUser = R.curry((parentId, state)=> db.path("invitingUser", parentId)(state)),
+
+  getGeneratedInviteLink = R.curry((parentId, state)=> db.path("generatedInviteLinks", parentId)(state))

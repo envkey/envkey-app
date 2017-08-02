@@ -10,6 +10,7 @@ import {
   SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL,
   PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
   SOCKET_UPDATE_LOCAL_STATUS,
+  SOCKET_UNSUBSCRIBE_ALL,
   FETCH_OBJECT_DETAILS_SUCCESS,
   fetchObjectDetails,
   socketBroadcastEnvsStatus,
@@ -26,7 +27,7 @@ import {
   getCurrentUser,
   getCurrentAppUserForApp,
   getLocalSocketEnvsStatus,
-  getEnvironmentsAccessible,
+  getEnvironmentLabels,
   getAnonSocketEnvsStatus
 } from 'selectors'
 import {
@@ -60,6 +61,11 @@ function *onSubscribeOrgChannel(){
 
 function *onUnsubscribeObjectChannel(){
   unsubscribeObjectChannel()
+}
+
+function *onUnsubscribeAll(){
+  unsubscribeObjectChannel()
+  unsubscribeOrgChannels()
 }
 
 function *onSubscribeObjectChannel({payload: object}){
@@ -103,7 +109,7 @@ function *onSocketUpdateEnvsStatus(action){
         entries = yield call(getEntries, selectedObject.envsWithMeta),
         selectedObjectType = yield select(getSelectedObjectType),
         currentUser = yield select(getCurrentUser),
-        environments = yield select(getEnvironmentsAccessible(selectedObjectType, selectedObject.id)),
+        environments = yield select(getEnvironmentLabels(selectedObjectType, selectedObject.id)),
         deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments)
 
   yield put(processedSocketUpdateEnvStatus({status: deanonStatus, userId: action.payload.userId}))
@@ -129,6 +135,8 @@ export default function* socketSagas(){
     takeLatest(SOCKET_SUBSCRIBE_ORG_CHANNEL, onSubscribeOrgChannel),
 
     takeLatest(SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL, onUnsubscribeObjectChannel),
+
+    takeLatest(SOCKET_UNSUBSCRIBE_ALL, onUnsubscribeAll),
 
     takeLatest(SOCKET_SUBSCRIBE_OBJECT_CHANNEL, onSubscribeObjectChannel),
 

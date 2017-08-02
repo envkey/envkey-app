@@ -38,7 +38,8 @@ export function* dispatchEnvUpdateRequest({
     envUpdateId,
     updatedEnvsWithMeta: envsWithMeta,
     envs: envParams,
-    envsUpdatedAt: parent.envsUpdatedAt
+    envsUpdatedAt: parent.envsUpdatedAt,
+    keyablesUpdatedAt: parent.keyablesUpdatedAt
   }))
 }
 

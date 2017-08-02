@@ -1,8 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import h from "lib/ui/hyperscript_with_helpers"
+import R from 'ramda'
 import {isElementInViewport} from 'lib/ui'
 import {getAutocompleteOpts} from 'lib/env/autocomplete'
+import {inheritedVal} from  'lib/env/inheritance'
 import AutocompleteOptions from 'components/shared/autocomplete_options'
 
 const Autocompletable = Editable => class extends Editable {
@@ -31,8 +33,17 @@ const Autocompletable = Editable => class extends Editable {
     this.setState({inputVal, selectedInherits})
 
     let commitVal = (typeof val === "undefined" ? inputVal : val),
-        update = selectedInherits ? {inherits: commitVal, val: null} :
-                                    {val: commitVal, inherits: null}
+        update = selectedInherits ?
+          {
+            inherits: commitVal,
+            val: null,
+            inheritedVal: inheritedVal({
+              ...R.pick(["entryKey", "envsWithMeta"], this.props),
+              inherits: commitVal
+            })
+          } :
+
+          {val: commitVal, inherits: null}
 
     this._commit(update)
   }

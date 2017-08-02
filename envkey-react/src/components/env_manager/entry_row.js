@@ -2,43 +2,12 @@ import React from 'react'
 import R from 'ramda'
 import EnvEntryCell from './env_cell/env_entry_cell'
 import EnvValCell from './env_cell/env_val_cell'
+import LockedEntryCell from './env_cell/locked_entry_cell'
+import LockedValCell from './env_cell/locked_val_cell'
 
 import h from "lib/ui/hyperscript_with_helpers"
 
 export default class EntryRow extends React.Component {
-
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if(nextProps.isRebasingOutdatedEnvs){
-  //     return false
-  //   }
-
-  //   if(!R.equals(this.props.environments, nextProps.environments)){
-  //     return true
-  //   }
-
-  //   const environments = this.props.environments
-  //   for (let environment of environments){
-  //     const currentIsUpdating = this.props.isUpdatingValFn(this.props.entryKey, environment),
-  //           nextIsUpdating =  nextProps.isUpdatingValFn(nextProps.entryKey, environment)
-
-  //     if(currentIsUpdating != nextIsUpdating){
-  //       return true
-  //     }
-  //   }
-
-  //   const p = [
-  //     "entryKey",
-  //     "envsWithMeta",
-  //     "environments",
-  //     "editing",
-  //     "highlightRow",
-  //     "socketUserEditingEntry",
-  //     "socketUserRemovingEntry",
-  //     "socketEditingEntryVal"
-  //   ]
-
-  //   return !R.equals(R.pick(p, nextProps), R.pick(p, this.props))
-  // }
 
   render(){
     const {
@@ -60,7 +29,11 @@ export default class EntryRow extends React.Component {
           {firstName: editingFirstName, lastName: editingLastName} = (socketUserEditingEntry || {}),
           {firstName: removingFirstName, lastName: removingLastName} = (socketUserRemovingEntry || {}),
           socketUserEditingName = [editingFirstName, editingLastName].join(" "),
-          socketUserRemovingName = [removingFirstName, removingLastName].join(" ")
+          socketUserRemovingName = [removingFirstName, removingLastName].join(" "),
+          productionLocked = Boolean(R.path(["production", entryKey, "locked"], envsWithMeta)),
+          hasProductionMetaOnly = Boolean(R.path(["productionMetaOnly", entryKey], envsWithMeta)),
+          entryEditable = (!productionLocked || (productionLocked && !hasProductionMetaOnly)),
+          entryCellClass = entryEditable ? EnvEntryCell : LockedEntryCell
 
     return h.div(".row.entry-row", { className: classNames.join(" ")}, [
       h.div(".socket-entry-overlay.socket-entry-edit", {
@@ -80,7 +53,7 @@ export default class EntryRow extends React.Component {
       ]),
 
       h.div(".entry-col",[
-        h(EnvEntryCell, {
+        h(entryCellClass, {
           ...this.props,
           val: entryKey.toUpperCase(),
           isUpdating: this.props.isUpdatingEntryFn(entryKey),
@@ -90,9 +63,11 @@ export default class EntryRow extends React.Component {
 
       h.div(".val-cols", [
         environments.map((environment,i)=>{
-          const envEntry = envsWithMeta[environment][entryKey]
+          const envEntry = envsWithMeta[environment][entryKey],
+                valCellClass = envEntry.locked ? LockedValCell : EnvValCell
+
           return h.div(".val-col", {key: i}, [
-            h(EnvValCell, {
+            h(valCellClass, {
               ...this.props,
               ...envEntry,  //for 'val' and 'inherits'
               environment,

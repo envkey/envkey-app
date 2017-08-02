@@ -36,10 +36,11 @@ import {
   getSocketEditingEntryVal,
   getSocketAddingEntry,
   getIsRequestingEnvUpdate,
-  getEnvironmentsAccessible,
+  getEnvironmentLabels,
   getIsUpdatingOutdatedEnvs,
   getIsRebasingOutdatedEnvs,
-  getDidOnboardImport
+  getDidOnboardImport,
+  getCurrentUserEnvironmentsAssignableForParent
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 import {
@@ -92,7 +93,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
       const parent = ownProps[parentType],
             parentId = parent.id,
             currentUser = getCurrentUser(state),
-            environments = getEnvironmentsAccessible(parentType, parentId, state),
+            environments = getEnvironmentLabels(parentType, parentId, state),
             envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, parentId, state),
             props = {
               envsWithMeta: envsWithMetaWithPending,
@@ -116,6 +117,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
               isRequestingEnvUpdate: getIsRequestingEnvUpdate(parentId, state),
               isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(parentId, state),
               isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(parentId, state),
+              environmentsAssignable: getCurrentUserEnvironmentsAssignableForParent(parentType, parentId, state),
               environments,
               parent,
               parentType

@@ -11,6 +11,14 @@ export const
 
   getApps = db.apps.list({sortBy: "name"}),
 
+  getUsers = db.users.list(),
+
+  getUsersById = db.users.index(),
+
+  getServers = db.servers.list(),
+
+  getAppUsers = db.appUsers.list(),
+
   getAppsSortedByUpdatedAt = db.apps.list({
     sortBy: ({updatedAt})=> moment(updatedAt).valueOf(),
     reverse: true

@@ -3,11 +3,13 @@ import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import { getColumnsFlattened } from "lib/assoc/helpers"
-import { getIsOnboarding, getDecryptedAll } from 'selectors'
+import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink } from 'selectors'
+import { closeGeneratedInviteLink } from 'actions'
 import { AssocManagerContainerFactory } from 'containers'
 import {Onboardable} from 'components/onboard'
 import {AppCollaboratorsSlider} from 'components/onboard'
 import AssocManager from 'components/assoc_manager'
+import {InviteUserOverlay} from 'components/invites'
 
 const
   startedOnboardingFn = (props, state)=> {
@@ -40,17 +42,30 @@ const
   })
 
 class AppCollaborators extends React.Component {
-
   render(){
-    return h(OnboardableAssocManagerContainer, this.props)
+    const container = h(OnboardableAssocManagerContainer, this.props)
+    if (this.props.invitingUser || this.props.generatedInviteLink){
+      return h.div([
+        h(InviteUserOverlay, this.props),
+        container
+      ])
+    } else {
+      return container
+    }
   }
-
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  isOnboarding: getIsOnboarding(state),
-  envsAreDecrypted: getDecryptedAll(state)
-})
+const
+  mapStateToProps = (state, ownProps) => ({
+    isOnboarding: getIsOnboarding(state),
+    envsAreDecrypted: getDecryptedAll(state),
+    invitingUser: getInvitingUser(ownProps.app.id, state),
+    generatedInviteLink: getGeneratedInviteLink(ownProps.app.id, state)
+  }),
 
-export default connect(mapStateToProps)(AppCollaborators)
+  mapDispatchToProps = (dispatch, ownProps) => ({
+    closeInvite: ()=> dispatch(closeGeneratedInviteLink({parentId: ownProps.app.id}))
+  })
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppCollaborators)
 

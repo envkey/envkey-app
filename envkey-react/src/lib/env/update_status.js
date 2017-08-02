@@ -13,8 +13,9 @@ export const
     entries,
     environments
   )=> {
-    const indexToEntry = i => entries[i],
-          indexToEnvironment = i => environments[i]
+    const visibleEnvironments = R.without(["productionMetaOnly"], environments),
+          indexToEntry = i => entries[i],
+          indexToEnvironment = i => visibleEnvironments[i]
 
     return R.map(R.evolve({
 
@@ -37,8 +38,9 @@ export const
     entries,
     environments
   )=>{
-    const indexByEntry = R.invertObj(entries),
-          indexByEnvironment = R.invertObj(environments),
+    const visibleEnvironments = R.without(["productionMetaOnly"], environments),
+          indexByEntry = R.invertObj(entries),
+          indexByEnvironment = R.invertObj(visibleEnvironments),
           entryToIndex = entry => parseInt(indexByEntry[entry]),
           environmentToIndex = environment => parseInt(indexByEnvironment[environment])
 

@@ -1,2 +1,3 @@
 envkey-assets/source/javascripts/index.js
 .netlify
+.DS_Store

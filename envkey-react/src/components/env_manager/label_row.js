@@ -6,12 +6,18 @@ import {imagePath} from "lib/ui"
 export default function({parent, environments}) {
 
   const
-    renderEnvLabel = (environment, i)=> h.div(".label-cell", {
-      key: i,
-      className: `env-${environment}`
-    }, [
-      h.label(environment)
-    ]),
+    renderEnvLabel = (environment, i)=> {
+      const locked = parent.role == "development" && environment == "production"
+      return h.div(".label-cell", {
+        key: i,
+        className: `env-${environment} ${locked ? 'locked' : ''}`
+      }, [
+        h.label([
+          locked ? h.img(".img-locked", {src: imagePath("padlock.svg")}) : "",
+          environment
+        ])
+      ])
+    },
 
     renderTitle = ()=> h.div(".label-cell.title-cell", {key: "title"}, [
       h.label([

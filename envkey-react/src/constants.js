@@ -22,6 +22,8 @@ export const
 
   APP_ROLES = ["development", "production", "admin", "org_admin", "org_owner"],
 
-  ORG_ROLES = ["basic", "org_admin", "org_owner"]
+  ORG_ROLES = ["basic", "org_admin", "org_owner"],
+
+  TRUSTED_PUBKEY_PROPS = ["pubkey", "invitePubkey", "invitedById", "signedById"]
 
 

@@ -53,13 +53,14 @@ export default function apiSaga({
     }
 
     const auth = yield select(getAuth),
-          orgSlug = skipOrg ? undefined : (yield select(getCurrentOrgSlug)),
+          orgSlug = R.path(["meta", "orgSlug"], requestAction) || (yield select(getCurrentOrgSlug)),
           client = authenticated ? authenticatedClient(auth) : api,
           urlArg = urlSelector ? (yield select(urlSelector)) : null,
           url = urlFn(requestAction, urlArg),
-          orgParams = {org_id: orgSlug},
-          params = orgParams,
-          data = decamelizeKeys(requestAction.payload || {}),
+          orgParams = skipOrg ? {} : {org_id: orgSlug},
+          decamelizedPayload = decamelizeKeys(requestAction.payload || {}),
+          params = method == "get" ? {...orgParams, ...decamelizedPayload} : orgParams,
+          data = method == "get" ? {} : decamelizedPayload,
           config = {method, url, params, data}
 
     try {
@@ -84,7 +85,7 @@ export default function apiSaga({
       const status = R.path(["response", "status"], err),
             msg = R.path(["response", "data", "error"], err),
             payload = err,
-            meta = {...requestAction.meta, requestPayload: requestAction.payload}
+            meta = {...requestAction.meta, requestPayload: requestAction.payload, status}
 
       if (status){
 

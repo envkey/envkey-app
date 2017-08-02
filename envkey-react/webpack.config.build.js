@@ -1,30 +1,19 @@
 var webpack = require('webpack'),
     envkey = require('envkey/loader'),
     path = require('path'),
-    projectRoot = process.env.PWD
+    EnvkeyWebpackPlugin = require('envkey-webpack-plugin')
 
 var isProd = process.env.PRODUCTION_BUILD == "true",
     isDemo = process.env.DEMO_BUILD == "true",
     buildEnv = isProd ? "production" : (isDemo ? "demo" : "staging"),
-    env = envkey.load({
-      dotEnvFile: `.env.${buildEnv}`,
-      permitted: ["API_HOST", "ASSET_HOST", "PUSHER_APP_KEY"]
-    }),
-    defineParams = {
-      NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-      BUILD_ENV: JSON.stringify(buildEnv),
-      API_HOST: JSON.stringify(process.env.API_HOST)
-    }
-
-console.log("buildEnv: ", buildEnv)
-
-for (k in env) defineParams[k] = JSON.stringify(env[k]);
-
-console.log("defineParams: ", defineParams)
 
 var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
-  new webpack.DefinePlugin({"process.env": defineParams}),
+  new EnvkeyWebpackPlugin({
+    dotEnvFile: `.env.${buildEnv}`,
+    permitted: ["NODE_ENV", "API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY"],
+    define: {BUILD_ENV: buildEnv}
+  }),
   new webpack.optimize.UglifyJsPlugin({
     output: {comments: false},
     compress: {

@@ -4,7 +4,6 @@ import {
   APP_LOADED,
   LOGIN,
   REGISTER,
-  ACCEPT_INVITE,
   FETCH_CURRENT_USER_REQUEST,
   LOGOUT,
   GRANT_ENV_ACCESS_REQUEST,
@@ -18,16 +17,14 @@ export const
 
   register = createAction(REGISTER),
 
-  acceptInvite = createAction(ACCEPT_INVITE),
-
   fetchCurrentUser = createAction(FETCH_CURRENT_USER_REQUEST),
 
   logout = createAction(LOGOUT),
 
   grantEnvAccessRequest = createAction(
     GRANT_ENV_ACCESS_REQUEST,
-    R.pick(['envs']),
-    R.pick(['orgUserId', 'userId'])
+    R.pick(['envs', 'orgUser']),
+    R.pick(['orgUserId', 'userId', 'isInvite', 'parentId'])
   ),
 
   startDemo = createAction(START_DEMO)

@@ -9,7 +9,8 @@ import {
   SOCKET_USER_SUBSCRIBED_ORG_CHANNEL,
   SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL,
   SOCKET_UPDATE_LOCAL_STATUS,
-  PROCESSED_SOCKET_UPDATE_ENVS_STATUS
+  PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
+  SOCKET_UNSUBSCRIBE_ALL
 } from 'actions'
 
 export const
@@ -30,6 +31,8 @@ export const
   socketBroadcastEnvsStatus = createAction(SOCKET_BROADCAST_ENVS_STATUS),
 
   socketUpdateLocalStatus = createAction(SOCKET_UPDATE_LOCAL_STATUS),
+
+  socketUnsubscribeAll = createAction(SOCKET_UNSUBSCRIBE_ALL),
 
   processedSocketUpdateEnvStatus = createAction(
     PROCESSED_SOCKET_UPDATE_ENVS_STATUS,

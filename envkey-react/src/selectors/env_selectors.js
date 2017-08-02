@@ -12,7 +12,9 @@ import {
 } from './object_selectors'
 import {getImportActionsPending} from './import_selectors'
 import {rawEnv, transformEnv} from 'lib/env/transform'
+import {allKeys} from 'lib/env/query'
 import R from 'ramda'
+import {camelize} from 'xcase'
 
 const
   getRemoveServiceIdsPendingForApp = (appId, state)=>{
@@ -28,13 +30,7 @@ const
 
 export const
 
-  getEntries = defaultMemoize(R.pipe(
-    R.values,
-    R.map(R.keys),
-    R.flatten,
-    R.uniq,
-    R.sort(R.ascend(R.identity))
-  )),
+  getEntries = defaultMemoize(allKeys),
 
   getHasAnyVal = defaultMemoize(R.pipe(
     R.values,
@@ -80,11 +76,11 @@ export const
 
   getAppEnvironmentsAccessible = db.path("appEnvironmentsAccessible"),
 
+  getAppEnvironmentsAssignable = db.path("appEnvironmentsAssignable"),
+
   getEnvsWithMetaWithPending = defaultMemoize(R.curry((parentType, parentId, state)=>{
     const parent = getObject(parentType, parentId, state),
           pendingActions = getAllEnvActionsPending(parentId, state)
-
-    console.log("with pending")
 
     return pendingActions.reduce(transformEnv, parent.envsWithMeta)
   })),
@@ -93,36 +89,21 @@ export const
     const envsWithMeta = getEnvsWithMetaWithPending(parentType, parentId, state),
           pendingActions = getImportActionsPending(parentId, state)
 
-    console.log("with pending imports")
-
     return pendingActions.reduce(transformEnv, envsWithMeta)
   })),
 
-
-  // (parentId, state)=> {
-  //   if(!state)return R.partial(getEnvsWithMetaWithPending, [opts])
-  //   const {parent, parentType} = opts,
-  //         pending = R.path(["envsPending", parent.id, "envsWithMeta"], state)
-
-  //   return pending || parent.envsWithMeta || {}
-  // },
-
-  getHasPendingEnvsWithMeta = (id, state)=> {
-    if(!state)return R.partial(getHasPendingEnvsWithMeta, [id])
+  getHasPendingEnvsWithMeta = R.curry((id, state)=> {
     return Boolean(R.path(["envsPending", id], state))
-  },
+  }),
 
-  getRawEnvShallowWithPending = (opts, state)=>{
-    if(!state)return R.partial(getRawEnvShallowWithPending, [opts])
+  getRawEnvShallowWithPending = R.curry((opts, state)=>{
     return rawEnv({
       envsWithMeta: getEnvsWithMetaWithPending(opts, state),
       environment: opts.environment
     })
-  },
+  }),
 
-  getRawEnvWithPendingForApp = (opts, state)=> {
-    if(!state)return R.partial(getRawEnvWithPendingForApp, [opts])
-
+  getRawEnvWithPendingForApp = R.curry((opts, state)=> {
     const
       {appId, environment} = opts,
 
@@ -151,20 +132,37 @@ export const
     return allEnvsWithMeta.reduce((acc, envsWithMeta)=> {
       return {...acc, ...rawEnv({envsWithMeta, environment})}
     }, {})
-  },
+  }),
 
-  getEnvironmentsAccessibleForAppUser = ({appId, userId, role}, state)=>{
-    if(!state)return R.partial(getEnvironmentsAccessibleForAppUser, [{appId, userId}])
-
+  getEnvironmentsAccessibleForAppUser = R.curry(({appId, userId, role}, state)=>{
+    let environments
     const appEnvironmentsAccessible = getAppEnvironmentsAccessible(state)
-    if(role)return appEnvironmentsAccessible.user[role]
+    if(role){
+      environments = appEnvironmentsAccessible.user[role]
+    } else {
+      const appUser = getAppUserBy({userId, appId}, state)
+      if(!appUser)return []
+      environments = appEnvironmentsAccessible.user[appUser.role]
+    }
 
-    const appUser = getAppUserBy({userId, appId}, state)
-    if(!appUser)return []
-    return appEnvironmentsAccessible.user[appUser.role]
-  },
+    return environments.map(s => camelize(s))
+  }),
 
-  getEnvironmentsAccessibleForServiceUser = ({serviceId, userId}, state)=>{
+  getEnvironmentsAssignableForAppUser = R.curry(({appId, userId, role}, state)=>{
+    let environments
+    const appEnvironmentsAssignable = getAppEnvironmentsAssignable(state)
+    if(role){
+      environments = appEnvironmentsAssignable.user[role]
+    } else {
+      const appUser = getAppUserBy({userId, appId}, state)
+      if(!appUser)return []
+      environments = appEnvironmentsAssignable.user[appUser.role]
+    }
+
+    return environments.map(s => camelize(s))
+  }),
+
+  getEnvironmentsAccessibleForServiceUser = R.curry(({serviceId, userId}, state)=>{
     if(!state)return R.partial(getEnvironmentsAccessibleForServiceUser, [serviceId, userId])
 
     const appEnvironmentsAccessible = getAppEnvironmentsAccessible(state),
@@ -179,4 +177,4 @@ export const
       R.flatten,
       R.uniq
     )(appUsers)
-  }
+  })

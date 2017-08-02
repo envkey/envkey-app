@@ -36,14 +36,13 @@ import {
 
   SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
 
+  VERIFY_ORG_PUBKEYS_SUCCESS,
+
   socketSubscribeObjectChannel,
-
   generateEnvUpdateId,
-
   importAllEnvironments,
-
-  decryptEnvs
-
+  decryptEnvs,
+  verifyOrgPubkeys
 } from "actions"
 import {
   getCurrentOrg,
@@ -149,6 +148,8 @@ const
 
   onFetchObjectDetailsApiSuccess = function*(action){
     if (action.meta.decryptEnvs){
+      yield put(verifyOrgPubkeys())
+      yield take(VERIFY_ORG_PUBKEYS_SUCCESS)
       const decrypted = yield call(decryptEnvParent, action.payload)
       yield put({...action, type: FETCH_OBJECT_DETAILS_SUCCESS, payload: decrypted})
     } else {
@@ -156,12 +157,12 @@ const
     }
   },
 
-  checkInvitesAcceptedUnlessAlreadyPolling = function*(){
-    const isPolling = yield select(getIsPollingInviteesPendingAcceptance)
-    if(!isPolling){
-      yield put({type: CHECK_INVITES_ACCEPTED_REQUEST})
-    }
-  },
+  // checkInvitesAcceptedUnlessAlreadyPolling = function*(){
+  //   const isPolling = yield select(getIsPollingInviteesPendingAcceptance)
+  //   if(!isPolling){
+  //     yield put({type: CHECK_INVITES_ACCEPTED_REQUEST})
+  //   }
+  // },
 
   onCreateObjectSuccess = function*({
     meta: {status, createAssoc, objectType, isOnboardAction, willImport, toImport},
@@ -170,11 +171,11 @@ const
     const {id, slug} = payload
 
     // If new user created/invited, begin check invite acceptance polling loop
-    if (objectType == "user"){
-      if (status == 201 || (status == 200 && !payload.pubkey)){
-        yield call(checkInvitesAcceptedUnlessAlreadyPolling)
-      }
-    }
+    // if (objectType == "user"){
+    //   if (status == 201 || (status == 200 && !payload.pubkey)){
+    //     yield call(checkInvitesAcceptedUnlessAlreadyPolling)
+    //   }
+    // }
 
     if (toImport){
       yield put(importAllEnvironments({

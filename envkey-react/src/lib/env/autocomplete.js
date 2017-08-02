@@ -5,6 +5,12 @@ const getEnvsFilter = ({entryKey, envsWithMeta, environment}, searchStr) => envO
   // Remove current environment
   if (envOpt === environment)return false
 
+  // Remove productionMetaOnly
+  if (envOpt == "productionMetaOnly")return false
+
+  // Remove locked environments
+  if (R.path([envOpt, entryKey, "locked"], envsWithMeta))return false
+
   // Remove circular dependencies
   let inherited = inheritedShallow({entryKey, envsWithMeta, inherits: envOpt})
   while (inherited.inherits){

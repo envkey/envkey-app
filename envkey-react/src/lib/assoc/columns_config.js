@@ -28,6 +28,7 @@ import {
   getIsCreating,
   getUsersForApp,
   getAppsForUser,
+  getOrgRolesInvitable,
   dissocRelations
 } from 'selectors'
 
@@ -79,6 +80,7 @@ export default function({
             sectionLabelFn: appRoleGroupLabel,
             permissionCopyLines: adminUserPermissions,
             keyLabel: "development",
+            orgRolesInvitable: getOrgRolesInvitable(state),
             isAddingAssoc: (getIsAddingAssoc({assocType, parentId: parent.id, role: "admin"}, state) ||
                             getIsAddingAssoc({assocType, parentId: parent.id, role: "org_admin"}, state)),
             isCreating: (getIsCreating({assocType, parentId: parent.id, role: "admin"}, state) ||
