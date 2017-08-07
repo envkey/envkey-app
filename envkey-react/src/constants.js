@@ -24,6 +24,6 @@ export const
 
   ORG_ROLES = ["basic", "org_admin", "org_owner"],
 
-  TRUSTED_PUBKEY_PROPS = ["pubkey", "invitePubkey", "invitedById", "signedById"]
+  TRUSTED_PUBKEY_PROPS = ["pubkey", "invitePubkey", "invitedById"]
 
 

@@ -58,9 +58,11 @@ const
     payload
   })=> {
     const type = isManyToMany ? pluralize(camelize([parentType, assocType].join("_"))) :
-                                pluralize(assocType)
+                                 pluralize(assocType)
     if(type == objectTypePlural){
       return R.assoc(payload.id, payload, state)
+    } else if (objectTypePlural == "apps" && parentType == "app" && payload.keyablesUpdatedAt){
+      return R.assocPath([payload.appId, "keyablesUpdatedAt"], payload.keyablesUpdatedAt, state)
     }
     return state
   },
@@ -104,7 +106,9 @@ const
   })=> {
     if(pluralize(assocType) == objectTypePlural){
       const {id} = payload
-      return R.assoc(id, payload, state)
+      return R.assoc(id, R.omit(["keyablesUpdatedAt"], payload), state)
+    } else if (objectTypePlural == "apps"){
+      return R.assocPath([payload.appId, "keyablesUpdatedAt"], payload.keyablesUpdatedAt, state)
     }
     return state
   },

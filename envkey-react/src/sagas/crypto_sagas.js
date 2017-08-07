@@ -80,7 +80,10 @@ function *onVerifyOrgPubkeys(){
 
   for (let keyables of [users, appUsers, servers]){
     for (let keyable of keyables){
-      let {pubkey, invitePubkey, id: keyableId, signedById: initialSignedById, invitedById: initialInvitedById} = keyable
+      let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
+
+      // keyGeneratedById for servers, userId for appUsers
+      const initialSignedById = keyable.keyGeneratedById || keyable.userId
 
       // Only consider keyables with public keys generated
       if (!(pubkey || invitePubkey)){
@@ -99,6 +102,7 @@ function *onVerifyOrgPubkeys(){
         continue
       }
 
+
       // Otherwise, attempt to verify signature chain back to a trusted key
       let trustedRoot,
           signedById = initialSignedById,
@@ -107,10 +111,14 @@ function *onVerifyOrgPubkeys(){
 
       while (!trustedRoot){
         let signingId = invitedById || signedById
-        if (!signingId)break
+        if (!signingId){
+          break
+        }
 
         // If already checked this user in the chain, break
-        if (checkedIds[signedById])break
+        if (checkedIds[signedById]){
+          break
+        }
 
         // Verify invite pubkey signature (for users) / pubkey signature (for other keyables)
         // If not verified or user not found, break
@@ -124,7 +132,9 @@ function *onVerifyOrgPubkeys(){
             verified = yield crypto.verifyPublicKeySignature({signedKey, signerKey: signingUser.pubkey})
           } catch (e) {}
 
-          if(!verified)break
+          if(!verified){
+            break
+          }
 
         } else {
           break
@@ -136,7 +146,9 @@ function *onVerifyOrgPubkeys(){
           try {
             verified = yield crypto.verifyPublicKeySignature({signedKey: pubkey, signerKey: invitePubkey})
           } catch(e){}
-          if(!verified)break
+          if(!verified){
+            break
+          }
         }
 
         // Check if signing user is trusted
