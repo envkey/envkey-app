@@ -1,6 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
-import copy from 'copy-to-clipboard'
+import copy from 'lib/ui/copy'
 
 export default class KeyGenerated extends React.Component {
 

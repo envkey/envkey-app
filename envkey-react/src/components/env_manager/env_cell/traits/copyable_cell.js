@@ -1,6 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
-import copy from 'copy-to-clipboard'
+import copy from 'lib/ui/copy'
 import FlashableCell from './flashable_cell'
 
 const CopyableCell = Cell => class extends FlashableCell(Cell) {

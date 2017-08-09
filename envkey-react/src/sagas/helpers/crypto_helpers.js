@@ -61,10 +61,10 @@ export function* decryptEnvParent(parent){
   const privkey = yield select(getPrivkey),
         {id: orgId} = yield select(getCurrentOrg)
 
-  if (parent.envsWithMeta){
+  if (parent.encryptedEnvsWithMeta){
     const decrypted = {}
-    for (let environment in parent.envsWithMeta){
-      let encrypted = parent.envsWithMeta[environment]
+    for (let environment in parent.encryptedEnvsWithMeta){
+      let encrypted = parent.encryptedEnvsWithMeta[environment]
 
       if(!encrypted || R.isEmpty(encrypted)){
         decrypted[environment] = {}
@@ -80,7 +80,10 @@ export function* decryptEnvParent(parent){
         decrypted[environment] = yield crypto.decryptJson({encrypted, privkey, pubkey: trustedPubkey})
       }
     }
-    return R.assoc("envsWithMeta", normalizeEnvsWithMeta(decrypted), parent)
+    return R.pipe(
+      R.assoc("envsWithMeta", normalizeEnvsWithMeta(decrypted)),
+      R.dissoc("encryptedEnvsWithMeta")
+    )(parent)
   } else {
     return parent
   }

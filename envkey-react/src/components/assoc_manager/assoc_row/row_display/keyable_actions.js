@@ -2,7 +2,6 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import {twitterShortTs} from 'lib/utils/date'
-import copy from 'copy-to-clipboard'
 import {imagePath} from "lib/ui"
 import {capitalize} from "lib/utils/string"
 import SmallLoader from 'components/shared/small_loader'
