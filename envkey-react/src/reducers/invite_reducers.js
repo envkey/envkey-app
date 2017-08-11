@@ -6,19 +6,9 @@ import {
   GENERATE_INVITE_LINK_FAILED,
   CLOSE_GENERATED_INVITE_LINK,
 
-  LOAD_INVITE,
-  LOAD_INVITE_REQUEST,
-  LOAD_INVITE_SUCCESS,
-  LOAD_INVITE_FAILED,
-
   VERIFY_INVITE_PARAMS,
   VERIFY_INVITE_PARAMS_SUCCESS,
   VERIFY_INVITE_PARAMS_FAILED,
-
-  VERIFY_INVITE_EMAIL_REQUEST,
-  VERIFY_INVITE_EMAIL_API_SUCCESS,
-  VERIFY_INVITE_EMAIL_SUCCESS,
-  VERIFY_INVITE_EMAIL_FAILED,
 
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
@@ -72,47 +62,11 @@ export const
     }
   },
 
-  inviteLoaded = (state=false, action)=>{
-    switch(action.type){
-      case LOAD_INVITE_SUCCESS:
-        return true
-
-      case LOAD_INVITE_REQUEST:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return false
-
-      default:
-        return state
-
-    }
-  },
-
-  loadInviteError = (state=null, action)=>{
-    switch(action.type){
-      case LOAD_INVITE_FAILED:
-        return {status: action.meta.status, error: action.payload}
-
-      case LOAD_INVITE_REQUEST:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return null
-
-      default:
-        return state
-    }
-  },
-
   inviteParamsVerified = (state=false, action)=>{
     switch(action.type){
       case VERIFY_INVITE_PARAMS_SUCCESS:
         return true
 
-      case LOAD_INVITE_REQUEST:
       case LOGOUT:
       case LOGIN:
       case LOGIN_REQUEST:
@@ -129,56 +83,6 @@ export const
       case VERIFY_INVITE_PARAMS_FAILED:
         return true
 
-      case LOAD_INVITE_REQUEST:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  isVerifyingInviteEmail = (state=false, action)=>{
-    switch(action.type){
-      case VERIFY_INVITE_EMAIL_REQUEST:
-        return true
-
-      case VERIFY_INVITE_EMAIL_SUCCESS:
-      case VERIFY_INVITE_EMAIL_FAILED:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  verifyInviteEmailError = (state=null, action)=>{
-    switch(action.type){
-      case VERIFY_INVITE_EMAIL_FAILED:
-        return {status: action.meta.status, error: action.payload}
-
-      case LOAD_INVITE_REQUEST:
-      case VERIFY_INVITE_EMAIL_REQUEST:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return null
-
-      default:
-        return state
-    }
-  },
-
-  inviteEmailVerified = (state=false, action)=>{
-    switch(action.type){
-      case VERIFY_INVITE_EMAIL_SUCCESS:
-        return true
-
-      case LOAD_INVITE_REQUEST:
       case LOGOUT:
       case LOGIN:
       case LOGIN_REQUEST:
@@ -195,7 +99,6 @@ export const
       case ACCEPT_INVITE_FAILED:
         return {status: action.meta.status, error: action.payload}
 
-      case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE:
       case LOGOUT:
       case LOGIN:
@@ -272,7 +175,6 @@ export const
       case LOAD_INVITE_SUCCESS:
         return action.payload
 
-      case LOAD_INVITE_REQUEST:
       case LOGOUT:
       case LOGIN:
       case LOGIN_REQUEST:

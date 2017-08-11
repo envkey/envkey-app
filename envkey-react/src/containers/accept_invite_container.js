@@ -2,18 +2,16 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
-import {appLoaded, loadInvite, verifyInviteEmailRequest, acceptInvite} from 'actions'
+import {appLoaded, loadInvite, verifyEmailCodeRequest, acceptInvite} from 'actions'
 import {
   getIsAuthenticating,
-  getInviteLoaded,
-  getLoadInviteError,
   getInviteParams,
   getInviteParamsVerified,
   getInviteParamsInvalid,
-  getIsVerifyingInviteEmail,
-  getVerifyInviteEmailError,
-  getInviteEmailVerified,
-  getAcceptInviteEmailError
+  getAcceptInviteEmailError,
+  getEmailVerificationCode,
+  getIsVerifyingEmailCode,
+  getVerifyEmailCodeError
 } from 'selectors'
 import PasswordInput from 'components/shared/password_input'
 import {imagePath} from 'lib/ui'
@@ -22,7 +20,7 @@ import {imagePath} from 'lib/ui'
 class AcceptInvite extends React.Component {
 
   componentDidMount() {
-    this.props.onLoad(R.pick(["identityHash", "passphrase"], this.props.params))
+    this.props.onLoad()
   }
 
   _onSubmitPassword(e){
@@ -181,25 +179,21 @@ class AcceptInvite extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    inviteLoaded: getInviteLoaded(state),
-    loadInviteError: getLoadInviteError(state),
     inviteParams: getInviteParams(state),
     inviteParamsVerified: getInviteParamsVerified(state),
     inviteParamsInvalid: getInviteParamsInvalid(state),
-    isVerifyingInviteEmail: getIsVerifyingInviteEmail(state),
-    verifyInviteEmailError: getVerifyInviteEmailError(state),
-    inviteEmailVerified: getInviteEmailVerified(state),
     acceptInviteEmailError: getAcceptInviteEmailError(state),
-    isAuthenticating: getIsAuthenticating(state)
+    isAuthenticating: getIsAuthenticating(state),
+    emailVerificationCode: getEmailVerificationCode(state),
+    isVerifyingEmailCode: getIsVerifyingEmailCode(state),
+    verifyEmailCodeError: getVerifyEmailCodeError(state),
+    emailVerificationType: "invite"
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLoad: params => {
-      dispatch(appLoaded())
-      dispatch(loadInvite(params))
-    },
+    onLoad: ()=> dispatch(appLoaded()),
     onVerifyEmail: p => dispatch(verifyInviteEmailRequest(p)),
     onSubmitPassword: p => dispatch(acceptInvite(p))
   }

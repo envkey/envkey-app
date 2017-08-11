@@ -91,7 +91,7 @@ const mapDispatchToProps = dispatch => {
     fetchCurrentUser: ()=> dispatch(fetchCurrentUser()),
     selectOrg: (slug)=> dispatch(selectOrg(slug)),
     logout: ()=> {
-      dispatch(push("/login"))
+      dispatch(push("/home"))
       dispatch(logout())
     }
   }

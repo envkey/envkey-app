@@ -27,13 +27,16 @@ import {
   DemoRegisterContainer,
   KeyManagerContainer,
   OnboardOverlayContainer,
-  AppCollaboratorsContainer
+  AppCollaboratorsContainer,
+  LoginRegisterContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
+import HomeMenu from 'components/shared/home_menu'
 
 const
   UserAuthenticated = UserAuthWrapper({
     authSelector: getAuth,
+    failureRedirectPath: "/home",
     redirectAction: routerActions.replace,
     wrapperDisplayName: 'UserAuthenticated'
   }),
@@ -91,7 +94,9 @@ export default class Routes extends React.Component {
 
         <Route path="/" onEnter={::this._redirectIndex} />
 
-        <Route path="/login" component={LoginContainer} />
+        <Route path="/home" component={HomeMenu} />
+
+        <Route path="/login" component={LoginRegisterContainer} />
 
         <Route path="/signup/:firstName/:lastName/:email" component={RegistrationContainer} />
 
