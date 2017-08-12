@@ -20,7 +20,6 @@ import {
   getAuth,
   getCurrentOrg,
   getApp,
-  getService,
   getSelectedObject,
   getEntries,
   getSelectedObjectType,
@@ -80,13 +79,12 @@ function *onSocketUpdateEnvs(action){
   // Do nothing if update message originated with this user
   if(auth.id == actorId)return
 
-  const selector = {app: getApp, service: getService}[objectType](targetId),
-        object = yield select(selector)
+  const app = yield select(getApp(targetId))
 
-  if (object){
+  if (app){
     yield put(fetchObjectDetails({
-      objectType,
       targetId,
+      objectType: "app",
       decryptEnvs: true,
       socketUpdate: true,
       socketActorId: actorId,
@@ -96,7 +94,7 @@ function *onSocketUpdateEnvs(action){
     yield take(FETCH_OBJECT_DETAILS_SUCCESS)
 
     yield call(dispatchEnvUpdateRequestIfNeeded, {
-      parent: object,
+      parent: app,
       parentType: objectType,
       parentId: targetId,
       skipDelay: true
@@ -109,7 +107,7 @@ function *onSocketUpdateEnvsStatus(action){
         entries = yield call(getEntries, selectedObject.envsWithMeta),
         selectedObjectType = yield select(getSelectedObjectType),
         currentUser = yield select(getCurrentUser),
-        environments = yield select(getEnvironmentLabels(selectedObjectType, selectedObject.id)),
+        environments = yield select(getEnvironmentLabels(selectedObject.id)),
         deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments)
 
   yield put(processedSocketUpdateEnvStatus({status: deanonStatus, userId: action.payload.userId}))

@@ -4,12 +4,12 @@ import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import {createObject} from 'actions'
 import {getIsCreating, getOrgRolesAssignable} from 'selectors'
-import {AppForm, ServiceForm, UserForm} from 'components/forms'
+import {AppForm, UserForm} from 'components/forms'
 
 const ObjectFormContainerFactory = ({objectType})=> {
 
 const
-  formClass = { app: AppForm, service: ServiceForm, user: UserForm }[objectType],
+  formClass = { app: AppForm, user: UserForm }[objectType],
 
   ObjectFormContainer = props => h.div(".new-page", [h(formClass, props)]),
 

@@ -51,15 +51,6 @@ const
     wrapperDisplayName: 'OrgSelected'
   })
 
-  // assocSubRoutes = ()=> {
-  //   return <Route path=":role">
-  //     <Route path="add">
-  //       <Route path="new" />
-  //       <Route path="existing" />
-  //     </Route>
-  //   </Route>
-  // }
-
 export default class Routes extends React.Component {
 
   _redirectIndex(){
@@ -171,25 +162,3 @@ export default class Routes extends React.Component {
     </Provider>
   }
 }
-
-
-// <Route path="services/new" component={ObjectFormContainerFactory({objectType: "service"})} />
-
-// <Route path="services/:slug" component={SelectedObjectContainerFactory({objectType: "service"})} >
-
-//   <IndexRedirect to="environments" />
-
-//   <Route path="environments" component={EnvManagerContainerFactory({parentType: "service"})} >
-
-//     <Route path="add_var" />
-
-//   </Route>
-
-//   <Route path="apps" component={AssocManagerContainerFactory({parentType: "service", assocType: "app", isManyToMany: true})} >
-//     {assocSubRoutes()}
-//   </Route>
-
-//   <Route path="settings" component={SettingsFormContainerFactory({objectType: "service"})}/>
-
-// </Route>
-

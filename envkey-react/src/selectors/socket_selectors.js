@@ -59,7 +59,7 @@ export const
       parent = getSelectedObject(state),
       parentType = getSelectedObjectType(state),
       envUpdateId = getSelectedParentEnvUpdateId(state),
-      environments = getEnvironmentsAccessible(parentType, parent.id, state),
+      environments = getEnvironmentsAccessible(parent.id, state),
       entries = getEntries(parent.envsWithMeta),
       local = {[envUpdateId]: state.localSocketEnvsStatus},
       merged = merge({}, local, state.pendingLocalSocketEnvsStatus),

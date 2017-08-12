@@ -10,7 +10,6 @@ import {
 } from 'actions'
 import {
   AppSettingsForm,
-  ServiceSettingsForm,
   UserSettingsForm,
   OrgSettingsForm,
   AccountSettingsForm
@@ -27,7 +26,6 @@ const SettingsFormContainerFactory = ({objectType, targetObjectType, targetObjec
   const
     formClass = {
       app: AppSettingsForm,
-      service: ServiceSettingsForm,
       user: UserSettingsForm,
       currentOrg: OrgSettingsForm,
       currentUser: AccountSettingsForm

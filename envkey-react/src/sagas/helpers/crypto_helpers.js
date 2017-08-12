@@ -24,7 +24,6 @@ import {
 import {
   getPrivkey,
   getApps,
-  getServices,
   getEnvsAreDecrypted,
   getAllEnvParentsAreDecrypted,
   getSignedTrustedPubkeys,
@@ -87,21 +86,16 @@ export function* decryptEnvParent(parent){
 }
 
 export function* decryptAllEnvParents(firstTarget){
-  const apps = yield select(getApps),
-        services = yield select(getServices)
+  const apps = yield select(getApps)
 
-  if ((apps.length + services.length) === 0)return false
+  if (apps.length === 0)return false
 
   if (firstTarget){
     yield put(decryptEnvs({...firstTarget, decryptAllAction: true}))
   }
 
-  for (let [objectType, objects] of [["app", apps], ["service", services]]){
-    for (let {id: targetId} of objects){
-      if(!(firstTarget && firstTarget.targetId == targetId)){
-        yield put(decryptEnvs({objectType, targetId, decryptAllAction: true}))
-      }
-    }
+  for (let {id: targetId} of apps){
+    yield put(decryptEnvs({app, targetId, decryptAllAction: true}))
   }
 
   return true

@@ -3,9 +3,6 @@ import db from 'lib/db'
 import {
   getApp,
   getUser,
-  getService,
-  getServicesForApp,
-  getAppsForService,
   getAppUserBy,
   getObject,
   getSelectedObjectId
@@ -15,18 +12,6 @@ import {rawEnv, transformEnv} from 'lib/env/transform'
 import {allKeys} from 'lib/env/query'
 import R from 'ramda'
 import {camelize} from 'xcase'
-
-const
-  getRemoveServiceIdsPendingForApp = (appId, state)=>{
-    const removeServiceIdsForApp = R.path(["envsPending", appId, "removeServiceIds"], state) || [],
-          removeServiceIdsGlobal = R.path(["envsPending", "removeServiceIds"], state) || []
-
-    return removeServiceIdsForApp.concat(removeServiceIdsGlobal)
-  },
-
-  getAddServiceIdsPendingForApp = (appId, state)=>{
-    return R.path(["envsPending", appId, "addServiceIds"], state) || []
-  }
 
 export const
 
@@ -96,40 +81,15 @@ export const
     return Boolean(R.path(["envsPending", id], state))
   }),
 
-  getRawEnvShallowWithPending = R.curry((opts, state)=>{
-    return rawEnv({
-      envsWithMeta: getEnvsWithMetaWithPending(opts, state),
-      environment: opts.environment
-    })
-  }),
-
   getRawEnvWithPendingForApp = R.curry((opts, state)=> {
     const
       {appId, environment} = opts,
 
       app = getApp(appId, state),
 
-      addServiceIds = getAddServiceIdsPendingForApp(appId, state),
+      envsWithMeta = getEnvsWithMetaWithPending("app", app.id, state)
 
-      addServices = addServiceIds.map(id => getService(id, state)),
-
-      removeServiceIds = new Set(getRemoveServiceIdsPendingForApp(appId, state)),
-
-      services = R.pipe(
-        getServicesForApp(appId),
-        R.reject(R.pathSatisfies(id => removeServiceIds.has(id),['relation','id'])),
-        R.concat(addServices)
-      )(state),
-
-      appEnvsWithMeta = getEnvsWithMetaWithPending("app", app.id, state),
-
-      allEnvsWithMeta = R.pipe(
-        R.map(service => getEnvsWithMetaWithPending("service", service.id, state)),
-        R.append(appEnvsWithMeta),
-        R.reject(R.isEmpty)
-      )(services)
-
-    return allEnvsWithMeta.reduce((acc, envsWithMeta)=> {
+    return envsWithMeta.reduce((acc, envsWithMeta)=> {
       return {...acc, ...rawEnv({envsWithMeta, environment})}
     }, {})
   }),
@@ -160,21 +120,4 @@ export const
     }
 
     return environments.map(s => camelize(s))
-  }),
-
-  getEnvironmentsAccessibleForServiceUser = R.curry(({serviceId, userId}, state)=>{
-    if(!state)return R.partial(getEnvironmentsAccessibleForServiceUser, [serviceId, userId])
-
-    const appEnvironmentsAccessible = getAppEnvironmentsAccessible(state),
-          apps = getAppsForService(serviceId, state),
-          appIds = new Set(R.pluck("id", apps)),
-          appUsers = db("appUsers").where({userId, appId: appId => appIds.has(appId)})(state),
-          user = getUser(userId, state)
-
-    return R.pipe(
-      R.map(appUser => getEnvironmentsAccessibleForAppUser(appUser, state)),
-      R.append(user.permittedServiceEnvironments),
-      R.flatten,
-      R.uniq
-    )(appUsers)
   })

@@ -12,7 +12,7 @@ let showRegisterPrompt = false
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 
 const menuSelected = props => {
-  for (let type of ["apps", "services", "users"]){
+  for (let type of ["apps", "users"]){
     ; // fix Sublime highlights
     if(props.location.pathname.indexOf(`/${type}/`) != -1)return type
   }
@@ -125,12 +125,6 @@ export default class Sidebar extends React.Component {
 
     </section>
   }
-
-  // {this._renderMenuListSection("services",
-  //                                        "Mixin",
-  //                                        this.props.services,
-  //                                        {pathFn: (item => `/${this.props.currentOrg.slug}/services/${item.slug}`),
-  //                                         newBtnLabel: "New Mixin" })}
 
 
   _renderMenuListSection(type, label, items, icon, componentParams){

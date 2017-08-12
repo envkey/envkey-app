@@ -23,7 +23,6 @@ export const childrenWithProps = (children, props)=>{
 
 const orgRoleLabels = {
         org_owner : "Org Owner",
-        service_admin: "Service Admin",
         org_admin: "Org Admin",
         basic: "Org User"
       },

@@ -1,5 +1,5 @@
 import { put, select, call } from 'redux-saga/effects'
-import {envParamsForApp, envParamsForService} from './attach_envs'
+import {envParamsForApp} from './attach_envs'
 import {
   getEnvsWithMetaWithPending,
   getEnvActionsPendingByEnvUpdateId,
@@ -20,14 +20,8 @@ export function* dispatchEnvUpdateRequest({
   const parent = yield select(getObject(parentType, parentId)),
         envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
         envUpdateId = meta.forceEnvUpdateId || (yield select(getEnvUpdateId(parentId))),
-        envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId))
-
-  let envParams
-  if (parentType == "app"){
-    envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta})
-  } else if (parentType == "service"){
-    envParams = yield call(envParamsForService, {serviceId: parentId, envsWithMeta})
-  }
+        envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
+        envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta})
 
   yield put(updateEnvRequest({
     ...meta,

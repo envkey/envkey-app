@@ -4,25 +4,20 @@ import pluralize from 'pluralize'
 import {
   UserRowDisplay,
   AppRowDisplay,
-  ServerRowDisplay,
-  AppServiceRowDisplay
+  ServerRowDisplay
 } from 'components/assoc_manager'
 import {
   AppForm,
   ServerForm,
-  UserForm,
-  ServiceForm
+  UserForm
 } from 'components/forms'
 import { appRoleGroupLabel } from 'lib/ui'
 import {
   getUserGroupsByRoleForApp,
   getServerGroupsForApp,
   getAppGroupsForUser,
-  getAppsForService,
   getNonOrgAdminUsers,
   getApps,
-  getServicesForApp,
-  getServices,
   getIsAddingAssoc,
   getIsGeneratingAssocKey,
   getIsCreating,
@@ -39,14 +34,10 @@ const adminUserPermissions = [
       ],
       productionUserPermissions = [
         h.span(["Can view + edit all environments."]),
-        h.span(["Can manage server access for all environments."]),
-        // h.span(["Can view (but not invite) collaborators."])
+        h.span(["Can manage server access for all environments."])
       ],
       developmentUserPermissions = [
-        h.span(["Can view + edit development and staging environments."]),
-        // h.span(["Can manage development and staging server access."])
-        // h.span(["Can view (but not manage) servers."]),
-        // h.span(["Can view (but not invite) collaborators."])
+        h.span(["Can view + edit development and staging environments."])
       ]
 
 export default function({
@@ -212,48 +203,6 @@ export default function({
         addExistingTextFn: R.prop("name"),
         parentNameFn: ({firstName, lastName})=> [firstName, lastName].join(" "),
         columns
-      }
-
-    case "service-app":
-      const serviceApps = getAppsForService(parent.id, state),
-            orgApps = getApps(state)
-      return {
-        rowDisplayType: AppRowDisplay,
-        addFormType: AppForm,
-        addLabel: "+",
-        addExistingSubmitLabelFn: (n)=> "Add Apps",
-        addExistingTextFn: R.prop("name"),
-        columns: [
-          {
-            title: "Connected Apps",
-            groups: {apps: serviceApps},
-            candidates: R.without(dissocRelations(serviceApps || []))(orgApps),
-            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id}, state),
-            isCreating: getIsCreating({assocType, parentId: parent.id}, state)
-          }
-        ]
-      }
-
-    case "app-service":
-      const appServices = getServicesForApp(parent.id, state),
-            orgServices = getServices(state)
-      return {
-        rowDisplayType: AppServiceRowDisplay,
-        addFormType: ServiceForm,
-        addLabel: "+",
-        addExistingSubmitLabelFn: (n)=> "Add Mixins",
-        addExistingTextFn: R.prop("name"),
-        addExistingLabel: "Connect Existing Mixin",
-        addNewLabel: "Create New Mixin",
-        columns: [
-          {
-            title: "Connected Mixins",
-            groups: {services: appServices},
-            candidates: R.without(dissocRelations(appServices || []))(orgServices),
-            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id}, state),
-            isCreating: getIsCreating({assocType, parentId: parent.id}, state)
-          }
-        ]
       }
 
     default:

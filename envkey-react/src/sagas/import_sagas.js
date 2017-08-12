@@ -71,7 +71,7 @@ function* onImportEnvironment({
   const {parentType, parentId} = meta,
         envsWithMeta = yield select(getEnvsWithMetaWithPendingWithImports(parentType, parentId)),
         entries = new Set(getEntries(envsWithMeta)),
-        environments = yield select(getEnvironmentsAccessible(parentType, parentId))
+        environments = yield select(getEnvironmentsAccessible(parentId))
 
   for (let entryKey in parsed){
     let val = parsed[entryKey]

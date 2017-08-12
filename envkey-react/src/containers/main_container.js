@@ -4,7 +4,6 @@ import { push } from 'react-router-redux'
 import Sidebar from 'components/sidebar'
 import Header from 'components/shared/header'
 import { getApps,
-         getServices,
          getUserGroupsByRole,
          getIsLoadingAppState,
          getCurrentUser,
@@ -79,7 +78,6 @@ const mapStateToProps = (state, ownProps) => {
     currentUserErr: getCurrentUserErr(state),
     currentOrg: getCurrentOrg(state),
     apps: getApps(state),
-    services: getServices(state),
     users: getUserGroupsByRole(state),
     isLoadingAppState: getIsLoadingAppState(state),
     permissions: getPermissions(state)

@@ -5,7 +5,6 @@ import R from 'ramda'
 import moment from 'moment'
 import scrollIntoView from 'scroll-into-view'
 import EntryRow from './entry_row'
-import ServiceBlock from './service_block'
 import EditableCellsParent from './traits/editable_cells_parent'
 import {toClass} from 'recompose'
 
@@ -20,14 +19,6 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
       highlightRows: {}
     }
   }
-
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if(nextProps.isRebasingOutdatedEnvs){
-  //     return false
-  //   }
-
-  //   return true
-  // }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.lastAddedEntry != nextProps.lastAddedEntry){
@@ -88,8 +79,7 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
   render(){
     return h.div(".grid-content", [
       this._renderSocketAddingEntries(),
-      this._renderEntryRows(),
-      this._renderServiceBlocks()
+      this._renderEntryRows()
     ])
   }
 
@@ -123,25 +113,6 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
       onEditCell: ::this._onEditCell,
       onCommitEntry: ::this._onCommitEntry,
       onCommitEntryVal: ::this._onCommitEntryVal,
-    })
-  }
-
-  _renderServiceBlocks(){
-    if(this.props.parentType == "app"){
-      return h.div(".service-blocks", this.props.services.map(::this._renderServiceBlock))
-    }
-  }
-
-  _renderServiceBlock(service, i){
-    const filter = this.props.filter,
-          entries = this.props.entriesByServiceId[service.id],
-          toCheck = [service.name].concat(entries).map(s => s.toLowerCase())
-    if(filter && !R.any(R.contains(filter), toCheck))return
-    return h(ServiceBlock, {
-      ...this.props,
-      isUpdatingService: this.props.isRemovingServiceFn(service.relation.id),
-      service,
-      key: i
     })
   }
 }

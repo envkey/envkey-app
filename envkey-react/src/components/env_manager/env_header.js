@@ -7,7 +7,6 @@ import BroadcastLoader from 'components/shared/broadcast_loader'
 export default function({parentType,
                          emptyOnInit,
                          addVar,
-                         addService,
                          hideValues,
                          isEmpty,
                          isUpdatingEnv,
@@ -15,18 +14,17 @@ export default function({parentType,
                          hasAnyVal,
                          onToggleHideValues,
                          onFilter,
-                         onAddVar,
-                         onAddService }) {
+                         onAddVar }) {
 
   const
     renderFilter = ()=> {
-      if(!addService && entries.length > 1){
+      if(entries.length > 1){
         return h(Filter, {placeholder: "Type here to filter...", onFilter})
       }
     },
 
     renderAddVar = ()=>{
-      if (!addService && !emptyOnInit){
+      if (!emptyOnInit){
         return h.button(".split-strong.add-var", {
           className: (addVar ? " selected" : ""),
           onClick: onAddVar
@@ -44,27 +42,8 @@ export default function({parentType,
       }
     },
 
-    renderAddService = ()=>{
-      // if (parentType == "app"){
-      //   return h.button(".split-strong.add-service", {
-      //     className: (addService ? " selected" : ""),
-      //     onClick: onAddService
-      //   }, [
-      //     addService ? h.span(["Go", " ", h.strong("Back")]) :
-      //                  h.span([
-      //                           // h.img({src: imagePath("lightning-black.svg")}),
-      //                           h.span([
-      //                             "Add",
-      //                             " ",
-      //                             h.strong("Mixin")
-      //                           ])
-      //                         ])
-      //   ])
-      // }
-    },
-
     renderShowHide = ()=> {
-      if (!addService && !isEmpty && hasAnyVal){
+      if (!isEmpty && hasAnyVal){
         return h.label(".show-hide",[
           h.input({
             type: "checkbox",
@@ -87,7 +66,6 @@ export default function({parentType,
   return h.header(".env-header", [
     // renderFilter(),
     // renderAddVar(),
-    // renderAddService(),
     renderShowHide(),
     renderUpdatingEnv()
   ])

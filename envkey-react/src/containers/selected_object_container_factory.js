@@ -9,7 +9,6 @@ import {
   getCurrentOrg,
   getCurrentUser,
   getAppBySlug,
-  getServiceBySlug,
   getUserWithOrgUserBySlug,
   getPermissions,
   getIsDecryptingAll,
@@ -116,7 +115,6 @@ const SelectedObjectContainerFactory = ({
         const slug = ownProps.params.slug,
               method = {
                 app: getAppBySlug,
-                service: getServiceBySlug,
                 user: getUserWithOrgUserBySlug
               }[objectType]
 

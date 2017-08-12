@@ -44,7 +44,6 @@ import {
   getCurrentOrg,
   getOrgs,
   getApps,
-  getServices,
   getPassword,
   getPrivkey,
   getEncryptedPrivkey,

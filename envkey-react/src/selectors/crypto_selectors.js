@@ -1,7 +1,6 @@
 import db from 'lib/db'
 import R from 'ramda'
-import { getEnvParents } from './object_selectors'
-// import {} from 'lib/crypto'
+import { getApps } from './object_selectors'
 
 export const
   getIsGeneratingUserKey = db.path("isGeneratingUserKey"),
@@ -38,7 +37,7 @@ export const
 
   getAllEnvParentsAreDecrypted = state => {
     return R.pipe(
-      getEnvParents,
+      getApps,
       R.all(({id})=> getEnvsAreDecrypted(id, state))
     )(state)
   }

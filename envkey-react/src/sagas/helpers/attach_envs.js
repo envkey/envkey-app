@@ -7,18 +7,15 @@ import {
   getUser,
   getApp,
   getServer,
-  getService,
   getUsersForApp,
   getKeyableServersForApp,
   getCurrentUser,
   getCurrentUserEnvironmentsAssignableToAppUser,
   getCurrentUserEnvironmentAssignableToServer,
-  getCurrentUserEnvironmentsAssignableToServiceUser,
   getEnvsWithMetaWithPending,
   getRawEnvWithPendingForApp,
   getAppUserBy,
   getApps,
-  getServices,
   getPrivkey
 } from 'selectors'
 import {productionInheritanceOverrides} from 'lib/env/inheritance'
@@ -104,28 +101,6 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
   }
 }
 
-export function* envParamsWithServiceUser({serviceId, userId}, envParams={}){
-  const user = yield select(getUser(userId)),
-        privkey = yield select(getPrivkey),
-        pubkey = user.pubkey || user.invitePubkey,
-        service = yield select(getService(serviceId)),
-        envsWithMeta = yield select(getEnvsWithMetaWithPending("service", serviceId)),
-        encryptedEnvsWithMeta = {},
-        environments = yield select(getCurrentUserEnvironmentsAssignableToServiceUser({serviceId, userId}))
-
-  if(!(yield call(keyableIsTrusted, user)))return envParams
-
-  for (let environment of environments){
-    encryptedEnvsWithMeta[environment] = yield encryptJson({
-      data: envsWithMeta[environment], pubkey, privkey
-    })
-  }
-
-  return R.assocPath(["users", userId, "services", serviceId], {
-    envsWithMeta: encryptedEnvsWithMeta
-  }, envParams)
-}
-
 export function* envParamsForApp({appId}){
   const users = yield select(getUsersForApp(appId)),
         servers = yield select(getKeyableServersForApp(appId))
@@ -143,28 +118,11 @@ export function* envParamsForApp({appId}){
   return envParams
 }
 
-export function* envParamsForService({serviceId}){
-  const users = yield select(getUsersForService(serviceId))
-
-  let envParams = {}
-
-  for (let {id: userId} of users){
-    envParams = yield call(envParamsWithServiceUser, {serviceId, userId}, envParams)
-  }
-
-  return envParams
-}
-
-
-export function *envParamsForInvitee({userId, permittedAppIds, permittedServiceIds}){
+export function *envParamsForInvitee({userId, permittedAppIds}){
   let envParams = {}
 
   for (let appId of permittedAppIds){
     envParams = yield call(envParamsWithAppUser, {userId, appId}, envParams)
-  }
-
-  for (let serviceId of permittedServiceIds){
-    envParams = yield call(envParamsWithServiceUser, {userId, serviceId}, envParams)
   }
 
   return { envs: envParams }
@@ -174,15 +132,10 @@ export function *envParamsForAcceptedInvite(withTrustedPubkey){
   let envParams = {}
 
   const {id: userId} = yield select(getCurrentUser),
-        apps = yield select(getApps),
-        services = yield select(getServices)
+        apps = yield select(getApps)
 
   for (let {id: appId} of apps){
     envParams = yield call(envParamsWithAppUser, {userId, appId, withTrustedPubkey, isAcceptingInvite: true}, envParams)
-  }
-
-  for (let {id: serviceId} of services){
-    envParams = yield call(envParamsWithServiceUser, {userId, serviceId, withTrustedPubkey}, envParams)
   }
 
   return envParams
@@ -201,33 +154,10 @@ export function *envParamsForUpdateOrgRole({userId, role: newRole}){
 
   let envParams = {}
 
-  const apps = yield select(getApps),
-        services = yield select(getServices)
+  const apps = yield select(getApps)
 
   for (let {id: appId} of apps){
     envParams = yield call(envParamsWithAppUser, {userId, appId}, envParams)
-  }
-
-  for (let {id: serviceId} of services){
-    envParams = yield call(envParamsWithServiceUser, {userId, serviceId}, envParams)
-  }
-
-  return envParams
-}
-
-
-export function* appServiceEnvs(appId){
-  const users = yield select(getUsersForApp(appId)),
-        servers = yield select(getKeyableServersForApp(appId))
-
-  let envParams = {}
-
-  for (let {id: userId} of users){
-    envParams = yield call(envParamsWithAppUser, {appId, userId, rawEnvOnly: true}, envParams)
-  }
-
-  for (let {id: serverId} of servers){
-    envParams = yield call(envParamsWithServer, {appId, serverId}, envParams)
   }
 
   return envParams
@@ -246,23 +176,12 @@ export function* attachAssocEnvs(action){
     const appId = parentId,
           app = yield(select(getApp(parentId)))
 
-    switch (assocType){
-
-      case "user":
-        if(type != ADD_ASSOC_REQUEST)return action
-        envParams = yield call(envParamsWithAppUser, {
-          appId: app.id,
-          userId: assocId,
-          role: R.values(payload)[0].role
-        })
-
-        break
-
-      case "service":
-        if(![ADD_ASSOC_REQUEST, REMOVE_ASSOC_REQUEST].includes(type))return action
-        envParams = yield call(appServiceEnvs, appId)
-        break
-    }
+    if(type != ADD_ASSOC_REQUEST)return action
+    envParams = yield call(envParamsWithAppUser, {
+      appId: app.id,
+      userId: assocId,
+      role: R.values(payload)[0].role
+    })
   }
 
   if(R.isEmpty(envParams)){

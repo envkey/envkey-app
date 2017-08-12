@@ -40,7 +40,7 @@ import {
   getIsUpdatingOutdatedEnvs,
   getIsRebasingOutdatedEnvs,
   getDidOnboardImport,
-  getCurrentUserEnvironmentsAssignableForParent
+  getCurrentUserEnvironmentsAssignableForApp
 } from 'selectors'
 import EnvManager from 'components/env_manager'
 import {
@@ -52,82 +52,43 @@ import {
 import {Onboardable} from 'components/onboard'
 import {orgRoleIsAdmin, appRoleIsAdmin} from 'lib/roles'
 
-const withServices = (props, {parentType, parent, state}) => {
-  const {
-    addFormType,
-    addExistingSubmitLabelFn,
-    addExistingTextFn,
-    addNewLabel,
-    addExistingLabel,
-    columns: [{
-      groups: {services},
-      candidates,
-      isAddingAssoc,
-      isCreating
-    }]
-  } = columnsConfig({ parentType, parent, state, assocType: "service" })
-
-  return {
-    ...props,
-    services,
-    entriesByServiceId: services.reduce((acc, service)=>{
-      return {...acc, [service.id]: getEntries(service.envsWithMeta)}
-    }, {}),
-    addServiceConfig: {
-      addFormType,
-      addExistingTextFn,
-      addExistingSubmitLabelFn,
-      addNewLabel,
-      addExistingLabel,
-      candidates,
-      isAddingAssoc,
-      isCreating
-    }
-  }
-}
 
 const EnvManagerContainerFactory = ({parentType})=> {
 
   const
     mapStateToProps = (state, ownProps) => {
       const parent = ownProps[parentType],
-            parentId = parent.id,
+            appId = parent.id,
             currentUser = getCurrentUser(state),
-            environments = getEnvironmentLabels(parentType, parentId, state),
-            envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, parentId, state),
-            props = {
-              envsWithMeta: envsWithMetaWithPending,
-              entries: getEntries(envsWithMetaWithPending),
-              isUpdatingEnv: getIsUpdatingEnv(parentId, state),
-              isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({parentId, entryKey, environment}, state),
-              isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({parentId, entryKey}, state),
-              isCreatingEntry: getIsCreatingEnvEntry(parentId, state),
-              isRemovingServiceFn: id => getIsRemoving(id, state),
-              hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
-              isOnboarding: getIsOnboarding(state),
-              didOnboardImport: getDidOnboardImport(parentId, state),
-              isInvitee: getIsInvitee(state),
-              lastAddedEntry: getLastAddedEntry(parentId, state),
-              numApps: getApps(state).length,
-              socketUserUpdatingEnvs: getSocketUserUpdatingEnvs(parentId, state),
-              socketRemovingEntry: getSocketRemovingEntry(state),
-              socketEditingEntry: getSocketEditingEntry(state),
-              socketEditingEntryVal: getSocketEditingEntryVal(state),
-              socketAddingEntry: getSocketAddingEntry(state),
-              isRequestingEnvUpdate: getIsRequestingEnvUpdate(parentId, state),
-              isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(parentId, state),
-              isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(parentId, state),
-              environmentsAssignable: getCurrentUserEnvironmentsAssignableForParent(parentType, parentId, state),
-              environments,
-              parent,
-              parentType
-            }
+            environments = getEnvironmentLabels(appId, state),
+            envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, appId, state)
 
-      return parentType == "app" ? withServices(props, {
-        parentType,
+      return {
+        envsWithMeta: envsWithMetaWithPending,
+        entries: getEntries(envsWithMetaWithPending),
+        isUpdatingEnv: getIsUpdatingEnv(appId, state),
+        isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({appId, entryKey, environment}, state),
+        isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({appId, entryKey}, state),
+        isCreatingEntry: getIsCreatingEnvEntry(appId, state),
+        hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
+        isOnboarding: getIsOnboarding(state),
+        didOnboardImport: getDidOnboardImport(appId, state),
+        isInvitee: getIsInvitee(state),
+        lastAddedEntry: getLastAddedEntry(appId, state),
+        numApps: getApps(state).length,
+        socketUserUpdatingEnvs: getSocketUserUpdatingEnvs(appId, state),
+        socketRemovingEntry: getSocketRemovingEntry(state),
+        socketEditingEntry: getSocketEditingEntry(state),
+        socketEditingEntryVal: getSocketEditingEntryVal(state),
+        socketAddingEntry: getSocketAddingEntry(state),
+        isRequestingEnvUpdate: getIsRequestingEnvUpdate(appId, state),
+        isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(appId, state),
+        isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(appId, state),
+        environmentsAssignable: getCurrentUserEnvironmentsAssignableForApp(appId, state),
+        environments,
         parent,
-        state
-      }) : props
+        parentType
+      }
     },
 
     mapDispatchToProps = (dispatch, ownProps) => {
@@ -139,13 +100,6 @@ const EnvManagerContainerFactory = ({parentType})=> {
         updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, timestamp: moment().valueOf()})),
         removeEntry: (entryKey)=> dispatch(removeEntry({...baseProps, entryKey})),
         updateEntryVal: (entryKey, environment, update)=> dispatch(updateEntryVal({...baseProps,  entryKey, environment, update})),
-        addServices: ({ids})=> {
-          ids.forEach(id => {
-            dispatch(addAssoc({...baseProps, assocType: "service", isManyToMany: true, assocId: id}))
-          })
-        },
-        removeService: targetId => dispatch(removeAssoc({...baseProps, assocType: "service", isManyToMany: true, targetId})),
-        createService: (params)=> dispatch(createAssoc({...baseProps, assocType: "service", isManyToMany: true, params})),
         editCell: (entryKey, environment)=>{
           if (entryKey && environment){
             dispatch(socketUpdateLocalStatus({editingEntryVal: {[entryKey]: {[environment]: true}}}))

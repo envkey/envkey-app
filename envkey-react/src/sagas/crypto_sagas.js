@@ -32,7 +32,6 @@ import {
   getPrivkey,
   getEncryptedPrivkey,
   getApp,
-  getService,
   getAllEnvParentsAreDecrypted,
   getEnvsAreDecrypted,
   getEnvsAreDecrypting,
@@ -297,8 +296,7 @@ function *onDecryptAll(action){
 
 function *onDecryptEnvs(action){
   const {meta: {objectType, targetId, decryptAllAction}} = action,
-        parentSelector = { app: getApp, service: getService }[objectType](targetId),
-        parent = yield select(parentSelector),
+        parent = yield select(getApp(targetId)),
         envsAreDecrypted = yield select(getEnvsAreDecrypted(parent.id))
 
   if(!(decryptAllAction && envsAreDecrypted)){

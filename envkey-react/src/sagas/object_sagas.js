@@ -2,7 +2,7 @@ import { takeEvery, takeLatest, take, put, select, call, fork} from 'redux-saga/
 import {push} from 'react-router-redux'
 import R from 'ramda'
 import merge from 'lodash/merge'
-import {apiSaga, appServiceEnvs, redirectFromOrgIndexIfNeeded} from './helpers'
+import {apiSaga, redirectFromOrgIndexIfNeeded} from './helpers'
 import pluralize from 'pluralize'
 import {decamelize} from 'xcase'
 import {
@@ -46,8 +46,6 @@ import {
 } from "actions"
 import {
   getCurrentOrg,
-  getAppsForService,
-  getAppServiceBy,
   getIsPollingInviteesPendingAcceptance,
   getEnvUpdateId
 } from "selectors"
@@ -97,7 +95,7 @@ const
       yield put(socketSubscribeObjectChannel(object))
     }
 
-    if (["app", "service"].includes(object.objectType)){
+    if (object.objectType == "app"){
       const envUpdateId = yield select(getEnvUpdateId(object.id))
       if (!envUpdateId){
         yield put(generateEnvUpdateId({parentId: object.id, parentType: object.objectType}))
@@ -106,32 +104,14 @@ const
   },
 
   onRemoveObject = function*(action){
-    let actionWithEnvs
-    const {type, meta: {objectType, targetId: serviceId}} = action,
-          currentOrg = yield select(getCurrentOrg)
-
-    if (objectType == "service"){
-      let mergedEnvParams = {}
-      const apps = yield select(getAppsForService(serviceId))
-
-      for (let {id: appId} of apps){
-        let {id: appServiceId} = yield select(getAppServiceBy({appId, serviceId})),
-            envParams = yield call(appServiceEnvs, {type, appId, assocId: serviceId, targetId: appServiceId})
-
-        merge(mergedEnvParams, envParams)
-      }
-      actionWithEnvs = R.assocPath(["payload", "envs"], mergedEnvParams, action)
-
-    } else {
-      actionWithEnvs = action
-    }
+    const currentOrg = yield select(getCurrentOrg)
 
     yield fork(apiSaga({
       authenticated: true,
       method: "delete",
       actionTypes: [REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED],
       urlFn:  getUpdateUrlFn()
-    }), actionWithEnvs)
+    }), action)
 
     if(!action.meta.isOnboardAction){
       const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
@@ -157,25 +137,11 @@ const
     }
   },
 
-  // checkInvitesAcceptedUnlessAlreadyPolling = function*(){
-  //   const isPolling = yield select(getIsPollingInviteesPendingAcceptance)
-  //   if(!isPolling){
-  //     yield put({type: CHECK_INVITES_ACCEPTED_REQUEST})
-  //   }
-  // },
-
   onCreateObjectSuccess = function*({
     meta: {status, createAssoc, objectType, isOnboardAction, willImport, toImport},
     payload
   }){
     const {id, slug} = payload
-
-    // If new user created/invited, begin check invite acceptance polling loop
-    // if (objectType == "user"){
-    //   if (status == 201 || (status == 200 && !payload.pubkey)){
-    //     yield call(checkInvitesAcceptedUnlessAlreadyPolling)
-    //   }
-    // }
 
     if (toImport){
       yield put(importAllEnvironments({
@@ -195,7 +161,7 @@ const
   },
 
   onRenameObjectSuccess = function*({meta}){
-    if (["app", "service"].includes(meta.objectType)){
+    if (meta.objectType == "app"){
       yield(put(decryptEnvs(meta)))
     }
   }

@@ -21,7 +21,7 @@ const
           app = getApp(onboardAppId, state) || (apps.length == 1 ? apps[0] : null),
           currentOrg = getCurrentOrg(state),
           environments = app ?
-            getEnvironmentsAccessible("app", app.id, state) :
+            getEnvironmentsAccessible(app.id, state) :
             []
 
     return {

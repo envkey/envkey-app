@@ -61,11 +61,6 @@ export const
     sortBy: "lastName"
   }),
 
-  getAppServiceBy = ({appId, serviceId}, state)=>{
-    const fn = db.appServices.where({appId, serviceId})
-    return state ? fn(state)[0] : R.pipe(fn, R.head)
-  },
-
   getServersForApp = db.apps.hasMany("servers"),
 
   getKeyableServersForApp = db.apps.hasMany("servers", {
@@ -94,8 +89,6 @@ export const
   },
 
   dissocRelations = R.map(R.dissoc("relation")),
-
-  getEnvParents = (state) => getApps(state).concat(getServices(state)),
 
   getSelectedObjectType = db.path("selectedObjectType"),
 

@@ -3,7 +3,6 @@ import { getUser, getAppUserBy, getServer } from './object_selectors'
 import {
   getEnvironmentsAccessibleForAppUser,
   getEnvironmentsAssignableForAppUser,
-  getEnvironmentsAccessibleForServiceUser,
   getAppEnvironmentsAccessible,
   getAppEnvironmentsAssignable
 } from './env_selectors'
@@ -77,27 +76,6 @@ export const
       null
   }),
 
-  getCurrentUserEnvironmentsAccessibleForService = R.curry((serviceId, state)=>{
-    const auth = getAuth(state)
-    if(!auth)return null
-
-    return getEnvironmentsAccessibleForServiceUser({userId: auth.id, serviceId}, state)
-  }),
-
-  getCurrentUserEnvironmentsAssignableForParent = R.curry((parentType, parentId, state)=>{
-    if (parentType == "app"){
-      return getCurrentUserEnvironmentsAssignableForApp(parentId, state)
-    } else if (parentType == "service"){
-      return getCurrentUserEnvironmentsAssignableForService(parentId, state)
-    }
-  }),
-
-  getCurrentUserEnvironmentsAssignableToServiceUser = R.curry(({serviceId, userId}, state)=>{
-    return R.intersection(
-      getCurrentUserEnvironmentsAccessibleForService(serviceId, state),
-      getEnvironmentsAccessibleForServiceUser({serviceId, userId}, state)
-    )
-  }),
 
   getOrgRolesAssignable = (userIdOrState, maybeState)=>{
     const [userId, state] = typeof userIdOrState == "string" ?
@@ -111,16 +89,14 @@ export const
     }
   },
 
-  getEnvironmentsAccessible = R.curry((parentType, parentId, state)=>{
-    const environments = parentType == "app" ?
-      getCurrentAppUserForApp(parentId, state).environmentsAccessible :
-      getCurrentUser(state).permittedServiceEnvironments
+  getEnvironmentsAccessible = R.curry((appId, state)=>{
+    getCurrentAppUserForApp(appId, state).environmentsAccessible
 
     return environments.map(s => camelize(s))
   }),
 
-  getEnvironmentLabels = R.curry((parentType, parentId, state)=>{
-    // const environmentsAccessible = getEnvironmentsAccessible(parentType, parentId, state)
+  getEnvironmentLabels = R.curry((appId, state)=>{
+    // const environmentsAccessible = getEnvironmentsAccessible(appId, state)
     // return R.without(["productionMetaOnly"], environmentsAccessible)
 
     return ["development", "staging", "production"]
