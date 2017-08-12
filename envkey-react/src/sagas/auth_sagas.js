@@ -14,6 +14,12 @@ import {
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
+  VERIFY_EMAIL_REQUEST,
+  VERIFY_EMAIL_SUCCESS,
+  VERIFY_EMAIL_FAILED,
+  VERIFY_EMAIL_CODE_REQUEST,
+  VERIFY_EMAIL_CODE_SUCCESS,
+  VERIFY_EMAIL_CODE_FAILED,
   LOGIN,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
@@ -67,6 +73,20 @@ const
     urlFn: (action, auth)=> `/users/${auth.id}.json`
   }),
 
+  onVerifyEmailRequest = apiSaga({
+    authenticated: false,
+    method: "post",
+    actionTypes: [VERIFY_EMAIL_SUCCESS, VERIFY_EMAIL_FAILED],
+    urlFn: action => "/email_verifications.json"
+  }),
+
+  onVerifyEmailCodeRequest = apiSaga({
+    authenticated: false,
+    method: "post",
+    actionTypes: [VERIFY_EMAIL_CODE_SUCCESS, VERIFY_EMAIL_CODE_FAILED],
+    urlFn: action => "/email_verifications/check_valid.json"
+  }),
+
   onLoginRequest = apiSaga({
     authenticated: false,
     method: "post",
@@ -89,19 +109,17 @@ function *onAppLoaded(){
 function *onLogin({payload}){
   document.body.className += " preloader-authenticate"
   yield call(delay, 50)
-  yield put({type: HASH_USER_PASSWORD, payload})
-  const {payload: {hashedPassword}} = yield take(HASH_USER_PASSWORD_SUCCESS)
   yield put({
     type: LOGIN_REQUEST,
-    payload: {...payload, password: hashedPassword},
-    meta: {rawPassword: payload.password}
+    payload
   })
 }
 
 function* onLoginSuccess({meta: {rawPassword, orgSlug}}){
-  yield put(decryptPrivkey({password: rawPassword}))
-
-  yield take(DECRYPT_PRIVKEY_SUCCESS)
+  if (rawPassword){
+    yield put(decryptPrivkey({password: rawPassword}))
+    yield take(DECRYPT_PRIVKEY_SUCCESS)
+  }
 
   if (orgSlug){
     yield put(selectOrg(orgSlug))
@@ -115,21 +133,6 @@ function* onLoginSuccess({meta: {rawPassword, orgSlug}}){
   }
 }
 
-function *onHashPasswordAndGenerateKeys({payload}){
-  yield [
-    put({type: HASH_USER_PASSWORD, payload}),
-    put({type: GENERATE_USER_KEYPAIR, payload})
-  ]
-
-  const [{payload: {hashedPassword}}, {payload: {pubkey, encryptedPrivkey}}] = yield [
-    take(HASH_USER_PASSWORD_SUCCESS),
-    take(GENERATE_USER_KEYPAIR_SUCCESS)
-  ]
-
-  yield put({type: HASH_PASSWORD_AND_GENERATE_KEYS_SUCCESS, payload: {hashedPassword, pubkey, encryptedPrivkey}})
-}
-
-
 function *onRegister({payload}){
   document.body.className += " preloader-register"
 
@@ -137,18 +140,17 @@ function *onRegister({payload}){
 
   if (!isDemo) yield call(delay, 500)
 
-  yield put({type: HASH_PASSWORD_AND_GENERATE_KEYS, payload})
+  yield put({type: GENERATE_USER_KEYPAIR, payload})
 
-  const {payload: {hashedPassword, pubkey, encryptedPrivkey}} = yield take(HASH_PASSWORD_AND_GENERATE_KEYS_SUCCESS)
+  const {payload: {pubkey, encryptedPrivkey}} = yield take(GENERATE_USER_KEYPAIR_SUCCESS)
 
   yield put({
     type: REGISTER_REQUEST,
     payload: {
-      ...payload,
+      ...R.omit(["password"], payload),
       pubkey,
       encryptedPrivkey,
       pubkeyFingerprint: crypto.getPubkeyFingerprint(pubkey),
-      password: hashedPassword,
       provider: "email",
       uid: payload.email
     },
@@ -172,12 +174,6 @@ function* onRegisterSuccess({meta: {rawPassword, requestPayload: {pubkey}}}){
   }
 }
 
-function *onHashUserPassword({payload: {email, password}}){
-  const isDemo = yield select(getIsDemo),
-        hashedPassword = crypto.hashedPassword(email, password, (isDemo ? 1 : undefined))
-
-  yield put({type: HASH_USER_PASSWORD_SUCCESS, payload: {email, hashedPassword}})
-}
 
 function* onSelectOrg({payload: slug}){
   yield put(socketUnsubscribeAll())
@@ -202,6 +198,8 @@ export default function* authSagas(){
     takeLatest(APP_LOADED, onAppLoaded),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
+    takeLatest(VERIFY_EMAIL_REQUEST, onVerifyEmailRequest),
+    takeLatest(VERIFY_EMAIL_CODE_REQUEST, onVerifyEmailCodeRequest),
     takeLatest(LOGIN, onLogin),
     takeLatest(LOGIN_REQUEST, onLoginRequest),
     takeLatest(LOGIN_SUCCESS, onLoginSuccess),
@@ -210,9 +208,7 @@ export default function* authSagas(){
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
 
-    takeLatest(LOGOUT, onLogout),
-    takeLatest(HASH_USER_PASSWORD, onHashUserPassword),
-    takeLatest(HASH_PASSWORD_AND_GENERATE_KEYS, onHashPasswordAndGenerateKeys)
+    takeLatest(LOGOUT, onLogout)
   ]
 }
 

@@ -1,0 +1,14 @@
+{
+  "name": "envkey-electron",
+  "version": "0.1.0",
+  "description": "Envkey's cross-platform Electron app",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
+  "license": "MIT",
+  "dependencies": {
+    "electron-is-dev": "^0.3.0"
+  }
+}

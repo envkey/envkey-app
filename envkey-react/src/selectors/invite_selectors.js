@@ -7,10 +7,6 @@ export const
 
   getInvitedBy = db.path("invitedBy"),
 
-  getInviteLoaded = db.path("inviteLoaded"),
-
-  getLoadInviteError = db.path("loadInviteError"),
-
   getInviteParams = db.path("inviteParams"),
 
   getInviteePubkey = db.path("inviteePubkey"),
@@ -24,12 +20,6 @@ export const
   getInviteParamsVerified = db.path("inviteParamsVerified"),
 
   getInviteParamsInvalid = db.path("inviteParamsInvalid"),
-
-  getIsVerifyingInviteEmail = db.path("isVerifyingInviteEmail"),
-
-  getVerifyInviteEmailError = db.path("verifyInviteEmailError"),
-
-  getInviteEmailVerified = db.path("inviteEmailVerified"),
 
   getAcceptInviteEmailError = db.path("acceptInviteEmailError"),
 

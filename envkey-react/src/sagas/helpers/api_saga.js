@@ -1,6 +1,7 @@
 import {delay} from 'redux-saga'
 import { call, select, put } from 'redux-saga/effects'
 import R from 'ramda'
+import {flattenObj} from 'lib/utils/object'
 import {decamelizeKeys} from 'xcase'
 import {
   TOKEN_INVALID,
@@ -50,6 +51,19 @@ export default function apiSaga({
   return function* (requestAction){
     if(debounce && debounce > 0){
       yield call(delay, debounce)
+    }
+
+    // ensure no form of 'password' or 'passphrase' is ever present on an api call
+    if (requestAction.payload && requestAction.payload.constructor == Object){
+      const hasPasswordKey = R.pipe(
+        flattenObj,
+        R.keys,
+        R.any(k => k.toLowerCase().indexOf("password") > -1 || k.toLowerCase().indexOf("passphrase") > -1)
+      )(requestAction.payload)
+
+      if (hasPasswordKey){
+        throw new Error('Included password/passphrase in API request payload.')
+      }
     }
 
     const auth = yield select(getAuth),

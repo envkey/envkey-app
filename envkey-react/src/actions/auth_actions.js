@@ -2,7 +2,11 @@ import { createAction } from 'redux-actions'
 import R from 'ramda'
 import {
   APP_LOADED,
+  VERIFY_EMAIL_REQUEST,
+  VERIFY_EMAIL_CODE_REQUEST,
+  RESET_VERIFY_EMAIL,
   LOGIN,
+  LOGIN_REQUEST,
   REGISTER,
   FETCH_CURRENT_USER_REQUEST,
   LOGOUT,
@@ -12,6 +16,12 @@ import {
 
 export const
   appLoaded = createAction(APP_LOADED),
+
+  verifyEmailRequest = createAction(VERIFY_EMAIL_REQUEST),
+
+  verifyEmailCodeRequest = createAction(VERIFY_EMAIL_CODE_REQUEST),
+
+  resetVerifyEmail = createAction(RESET_VERIFY_EMAIL),
 
   login = createAction(LOGIN),
 

@@ -12,7 +12,23 @@ import {camelize} from 'xcase'
 
 export const
 
+  getVerifyingEmail = db.path("verifyingEmail"),
+
+  getEmailVerificationCode = db.path("emailVerificationCode"),
+
+  getEmailVerificationType = db.path("emailVerificationType"),
+
+  getIsVerifyingEmail = db.path("isVerifyingEmail"),
+
+  getIsVerifyingEmailCode = db.path("isVerifyingEmailCode"),
+
+  getVerifyEmailError = db.path("verifyEmailError"),
+
+  getVerifyEmailCodeError = db.path("verifyEmailCodeError"),
+
   getAuth = db.path("auth"),
+
+  getAuthError = db.path("authError"),
 
   getIsOnboarding = (state)=> db.path("hasSingleApp")(state) || getIsInvitee(state),
 

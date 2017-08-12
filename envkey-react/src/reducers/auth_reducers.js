@@ -1,4 +1,14 @@
 import {
+  VERIFY_EMAIL_REQUEST,
+  VERIFY_EMAIL_SUCCESS,
+  VERIFY_EMAIL_FAILED,
+
+  VERIFY_EMAIL_CODE_REQUEST,
+  VERIFY_EMAIL_CODE_SUCCESS,
+  VERIFY_EMAIL_CODE_FAILED,
+
+  RESET_VERIFY_EMAIL,
+
   LOGIN,
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
@@ -35,6 +45,111 @@ import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
 
 export const
+
+  verifyingEmail = (state = null, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_SUCCESS:
+        return action.meta.requestPayload.email
+
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+      case RESET_VERIFY_EMAIL:
+        return null
+
+      default:
+        return state
+    }
+  },
+
+  emailVerificationType = (state = null, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_SUCCESS:
+        return action.payload.verificationType
+
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+      case RESET_VERIFY_EMAIL:
+        return null
+
+      default:
+        return state
+    }
+  },
+
+  emailVerificationCode = (state = null, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_CODE_SUCCESS:
+        return action.meta.requestPayload.emailVerificationCode
+
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+      case RESET_VERIFY_EMAIL:
+        return null
+
+      default:
+        return state
+    }
+  },
+
+  isVerifyingEmail = (state = false, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_REQUEST:
+        return true
+
+      case VERIFY_EMAIL_SUCCESS:
+      case VERIFY_EMAIL_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isVerifyingEmailCode = (state = false, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_CODE_REQUEST:
+        return true
+
+      case VERIFY_EMAIL_CODE_SUCCESS:
+      case VERIFY_EMAIL_CODE_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  verifyEmailError = (state = null, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_FAILED:
+        return action.payload
+
+      case VERIFY_EMAIL_REQUEST:
+      case RESET_VERIFY_EMAIL:
+        return null
+
+      default:
+        return state
+    }
+  },
+
+  verifyEmailCodeError = (state = null, action)=>{
+    switch(action.type){
+      case VERIFY_EMAIL_CODE_FAILED:
+        return action.payload
+
+      case VERIFY_EMAIL_CODE_REQUEST:
+      case RESET_VERIFY_EMAIL:
+        return null
+
+      default:
+        return state
+    }
+  },
+
 
   auth = (state = null, action)=> {
     switch(action.type){
@@ -108,7 +223,7 @@ export const
     }
   },
 
-  authErr = (state = null, action)=>{
+  authError = (state = null, action)=>{
     switch(action.type){
       case LOGIN_FAILED:
       case REGISTER_FAILED:
