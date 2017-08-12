@@ -5,7 +5,7 @@ import pluralize from 'pluralize'
 import { orgRoleGroupLabel } from 'lib/ui'
 import moment from 'moment'
 
-db.init("apps", "services", "users", "appUsers", "orgUsers", "servers", "appServices")
+db.init("apps", "users", "appUsers", "orgUsers", "servers")
 
 export const
 
@@ -42,15 +42,9 @@ export const
 
   getAppBySlug = db.apps.findBy("slug"),
 
-  getService = db.services.find(),
-
-  getServiceBySlug = db.services.findBy("slug"),
-
   getUser = db.users.find(),
 
   getUserBySlug = db.users.findBy("slug"),
-
-  getServices = db.services.list({sortBy: "name"}),
 
   getUserGroupsByRole = db.users.group("role", {
     sortBy: "lastName"
@@ -67,8 +61,6 @@ export const
     sortBy: "lastName"
   }),
 
-  getServicesForApp = db.apps.hasAndBelongsToMany("services", {sortBy: "name"}),
-
   getAppServiceBy = ({appId, serviceId}, state)=>{
     const fn = db.appServices.where({appId, serviceId})
     return state ? fn(state)[0] : R.pipe(fn, R.head)
@@ -78,11 +70,6 @@ export const
 
   getKeyableServersForApp = db.apps.hasMany("servers", {
     where: {pubkey: R.complement(R.isNil)}
-  }),
-
-  getAppsForService = db.services.hasAndBelongsToMany("apps", {
-    through: "appServices",
-    sortBy: "name"
   }),
 
   getAppGroupsForUser = db.users.hasAndBelongsToMany("apps", {
@@ -107,25 +94,6 @@ export const
   },
 
   dissocRelations = R.map(R.dissoc("relation")),
-
-  getUsersForService = (serviceId, state)=>{
-    if(!state)return R.partial(getUsersForService, [serviceId])
-
-    const apps = getAppsForService(serviceId, state),
-          serviceAdmins = R.pipe(
-            getUserGroupsByRole,
-            R.pick(["service_admin", "org_admin", "org_owner"]),
-            R.values,
-            R.flatten
-          )(state)
-
-    return R.pipe(
-            R.map(({id})=> getUsersForApp(id, state)),
-            R.flatten,
-            R.concat(serviceAdmins),
-            R.uniq
-          )(apps)
-  },
 
   getEnvParents = (state) => getApps(state).concat(getServices(state)),
 

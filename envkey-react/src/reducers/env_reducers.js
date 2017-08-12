@@ -43,52 +43,6 @@ import { isOutdatedEnvsResponse } from 'lib/actions'
 
 const
 
-  addOrRemoveAssocRequestReducer = (state = {}, action)=>{
-    const {parentType, parentId, assocType, assocId} = action.meta
-    if (!(parentType == "app" && assocType == "service"))return state
-
-    const appendKey = {[ADD_ASSOC_REQUEST]: "addServiceIds", [REMOVE_ASSOC_REQUEST]: "removeServiceIds"}[action.type],
-          appendPath = [parentId, appendKey],
-          appendToArr = R.path(appendPath, state) || [],
-          appended = R.append(assocId, appendToArr),
-
-          removeKey = {[ADD_ASSOC_REQUEST]: "removeServiceIds", [REMOVE_ASSOC_REQUEST]: "addServiceIds"}[action.type],
-          removePath = [parentId, removeKey],
-          removeFromArr = R.path(removePath, state) || [],
-          removed = R.without([assocId], removeFromArr)
-
-    return R.pipe(
-      R.assocPath(appendPath, appended),
-      R.assocPath(removePath, removed)
-    )(state)
-  },
-
-  addOrRemoveAssocSuccessReducer = (state = {}, action)=>{
-    const {parentType, parentId, assocType, assocId} = action.meta
-    if (!(parentType == "app" && assocType == "service"))return state
-    const k = {[ADD_ASSOC_SUCCESS]: "addServiceIds", [REMOVE_ASSOC_SUCCESS]: "removeServiceIds"}[action.type],
-          path = [parentId, k],
-          addOrRemoveArr = R.path(path, state)
-
-    return R.assocPath(path, R.without([assocId], addOrRemoveArr), state)
-  },
-
-  removeObjectRequestReducer = (state = {}, action)=>{
-    const {objectType, targetId} = action.meta
-    if (objectType != "service")return state
-
-    const removeServiceIds = R.append(targetId, (state.removeServiceIds || []))
-    return R.assoc("removeServiceIds", removeServiceIds, state)
-  },
-
-  removeObjectSuccessReducer = (state = {}, action)=>{
-    const {objectType, targetId} = action.meta
-    if (objectType != "service")return state
-
-    const removeServiceIds = R.without([targetId], (state.removeServiceIds || []))
-    return R.assoc("removeServiceIds", removeServiceIds, state)
-  },
-
   envActionsPendingTransformEnvReducer = (state, action)=>{
     if(R.path(["meta", "queued"], action)){
       return state

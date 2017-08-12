@@ -5,11 +5,9 @@ export const
   // Everything except Org
   ORG_OBJECT_TYPES = [
     "app",
-    "service",
     "user",
     "orgUser",
     "appUser",
-    "appService",
     "server"
   ],
 
@@ -17,7 +15,7 @@ export const
 
   SLUGGABLE_ORG_OBJECT_TYPES = R.difference(
     ORG_OBJECT_TYPES,
-    ["orgUser", "appUser", "server", "appService"]
+    ["orgUser", "appUser", "server"]
   ),
 
   APP_ROLES = ["development", "production", "admin", "org_admin", "org_owner"],
