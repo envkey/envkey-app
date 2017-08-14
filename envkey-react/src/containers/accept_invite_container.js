@@ -33,14 +33,14 @@ class AcceptInvite extends React.Component {
 
   _onSubmitPassword(e){
     e.preventDefault()
-    this.props.onSubmitPassword(R.pick(["password"], state))
+    this.props.onSubmitPassword(R.pick(["password"], this.state))
   }
 
   _onLoadInvite(e){
     e.preventDefault()
-    const [identityHash, passphrase] = this.state.encryptionCode.split("-")
+    const [identityHash, passphrase] = this.state.encryptionCode.split("_")
     this.props.onLoadInvite({
-      emailVerificationCode: this.state. emailVerificationCode,
+      emailVerificationCode: this.state.emailVerificationCode,
       identityHash,
       passphrase
     })
@@ -64,7 +64,7 @@ class AcceptInvite extends React.Component {
   }
 
   _renderContent(){
-    if (this.props.inviteParamsVerified){
+    if (this.props.inviteParamsVerified && !this.props.isLoadingInvite){
       return this._renderPasswordForm()
     } else if (this.props.loadInviteError) {
       return this._renderLoadError()
@@ -122,7 +122,7 @@ class AcceptInvite extends React.Component {
   _renderLoadError(){
     return h.div(".load-invite-error", [
       h.div(".msg", "This invitation is invalid or expired. Envkey invitations are valid for 24 hours, and can only be loaded once."),
-      h.button("Go Back", {onClick: this.props.resetAcceptInvite})
+      h.button({onClick: this.props.resetAcceptInvite}, "Go Back")
     ])
   }
 
@@ -136,9 +136,9 @@ class AcceptInvite extends React.Component {
 
   _passwordCopy(){
     if (this._isNewUser()){
-      return "Email verified. To finish creating your account, set an encryption password."
+      return "Invite verified. To sign in, set a master encryption passphrase."
     } else {
-      return "Email verified. To finish accepting your invitation, enter your encryption password below."
+      return "Invite verified. To sign in, enter your master encryption passphrase below."
     }
   }
 

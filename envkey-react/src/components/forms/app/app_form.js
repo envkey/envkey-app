@@ -59,7 +59,7 @@ export default class AppForm extends React.Component {
           <Radio value="noImport" /> <strong>Start from scratch</strong>
         </label>
         <label className={this.state.importOption == "import" ? "selected" : ""}>
-          <Radio value="import" /><strong>Import existing config</strong>
+          <Radio value="import" /><strong>Import config</strong>
         </label>
       </RadioGroup>
     </fieldset>

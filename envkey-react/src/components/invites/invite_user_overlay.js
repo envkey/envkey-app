@@ -20,7 +20,7 @@ export default function({invitingUser, generatedInviteLink, closeInvite}){
 
     renderGeneratedInviteLink = ()=>{
       const {identityHash, passphrase, user: {email, firstName, lastName}} = generatedInviteLink,
-            inviteCode = [identityHash, passphrase].join("-")
+            inviteCode = [identityHash, passphrase].join("_")
 
       return h.div([
         h.h2("Invitation generated."),
@@ -39,7 +39,7 @@ export default function({invitingUser, generatedInviteLink, closeInvite}){
             "Sending the ",
             h.strong("Encryption Code"),
             " over a non-email channel (like Slack or another messaging tool) is ideal since it provides multi-factor security, ",
-            "but email is ok in a pinch."
+            " but email is ok in a pinch."
           ]),
 
           h.p("This invitation can only be redeemed once. It will expire in 24 hours."),

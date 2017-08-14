@@ -63,7 +63,7 @@ export const
       h.p([
         "If you look left, you’ll see that ",
         h.strong(".app-name", props.parent.name),
-        " is selected in your new ",
+        " is selected in the ",
         h.em(".blue", "sidebar.")
       ]),
 
@@ -74,9 +74,9 @@ export const
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll notice several ",
-        h.em(".blue", "tabs"),
-        ," running vertically down the page: ",
+        "Next to the sidebar, you’ll see a ",
+        h.em(".blue", "vertical tab bar"),
+        ," with several tabs: ",
         h.em(".blue.condensed", " Variables,"),
         h.em(".blue.condensed", " Envkeys,"),
         h.em(".blue.condensed", " Collaborators,"),
@@ -104,7 +104,7 @@ export const
       h.p([
         "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
-        " selected in your new ",
+        " selected in the ",
         h.em(".blue", "sidebar.")
       ]),
 
@@ -115,9 +115,9 @@ export const
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll notice several ",
-        h.em(".blue", "tabs"),
-        ," running vertically down the page: ",
+        "Next to the sidebar, you’ll see a ",
+        h.em(".blue", "vertical tab bar"),
+        ," with several tabs: ",
         h.em(".blue.condensed", " Variables,"),
         h.em(".blue.condensed", " Envkeys,"),
         h.em(".blue.condensed", " Collaborators,"),
@@ -145,7 +145,7 @@ export const
       h.p([
         "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
-        " selected in your new ",
+        " selected in the ",
         h.em(".blue", "sidebar.")
       ]),
 
@@ -156,9 +156,9 @@ export const
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll notice several ",
-        h.em(".blue", "tabs"),
-        ," running vertically down the page: ",
+        "Next to the sidebar, you’ll see a ",
+        h.em(".blue", "vertical tab bar"),
+        ," with several tabs: ",
         h.em(".blue.condensed", " Variables,"),
         h.em(".blue.condensed", " Envkeys,"),
         h.em(".blue.condensed", " Collaborators,"),
@@ -186,7 +186,7 @@ export const
       h.p([
         "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
-        " selected in your new ",
+        " selected in the ",
         h.em(".blue", "sidebar.")
       ]),
 
@@ -197,9 +197,9 @@ export const
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll notice a couple of ",
-        h.em(".blue", "tabs"),
-        ," running vertically down the page: ",
+        "Next to the sidebar, you’ll notice a ",
+        h.em(".blue", "vertical tab bar"),
+        ," with a couple of tabs: ",
         h.em(".blue.condensed", " Variables"),
         " and ",
         h.em(".blue.condensed", " Envkeys. "),

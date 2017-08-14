@@ -7,6 +7,7 @@ import {
   VERIFY_EMAIL_CODE_SUCCESS,
   VERIFY_EMAIL_CODE_FAILED,
 
+  LOAD_INVITE_REQUEST,
   LOAD_INVITE_API_SUCCESS,
   LOAD_INVITE_SUCCESS,
 
@@ -157,11 +158,13 @@ export const
       case LOGIN_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return {
           ...R.pick(["slug", "id"], action.payload),
           ...R.pick(["access-token", "uid", "client"], action.meta.headers)
         }
 
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case REGISTER:
       case LOGOUT:
@@ -184,6 +187,7 @@ export const
       case LOGIN_FAILED:
       case REGISTER_SUCCESS:
       case REGISTER_FAILED:
+      case ACCEPT_INVITE_SUCCESS:
       case ACCEPT_INVITE_FAILED:
         return false
 
@@ -203,6 +207,7 @@ export const
       case LOGIN_FAILED:
       case REGISTER_SUCCESS:
       case REGISTER_FAILED:
+      case ACCEPT_INVITE_SUCCESS:
       case ACCEPT_INVITE_FAILED:
         return false
 
@@ -216,6 +221,8 @@ export const
       case LOGIN_FAILED:
       case REGISTER_FAILED:
         return action.payload
+
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
       case REGISTER:
@@ -243,6 +250,8 @@ export const
     switch(action.type){
       case FETCH_CURRENT_USER_FAILED:
         return action.payload
+
+      case LOAD_INVITE_REQUEST:
       case FETCH_CURRENT_USER_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
@@ -257,7 +266,11 @@ export const
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return action.payload.permissions
+
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
@@ -274,7 +287,10 @@ export const
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return action.payload.orgRolesInvitable
+
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
@@ -291,7 +307,10 @@ export const
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAccessible)
+
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
@@ -308,7 +327,10 @@ export const
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAssignable)
+
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
@@ -324,14 +346,39 @@ export const
     switch (action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return action.payload.apps.length <= 1
 
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
       case TOKEN_INVALID:
         return false
+
+      default:
+        return state
+    }
+  },
+
+  lastFetchAt = (state = null, action)=>{
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+      case REGISTER_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+        return action.payload.lastFetchAt
+
+      case LOAD_INVITE_REQUEST:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case LOGOUT:
+      case REGISTER:
+      case TOKEN_INVALID:
+      case SELECT_ORG:
+        return null
 
       default:
         return state

@@ -17,7 +17,14 @@ import {
   UPDATE_ENV_REQUEST,
   UPDATE_ENV_SUCCESS,
 
-  SOCKET_UPDATE_LOCAL_STATUS
+  SOCKET_UPDATE_LOCAL_STATUS,
+
+  LOAD_INVITE_REQUEST,
+  LOGIN,
+  LOGIN_REQUEST,
+  REGISTER,
+  SELECT_ORG,
+  LOGOUT
 } from "actions"
 
 export const
@@ -38,6 +45,14 @@ export const
         } else {
           return state
         }
+
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
 
       default:
         return state
@@ -65,6 +80,12 @@ export const
         }
 
       case SELECTED_OBJECT:
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -79,6 +100,12 @@ export const
 
       case SELECTED_OBJECT:
       case UPDATE_ENV_REQUEST:
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -120,6 +147,12 @@ export const
         return R.dissoc(action.meta.envUpdateId, state)
 
       case SELECTED_OBJECT:
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:

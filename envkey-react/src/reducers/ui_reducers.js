@@ -58,7 +58,14 @@ import {
 
   IMPORT_ALL_ENVIRONMENTS,
   IMPORT_ALL_ENVIRONMENTS_SUCCESS,
-  IMPORT_ALL_ENVIRONMENTS_FAILED
+  IMPORT_ALL_ENVIRONMENTS_FAILED,
+
+  LOAD_INVITE_REQUEST,
+  LOGIN,
+  LOGIN_REQUEST,
+  REGISTER,
+  LOGOUT,
+  SELECT_ORG
 } from "actions"
 import {isOutdatedEnvsResponse} from 'lib/actions'
 
@@ -89,6 +96,14 @@ export const
           return R.dissoc(action.meta.objectType, state)
         }
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -117,6 +132,14 @@ export const
                              (action.meta.assocId || "create")],
                             state)
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -134,6 +157,14 @@ export const
       case REMOVE_OBJECT_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -148,6 +179,14 @@ export const
       case GENERATE_ASSOC_KEY_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -161,6 +200,14 @@ export const
       case UPDATE_OBJECT_SETTINGS_SUCCESS:
       case UPDATE_OBJECT_SETTINGS_FAILED:
         return R.dissoc(action.meta.targetId, state)
+
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
 
       default:
         return state
@@ -200,6 +247,14 @@ export const
           return dissocFns.length ? R.pipe(...dissocFns)(state) : state
         }
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -226,6 +281,14 @@ export const
           return dissocFns.length ? R.pipe(...dissocFns)(state) : state
         }
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -239,6 +302,14 @@ export const
       case RENAME_OBJECT_SUCCESS:
       case RENAME_OBJECT_FAILED:
         return R.dissoc(action.meta.targetId, state)
+
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
 
       default:
         return state
@@ -258,6 +329,14 @@ export const
       case GRANT_ENV_ACCESS_FAILED:
         return R.dissoc(action.meta.userId, state)
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -271,6 +350,14 @@ export const
       case UPDATE_ORG_ROLE_SUCCESS:
       case UPDATE_ORG_ROLE_FAILED:
         return R.dissoc(action.meta.userId, state)
+
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
 
       default:
         return state
@@ -295,6 +382,14 @@ export const
       case IMPORT_ALL_ENVIRONMENTS_SUCCESS:
       case IMPORT_ALL_ENVIRONMENTS_FAILED:
         return R.dissoc(action.meta.parentId, state)
+
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
 
       default:
         return state

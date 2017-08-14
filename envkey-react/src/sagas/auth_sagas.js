@@ -159,21 +159,22 @@ function *onRegister({payload}){
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
-  const orgs = yield select(getOrgs),
+  const currentOrg = yield select(getCurrentOrg),
         currentUser = yield select(getCurrentUser),
         [ , decryptPrivkeyResult] = yield [
-          put(addTrustedPubkey({keyable: {type: "user", ...currentUser, pubkey}, orgId: orgs[0].id})),
+          put(addTrustedPubkey({keyable: {type: "user", ...currentUser, pubkey}, orgId: currentOrg.id})),
           call(decryptPrivkeyAndDecryptAllIfNeeded, password)
         ]
 
   if (!decryptPrivkeyResult.error){
-    const updateTrustedRes = yield call(execUpdateTrustedPubkeys, orgs[0].slug)
+    const updateTrustedRes = yield call(execUpdateTrustedPubkeys, currentOrg.slug)
     if (!updateTrustedRes.error){
-      yield put(selectOrg(orgs[0].slug))
+      yield put(push(`/${currentOrg.slug}`))
+      yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
+      yield call(redirectFromOrgIndexIfNeeded)
     }
   }
 }
-
 
 function* onSelectOrg({payload: slug}){
   yield put(socketUnsubscribeAll())

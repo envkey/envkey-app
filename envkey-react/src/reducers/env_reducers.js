@@ -29,6 +29,10 @@ import {
 
   LOGOUT,
   SELECT_ORG,
+  LOAD_INVITE_REQUEST,
+  LOGIN,
+  LOGIN_REQUEST,
+  REGISTER,
 
   COMMIT_IMPORT_ACTIONS
 } from "actions"
@@ -84,6 +88,10 @@ export const
 
       case LOGOUT:
       case SELECT_ORG:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -114,6 +122,10 @@ export const
 
       case LOGOUT:
       case SELECT_ORG:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -156,6 +168,14 @@ export const
           return state
         }
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -177,6 +197,14 @@ export const
           return state
         }
 
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
       default:
         return state
     }
@@ -192,8 +220,12 @@ export const
           state :
           R.assoc(action.meta.parentId, action.meta.nextEnvUpdateId, state)
 
-      case LOGOUT:
       case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:

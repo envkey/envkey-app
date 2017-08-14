@@ -14,7 +14,7 @@ export default class PasswordInput extends React.Component {
     return <input {...this.props}
                   ref="input"
                   type="password"
-                  placeholder="Your encryption password (10-256 characters)"
+                  placeholder="Your master encryption passphrase (10-256 characters)"
                   pattern=".{10,256}"
                   required />
 

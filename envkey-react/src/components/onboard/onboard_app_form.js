@@ -10,7 +10,7 @@ export default class OnboardAppForm extends React.Component {
     return h.div(".onboard-app-form", [
       h.h1(".welcome", ["Welcome, ", h.em(firstName + ".")]),
 
-      h.p("You’re a few steps away from simple, secure, bug-free config for your team and your infrastructure."),
+      h.p("You’re a few steps away from simple, secure config for your team and your servers."),
 
       h.h2("Create your first application."),
 

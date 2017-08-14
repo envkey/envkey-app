@@ -1,5 +1,6 @@
 import R from 'ramda'
 import { takeLatest, takeEvery, put, select, call, take } from 'redux-saga/effects'
+import { push } from 'react-router-redux'
 import {delay} from 'redux-saga'
 import {
   apiSaga,
@@ -10,7 +11,9 @@ import {
   envParamsForAcceptedInvite,
   signTrustedPubkeys,
   checkInviteePubkeyIsValid,
-  envParamsForInvitee
+  envParamsForInvitee,
+  redirectFromOrgIndexIfNeeded,
+  decryptPrivkeyAndDecryptAllIfNeeded
 } from './helpers'
 import {
   getInviteParams,
@@ -62,11 +65,17 @@ import {
 
   LOGIN_REQUEST,
 
+  DECRYPT_PRIVKEY_SUCCESS,
+
+  SOCKET_SUBSCRIBE_ORG_CHANNEL,
+
   verifyInviteParams,
   acceptInviteRequest,
   loadInviteRequest,
   addTrustedPubkey,
-  grantEnvAccessRequest
+  grantEnvAccessRequest,
+  decryptPrivkey,
+  selectOrg
 } from 'actions'
 
 const
@@ -151,11 +160,11 @@ function* onVerifyInviteParams(action){
 }
 
 function *onAcceptInvite({payload}){
-  document.body.className += " preloader-authenticate"
-  const overlay = document.getElementById("preloader-overlay")
-  overlay.className = overlay.className.replace("hide", "")
-  document.body.className += " no-scroll"
-  yield call(delay, 50)
+  // document.body.className += " preloader-authenticate"
+  // const overlay = document.getElementById("preloader-overlay")
+  // overlay.className = overlay.className.replace("hide", "")
+  // document.body.className += " no-scroll"
+  // yield call(delay, 50)
 
   const {password} = payload,
         identityHash = yield select(getInviteIdentityHash),
@@ -213,14 +222,18 @@ function *onAcceptInvite({payload}){
     orgSlug,
     email: inviteParams.invitee.email,
     orgUser: { signedTrustedPubkeys, pubkey: signedPubkey },
-    envs: yield call(envParamsForAcceptedInvite, signedPubkey)
+    envs: yield call(envParamsForAcceptedInvite, signedPubkey),
+    currentUserId: currentUser.id
   }))
 }
 
 function* onAcceptInviteSuccess({meta: {password, orgSlug}}){
-  yield put(decryptPrivkey({password}))
-  yield take(DECRYPT_PRIVKEY_SUCCESS)
-  yield put(selectOrg(orgSlug))
+  const currentOrg = yield select(getCurrentOrg),
+        res = yield call(decryptPrivkeyAndDecryptAllIfNeeded, password)
+
+  yield put(push(`/${currentOrg.slug}`))
+  yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
+  yield call(redirectFromOrgIndexIfNeeded)
 }
 
 function* onGenerateInviteLink(action){

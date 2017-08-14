@@ -6,6 +6,7 @@ import {
   FETCH_CURRENT_USER_SUCCESS,
   DECRYPT_ENVS_SUCCESS,
   LOGIN,
+  LOGIN_REQUEST,
   REGISTER,
   REGISTER_SUCCESS,
   SELECT_ORG,
@@ -20,11 +21,12 @@ import {
   FETCH_OBJECT_DETAILS_API_SUCCESS,
   FETCH_OBJECT_DETAILS_SUCCESS,
   GENERATE_ASSOC_KEY_SUCCESS,
-  CHECK_INVITES_ACCEPTED_SUCCESS,
   GRANT_ENV_ACCESS_SUCCESS,
   UPDATE_ORG_ROLE_SUCCESS,
   SELECTED_OBJECT,
-  LOAD_INVITE_API_SUCCESS
+  LOAD_INVITE_REQUEST,
+  LOAD_INVITE_API_SUCCESS,
+  ACCEPT_INVITE_SUCCESS
 } from 'actions'
 import { indexById } from './helpers'
 
@@ -113,20 +115,6 @@ const
     return state
   },
 
-  getCheckInvitesAcceptedReducer = objectTypePlural => (state, {
-    payload: {inviteesNeedingAccess}
-  })=> {
-    if(objectTypePlural == "users"){
-      if (inviteesNeedingAccess && inviteesNeedingAccess.length > 0){
-        return inviteesNeedingAccess.reduce((acc, {userId, pubkey}) => {
-          return R.assocPath([userId, "pubkey"], pubkey, acc)
-        }, state)
-      }
-    }
-
-    return state
-  },
-
   getDecryptEnvsReducer = objectTypePlural => (state, {
     meta: {objectType}, payload
   })=>{
@@ -173,6 +161,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case GRANT_ENV_ACCESS_SUCCESS:
       case UPDATE_ORG_ROLE_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         let objects = action.payload[objectTypePlural]
         return objects ? indexById(objects) : state
 
@@ -207,10 +196,9 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case GENERATE_ASSOC_KEY_SUCCESS:
         return getGenerateKeyReducer(objectTypePlural)(state, action)
 
-      case CHECK_INVITES_ACCEPTED_SUCCESS:
-        return getCheckInvitesAcceptedReducer(objectTypePlural)(state, action)
-
+      case LOAD_INVITE_REQUEST:
       case LOGIN:
+      case LOGIN_REQUEST:
       case REGISTER:
       case LOGOUT:
       case SELECT_ORG:
@@ -229,6 +217,10 @@ objectReducers.selectedObjectType = (state=null, action)=>{
 
     case LOGOUT:
     case SELECT_ORG:
+    case LOAD_INVITE_REQUEST:
+    case LOGIN:
+    case LOGIN_REQUEST:
+    case REGISTER:
       return null
 
     default:
@@ -243,6 +235,10 @@ objectReducers.selectedObjectId = (state=null, action)=>{
 
     case LOGOUT:
     case SELECT_ORG:
+    case LOAD_INVITE_REQUEST:
+    case LOGIN:
+    case LOGIN_REQUEST:
+    case REGISTER:
       return null
 
     default:
@@ -251,18 +247,31 @@ objectReducers.selectedObjectId = (state=null, action)=>{
 }
 
 objectReducers.onboardAppId = (state=null, action)=>{
-  if (action.type == CREATE_OBJECT_SUCCESS &&
-      action.meta.objectType == "app" &&
-      action.meta.isOnboardAction){
-    return action.payload.id
-  } else if (action.type == REMOVE_OBJECT_SUCCESS &&
-             action.meta.objectType == "app" &&
-             action.meta.isOnboardAction){
-    return null
-  } else if ([SELECT_ORG, LOGOUT].includes(action.type)){
-    return null
-  } else {
-    return state
+  switch(action.type){
+    case CREATE_OBJECT_SUCCESS:
+    case REMOVE_OBJECT_SUCCESS:
+      if (action.type == CREATE_OBJECT_SUCCESS &&
+          action.meta.objectType == "app" &&
+          action.meta.isOnboardAction){
+        return action.payload.id
+      } else if (action.type == REMOVE_OBJECT_SUCCESS &&
+                 action.meta.objectType == "app" &&
+                 action.meta.isOnboardAction){
+        return null
+      } else {
+        return state
+      }
+
+    case LOAD_INVITE_REQUEST:
+    case LOGIN:
+    case LOGIN_REQUEST:
+    case REGISTER:
+    case SELECT_ORG:
+    case LOGOUT:
+      return null
+
+    default:
+      return state
   }
 }
 

@@ -38,7 +38,10 @@ import {
 
   ADD_TRUSTED_PUBKEY,
 
-  LOAD_INVITE_API_SUCCESS
+  LOAD_INVITE_REQUEST,
+  LOAD_INVITE_API_SUCCESS,
+  ACCEPT_INVITE_REQUEST,
+  ACCEPT_INVITE_SUCCESS
 } from 'actions'
 
 export const
@@ -55,6 +58,8 @@ export const
       case SELECT_ORG:
       case LOGIN:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
         return false
 
       default:
@@ -70,6 +75,8 @@ export const
       case LOGIN:
       case LOGIN_REQUEST:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
         return false
 
       case DECRYPT_ALL_SUCCESS:
@@ -94,6 +101,8 @@ export const
       case LOGIN:
       case LOGIN_REQUEST:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
         return {}
 
       default:
@@ -111,6 +120,8 @@ export const
       case LOGIN:
       case LOGIN_REQUEST:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
         return {}
 
       default:
@@ -124,12 +135,14 @@ export const
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return action.payload.encryptedPrivkey
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
       case DECRYPT_PRIVKEY_SUCCESS:
+      case LOAD_INVITE_REQUEST:
         return null
       default:
         return state
@@ -145,6 +158,8 @@ export const
       case LOGOUT:
       case REGISTER:
       case DECRYPT_ENVS_FAILED:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
         return null
       default:
         return state
@@ -161,6 +176,7 @@ export const
       case SELECT_ORG:
       case LOGIN:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return false
       default:
         return state
@@ -183,12 +199,15 @@ export const
       case LOGIN_SUCCESS:
       case FETCH_CURRENT_USER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return action.payload.signedTrustedPubkeys || null
 
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
       case VERIFY_TRUSTED_PUBKEYS_FAILED:
       case VERIFY_TRUSTED_PUBKEYS_SUCCESS:
         return null
@@ -210,6 +229,8 @@ export const
       case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
+      case ACCEPT_INVITE_REQUEST:
       case VERIFY_TRUSTED_PUBKEYS_FAILED:
         return {}
 
@@ -230,6 +251,7 @@ export const
       case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:

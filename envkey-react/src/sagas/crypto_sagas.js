@@ -209,14 +209,18 @@ function *onVerifyCurrentUserPubkey(){
 }
 
 function *onVerifyTrustedPubkeys(){
+  let trustedPubkeys = yield select(getTrustedPubkeys)
+
   const signedTrustedPubkeys = yield select(getSignedTrustedPubkeys),
         {pubkey, role} = yield select(getCurrentUser)
 
-  if(!signedTrustedPubkeys){
+  if (trustedPubkeys && !R.isEmpty(trustedPubkeys)){
+    yield put({type: VERIFY_TRUSTED_PUBKEYS_SUCCESS, payload: trustedPubkeys})
+  }else if(!signedTrustedPubkeys){
     yield put({type: VERIFY_TRUSTED_PUBKEYS_FAILED, error: true, payload: "No trusted pubkeys"})
   } else {
     try {
-      const trustedPubkeys = yield crypto.verifyCleartextJson({
+      trustedPubkeys = yield crypto.verifyCleartextJson({
         pubkey,
         signed: signedTrustedPubkeys
       })

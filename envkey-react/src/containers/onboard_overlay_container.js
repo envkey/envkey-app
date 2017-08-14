@@ -9,7 +9,7 @@ import {
   getCurrentOrg,
   getApp,
   getApps,
-  getEnvironmentsAccessible,
+  getEnvironmentLabels,
   getCurrentUser
 } from 'selectors'
 import {OnboardOverlay} from 'components/onboard'
@@ -20,9 +20,7 @@ const
           apps = getApps(state),
           app = getApp(onboardAppId, state) || (apps.length == 1 ? apps[0] : null),
           currentOrg = getCurrentOrg(state),
-          environments = app ?
-            getEnvironmentsAccessible(app.id, state) :
-            []
+          environments = app ? getEnvironmentLabels(app.id, state) : []
 
     return {
       onboardAppId,

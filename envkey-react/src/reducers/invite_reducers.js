@@ -55,6 +55,8 @@ export const
   invitedBy = (state = null, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
         return action.payload.invitedBy
 
       case LOGOUT:

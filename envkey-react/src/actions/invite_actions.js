@@ -26,7 +26,7 @@ export const
         orgUser: R.pick(["pubkey", "signedTrustedPubkeys"])
       })
     ),
-    R.pick(["identityHash", "password", "email", "orgSlug"])
+    R.pick(["identityHash", "password", "email", "orgSlug", "currentUserId"])
   ),
 
   verifyInviteParams = createAction(VERIFY_INVITE_PARAMS),

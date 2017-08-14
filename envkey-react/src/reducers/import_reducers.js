@@ -7,7 +7,11 @@ import {
   CREATE_ENTRY,
   UPDATE_ENTRY_VAL,
   LOGOUT,
-  SELECT_ORG
+  SELECT_ORG,
+  LOAD_INVITE_REQUEST,
+  LOGIN,
+  LOGIN_REQUEST,
+  REGISTER
 } from "actions"
 
 export const
@@ -28,6 +32,10 @@ export const
 
       case LOGOUT:
       case SELECT_ORG:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -42,6 +50,10 @@ export const
 
       case LOGOUT:
       case SELECT_ORG:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -65,6 +77,10 @@ export const
 
       case LOGOUT:
       case SELECT_ORG:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
         return {}
 
       default:

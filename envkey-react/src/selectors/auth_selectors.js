@@ -6,6 +6,7 @@ import {
   getAppEnvironmentsAccessible,
   getAppEnvironmentsAssignable
 } from './env_selectors'
+import {getIsInvitee} from './invite_selectors'
 import {ORG_ROLES} from 'constants'
 import R from 'ramda'
 import {camelize} from 'xcase'
@@ -45,6 +46,8 @@ export const
   getIsAuthenticatingServer = db.path("isAuthenticatingServer"),
 
   getOrgRolesInvitable = db.path("orgRolesInvitable"),
+
+  getLastFetchAt = db.path("lastFetchAt"),
 
   getCurrentUser = state => {
     const auth = getAuth(state)

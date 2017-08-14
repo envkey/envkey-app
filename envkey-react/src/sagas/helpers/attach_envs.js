@@ -56,6 +56,7 @@ export function* envParamsWithAppUser({
     const app = yield select(getApp(appId)),
           envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
           encryptedEnvsWithMeta = {}
+
     for (let environment of environments){
       encryptedEnvsWithMeta[environment] = yield encryptJson({
         data: envsWithMeta[environment], pubkey, privkey
