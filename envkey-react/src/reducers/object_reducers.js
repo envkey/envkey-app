@@ -24,7 +24,7 @@ import {
   GRANT_ENV_ACCESS_SUCCESS,
   UPDATE_ORG_ROLE_SUCCESS,
   SELECTED_OBJECT,
-  VERIFY_INVITE_EMAIL_API_SUCCESS
+  LOAD_INVITE_API_SUCCESS
 } from 'actions'
 import { indexById } from './helpers'
 
@@ -172,7 +172,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case REGISTER_SUCCESS:
       case GRANT_ENV_ACCESS_SUCCESS:
       case UPDATE_ORG_ROLE_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         let objects = action.payload[objectTypePlural]
         return objects ? indexById(objects) : state
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
+import Spinner from 'components/shared/spinner'
 
 export default function(props){
 
@@ -12,7 +13,6 @@ export default function(props){
         return h.button(label)
       }
     },
-
 
     renderVerifyEmailCodeError = ()=>{
       const codeName = props.emailVerificationType == "sign_in" ? "Sign In Code" : "Sign Up Code"
@@ -29,12 +29,12 @@ export default function(props){
 
     renderVerifyEmailCodeError(),
 
-    h.form({onSubmit: props.onVerifyEmailCode}, [
+    h.form({onSubmit: props.onSubmit}, [
 
       h.fieldset([
         h.input({
           type: "password",
-          placeholder: `Your ${codeName} Code`,
+          placeholder: `Your ${props.codeName} Code`,
           required: true,
           value: props.emailVerificationCode,
           onChange: props.onInputChange

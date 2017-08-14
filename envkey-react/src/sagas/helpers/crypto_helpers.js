@@ -98,7 +98,7 @@ export function* decryptAllEnvParents(firstTarget){
   }
 
   for (let {id: targetId} of apps){
-    yield put(decryptEnvs({app, targetId, decryptAllAction: true}))
+    yield put(decryptEnvs({objectType: "app", targetId, decryptAllAction: true}))
   }
 
   return true

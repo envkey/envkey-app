@@ -7,7 +7,11 @@ import {
   VERIFY_EMAIL_CODE_SUCCESS,
   VERIFY_EMAIL_CODE_FAILED,
 
+  LOAD_INVITE_API_SUCCESS,
+  LOAD_INVITE_SUCCESS,
+
   RESET_VERIFY_EMAIL,
+  RESET_ACCEPT_INVITE,
 
   LOGIN,
   LOGIN_REQUEST,
@@ -32,14 +36,9 @@ import {
   ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
 
-  HASH_USER_PASSWORD,
-  HASH_USER_PASSWORD_SUCCESS,
-
   SELECT_ORG,
 
-  START_DEMO,
-
-  VERIFY_INVITE_EMAIL_API_SUCCESS
+  START_DEMO
 } from 'actions'
 import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
@@ -55,6 +54,7 @@ export const
       case REGISTER_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
       case RESET_VERIFY_EMAIL:
+      case RESET_ACCEPT_INVITE:
         return null
 
       default:
@@ -81,6 +81,7 @@ export const
   emailVerificationCode = (state = null, action)=>{
     switch(action.type){
       case VERIFY_EMAIL_CODE_SUCCESS:
+      case LOAD_INVITE_SUCCESS:
         return action.meta.requestPayload.emailVerificationCode
 
       case LOGIN_SUCCESS:
@@ -155,7 +156,7 @@ export const
     switch(action.type){
       case LOGIN_SUCCESS:
       case REGISTER_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return {
           ...R.pick(["slug", "id"], action.payload),
           ...R.pick(["access-token", "uid", "client"], action.meta.headers)
@@ -203,19 +204,6 @@ export const
       case REGISTER_SUCCESS:
       case REGISTER_FAILED:
       case ACCEPT_INVITE_FAILED:
-        return false
-
-      default:
-        return state
-    }
-  },
-
-  isHashingPassword = (state = false, action)=> {
-    switch(action.type){
-      case HASH_USER_PASSWORD:
-        return true
-
-      case HASH_USER_PASSWORD_SUCCESS:
         return false
 
       default:
@@ -285,7 +273,7 @@ export const
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return action.payload.orgRolesInvitable
       case LOGIN:
       case LOGIN_REQUEST:
@@ -302,7 +290,7 @@ export const
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAccessible)
       case LOGIN:
       case LOGIN_REQUEST:
@@ -319,7 +307,7 @@ export const
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAssignable)
       case LOGIN:
       case LOGIN_REQUEST:

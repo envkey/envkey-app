@@ -3,26 +3,32 @@ import R from 'ramda'
 import {
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
+  RESET_ACCEPT_INVITE,
   VERIFY_INVITE_PARAMS,
-  CLOSE_GENERATED_INVITE_LINK
+  CLOSE_GENERATED_INVITE_LINK,
+  LOAD_INVITE_REQUEST
 } from './action_types'
 
 export const
 
   closeGeneratedInviteLink = createAction(CLOSE_GENERATED_INVITE_LINK, R.always({}), R.pick(["parentId"])),
 
+  loadInviteRequest = createAction(LOAD_INVITE_REQUEST, R.pick(["emailVerificationCode"]), R.pick(["passphrase", "identityHash"])),
+
   acceptInvite = createAction(ACCEPT_INVITE, R.pick(["password"])),
 
   acceptInviteRequest = createAction(
     ACCEPT_INVITE_REQUEST,
     R.pipe(
-      R.pick(["user", "orgUser", "envs"]),
+      R.pick(["user", "orgUser", "envs", "emailVerificationCode"]),
       R.evolve({
         user: R.pick(["password", "pubkey", "pubkeyFingerprint", "encryptedPrivkey"]),
         orgUser: R.pick(["pubkey", "signedTrustedPubkeys"])
       })
     ),
-    R.pick(["identityHash", "rawPassword", "hashedPassword", "email", "orgSlug"])
+    R.pick(["identityHash", "password", "email", "orgSlug"])
   ),
 
-  verifyInviteParams = createAction(VERIFY_INVITE_PARAMS, R.pick(["identityHash"]))
+  verifyInviteParams = createAction(VERIFY_INVITE_PARAMS),
+
+  resetAcceptInvite = createAction(RESET_ACCEPT_INVITE)

@@ -7,6 +7,10 @@ export const
 
   getInvitedBy = db.path("invitedBy"),
 
+  getIsLoadingInvite = db.path("isLoadingInvite"),
+
+  getLoadInviteError = db.path("loadInviteError"),
+
   getInviteParams = db.path("inviteParams"),
 
   getInviteePubkey = db.path("inviteePubkey"),

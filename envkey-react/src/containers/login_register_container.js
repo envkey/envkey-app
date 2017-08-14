@@ -55,7 +55,7 @@ class LoginRegister extends React.Component {
     e.preventDefault()
     const [fn, props ] = this.props.emailVerificationType == "sign_in" ?
       [this.props.onLogin, ["email", "emailVerificationCode"]] :
-      [this.props.onVerifyEmailCode, ["emailVerificationCode"]]
+      [this.props.onVerifyEmailCode, ["email", "emailVerificationCode"]]
 
     fn(R.pick(props, this.state))
   }
@@ -150,8 +150,9 @@ class LoginRegister extends React.Component {
       copy = `Ok, we just sent you an email. When you get it, copy the ${codeName} Code into the input below.`
 
     return h(VerifyEmailCodeForm, {
-      ...props,
+      ...this.props,
       copy,
+      codeName,
       onSubmit: ::this._onVerifyEmailCode,
       onInputChange: (e)=> this.setState({emailVerificationCode: e.target.value})
     })

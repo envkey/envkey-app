@@ -115,9 +115,9 @@ function *onLogin({payload}){
   })
 }
 
-function* onLoginSuccess({meta: {rawPassword, orgSlug}}){
-  if (rawPassword){
-    yield put(decryptPrivkey({password: rawPassword}))
+function* onLoginSuccess({meta: {password, orgSlug}}){
+  if (password){
+    yield put(decryptPrivkey({password: password}))
     yield take(DECRYPT_PRIVKEY_SUCCESS)
   }
 
@@ -154,16 +154,16 @@ function *onRegister({payload}){
       provider: "email",
       uid: payload.email
     },
-    meta: {rawPassword: payload.password}
+    meta: {password: payload.password}
   })
 }
 
-function* onRegisterSuccess({meta: {rawPassword, requestPayload: {pubkey}}}){
+function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
   const orgs = yield select(getOrgs),
         currentUser = yield select(getCurrentUser),
         [ , decryptPrivkeyResult] = yield [
           put(addTrustedPubkey({keyable: {type: "user", ...currentUser, pubkey}, orgId: orgs[0].id})),
-          call(decryptPrivkeyAndDecryptAllIfNeeded, rawPassword)
+          call(decryptPrivkeyAndDecryptAllIfNeeded, password)
         ]
 
   if (!decryptPrivkeyResult.error){

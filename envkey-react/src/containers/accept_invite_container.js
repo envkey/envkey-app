@@ -2,22 +2,30 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
-import {appLoaded, loadInvite, verifyEmailCodeRequest, acceptInvite} from 'actions'
+import {appLoaded, loadInviteRequest, acceptInvite, resetAcceptInvite} from 'actions'
 import {
   getIsAuthenticating,
   getInviteParams,
   getInviteParamsVerified,
   getInviteParamsInvalid,
   getAcceptInviteEmailError,
-  getEmailVerificationCode,
-  getIsVerifyingEmailCode,
-  getVerifyEmailCodeError
+  getIsLoadingInvite,
+  getLoadInviteError
 } from 'selectors'
 import PasswordInput from 'components/shared/password_input'
+import Spinner from 'components/shared/spinner'
 import {imagePath} from 'lib/ui'
 
-
 class AcceptInvite extends React.Component {
+
+  constructor(){
+    super()
+    this.state = {
+      emailVerificationCode: "",
+      encryptionCode: "",
+      password: ""
+    }
+  }
 
   componentDidMount() {
     this.props.onLoad()
@@ -25,22 +33,17 @@ class AcceptInvite extends React.Component {
 
   _onSubmitPassword(e){
     e.preventDefault()
-    if (!this.props.isAuthenticating){
-      this.props.onSubmitPassword({
-        ...R.pick(["identityHash"], this.props.params),
-        password: this.refs.password.val()
-      })
-    }
+    this.props.onSubmitPassword(R.pick(["password"], state))
   }
 
-  _onVerifyEmail(e){
+  _onLoadInvite(e){
     e.preventDefault()
-    if (!this.props.isVerifyingInviteEmail){
-      this.props.onVerifyEmail({
-        ...R.pick(["identityHash"], this.props.params),
-        emailVerificationCode: this.refs.emailVerificationCode.value
-      })
-    }
+    const [identityHash, passphrase] = this.state.encryptionCode.split("-")
+    this.props.onLoadInvite({
+      emailVerificationCode: this.state. emailVerificationCode,
+      identityHash,
+      passphrase
+    })
   }
 
   _isNewUser(){
@@ -61,89 +64,73 @@ class AcceptInvite extends React.Component {
   }
 
   _renderContent(){
-    if (this.props.inviteLoaded){
-
-      if (this.props.inviteParamsVerified){
-
-        if (this.props.inviteEmailVerified){
-
-          return this._renderPasswordForm()
-
-        } else if (this.props.verifyInviteEmailError) {
-
-          return this._renderEmailVerificationError()
-
-        } else {
-
-          return this._renderVerifyEmailForm()
-
-        }
-
-      } else if (this.props.inviteParamsInvalid){
-
-        return this._renderParamsInvalid()
-
-      } else {
-
-        return this._renderVerifyingInviteParams()
-
-      }
-    } else if (this.props.loadInviteError){
-
+    if (this.props.inviteParamsVerified){
+      return this._renderPasswordForm()
+    } else if (this.props.loadInviteError) {
       return this._renderLoadError()
-
     } else {
-
-      return this._renderLoadingInvite()
-
+      return this._renderLoadInviteForm()
     }
   }
 
-  _renderLoadError(){
-    return h.div(".msg", "This invitation is invalid or expired. Envkey invitations can only be opened once.")
-  }
-
-  _renderParamsInvalid(){
-    return h.div(".msg", "This invitation's signature does not match the server's response.")
-  }
-
-  _renderEmailVerificationError(){
-    return h.div(".msg", "That email code couldn't be verified.")
-  }
-
-  _renderLoadingInvite(){
-    return h.div(".msg", "Loading invitation...")
-  }
-
-  _renderVerifyingInviteParams(){
-    return h.div("Verifying invitation signature...")
-  }
-
-
-  _renderVerifyEmailForm(){
-    const {invitedBy, invitee, org: {name: orgName}} = this.props.inviteParams,
-          invitedByFullName = [invitedBy.firstName, invitedBy.lastName].join(" ")
-
-    return h.form(".verify-email-form", {
-      onSubmit: ::this._onVerifyEmail,
-    }, [
+  _renderLoadInviteForm(){
+    return h.div(".load-invite-form", [
       h.div(".msg", [
-        h.p(`Welcome ${this._isNewUser() ? "to" : "back to"} Envkey, ${invitee.firstName}! You've been invited by ${invitedByFullName} <${invitedBy.email}> to securely access ${orgName}'s config.`),
-        h.p(`First, we need to verify your email address. `),
-        h.p(`We sent a verification code to ${invitee.email}. When you get it, copy the code into the input below.`)
+        h.p(`Welcome to Envkey! To accept a secure invitation, you need two codes:`)
       ]),
-      h.fieldset([
-        h.input({type: "password", ref: "emailVerificationCode"})
-      ]),
-      h.fieldset([this._renderSubmitEmailVerification()])
+
+      h.form({onSubmit: ::this._onLoadInvite}, [
+
+        h.fieldset([
+          h.p([
+            h.strong("1.) "),
+            "An ",
+            h.strong("Invite Code"),
+            ", which you receive in an email from Envkey <support@envkey.com>."
+          ]),
+          h.input({
+            type: "password",
+            placeholder: "Invite Code",
+            value: this.state.emailVerificationCode,
+            onChange: e => this.setState({emailVerificationCode: e.target.value})
+          })
+        ]),
+
+        h.fieldset([
+          h.p([
+            h.strong("2.) "),
+            "An ",
+            h.strong("Encryption Code"),
+            ", which you receive directly from the user who invited you."
+          ]),
+          h.input({
+            type: "password",
+            placeholder: "Encryption Code",
+            value: this.state.encryptionCode,
+            onChange: e => this.setState({encryptionCode: e.target.value})
+          })
+        ]),
+
+        h.fieldset([
+          this._renderSubmitLoadInvite()
+        ])
+
+      ])
     ])
   }
 
-  _renderSubmitEmailVerification(){
-    if(this.props.isVerifyingInviteEmail){
-      return <button disabled={true}>Verifying email... </button>
+  _renderLoadError(){
+    return h.div(".load-invite-error", [
+      h.div(".msg", "This invitation is invalid or expired. Envkey invitations are valid for 24 hours, and can only be loaded once."),
+      h.button("Go Back", {onClick: this.props.resetAcceptInvite})
+    ])
+  }
+
+  _renderSubmitLoadInvite(){
+    if (this.props.isLoadingInvite){
+      return h(Spinner)
     } else {
-      return <button>Verify Email</button>
+      return h.button("Submit")
     }
   }
 
@@ -161,7 +148,10 @@ class AcceptInvite extends React.Component {
     }, [
       h.div(".msg", this._passwordCopy()),
       h.fieldset([
-        h(PasswordInput, {ref: "password"})
+        h(PasswordInput, {
+          value: this.state.password,
+          onChange: e => this.setState({password: e.target.value})
+        })
       ]),
       h.fieldset([this._renderSubmitPassword()])
     ])
@@ -171,10 +161,9 @@ class AcceptInvite extends React.Component {
     if(this.props.isAuthenticating){
       return <button disabled={true}>Submitting... </button>
     } else {
-      return <button>Login</button>
+      return <button>Sign In</button>
     }
   }
-
 }
 
 const mapStateToProps = state => {
@@ -184,18 +173,17 @@ const mapStateToProps = state => {
     inviteParamsInvalid: getInviteParamsInvalid(state),
     acceptInviteEmailError: getAcceptInviteEmailError(state),
     isAuthenticating: getIsAuthenticating(state),
-    emailVerificationCode: getEmailVerificationCode(state),
-    isVerifyingEmailCode: getIsVerifyingEmailCode(state),
-    verifyEmailCodeError: getVerifyEmailCodeError(state),
-    emailVerificationType: "invite"
+    isLoadingInvite: getIsLoadingInvite(state),
+    loadInviteError: getLoadInviteError(state)
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
     onLoad: ()=> dispatch(appLoaded()),
-    onVerifyEmail: p => dispatch(verifyInviteEmailRequest(p)),
-    onSubmitPassword: p => dispatch(acceptInvite(p))
+    onLoadInvite: p => dispatch(loadInviteRequest(p)),
+    onSubmitPassword: p => dispatch(acceptInvite(p)),
+    onReset: ()=> dispatch(resetAcceptInvite())
   }
 }
 

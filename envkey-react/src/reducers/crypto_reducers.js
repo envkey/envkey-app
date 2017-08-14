@@ -38,8 +38,7 @@ import {
 
   ADD_TRUSTED_PUBKEY,
 
-  VERIFY_INVITE_EMAIL_REQUEST,
-  VERIFY_INVITE_EMAIL_API_SUCCESS
+  LOAD_INVITE_API_SUCCESS
 } from 'actions'
 
 export const
@@ -124,7 +123,7 @@ export const
       case LOGIN_SUCCESS:
       case FETCH_CURRENT_USER_SUCCESS:
       case REGISTER_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return action.payload.encryptedPrivkey
       case LOGIN:
       case LOGIN_REQUEST:
@@ -183,7 +182,7 @@ export const
     switch(action.type){
       case LOGIN_SUCCESS:
       case FETCH_CURRENT_USER_SUCCESS:
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return action.payload.signedTrustedPubkeys || null
 
       case LOGIN:

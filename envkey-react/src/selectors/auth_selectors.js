@@ -106,7 +106,7 @@ export const
   },
 
   getEnvironmentsAccessible = R.curry((appId, state)=>{
-    getCurrentAppUserForApp(appId, state).environmentsAccessible
+    const environments = getCurrentAppUserForApp(appId, state).environmentsAccessible
 
     return environments.map(s => camelize(s))
   }),

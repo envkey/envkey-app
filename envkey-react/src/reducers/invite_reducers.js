@@ -6,6 +6,11 @@ import {
   GENERATE_INVITE_LINK_FAILED,
   CLOSE_GENERATED_INVITE_LINK,
 
+  LOAD_INVITE_REQUEST,
+  LOAD_INVITE_API_SUCCESS,
+  LOAD_INVITE_SUCCESS,
+  LOAD_INVITE_FAILED,
+
   VERIFY_INVITE_PARAMS,
   VERIFY_INVITE_PARAMS_SUCCESS,
   VERIFY_INVITE_PARAMS_FAILED,
@@ -14,6 +19,8 @@ import {
   ACCEPT_INVITE_REQUEST,
   ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
+
+  RESET_ACCEPT_INVITE,
 
   LOGIN,
   LOGIN_REQUEST,
@@ -67,6 +74,7 @@ export const
       case VERIFY_INVITE_PARAMS_SUCCESS:
         return true
 
+      case RESET_ACCEPT_INVITE:
       case LOGOUT:
       case LOGIN:
       case LOGIN_REQUEST:
@@ -83,6 +91,7 @@ export const
       case VERIFY_INVITE_PARAMS_FAILED:
         return true
 
+      case RESET_ACCEPT_INVITE:
       case LOGOUT:
       case LOGIN:
       case LOGIN_REQUEST:
@@ -170,11 +179,44 @@ export const
     }
   },
 
-  inviteParams = (state=null, action)=>{
+  isLoadingInvite = (state=false, action)=>{
     switch(action.type){
+      case LOAD_INVITE_REQUEST:
+        return true
+
+      case LOAD_INVITE_FAILED:
       case LOAD_INVITE_SUCCESS:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  loadInviteError = (state=null, action)=>{
+    switch(action.type){
+      case LOAD_INVITE_FAILED:
         return action.payload
 
+      case RESET_ACCEPT_INVITE:
+      case LOAD_INVITE_REQUEST:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+        return null
+
+      default:
+        return state
+    }
+  },
+
+  inviteParams = (state=null, action)=>{
+    switch(action.type){
+      case LOAD_INVITE_API_SUCCESS:
+        return action.payload
+
+      case RESET_ACCEPT_INVITE:
       case LOGOUT:
       case LOGIN:
       case LOGIN_REQUEST:
@@ -188,9 +230,10 @@ export const
 
   inviteIdentityHash = (state=null, action)=>{
     switch(action.type){
-      case LOAD_INVITE:
-        return action.payload.identityHash
+      case LOAD_INVITE_REQUEST:
+        return action.meta.identityHash
 
+      case RESET_ACCEPT_INVITE:
       case ACCEPT_INVITE_SUCCESS:
       case LOGOUT:
       case LOGIN:
@@ -205,9 +248,10 @@ export const
 
   invitePassphrase = (state=null, action)=>{
     switch(action.type){
-      case LOAD_INVITE:
-        return action.payload.passphrase
+      case LOAD_INVITE_REQUEST:
+        return action.meta.passphrase
 
+      case RESET_ACCEPT_INVITE:
       case ACCEPT_INVITE_SUCCESS:
       case LOGOUT:
       case LOGIN:
@@ -222,11 +266,11 @@ export const
 
   inviteePubkey = (state=null, action)=>{
     switch (action.type){
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return action.payload.pubkey
 
+      case RESET_ACCEPT_INVITE:
       case ACCEPT_INVITE_SUCCESS:
-      case VERIFY_INVITE_EMAIL_REQUEST:
         return null
 
       default:
@@ -236,11 +280,11 @@ export const
 
   inviteeEncryptedPrivkey = (state=null, action)=>{
     switch (action.type){
-      case VERIFY_INVITE_EMAIL_API_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
         return action.payload.inviteeEncryptedPrivkey
 
+      case RESET_ACCEPT_INVITE:
       case ACCEPT_INVITE_SUCCESS:
-      case VERIFY_INVITE_EMAIL_REQUEST:
         return null
 
       default:

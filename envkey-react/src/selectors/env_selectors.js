@@ -89,9 +89,7 @@ export const
 
       envsWithMeta = getEnvsWithMetaWithPending("app", app.id, state)
 
-    return envsWithMeta.reduce((acc, envsWithMeta)=> {
-      return {...acc, ...rawEnv({envsWithMeta, environment})}
-    }, {})
+    return rawEnv({envsWithMeta, environment})
   }),
 
   getEnvironmentsAccessibleForAppUser = R.curry(({appId, userId, role}, state)=>{
