@@ -6,12 +6,14 @@ import {
   createAssoc,
   removeAssoc,
   generateKey,
+  revokeKey,
   createObject,
   clearGeneratedAssocKey
 } from 'actions'
 import {
   getIsRemovingById,
   getIsGeneratingAssocKeyById,
+  getIsRevokingAssocKeyById,
   getPermissions,
   getUser,
   getCurrentUser,
@@ -42,6 +44,7 @@ export default function({
       permissions: getPermissions(state),
       isRemovingById: getIsRemovingById(state),
       isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
+      isRevokingAssocKeyById: getIsRevokingAssocKeyById(state),
       isGrantingEnvAccessByUserId: getIsGrantingEnvAccessByUserId(state),
       generatedEnvkeysById: getGeneratedEnvkeysById(state),
       getUserFn: userId => getUser(userId, state)
@@ -68,7 +71,7 @@ export default function({
           } else {
             dispatch(createAssoc({...getTrueAssocParams(), params, role}))
           }
-        } else if (parentType == "app" && assocType == "server"){
+        } else if (parentType == "app" && ["server", "localKey"].includes(assocType)){
           dispatch(addAssoc({...baseAssocParams, ...params, role}))
         } else {
           dispatch(createAssoc({...getTrueAssocParams(), params}))
@@ -76,6 +79,7 @@ export default function({
 
       },
       generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId})),
+      revokeKey: targetId => dispatch(revokeKey({...baseAssocParams, targetId})),
       clearGeneratedAssocKey: targetId => dispatch(clearGeneratedAssocKey(targetId))
     }
   }

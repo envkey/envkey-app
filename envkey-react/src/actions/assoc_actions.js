@@ -7,29 +7,11 @@ import {
   REMOVE_ASSOC_REQUEST,
   GENERATE_ASSOC_KEY,
   GENERATE_ASSOC_KEY_REQUEST,
+  REVOKE_ASSOC_KEY_REQUEST,
   CLEAR_GENERATED_ASSOC_KEY
 } from './action_types'
 
 const
-  keyRequestEnv = ({appId, assocType, assocId, encryptedRawEnv, signedTrustedPubkeys})=>{
-    switch (assocType){
-      case "server":
-        return {
-          "servers": {
-            [assocId]: {env: encryptedRawEnv, signedTrustedPubkeys}
-          }
-        }
-      case "appUser":
-        return {
-          users: {
-            [assocId]: {
-              apps: { [appId]: {env: encryptedRawEnv, signedTrustedPubkeys} }
-            }
-          }
-        }
-    }
-  },
-
   pickMeta = R.pick([
     "parent",
     "parentType",
@@ -57,7 +39,9 @@ export const
 
   createAssoc = createAction(
     CREATE_ASSOC_REQUEST,
-    ({assocType, params})=> ({[decamelize(assocType)]: params}),
+    ({assocType, parentId, parentType, params})=> ({
+      [decamelize(assocType)]: params
+    }),
     pickMeta
   ),
 
@@ -72,16 +56,16 @@ export const
       pubkey,
       pubkeyFingerprint,
       encryptedRawEnv,
-      assocId,
-      assocType,
-      parentId})=> {
+      assocType})=> {
 
       return {
         [assocType]: {encryptedPrivkey, pubkey, pubkeyFingerprint, signedTrustedPubkeys},
-        envs: keyRequestEnv({appId: parentId, assocType, assocId, encryptedRawEnv})
+        env: encryptedRawEnv
       }
     },
     pickMeta
   ),
+
+  revokeKey = createAction(REVOKE_ASSOC_KEY_REQUEST, R.always({}), pickMeta),
 
   clearGeneratedAssocKey = createAction(CLEAR_GENERATED_ASSOC_KEY)

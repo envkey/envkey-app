@@ -23,9 +23,13 @@ import {
   GENERATE_ASSOC_KEY_REQUEST,
   GENERATE_ASSOC_KEY_SUCCESS,
   GENERATE_ASSOC_KEY_FAILED,
+  REVOKE_ASSOC_KEY_REQUEST,
+  REVOKE_ASSOC_KEY_SUCCESS,
+  REVOKE_ASSOC_KEY_FAILED,
   GRANT_ENV_ACCESS,
   addAssoc,
   generateKeyRequest,
+  generateKey,
   addTrustedPubkey,
   updateTrustedPubkeys
 } from "actions"
@@ -42,7 +46,7 @@ import {
   getCurrentOrg,
   getCurrentUser,
   getServer,
-  getAppUser,
+  getLocalKey,
   getRawEnvWithPendingForApp,
   getPrivkey
 } from 'selectors'
@@ -68,26 +72,39 @@ const
     method: "patch",
     actionTypes: [GENERATE_ASSOC_KEY_SUCCESS, GENERATE_ASSOC_KEY_FAILED],
     urlFn: ({meta})=> getAssocUrl(meta, `/${meta.targetId}/generate_key`)
+  }),
+
+  onRevokeKeyRequest = apiSaga({
+    authenticated: true,
+    method: "delete",
+    actionTypes: [REVOKE_ASSOC_KEY_SUCCESS, REVOKE_ASSOC_KEY_FAILED],
+    urlFn: ({meta})=> getAssocUrl(meta, `/${meta.targetId}/revoke_key`)
   })
 
 function* onAddAssoc(action){
-  const actionWithEnvs = yield call(attachAssocEnvs, action),
+  let apiAction
+  const {meta: {parentType, assocType}} = action,
         apiSaga = addRemoveAssocApiSaga({
           method: "post",
           actionTypes: [ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED]
         })
 
-  yield call(apiSaga, actionWithEnvs)
+  if(parentType == "app" && assocType == "user"){
+    apiAction = yield call(attachAssocEnvs, action)
+  } else {
+    apiAction = action
+  }
+
+  yield call(apiSaga, apiAction)
 }
 
 function* onRemoveAssoc(action){
-  const actionWithEnvs = yield call(attachAssocEnvs, action),
-        apiSaga = addRemoveAssocApiSaga({
+  const apiSaga = addRemoveAssocApiSaga({
           method: "delete",
           actionTypes: [REMOVE_ASSOC_SUCCESS, REMOVE_ASSOC_FAILED]
         })
 
-  yield call(apiSaga, actionWithEnvs)
+  yield call(apiSaga, action)
 }
 
 function* onCreateAssoc(action){
@@ -99,19 +116,29 @@ function* onCreateAssoc(action){
   }
 }
 
+function* onAddAssocSuccess({meta, payload: {id: targetId}}){
+  const {parentType, assocType} = meta
+
+  if(parentType == "app" && ["server", "localKey"].includes(assocType)){
+    yield put(generateKey({
+      ...meta, targetId
+    }))
+  }
+}
+
 function* onGenerateKey(action){
   const
     currentOrg = yield select(getCurrentOrg),
 
     {meta: {parent: app, assocType, targetId}} = action,
 
-    selector = {server: getServer, appUser: getAppUser}[assocType],
+    selector = {server: getServer, localKey: getLocalKey}[assocType],
 
     target = yield select(selector(targetId)),
 
-    assocId = {server: targetId, appUser: target.userId}[assocType],
+    assocId = {server: targetId, localKey: targetId}[assocType],
 
-    environment = {server: target.role, appUser: "development"}[assocType],
+    environment = {server: target.role, localKey: "development"}[assocType],
 
     passphrase = secureRandomAlphanumeric(16),
 
@@ -157,7 +184,7 @@ function *onGenerateKeySuccess({meta: {assocType, targetId}}){
   const
     {id: orgId} = yield select(getCurrentOrg),
 
-    selector = {server: getServer, appUser: getAppUser}[assocType],
+    selector = {server: getServer, localKey: getLocalKey}[assocType],
 
     target = yield select(selector(targetId))
 
@@ -171,8 +198,10 @@ export default function* assocSagas(){
     takeEvery(ADD_ASSOC_REQUEST, onAddAssoc),
     takeEvery(REMOVE_ASSOC_REQUEST, onRemoveAssoc),
     takeEvery(CREATE_ASSOC_REQUEST, onCreateAssoc),
+    takeEvery(ADD_ASSOC_SUCCESS, onAddAssocSuccess),
     takeEvery(GENERATE_ASSOC_KEY, onGenerateKey),
     takeEvery(GENERATE_ASSOC_KEY_REQUEST, onGenerateKeyRequest),
-    takeEvery(GENERATE_ASSOC_KEY_SUCCESS, onGenerateKeySuccess)
+    takeEvery(GENERATE_ASSOC_KEY_SUCCESS, onGenerateKeySuccess),
+    takeEvery(REVOKE_ASSOC_KEY_REQUEST, onRevokeKeyRequest)
   ]
 }

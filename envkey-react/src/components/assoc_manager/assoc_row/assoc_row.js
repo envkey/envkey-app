@@ -14,6 +14,8 @@ const targetId = props => R.path(["relation", "id"], props.assoc) || props.assoc
 
       isGeneratingAssocKey = props => props.isGeneratingAssocKeyById[targetId(props)] || false,
 
+      isRevokingAssocKey = props => props.isRevokingAssocKeyById[targetId(props)] || false,
+
       isGrantingEnvAccess = ({
         isGrantingEnvAccessByUserId,
         parent: {id: parentId},
@@ -28,6 +30,10 @@ class AssocRow extends React.Component{
 
   _onRenew(){
     this.props.generateKey(targetId(this.props))
+  }
+
+  _onRevoke(){
+    this.props.revokeKey(targetId(this.props))
   }
 
   _classNames(){
@@ -49,8 +55,10 @@ class AssocRow extends React.Component{
         ...this.props,
         isRemoving: isRemoving(this.props),
         isGeneratingAssocKey: isGeneratingAssocKey(this.props),
+        isRevokingAssocKey: isRevokingAssocKey(this.props),
         isGrantingEnvAccess: isGrantingEnvAccess(this.props),
-        onRenew: ::this._onRenew
+        onRenew: ::this._onRenew,
+        onRevoke: ::this._onRevoke
       })
     ]
   }

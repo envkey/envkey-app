@@ -8,7 +8,8 @@ export const
     "user",
     "orgUser",
     "appUser",
-    "server"
+    "server",
+    "localKey"
   ],
 
   ORG_OBJECT_TYPES_PLURALIZED = ORG_OBJECT_TYPES.map(s => pluralize(s)),

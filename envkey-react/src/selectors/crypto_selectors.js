@@ -13,6 +13,8 @@ export const
 
   getIsDecryptingAll = db.path("isDecryptingAll"),
 
+  getIsDecrypting = R.anyPass([getIsDecryptingPrivkey, getIsDecryptingAll]),
+
   getDecryptedAll = db.path("decryptedAll"),
 
   getSignedTrustedPubkeys = db.path("signedTrustedPubkeys"),

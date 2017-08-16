@@ -19,12 +19,26 @@ import {
   getIsVerifyingEmail,
   getIsVerifyingEmailCode,
   getVerifyEmailError,
-  getVerifyEmailCodeError
+  getVerifyEmailCodeError,
+  getCurrentUser
 } from 'selectors'
 import VerifyEmailCodeForm from 'components/forms/auth/verify_email_code_form'
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
 import {imagePath} from 'lib/ui'
+
+const
+  shouldShowRegisterForm = props =>{
+    return props.emailVerificationCode || props.isAuthenticating || props.currentUser
+  },
+
+  shouldShowVerifyEmailCodeForm = props =>{
+    return props.verifyingEmail && !shouldShowRegisterForm(props)
+  },
+
+  shouldShowEmailForm = props =>{
+    return !shouldShowRegisterForm(props) && !shouldShowVerifyEmailCodeForm(props)
+  }
 
 class LoginRegister extends React.Component {
 
@@ -44,6 +58,12 @@ class LoginRegister extends React.Component {
   componentDidMount(){
     this.props.onLoad()
     this.refs.email.focus()
+  }
+
+  componentDidUpdate(prevProps, prevState){
+    if(!shouldShowRegisterForm(prevProps) && shouldShowRegisterForm(this.props)){
+      this.refs.orgName.focus()
+    }
   }
 
   _onVerifyEmail(e){
@@ -90,13 +110,11 @@ class LoginRegister extends React.Component {
   }
 
   _renderContent(){
-    if (this.props.verifyingEmail){
-      if (this.props.emailVerificationCode){
-        return this._renderRegister()
-      } else {
-        return this._renderVerifyEmailCode()
-      }
-    } else {
+    if (shouldShowRegisterForm(this.props)){
+      return this._renderRegister()
+    } else if (shouldShowVerifyEmailCodeForm(this.props)){
+      return this._renderVerifyEmailCode()
+    } else if (shouldShowEmailForm(this.props)){
       return this._renderVerifyEmail()
     }
   }
@@ -170,6 +188,7 @@ class LoginRegister extends React.Component {
       h.form({onSubmit: ::this._onRegister}, [
         h.fieldset([
           h.input({
+            ref: "orgName",
             placeholder: "Organization name",
             required: true,
             value: this.state.orgName,
@@ -211,7 +230,7 @@ class LoginRegister extends React.Component {
   }
 
   _renderRegisterSubmit(){
-    if (this.props.isAuthenticating){
+    if (this.props.isAuthenticating || this.props.currentUser){
       return h(Spinner)
     } else {
       return h.button("Create Organization")
@@ -229,6 +248,7 @@ class LoginRegister extends React.Component {
 const mapStateToProps = state => {
   return {
     isAuthenticating: getIsAuthenticating(state),
+    currentUser: getCurrentUser(state),
     authError: getAuthError(state),
     verifyingEmail: getVerifyingEmail(state),
     emailVerificationCode: getEmailVerificationCode(state),

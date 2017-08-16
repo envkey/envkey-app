@@ -13,6 +13,7 @@ export default function ({
   isRemoving,
   getUserFn,
   isGeneratingAssocKey,
+  isRevokingAssocKey,
   keyGeneratedAt,
   keyGeneratedById,
   envkey,
@@ -25,10 +26,7 @@ export default function ({
     canGenerate = ()=> permissions.generateKey && !isRemoving,
 
     renderUpdateButtons = ()=> h.div(".update-buttons", [
-        // h.button(".revoke", {
-        //   onClick: onRevoke
-        // }, "Revoke"),
-
+        renderRevokeButton(),
         renderGenerateButton()
     ]),
 
@@ -38,9 +36,15 @@ export default function ({
       onClick: onRenew
     }, renderGenerateLabel()),
 
+    renderRevokeButton = ()=> {
+      return h.button(".revoke", {
+        onClick: onRevoke
+      }, "Revoke")
+    },
+
     renderButtons = ()=> {
       if (isRemoving)return ""
-      if (isGeneratingAssocKey){
+      if (isGeneratingAssocKey || isRevokingAssocKey){
         return h(SmallLoader)
       } else if (canGenerate()) {
         if (keyGeneratedAt){
@@ -57,6 +61,10 @@ export default function ({
       if (isGeneratingAssocKey){
         contents = [
           h.span(".secondary", "Generating key...")
+        ]
+      } else if (isRevokingAssocKey){
+        contents = [
+          h.span(".secondary", "Revoking key...")
         ]
       } else if (keyGeneratedAt){
         const {firstName, lastName} = isCurrentUser ? currentUser : getUserFn(keyGeneratedById),

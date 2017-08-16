@@ -21,6 +21,7 @@ import {
   FETCH_OBJECT_DETAILS_API_SUCCESS,
   FETCH_OBJECT_DETAILS_SUCCESS,
   GENERATE_ASSOC_KEY_SUCCESS,
+  REVOKE_ASSOC_KEY_SUCCESS,
   GRANT_ENV_ACCESS_SUCCESS,
   UPDATE_ORG_ROLE_SUCCESS,
   SELECTED_OBJECT,
@@ -115,6 +116,16 @@ const
     return state
   },
 
+  getRevokeKeyReducer = objectTypePlural => (state, {
+    meta: {assocType}, payload
+  })=> {
+    if(pluralize(assocType) == objectTypePlural){
+      const {id} = payload
+      return R.assoc(id, payload, state)
+    }
+    return state
+  },
+
   getDecryptEnvsReducer = objectTypePlural => (state, {
     meta: {objectType}, payload
   })=>{
@@ -195,6 +206,9 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
 
       case GENERATE_ASSOC_KEY_SUCCESS:
         return getGenerateKeyReducer(objectTypePlural)(state, action)
+
+      case REVOKE_ASSOC_KEY_SUCCESS:
+        return getRevokeKeyReducer(objectTypePlural)(state, action)
 
       case LOAD_INVITE_REQUEST:
       case LOGIN:

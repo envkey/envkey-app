@@ -5,44 +5,15 @@ import pluralize from 'pluralize'
 import { orgRoleGroupLabel } from 'lib/ui'
 import moment from 'moment'
 
-db.init("apps", "users", "appUsers", "orgUsers", "servers")
+db.init("apps", "users", "appUsers", "orgUsers", "servers", "localKeys")
 
 export const
-
-  getApps = db.apps.list({sortBy: "name"}),
+  // User selectors
+  getUser = db.users.find(),
 
   getUsers = db.users.list(),
 
   getUsersById = db.users.index(),
-
-  getServers = db.servers.list(),
-
-  getAppUsers = db.appUsers.list(),
-
-  getAppsSortedByUpdatedAt = db.apps.list({
-    sortBy: ({updatedAt})=> moment(updatedAt).valueOf(),
-    reverse: true
-  }),
-
-  getServerGroupsForApp = db.apps.hasMany("servers", {
-    groupBy: "role",
-    sortBy: "createdAt"
-  }),
-
-  getAppUserBy = ({userId, appId}, state)=>{
-    const fn = db.appUsers.where({appId, userId})
-    return state ? fn(state)[0] : R.pipe(fn, R.head)
-  },
-
-  getAppUser = db.appUsers.find(),
-
-  getUsersForApp = db.apps.hasAndBelongsToMany("users"),
-
-  getApp = db.apps.find(),
-
-  getAppBySlug = db.apps.findBy("slug"),
-
-  getUser = db.users.find(),
 
   getUserBySlug = db.users.findBy("slug"),
 
@@ -61,11 +32,26 @@ export const
     sortBy: "lastName"
   }),
 
-  getServersForApp = db.apps.hasMany("servers"),
+  getUsersForApp = db.apps.hasAndBelongsToMany("users"),
 
-  getKeyableServersForApp = db.apps.hasMany("servers", {
-    where: {pubkey: R.complement(R.isNil)}
+  getUserWithOrgUserBySlug = (slug, state)=> {
+    const user = getUserBySlug(slug, state),
+          orgUser = getOrgUserForUser(user.id, state)
+
+    return R.assoc("orgUser", orgUser, user)
+  },
+
+  // App selectors
+  getApp = db.apps.find(),
+
+  getApps = db.apps.list({sortBy: "name"}),
+
+  getAppsSortedByUpdatedAt = db.apps.list({
+    sortBy: ({updatedAt})=> moment(updatedAt).valueOf(),
+    reverse: true
   }),
+
+  getAppBySlug = db.apps.findBy("slug"),
 
   getAppGroupsForUser = db.users.hasAndBelongsToMany("apps", {
     through: "appUsers",
@@ -77,19 +63,49 @@ export const
     through: "appUsers"
   }),
 
-  getServer = db.servers.find(),
+  getOnboardAppId = db.path("onboardAppId"),
 
-  getOrgUserForUser = db.orgUsers.findBy("userId"),
+  // App user selectors
+  getAppUsers = db.appUsers.list(),
 
-  getUserWithOrgUserBySlug = (slug, state)=> {
-    const user = getUserBySlug(slug, state),
-          orgUser = getOrgUserForUser(user.id, state)
-
-    return R.assoc("orgUser", orgUser, user)
+  getAppUserBy = ({userId, appId}, state)=>{
+    const fn = db.appUsers.where({appId, userId})
+    return state ? fn(state)[0] : R.pipe(fn, R.head)
   },
 
-  dissocRelations = R.map(R.dissoc("relation")),
+  getAppUser = db.appUsers.find(),
 
+  // Server selectors
+  getServer = db.servers.find(),
+
+  getServers = db.servers.list(),
+
+  getServersForApp = db.apps.hasMany("servers"),
+
+  getServersWithPubkeyForApp = db.apps.hasMany("servers", {
+    where: {pubkey: R.complement(R.isNil)}
+  }),
+
+  getServerGroupsForApp = db.apps.hasMany("servers", {
+    groupBy: "role",
+    sortBy: "createdAt"
+  }),
+
+  // Local key selectors
+  getLocalKey = db.localKeys.find(),
+
+  getLocalKeys = db.localKeys.list(),
+
+  getLocalKeysForApp = db.apps.hasMany("localKeys"),
+
+  getLocalKeysWithPubkeyForApp = db.apps.hasMany("localKeys", {
+    where: {pubkey: R.complement(R.isNil)}
+  }),
+
+  // Org user selectors
+  getOrgUserForUser = db.orgUsers.findBy("userId"),
+
+  // Generic object selectors
   getSelectedObjectType = db.path("selectedObjectType"),
 
   getObject = R.curry((type, id, state)=>{
@@ -104,7 +120,7 @@ export const
     return getObject(type, id, state)
   },
 
-  getOnboardAppId = db.path("onboardAppId")
+  dissocRelations = R.map(R.dissoc("relation"))
 
 
 

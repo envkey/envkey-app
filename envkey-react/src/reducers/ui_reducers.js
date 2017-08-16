@@ -13,6 +13,10 @@ import {
   GENERATE_ASSOC_KEY_FAILED,
   GENERATE_ASSOC_KEY_SUCCESS,
 
+  REVOKE_ASSOC_KEY_REQUEST,
+  REVOKE_ASSOC_KEY_FAILED,
+  REVOKE_ASSOC_KEY_SUCCESS,
+
   CREATE_ASSOC_REQUEST,
   CREATE_ASSOC_FAILED,
   CREATE_ASSOC_SUCCESS,
@@ -177,6 +181,28 @@ export const
 
       case GENERATE_ASSOC_KEY_SUCCESS:
       case GENERATE_ASSOC_KEY_FAILED:
+        return R.dissoc(action.meta.targetId, state)
+
+      case SELECT_ORG:
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return {}
+
+      default:
+        return state
+    }
+  },
+
+  isRevokingAssocKey = (state = {}, action)=>{
+    switch(action.type){
+      case REVOKE_ASSOC_KEY_REQUEST:
+        return R.assoc(action.meta.targetId, true, state)
+
+      case REVOKE_ASSOC_KEY_SUCCESS:
+      case REVOKE_ASSOC_KEY_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
       case SELECT_ORG:

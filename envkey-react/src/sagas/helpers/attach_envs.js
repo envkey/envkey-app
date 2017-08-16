@@ -8,7 +8,9 @@ import {
   getApp,
   getServer,
   getUsersForApp,
-  getKeyableServersForApp,
+  getServersWithPubkeyForApp,
+  getLocalKey,
+  getLocalKeysWithPubkeyForApp,
   getCurrentUser,
   getCurrentUserEnvironmentsAssignableToAppUser,
   getCurrentUserEnvironmentAssignableToServer,
@@ -30,7 +32,6 @@ export function* envParamsWithAppUser({
   appId,
   userId,
   role,
-  rawEnvOnly,
   withTrustedPubkey,
   isAcceptingInvite=false
 }, envParams={}){
@@ -52,7 +53,7 @@ export function* envParamsWithAppUser({
     envs.env = yield encryptJson({ data: rawEnv, pubkey: targetAppUser.pubkey, privkey })
   }
 
-  if(pubkey && !rawEnvOnly && (withTrustedPubkey || (yield call(keyableIsTrusted, user)))){
+  if(pubkey && (withTrustedPubkey || (yield call(keyableIsTrusted, user)))){
     const app = yield select(getApp(appId)),
           envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
           encryptedEnvsWithMeta = {}
@@ -102,9 +103,25 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
   }
 }
 
+export function* envParamsWithLocalKey({appId, localKeyId}, envParams={}){
+  const privkey = yield select(getPrivkey),
+        localKey = yield select(getLocalKey(localKeyId)),
+        {pubkey, role: localKeyRole} = localKey,
+        environment = "development"
+
+  if(!(yield call(keyableIsTrusted, localKey))) return envParams
+
+  const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment}))
+  return R.assocPath(["localKeys", localKeyId], {
+    env: yield encryptJson({data: rawEnv, pubkey, privkey })
+  }, envParams)
+}
+
+
 export function* envParamsForApp({appId}){
   const users = yield select(getUsersForApp(appId)),
-        servers = yield select(getKeyableServersForApp(appId))
+        servers = yield select(getServersWithPubkeyForApp(appId)),
+        localKeys = yield select(getLocalKeysWithPubkeyForApp(appId))
 
   let envParams = {}
 
@@ -114,6 +131,10 @@ export function* envParamsForApp({appId}){
 
   for (let {id: serverId} of servers){
     envParams = yield call(envParamsWithServer, {appId, serverId}, envParams)
+  }
+
+  for (let {id: localKeyId} of localKeys){
+    envParams = yield call(envParamsWithLocalKey, {appId, localKeyId}, envParams)
   }
 
   return envParams

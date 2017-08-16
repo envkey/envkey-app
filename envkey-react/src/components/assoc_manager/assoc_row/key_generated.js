@@ -43,7 +43,7 @@ export default class KeyGenerated extends React.Component {
               " on your server."
             ],
 
-            appUser: [
+            localKey: [
               "Copy it into a",
               h.strong(" .env file"),
               " at the root of your project directory."

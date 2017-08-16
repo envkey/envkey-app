@@ -32,6 +32,10 @@ export const
 
   getIsGeneratingAssocKey = (id, state)=> getIsGeneratingAssocKeyById(state)[id] || false,
 
+  getIsRevokingAssocKeyById = db.path("isRevokingAssocKey"),
+
+  getIsRevokingAssocKey = (id, state)=> getIsRevokingAssocKeyById(state)[id] || false,
+
   getIsUpdatingEnv = (parentId, state)=> {
     return getIsCreatingEnvEntry(parentId, state) || R.pipe(
       db.path("isUpdatingEnv"),

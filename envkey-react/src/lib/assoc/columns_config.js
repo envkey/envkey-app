@@ -4,12 +4,14 @@ import pluralize from 'pluralize'
 import {
   UserRowDisplay,
   AppRowDisplay,
-  ServerRowDisplay
+  ServerRowDisplay,
+  LocalKeyRowDisplay
 } from 'components/assoc_manager'
 import {
   AppForm,
   ServerForm,
-  UserForm
+  UserForm,
+  LocalKeyForm
 } from 'components/forms'
 import { appRoleGroupLabel } from 'lib/ui'
 import {
@@ -19,11 +21,11 @@ import {
   getNonOrgAdminUsers,
   getApps,
   getIsAddingAssoc,
-  getIsGeneratingAssocKey,
   getIsCreating,
   getUsersForApp,
   getAppsForUser,
   getOrgRolesInvitable,
+  getLocalKeysForApp,
   dissocRelations
 } from 'selectors'
 
@@ -109,12 +111,11 @@ export default function({
         rowDisplayType: ServerRowDisplay,
         addFormType: ServerForm,
         addLabel: "+",
-        noAdd: true,
 
         columns: [
           {
             title: "Test",
-            subtitle: "Server Key",
+            subtitle: "Server Keys",
             role: "development",
             groups: R.pick(["development"], serverGroups),
             keyLabel: "development",
@@ -124,7 +125,7 @@ export default function({
           },
           {
             title: "Staging",
-            subtitle: "Server Key",
+            subtitle: "Server Keys",
             role: "staging",
             groups: R.pick(["staging"], serverGroups),
             keyLabel: "staging",
@@ -134,13 +135,34 @@ export default function({
           },
           {
             title: "Production",
-            subtitle: "Server Key",
+            subtitle: "Server Keys",
             role: "production",
             groups: R.pick(["production"], serverGroups),
             keyLabel: "production",
             permissionCopyLines: [h.span(["Connects to the ", h.strong("production"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "production"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "production"}, state)
+          }
+        ]
+      }
+
+    case "app-localKey":
+      return {
+        rowDisplayType: LocalKeyRowDisplay,
+        addFormType: LocalKeyForm,
+        addLabel: "+",
+
+        columns: [
+          {
+            // title: "Local Development",
+            // subtitle: "Keys",
+            role: "development",
+            groups: {development: getLocalKeysForApp(parent.id, state)},
+            keyLabel: "development",
+            // permissionCopyLines: [h.span(["Connects to the ", h.strong("development"), " environment."])],
+            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
+            isCreating: getIsCreating({assocType, parentId: parent.id, role: "development"}, state),
+            isCurrentUser: true
           }
         ]
       }

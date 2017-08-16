@@ -44,7 +44,7 @@ import {
   getUsers,
   getUsersById,
   getServers,
-  getAppUsers
+  getLocalKeys
 } from 'selectors'
 import {
   apiSaga,
@@ -71,17 +71,17 @@ function *onVerifyOrgPubkeys(){
         trustedPubkeys = yield select(getTrustedPubkeys),
         users = yield select(getUsers),
         usersById = yield select(getUsersById),
-        appUsers = yield select(getAppUsers),
+        localKeys = yield select(getLocalKeys),
         servers = yield select(getServers),
-        keyables = R.flatten([users, appUsers, servers]),
+        keyables = R.flatten([users, localKeys, servers]),
         newlyTrustedPubkeys = [],
         unverifiedPubkeys = []
 
-  for (let keyables of [users, appUsers, servers]){
+  for (let keyables of [users, localKeys, servers]){
     for (let keyable of keyables){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
 
-      // keyGeneratedById for servers, userId for appUsers
+      // keyGeneratedById for servers, userId for localKeys
       const initialSignedById = keyable.keyGeneratedById || keyable.userId
 
       // Only consider keyables with public keys generated

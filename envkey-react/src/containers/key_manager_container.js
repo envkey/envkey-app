@@ -45,15 +45,15 @@ class KeyManager extends React.Component {
     return h.section(".development-key-section", [
       h.div(".key-section-head", [
         h.h4(this.props.app.name),
-        h.h2([h.strong("Development"), " Key"]),
+        h.h2([h.strong("Local Development"), " Keys"]),
 
         h.p([
-          "Use this key to access your config’s development environment on your own machine. You shouldn't share it with anyone else."
+          "Use these keys to access your config’s development environment locally on machines you own. These are specific to you and can only be generated and managed by you. You shouldn't share them with anyone."
         ])
       ]),
 
       h.div(".key-section-content", [
-        h(DevKeyManagerContainer, this.props)
+        h(AssocManagerContainerFactory({parentType: "app", assocType: "localKey"}), this.props)
       ])
     ])
   }
@@ -65,7 +65,7 @@ class KeyManager extends React.Component {
           h.h4(this.props.app.name),
           h.h2([h.strong("Server"), " Keys"]),
 
-          h.p("Use these keys to give servers access to your config. You can reuse a key if you have multiple servers that need the same environment.")
+          h.p("Use these keys to give remote servers access to your config. Anyone on the team with Devops or Admin privileges can generate and manage these.")
 
         ]),
 
