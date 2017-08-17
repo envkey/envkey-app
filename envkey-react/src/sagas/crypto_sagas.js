@@ -81,8 +81,6 @@ function *onVerifyOrgPubkeys(){
     for (let keyable of keyables){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
 
-      console.log("Checking keyable: ", keyableId)
-
       // keyGeneratedById for servers, userId for localKeys
       const initialSignedById = keyable.keyGeneratedById || keyable.userId
 
@@ -175,8 +173,6 @@ function *onVerifyOrgPubkeys(){
           signedById = null
         }
       }
-
-      console.log("Complete: ", keyableId)
 
       // If a trusted root was found, mark key trusted
       // Else, mark unverified
