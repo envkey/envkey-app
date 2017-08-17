@@ -35,7 +35,7 @@
     "moment-twitter": "^0.2.0",
     "pluralize": "^3.1.0",
     "pusher-js": "^4.0.0",
-    "ramda": "^0.23.0",
+    "ramda": "^0.24.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-hyperscript": "^2.4.2",

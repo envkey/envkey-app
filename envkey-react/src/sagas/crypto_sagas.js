@@ -74,12 +74,14 @@ function *onVerifyOrgPubkeys(){
         localKeys = yield select(getLocalKeys),
         servers = yield select(getServers),
         keyables = R.flatten([users, localKeys, servers]),
-        newlyTrustedPubkeys = [],
-        unverifiedPubkeys = []
+        newlyTrustedPubkeys = {},
+        unverifiedPubkeys = {}
 
   for (let keyables of [users, localKeys, servers]){
     for (let keyable of keyables){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
+
+      console.log("Checking keyable: ", keyableId)
 
       // keyGeneratedById for servers, userId for localKeys
       const initialSignedById = keyable.keyGeneratedById || keyable.userId
@@ -111,6 +113,11 @@ function *onVerifyOrgPubkeys(){
       while (!trustedRoot){
         let signingId = invitedById || signedById
         if (!signingId){
+          break
+        }
+
+        // If signing user has already been marked unverified, break
+        if (unverifiedPubkeys[signingId]){
           break
         }
 
@@ -151,33 +158,40 @@ function *onVerifyOrgPubkeys(){
         }
 
         // Check if signing user is trusted
-        trustedRoot = yield call(keyableIsTrusted, signingId) ? trustedPubkeys[signingId] : null
+        if (newlyTrustedPubkeys[signingId]){
+        // if already verified signing user in earlier pass, set trusted root
+          trustedRoot = newlyTrustedPubkeys[signingId]
+        } else {
+        // otherwise try to look up in trusted pubkeys
+          trustedRoot = yield call(keyableIsTrusted, signingId) ? trustedPubkeys[signingId] : null
+        }
 
         // Mark id checked
         checkedIds[signingId] = true
 
         // If signer isn't trusted, continue checking chain
         if (!trustedRoot){
-          invitedById = signedByUser.invitedById
+          invitedById = signingUser.invitedById
           signedById = null
         }
       }
 
+      console.log("Complete: ", keyableId)
+
       // If a trusted root was found, mark key trusted
       // Else, mark unverified
       if (trustedRoot){
-        newlyTrustedPubkeys.push(keyable)
+        newlyTrustedPubkeys[keyableId] = keyable
       } else {
-        unverifiedPubkeys.push(keyable)
+        unverifiedPubkeys[keyableId] = keyable
       }
     }
   }
 
-  if (unverifiedPubkeys.length){
-    yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: unverifiedPubkeys})
-  } else {
-    if (newlyTrustedPubkeys.length){
-      for (let keyable of newlyTrustedPubkeys){
+  if (R.isEmpty(unverifiedPubkeys)){
+    if (!R.isEmpty(newlyTrustedPubkeys)){
+      for (let kid in newlyTrustedPubkeys){
+        let keyable = newlyTrustedPubkeys[kid]
         yield put(addTrustedPubkey({keyable, orgId}))
       }
 
@@ -186,7 +200,9 @@ function *onVerifyOrgPubkeys(){
       }
     }
 
-    yield put({type: VERIFY_ORG_PUBKEYS_SUCCESS, payload: newlyTrustedPubkeys})
+    yield put({type: VERIFY_ORG_PUBKEYS_SUCCESS, payload: R.values(newlyTrustedPubkeys)})
+  } else {
+    yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: R.values(unverifiedPubkeys)})
   }
 }
 

@@ -2,9 +2,10 @@ import R from 'ramda'
 import { takeEvery, put, call, take, select } from 'redux-saga/effects'
 import {
   apiSaga,
-  signTrustedPubkeys,
+  signTrustedPubkeyChain,
   inviteUser,
-  execCreateAssoc
+  execCreateAssoc,
+  attachAssocEnvs
 } from './helpers'
 import {
   ADD_ASSOC_REQUEST,
@@ -33,7 +34,6 @@ import {
   addTrustedPubkey,
   updateTrustedPubkeys
 } from "actions"
-import {attachAssocEnvs} from './helpers/attach_envs'
 import {
   generateKeys,
   secureRandomAlphanumeric,
@@ -160,13 +160,19 @@ function* onGenerateKey(action){
 
     rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment})),
 
-    encryptedRawEnv = yield encryptJson({
-      pubkey: signedPubkey,
-      privkey: currentUserPrivkey,
-      data: rawEnv
-    }),
-
-    signedTrustedPubkeys = yield call(signTrustedPubkeys, decryptedPrivkey)
+    [
+      encryptedRawEnv,
+      signedTrustedPubkeys,
+      signedByTrustedPubkeys
+    ] = yield [
+     encryptJson({
+       pubkey: signedPubkey,
+       privkey: currentUserPrivkey,
+       data: rawEnv
+     }),
+     call(signTrustedPubkeyChain, decryptedPrivkey),
+     call(signTrustedPubkeyChain)
+    ]
 
   yield put(generateKeyRequest({
     ...action.meta,
@@ -175,6 +181,7 @@ function* onGenerateKey(action){
     encryptedRawEnv,
     passphrase,
     signedTrustedPubkeys,
+    signedByTrustedPubkeys,
     pubkey: signedPubkey,
     pubkeyFingerprint: getPubkeyFingerprint(signedPubkey)
   }))

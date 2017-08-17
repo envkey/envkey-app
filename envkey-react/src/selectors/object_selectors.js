@@ -96,7 +96,7 @@ export const
 
   getLocalKeys = db.localKeys.list(),
 
-  getLocalKeysForApp = db.apps.hasMany("localKeys"),
+  getLocalKeysForAppUsers = db.appUsers.hasMany("localKeys"),
 
   getLocalKeysWithPubkeyForApp = db.apps.hasMany("localKeys", {
     where: {pubkey: R.complement(R.isNil)}

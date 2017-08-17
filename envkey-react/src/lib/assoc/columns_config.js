@@ -25,7 +25,7 @@ import {
   getUsersForApp,
   getAppsForUser,
   getOrgRolesInvitable,
-  getLocalKeysForApp,
+  getCurrentUserLocalKeysForApp,
   dissocRelations
 } from 'selectors'
 
@@ -157,7 +157,7 @@ export default function({
             // title: "Local Development",
             // subtitle: "Keys",
             role: "development",
-            groups: {development: getLocalKeysForApp(parent.id, state)},
+            groups: {development: getCurrentUserLocalKeysForApp(parent.id, state)},
             keyLabel: "development",
             // permissionCopyLines: [h.span(["Connects to the ", h.strong("development"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),

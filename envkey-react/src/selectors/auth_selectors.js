@@ -1,10 +1,10 @@
 import db from 'lib/db'
-import { getUser, getAppUserBy, getServer } from './object_selectors'
+import { getUser, getAppUserBy, getServer, getLocalKeysForAppUsers } from './object_selectors'
 import {
   getEnvironmentsAccessibleForAppUser,
   getEnvironmentsAssignableForAppUser,
   getAppEnvironmentsAccessible,
-  getAppEnvironmentsAssignable
+  getAppEnvironmentsAssignable,
 } from './env_selectors'
 import {getIsInvitee} from './invite_selectors'
 import {ORG_ROLES} from 'constants'
@@ -119,6 +119,12 @@ export const
     // return R.without(["productionMetaOnly"], environmentsAccessible)
 
     return ["development", "staging", "production"]
+  }),
+
+  getCurrentUserLocalKeysForApp = R.curry((appId, state)=> {
+    const {id: userId} = getCurrentUser(state),
+          {id: appUserId} = getAppUserBy({userId, appId}, state)
+    return getLocalKeysForAppUsers(appUserId, state)
   })
 
 

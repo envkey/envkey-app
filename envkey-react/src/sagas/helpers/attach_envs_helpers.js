@@ -48,22 +48,12 @@ export function* envParamsWithAppUser({
     environments.push("productionMetaOnly")
   }
 
-  if(targetAppUser && targetAppUser.pubkey && (yield call(keyableIsTrusted, targetAppUser))){
-    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment: "development"}))
-    envs.env = yield encryptJson({ data: rawEnv, pubkey: targetAppUser.pubkey, privkey })
-  }
-
   if(pubkey && (withTrustedPubkey || (yield call(keyableIsTrusted, user)))){
     const app = yield select(getApp(appId)),
           envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
-          encryptedEnvsWithMeta = {}
+          encryptedEnvs = yield environments.map(environment => encryptJson({data: envsWithMeta[environment], pubkey, privkey}))
 
-    for (let environment of environments){
-      encryptedEnvsWithMeta[environment] = yield encryptJson({
-        data: envsWithMeta[environment], pubkey, privkey
-      })
-    }
-    envs.envsWithMeta = encryptedEnvsWithMeta
+    envs.envsWithMeta = R.zipObj(environments, encryptedEnvs)
   }
 
   if(R.isEmpty(envs))return envParams
@@ -119,48 +109,42 @@ export function* envParamsWithLocalKey({appId, localKeyId}, envParams={}){
 
 
 export function* envParamsForApp({appId}){
-  const users = yield select(getUsersForApp(appId)),
-        servers = yield select(getServersWithPubkeyForApp(appId)),
-        localKeys = yield select(getLocalKeysWithPubkeyForApp(appId))
+  const
+    users = yield select(getUsersForApp(appId)),
+    servers = yield select(getServersWithPubkeyForApp(appId)),
+    localKeys = yield select(getLocalKeysWithPubkeyForApp(appId)),
 
-  let envParams = {}
+    userGenerators = users.map(({id: userId})=> call(envParamsWithAppUser, {appId, userId})),
 
-  for (let {id: userId} of users){
-    envParams = yield call(envParamsWithAppUser, {appId, userId}, envParams)
-  }
+    serverGenerators = servers.map(({id: serverId})=> call(envParamsWithServer, {appId, serverId})),
 
-  for (let {id: serverId} of servers){
-    envParams = yield call(envParamsWithServer, {appId, serverId}, envParams)
-  }
+    localKeyGenerators = localKeys.map(({id: localKeyId})=> call(envParamsWithLocalKey, {appId, localKeyId})),
 
-  for (let {id: localKeyId} of localKeys){
-    envParams = yield call(envParamsWithLocalKey, {appId, localKeyId}, envParams)
-  }
+    allGenerators = userGenerators.concat(serverGenerators, localKeyGenerators),
 
-  return envParams
+    allParams = yield allGenerators,
+
+    merged = allParams.reduce(R.mergeDeepRight)
+
+  return merged
 }
 
 export function *envParamsForInvitee({userId, permittedAppIds}){
-  let envParams = {}
+  const generators = permittedAppIds.map(appId => call(envParamsWithAppUser, {userId, appId})),
+        allParams = yield generators,
+        merged = allParams.reduce(R.mergeDeepRight)
 
-  for (let appId of permittedAppIds){
-    envParams = yield call(envParamsWithAppUser, {userId, appId}, envParams)
-  }
-
-  return { envs: envParams }
+  return { envs: merged }
 }
 
 export function *envParamsForAcceptedInvite(withTrustedPubkey){
-  let envParams = {}
-
   const {id: userId} = yield select(getCurrentUser),
-        apps = yield select(getApps)
+        apps = yield select(getApps),
+        generators = apps.map(({id: appId})=> call(envParamsWithAppUser, {userId, appId, withTrustedPubkey, isAcceptingInvite: true})),
+        allParams = yield generators,
+        merged = allParams.reduce(R.mergeDeepRight)
 
-  for (let {id: appId} of apps){
-    envParams = yield call(envParamsWithAppUser, {userId, appId, withTrustedPubkey, isAcceptingInvite: true}, envParams)
-  }
-
-  return envParams
+  return merged
 }
 
 export function *envParamsForUpdateOrgRole({userId, role: newRole}){
@@ -174,15 +158,12 @@ export function *envParamsForUpdateOrgRole({userId, role: newRole}){
 
   if (!isUpdatingNonAdminToAdmin) return {}
 
-  let envParams = {}
+  const apps = yield select(getApps),
+        generators = apps.map(({id: appId})=> call(envParamsWithAppUser, {userId, appId})),
+        allParams = yield generators,
+        merged = allParams.reduce(R.mergeDeepRight)
 
-  const apps = yield select(getApps)
-
-  for (let {id: appId} of apps){
-    envParams = yield call(envParamsWithAppUser, {userId, appId}, envParams)
-  }
-
-  return envParams
+  return merged
 }
 
 export function* attachAssocEnvs(action){

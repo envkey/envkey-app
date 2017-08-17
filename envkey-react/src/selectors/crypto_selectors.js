@@ -1,6 +1,7 @@
 import db from 'lib/db'
 import R from 'ramda'
 import { getApps } from './object_selectors'
+import { getCurrentUser } from './auth_selectors'
 
 export const
   getIsGeneratingUserKey = db.path("isGeneratingUserKey"),
@@ -42,4 +43,24 @@ export const
       getApps,
       R.all(({id})=> getEnvsAreDecrypted(id, state))
     )(state)
+  },
+
+  // Gets list of trusted pubkeys back to the org owner
+  getTrustedPubkeyChain = state => {
+    const currentUser = getCurrentUser(state),
+          trustedPubkeys = getTrustedPubkeys(state),
+          trustChain = {}
+
+    let currentId = currentUser.id
+
+    while (true){
+      let currentPubkeyData = trustedPubkeys[currentId]
+      if (!currentPubkeyData)throw new Error("Trusted pubkey chain broken.")
+      trustChain[currentId] = currentPubkeyData
+      if (currentPubkeyData.invitedById){
+        currentId = currentPubkeyData.invitedById
+      } else {
+        return trustChain
+      }
+    }
   }

@@ -31,7 +31,8 @@ import {
   getTrustedPubkey,
   getCurrentOrg,
   getCurrentUser,
-  getUser
+  getUser,
+  getTrustedPubkeyChain
 } from "selectors"
 import { normalizeEnvsWithMeta } from 'lib/env/transform'
 import { TRUSTED_PUBKEY_PROPS } from 'constants'
@@ -39,10 +40,15 @@ import { TRUSTED_PUBKEY_PROPS } from 'constants'
 export function* signTrustedPubkeys(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),
         trustedPubkeys = yield select(getTrustedPubkeys),
-        signed = yield crypto.signCleartextJson({
-          privkey,
-          data: trustedPubkeys
-        })
+        signed = yield crypto.signCleartextJson({privkey, data: trustedPubkeys})
+
+  return signed
+}
+
+export function* signTrustedPubkeyChain(signWithPrivkey=null){
+  const privkey = signWithPrivkey || (yield select(getPrivkey)),
+        trustedPubkeys = yield select(getTrustedPubkeyChain),
+        signed = yield crypto.signCleartextJson({privkey, data: trustedPubkeys})
 
   return signed
 }

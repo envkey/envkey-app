@@ -30,7 +30,7 @@ export const
   addAssoc = createAction(
     ADD_ASSOC_REQUEST,
     ({joinType, assocType, assocId, role, name})=> {
-      const k = assocType == "server" ? "server" : joinType,
+      const k = joinType || assocType,
             obj =  {role, name, [`${assocType}Id`]: assocId}
       return {[k]: obj}
     },
@@ -53,14 +53,17 @@ export const
     GENERATE_ASSOC_KEY_REQUEST,
     ({encryptedPrivkey,
       signedTrustedPubkeys,
+      signedByTrustedPubkeys,
       pubkey,
       pubkeyFingerprint,
       encryptedRawEnv,
       assocType})=> {
 
       return {
-        [assocType]: {encryptedPrivkey, pubkey, pubkeyFingerprint, signedTrustedPubkeys},
-        env: encryptedRawEnv
+        [assocType]: {encryptedPrivkey, pubkey, pubkeyFingerprint},
+        signedTrustedPubkeys,
+        signedByTrustedPubkeys,
+        env: encryptedRawEnv,
       }
     },
     pickMeta

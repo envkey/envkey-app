@@ -1,5 +1,6 @@
 import { put, select, call } from 'redux-saga/effects'
-import {envParamsForApp} from './attach_envs'
+import {envParamsForApp} from './attach_envs_helpers'
+import {signTrustedPubkeyChain} from './crypto_helpers'
 import {
   getEnvsWithMetaWithPending,
   getEnvActionsPendingByEnvUpdateId,
@@ -21,7 +22,8 @@ export function* dispatchEnvUpdateRequest({
         envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
         envUpdateId = meta.forceEnvUpdateId || (yield select(getEnvUpdateId(parentId))),
         envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
-        envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta})
+        envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta}),
+        signedByTrustedPubkeys = yield call(signTrustedPubkeyChain)
 
   yield put(updateEnvRequest({
     ...meta,
@@ -30,6 +32,7 @@ export function* dispatchEnvUpdateRequest({
     envActionsPending,
     skipDelay,
     envUpdateId,
+    signedByTrustedPubkeys,
     updatedEnvsWithMeta: envsWithMeta,
     envs: envParams,
     envsUpdatedAt: parent.envsUpdatedAt,
