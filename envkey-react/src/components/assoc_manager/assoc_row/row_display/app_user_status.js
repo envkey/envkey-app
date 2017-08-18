@@ -28,5 +28,23 @@ export default function ({status, timestamp, isGrantingEnvAccess}){
       h.em(".granted", "granted "),
       ts
     ])
+  } else if (status == "expired"){
+    return h.span(classStr, [
+      "Invite ",
+      h.em(".expired", "expired "),
+      ts
+    ])
+  } else if (status == "revoked"){
+    return h.span(classStr, [
+      "Invite ",
+      h.em(".revoked", "revoked "),
+      ts
+    ])
+  } else if (status == "failed"){
+    return h.span(classStr, [
+      "Invite ",
+      h.em(".failed", "failed "),
+      ts
+    ])
   }
 }

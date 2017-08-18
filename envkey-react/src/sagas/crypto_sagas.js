@@ -32,6 +32,7 @@ import {
   getPrivkey,
   getEncryptedPrivkey,
   getApp,
+  getAppUser,
   getAllEnvParentsAreDecrypted,
   getEnvsAreDecrypted,
   getEnvsAreDecrypting,
@@ -81,8 +82,14 @@ function *onVerifyOrgPubkeys(){
     for (let keyable of keyables){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
 
-      // keyGeneratedById for servers, userId for localKeys
-      const initialSignedById = keyable.keyGeneratedById || keyable.userId
+      // keyGeneratedById for servers, userId (via appUserId) for localKeys
+      let initialSignedById
+      if (keyable.keyGeneratedById){
+        initialSignedById = keyable.keyGeneratedById
+      } else if (keyable.appUserId){
+        let appUser = yield select(getAppUser(keyable.appUserId))
+        initialSignedById = appUser.userId
+      }
 
       // Only consider keyables with public keys generated
       if (!(pubkey || invitePubkey)){
@@ -97,7 +104,7 @@ function *onVerifyOrgPubkeys(){
       if(trusted && keyableTrusted){
         continue
       } else if (!(initialSignedById || initialInvitedById)){
-        unverifiedPubkeys.push(keyable)
+        unverifiedPubkeys[keyableId] = keyable
         continue
       }
 
