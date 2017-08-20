@@ -4,6 +4,6 @@ export const alertBox = (msg, title, cb)=>{
     window.nativeAlert(msg, title, cb)
   } else {
     alert(msg)
-    cb()
+    if(cb)cb()
   }
 }

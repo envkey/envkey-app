@@ -137,6 +137,7 @@ export const
     return pubkey.signPrimaryUser([privkey]).armor()
   },
 
+  // NOTE that this one doesn't return a promise... verifies synchronously
   verifyPublicKeySignature = ({signedKey: signedKeyArmored, signerKey: signerKeyArmored})=>{
     const signedKey = openpgp.key.readArmored(signedKeyArmored).keys[0],
           signerKey = openpgp.key.readArmored(signerKeyArmored).keys[0],

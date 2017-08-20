@@ -138,7 +138,6 @@ function *onSocketUpdateOrg(action){
   if (actionType == "created" && targetType == "OrgUser" && meta && meta.userId == auth.id){
     alertBox("Your organization access level has been updated by an org admin.")
     yield put(selectOrg(currentOrg.slug))
-    yield put(fetchCurrentUser())
     return
   }
 

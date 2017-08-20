@@ -159,7 +159,7 @@ export function *envParamsForUpdateOrgRole({userId, role: newRole}){
   if (!isUpdatingNonAdminToAdmin) return {}
 
   const apps = yield select(getApps),
-        generators = apps.map(({id: appId})=> call(envParamsWithAppUser, {userId, appId})),
+        generators = apps.map(({id: appId})=> call(envParamsWithAppUser, {userId, appId, role: newRole})),
         allParams = yield generators,
         merged = allParams.reduce(R.mergeDeepRight)
 

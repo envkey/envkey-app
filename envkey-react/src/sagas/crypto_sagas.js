@@ -59,6 +59,10 @@ import {
 import * as crypto from 'lib/crypto'
 
 const
+  devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
+
+  doLogging = devMode,
+
   onUpdateTrustedPubkeysRequest = apiSaga({
     authenticated: true,
     method: "post",
@@ -82,6 +86,9 @@ function *onVerifyOrgPubkeys(){
     for (let keyable of keyables){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
 
+      if(doLogging)console.log("Checking keyable id: ", keyableId, " email: ", keyable.email, " name: ", keyable.name)
+      if(doLogging)console.log(keyable)
+
       // keyGeneratedById for servers, userId (via appUserId) for localKeys
       let initialSignedById
       if (keyable.keyGeneratedById){
@@ -91,8 +98,12 @@ function *onVerifyOrgPubkeys(){
         initialSignedById = appUser.userId
       }
 
+      if(doLogging)console.log("initialSignedById: ", initialSignedById)
+      if(doLogging)console.log("initialInvitedById: ", initialInvitedById)
+
       // Only consider keyables with public keys generated
       if (!(pubkey || invitePubkey)){
+        if(doLogging)console.log("No pubkey or invitePubkey, skipping...")
         continue
       }
 
@@ -102,32 +113,44 @@ function *onVerifyOrgPubkeys(){
           keyableTrusted = yield call(keyableIsTrusted, keyable)
 
       if(trusted && keyableTrusted){
+        if(doLogging)console.log("Keyable ", keyableId, "is trusted, continuing...")
         continue
       } else if (!(initialSignedById || initialInvitedById)){
+        if(doLogging)console.log("Keyable ", keyableId, "has no initialSignedById or initialInvitedById--marking unverified...")
         unverifiedPubkeys[keyableId] = keyable
         continue
       }
 
 
       // Otherwise, attempt to verify signature chain back to a trusted key
+      if(doLogging)console.log("Verifying to trusted root...")
+
       let trustedRoot,
           signedById = initialSignedById,
           invitedById = initialInvitedById,
           checkedIds = {}
 
       while (!trustedRoot){
+        if(doLogging)console.log("Starting loop.")
+        if(doLogging)console.log("signedById: ", signedById, ", invitedById: ", invitedById)
+        if(doLogging)console.log("checkedIds:")
+        if(doLogging)console.log(checkedIds)
+
         let signingId = invitedById || signedById
         if (!signingId){
+          if(doLogging)console.log("No signing id... breaking")
           break
         }
 
         // If signing user has already been marked unverified, break
         if (unverifiedPubkeys[signingId]){
+          if(doLogging)console.log("signing user marked unverified... breaing")
           break
         }
 
         // If already checked this user in the chain, break
         if (checkedIds[signedById]){
+          if(doLogging)console.log("signing user already checked... breaking")
           break
         }
 
@@ -135,29 +158,41 @@ function *onVerifyOrgPubkeys(){
         // If not verified or user not found, break
         let signingUser = usersById[signingId]
 
+        if(doLogging)console.log("signingUser: ", signingUser)
+
         if(signingUser && signingUser.pubkey){
           let signedKey = invitedById ? invitePubkey : pubkey,
               verified
 
+          if(doLogging)console.log("Verifying signed key.")
           try {
-            verified = yield crypto.verifyPublicKeySignature({signedKey, signerKey: signingUser.pubkey})
-          } catch (e) {}
+            verified = crypto.verifyPublicKeySignature({signedKey, signerKey: signingUser.pubkey})
+            console.log("verified: ", verified)
+          } catch (e) {
+            console.log("Verification error: ", e)
+          }
 
           if(!verified){
+            if(doLogging)console.log("Signature invalid, breaking...")
             break
           }
 
         } else {
+          if(doLogging)console.log("Signing user null or has no pubkey, breaking...")
           break
         }
 
         // If user and user has accepted invite / generated pubkey, further verify that pubkey was signed by invite key
         if (invitePubkey && pubkey){
+          if(doLogging)console.log("Verifying invite signature on user key.")
           let verified
           try {
-            verified = yield crypto.verifyPublicKeySignature({signedKey: pubkey, signerKey: invitePubkey})
-          } catch(e){}
+            verified = crypto.verifyPublicKeySignature({signedKey: pubkey, signerKey: invitePubkey})
+          } catch(e){
+            console.log("Verification error: ", e)
+          }
           if(!verified){
+            if(doLogging)console.log("Invite signature on user key invalid... breaking")
             break
           }
         }
@@ -165,33 +200,45 @@ function *onVerifyOrgPubkeys(){
         // Check if signing user is trusted
         if (newlyTrustedPubkeys[signingId]){
         // if already verified signing user in earlier pass, set trusted root
+          if(doLogging)console.log("Signing id already verified... set trustedRoot")
           trustedRoot = newlyTrustedPubkeys[signingId]
         } else {
         // otherwise try to look up in trusted pubkeys
+          if(doLogging)console.log("Signing id not yet verified... looking in trustedPubkeys")
           trustedRoot = yield call(keyableIsTrusted, signingId) ? trustedPubkeys[signingId] : null
         }
+
+        if(doLogging)console.log("trustedRoot: ", trustedRoot)
 
         // Mark id checked
         checkedIds[signingId] = true
 
         // If signer isn't trusted, continue checking chain
         if (!trustedRoot){
+          if(doLogging)console.log("Signer not trusted, continue chain...")
           invitedById = signingUser.invitedById
           signedById = null
         }
       }
 
+      if(doLogging)console.log("Loop complete.")
+
       // If a trusted root was found, mark key trusted
       // Else, mark unverified
       if (trustedRoot){
+        if(doLogging)console.log("trustedRoot found: ", trustedRoot)
         newlyTrustedPubkeys[keyableId] = keyable
       } else {
+        if(doLogging)console.log("no trustedRoot found.")
         unverifiedPubkeys[keyableId] = keyable
       }
     }
   }
 
   if (R.isEmpty(unverifiedPubkeys)){
+    if(doLogging)console.log("No unverifiedPubkeys... success!")
+      if(doLogging)console.log("newlyTrustedPubkeys:")
+    if(doLogging)console.log(newlyTrustedPubkeys)
     if (!R.isEmpty(newlyTrustedPubkeys)){
       for (let kid in newlyTrustedPubkeys){
         let keyable = newlyTrustedPubkeys[kid]
@@ -205,6 +252,9 @@ function *onVerifyOrgPubkeys(){
 
     yield put({type: VERIFY_ORG_PUBKEYS_SUCCESS, payload: R.values(newlyTrustedPubkeys)})
   } else {
+    if(doLogging)console.log("Has unverifiedPubkeys... failure :(")
+    if(doLogging)console.log(unverifiedPubkeys)
+
     yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: R.values(unverifiedPubkeys)})
   }
 }
