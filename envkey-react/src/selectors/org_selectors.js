@@ -1,12 +1,18 @@
 import db from 'lib/db'
 import {getUser} from "./object_selectors"
 
+db.init("orgs")
+
 export const
 
   getCurrentOrgSlug = db.path("currentOrgSlug"),
 
-  getCurrentOrg = (state)=> db("orgs").findBy("slug")(getCurrentOrgSlug(state), state),
+  getOrgBySlug = db.orgs.findBy("slug"),
 
-  getOrgs = db("orgs").list(),
+  getCurrentOrg = (state)=> getOrgBySlug(getCurrentOrgSlug(state), state),
+
+  getOrgs = db.orgs.list(),
+
+  getActiveOrgs = db.orgs.where({isActive: true}),
 
   isFetchingOrg = db.path("isFetchingOrg")

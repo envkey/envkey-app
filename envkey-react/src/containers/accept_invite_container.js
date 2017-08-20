@@ -101,7 +101,7 @@ class AcceptInvite extends React.Component {
             h.strong("2.) "),
             "An ",
             h.strong("Encryption Code"),
-            ", which you receive directly from the user who invited you."
+            ", which you receive directly from the person who invited you."
           ]),
           h.input({
             type: "password",

@@ -99,7 +99,7 @@ export default function apiSaga({
       const status = R.path(["response", "status"], err),
             msg = R.path(["response", "data", "error"], err),
             payload = err,
-            meta = {...requestAction.meta, requestPayload: requestAction.payload, status}
+            meta = {...requestAction.meta, status, requestPayload: requestAction.payload, message: msg}
 
       if (status){
 

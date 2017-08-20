@@ -1,5 +1,11 @@
 import db from 'lib/db'
-import { getUser, getAppUserBy, getServer, getLocalKeysForAppUsers } from './object_selectors'
+import {
+  getUser,
+  getAppUserBy,
+  getServer,
+  getLocalKeysForAppUsers,
+  getOrgUserForUser
+} from './object_selectors'
 import {
   getEnvironmentsAccessibleForAppUser,
   getEnvironmentsAssignableForAppUser,
@@ -54,6 +60,8 @@ export const
     if(!auth)return null
     return getUser(auth.id, state)
   },
+
+  getCurrentOrgUser = state => getOrgUserForUser(getAuth(state).id, state),
 
   getPermissions = db.path("permissions"),
 

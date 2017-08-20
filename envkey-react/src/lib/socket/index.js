@@ -11,7 +11,8 @@ import {
 
 export const
   UPDATE_ENVS = "UPDATE_ENVS",
-  UPDATE_ENVS_STATUS = "UPDATE_ENVS_STATUS"
+  UPDATE_ENVS_STATUS = "UPDATE_ENVS_STATUS",
+  ORG_UPDATE = "ORG_UPDATE"
 
 let socket,
     orgChannel,
@@ -22,7 +23,7 @@ let socket,
 
 const
   ORG_MESSAGE_TYPES = {
-    plainEvents: [UPDATE_ENVS],
+    plainEvents: [ORG_UPDATE],
     clientEvents: []
   },
 

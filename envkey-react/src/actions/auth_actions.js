@@ -9,6 +9,7 @@ import {
   LOGIN_REQUEST,
   REGISTER,
   FETCH_CURRENT_USER_REQUEST,
+  FETCH_CURRENT_USER_UPDATES_REQUEST,
   LOGOUT,
   GRANT_ENV_ACCESS_REQUEST,
   START_DEMO
@@ -28,6 +29,8 @@ export const
   register = createAction(REGISTER),
 
   fetchCurrentUser = createAction(FETCH_CURRENT_USER_REQUEST),
+
+  fetchCurrentUserUpdates = createAction(FETCH_CURRENT_USER_UPDATES_REQUEST),
 
   logout = createAction(LOGOUT),
 

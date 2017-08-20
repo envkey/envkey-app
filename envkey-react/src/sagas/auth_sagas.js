@@ -14,6 +14,9 @@ import {
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
+  FETCH_CURRENT_USER_UPDATES_REQUEST,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_FAILED,
   VERIFY_EMAIL_REQUEST,
   VERIFY_EMAIL_SUCCESS,
   VERIFY_EMAIL_FAILED,
@@ -49,6 +52,7 @@ import {
   getAuth,
   getCurrentOrg,
   getOrgs,
+  getOrgBySlug,
   getApps,
   getPassword,
   getPrivkey,
@@ -69,6 +73,14 @@ const
     authenticated: true,
     method: "get",
     actionTypes: [FETCH_CURRENT_USER_SUCCESS, FETCH_CURRENT_USER_FAILED],
+    urlSelector: getAuth,
+    urlFn: (action, auth)=> `/users/${auth.id}.json`
+  }),
+
+  onFetchCurrentUserUpdatesRequest = apiSaga({
+    authenticated: true,
+    method: "get",
+    actionTypes: [FETCH_CURRENT_USER_UPDATES_SUCCESS, FETCH_CURRENT_USER_UPDATES_FAILED],
     urlSelector: getAuth,
     urlFn: (action, auth)=> `/users/${auth.id}.json`
   }),
@@ -106,6 +118,12 @@ function *onAppLoaded(){
   document.body.className = document.body.className.replace("no-scroll","")
 }
 
+function *onVerifyEmailFailed({payload, meta: {status, message}}){
+  if (status == 422 && message == "invite_pending"){
+    yield put(push("/accept_invite"))
+  }
+}
+
 function *onLogin({payload}){
   document.body.className += " preloader-authenticate"
   yield call(delay, 50)
@@ -126,7 +144,7 @@ function* onLoginSuccess({meta: {password, orgSlug}}){
   } else {
     const orgs = yield select(getOrgs)
     yield (
-      orgs.length == 1 ?
+      orgs.length == 1 && orgs[0].isActive ?
         put(selectOrg(orgs[0].slug)) :
         put(push("/select_org"))
     )
@@ -178,7 +196,15 @@ function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
 
 function* onSelectOrg({payload: slug}){
   yield put(socketUnsubscribeAll())
-  yield put(push(`/${slug}`))
+  const org = yield select(getOrgBySlug(slug))
+
+  if (org.isActive){
+    yield put(push(`/${slug}`))
+  } else if (org.status == "invited"){
+    yield put(push("/accept_invite"))
+  } else {
+    yield put(push("/invite_failed"))
+  }
 }
 
 function *onFetchCurrentUserSuccess(action){
@@ -200,6 +226,7 @@ export default function* authSagas(){
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
     takeLatest(VERIFY_EMAIL_REQUEST, onVerifyEmailRequest),
+    takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
     takeLatest(VERIFY_EMAIL_CODE_REQUEST, onVerifyEmailCodeRequest),
     takeLatest(LOGIN, onLogin),
     takeLatest(LOGIN_REQUEST, onLoginRequest),
