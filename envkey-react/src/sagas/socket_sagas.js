@@ -1,5 +1,6 @@
 import { takeLatest, takeEvery, take, put, select, call } from 'redux-saga/effects'
 import {push } from 'react-router-redux'
+import { redirectFromOrgIndexIfNeeded } from './helpers'
 import {
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   SOCKET_SUBSCRIBE_ORG_USER_CHANNEL,
@@ -33,7 +34,8 @@ import {
   getCurrentAppUserForApp,
   getLocalSocketEnvsStatus,
   getEnvironmentLabels,
-  getAnonSocketEnvsStatus
+  getAnonSocketEnvsStatus,
+  getSelectedObjectId
 } from 'selectors'
 import {alertBox} from 'lib/ui/alert_box'
 import {
@@ -79,40 +81,11 @@ function *onSubscribeObjectChannel({payload: object}){
   subscribeObjectChannel(object)
 }
 
-function *onSocketUpdateEnvs(action){
-  const auth = yield select(getAuth),
-        {objectType, targetId, actorId, envUpdateId} = action.payload
-
-  // Do nothing if update message originated with this user
-  if(auth.id == actorId)return
-
-  const app = yield select(getApp(targetId))
-
-  if (app){
-    yield put(fetchObjectDetails({
-      targetId,
-      objectType: "app",
-      decryptEnvs: true,
-      socketUpdate: true,
-      socketActorId: actorId,
-      socketEnvUpdateId: envUpdateId
-    }))
-
-    yield take(FETCH_OBJECT_DETAILS_SUCCESS)
-
-    yield call(dispatchEnvUpdateRequestIfNeeded, {
-      parent: app,
-      parentType: objectType,
-      parentId: targetId,
-      skipDelay: true
-    })
-  }
-}
-
 function *onSocketUpdateOrg(action){
   const auth = yield select(getAuth),
         currentOrg = yield select(getCurrentOrg),
         currentOrgUser = yield select(getCurrentOrgUser),
+        selectedObjectId = yield select(getSelectedObjectId),
         {actorId, actionType, targetType, targetId, appId, meta} = action.payload
 
   // Do nothing if update message originated with this user
@@ -141,6 +114,41 @@ function *onSocketUpdateOrg(action){
     return
   }
 
+  // Current app deleted
+  if (actionType == "deleted" && targetType == "App" && targetId == selectedObjectId){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+    alertBox("This app has been deleted by an org admin.")
+    yield put(push(`/${currentOrg.slug}`))
+    yield call(redirectFromOrgIndexIfNeeded)
+    return
+  }
+
+  // Current app access removed
+  if (actionType == "deleted" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+    alertBox("Your access to this app has been removed by an app admin.")
+    yield put(push(`/${currentOrg.slug}`))
+    yield call(redirectFromOrgIndexIfNeeded)
+    return
+  }
+
+  // Current app access changed
+  if (actionType == "created" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+    alertBox("Your app access level has been updated by an app admin.")
+    return
+  }
+
+  // Selected user deleted
+  if (actionType == "deleted" && targetType == "OrgUser" && meta && meta.userId == selectedObjectId){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+    alertBox("This user has been removed from the organization by an org admin.")
+    yield put(push(`/${currentOrg.slug}`))
+    yield call(redirectFromOrgIndexIfNeeded)
+    return
+  }
+
+  // Env update
   if (actionType == "updated" && targetType == "App" && meta && meta.updateType == "update_envs"){
     const app = yield select(getApp(appId))
 
@@ -163,6 +171,15 @@ function *onSocketUpdateOrg(action){
         skipDelay: true
       })
     }
+    return
+  }
+
+  if (actionType == "deleted"){
+    // Other deletes
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  } else {
+    // For other changes update in background
+    yield put(fetchCurrentUserUpdates())
   }
 }
 

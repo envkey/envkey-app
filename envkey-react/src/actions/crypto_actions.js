@@ -14,11 +14,11 @@ import { TRUSTED_PUBKEY_PROPS } from 'constants'
 
 export const
 
-  decryptAll = createAction(DECRYPT_ALL, R.pick(["password"]), R.pick(["firstTarget"])),
+  decryptAll = createAction(DECRYPT_ALL, R.pick(["password"]), R.pick(["firstTarget", "background"])),
 
   decryptPrivkey = createAction(DECRYPT_PRIVKEY, R.pick(["password"])),
 
-  decryptEnvs = createAction(DECRYPT_ENVS, R.always({}), R.pick(["objectType", "targetId", "decryptAllAction"])),
+  decryptEnvs = createAction(DECRYPT_ENVS, R.always({}), R.pick(["objectType", "targetId", "decryptAllAction", "background"])),
 
   updateTrustedPubkeys = createAction(UPDATE_TRUSTED_PUBKEYS, R.always({}), R.pick(["orgSlug"])),
 
@@ -26,7 +26,7 @@ export const
 
   verifyTrustedPubkeys = createAction(VERIFY_TRUSTED_PUBKEYS),
 
-  verifyCurrentUserPubkey = createAction(VERIFY_CURRENT_USER_PUBKEY),
+  verifyCurrentUserPubkey = createAction(VERIFY_CURRENT_USER_PUBKEY, R.always({}), R.pick(["background"])),
 
   addTrustedPubkey = createAction(
     ADD_TRUSTED_PUBKEY,

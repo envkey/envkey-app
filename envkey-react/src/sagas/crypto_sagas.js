@@ -128,13 +128,12 @@ function *onVerifyOrgPubkeys(){
       let trustedRoot,
           signedById = initialSignedById,
           invitedById = initialInvitedById,
-          checkedIds = {}
+          checkingKeyable = keyable
 
       while (!trustedRoot){
         if(doLogging)console.log("Starting loop.")
+        if(doLogging)console.log("Checking keyable: ", checkingKeyable)
         if(doLogging)console.log("signedById: ", signedById, ", invitedById: ", invitedById)
-        if(doLogging)console.log("checkedIds:")
-        if(doLogging)console.log(checkedIds)
 
         let signingId = invitedById || signedById
         if (!signingId){
@@ -145,12 +144,6 @@ function *onVerifyOrgPubkeys(){
         // If signing user has already been marked unverified, break
         if (unverifiedPubkeys[signingId]){
           if(doLogging)console.log("signing user marked unverified... breaing")
-          break
-        }
-
-        // If already checked this user in the chain, break
-        if (checkedIds[signedById]){
-          if(doLogging)console.log("signing user already checked... breaking")
           break
         }
 
@@ -183,11 +176,11 @@ function *onVerifyOrgPubkeys(){
         }
 
         // If user and user has accepted invite / generated pubkey, further verify that pubkey was signed by invite key
-        if (invitePubkey && pubkey){
+        if (checkingKeyable.invitePubkey && checkingKeyable.pubkey){
           if(doLogging)console.log("Verifying invite signature on user key.")
           let verified
           try {
-            verified = crypto.verifyPublicKeySignature({signedKey: pubkey, signerKey: invitePubkey})
+            verified = crypto.verifyPublicKeySignature({signedKey: checkingKeyable.pubkey, signerKey: checkingKeyable.invitePubkey})
           } catch(e){
             console.log("Verification error: ", e)
           }
@@ -205,19 +198,17 @@ function *onVerifyOrgPubkeys(){
         } else {
         // otherwise try to look up in trusted pubkeys
           if(doLogging)console.log("Signing id not yet verified... looking in trustedPubkeys")
-          trustedRoot = yield call(keyableIsTrusted, signingId) ? trustedPubkeys[signingId] : null
+          trustedRoot = yield call(keyableIsTrusted, signingUser) ? trustedPubkeys[signingId] : null
         }
 
         if(doLogging)console.log("trustedRoot: ", trustedRoot)
-
-        // Mark id checked
-        checkedIds[signingId] = true
 
         // If signer isn't trusted, continue checking chain
         if (!trustedRoot){
           if(doLogging)console.log("Signer not trusted, continue chain...")
           invitedById = signingUser.invitedById
           signedById = null
+          checkingKeyable = signingUser
         }
       }
 
@@ -332,7 +323,8 @@ function *onDecryptAll(action){
   let privkey = yield select(getPrivkey)
 
   const encryptedPrivkey = yield select(getEncryptedPrivkey),
-        firstTarget = R.path(["meta", "firstTarget"], action)
+        firstTarget = R.path(["meta", "firstTarget"], action),
+        background = R.path(["meta", "background"], action)
 
   if(!privkey && encryptedPrivkey){
     yield put({...action, type: DECRYPT_PRIVKEY})
@@ -347,12 +339,12 @@ function *onDecryptAll(action){
   if(privkey){
     let verifyRes
     const skipVerify = R.path(["meta", "skipVerifyCurrentUser"], action)
-    if (!skipVerify) verifyRes = yield call(verifyCurrentUser)
+    if (!skipVerify) verifyRes = yield call(verifyCurrentUser, background)
 
     let decryptErr
     if((skipVerify && !verifyRes) || !verifyRes.error){
       try {
-        const hasEnvParents = yield call(decryptAllEnvParents, firstTarget)
+        const hasEnvParents = yield call(decryptAllEnvParents, firstTarget, background)
         if (!hasEnvParents){
           yield put({type: DECRYPT_ALL_SUCCESS})
         }

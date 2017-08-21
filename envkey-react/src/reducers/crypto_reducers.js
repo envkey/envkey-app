@@ -50,7 +50,7 @@ export const
     switch(action.type){
       case DECRYPT_ALL:
       case VERIFY_CURRENT_USER_PUBKEY:
-        return true
+        return !R.path(["meta", "background"], action)
 
       case DECRYPT_ALL_SUCCESS:
       case DECRYPT_ENVS_FAILED:
@@ -90,11 +90,11 @@ export const
   envsAreDecrypting = (state = {}, action)=>{
     switch(action.type){
       case DECRYPT_ENVS:
-        return R.assoc(action.meta.targetId, true, state)
+        return R.path(["meta", "background"], action) ? state : R.assoc(action.meta.targetId, true, state)
 
       case DECRYPT_ENVS_SUCCESS:
       case DECRYPT_ENVS_FAILED:
-        return R.dissoc(action.meta.targetId, state)
+        return R.path(["meta", "background"], action) ? state :  R.dissoc(action.meta.targetId, state)
 
       case LOGOUT:
       case SELECT_ORG:
@@ -112,6 +112,9 @@ export const
 
   envsAreDecrypted = (state = {}, action)=>{
     switch(action.type){
+      case DECRYPT_ENVS:
+        return R.path(["meta", "background"], action) ? state : R.dissoc(action.meta.targetId, state)
+
       case DECRYPT_ENVS_SUCCESS:
         return R.assoc(action.meta.targetId, true, state)
 
@@ -122,7 +125,11 @@ export const
       case REGISTER:
       case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
+      case FETCH_CURRENT_USER_REQUEST:
         return {}
+
+      case DECRYPT_ALL:
+        return R.path(["meta", "background"], action) ? state : {}
 
       default:
         return state

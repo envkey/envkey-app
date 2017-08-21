@@ -30,7 +30,7 @@ export const
 
   fetchCurrentUser = createAction(FETCH_CURRENT_USER_REQUEST),
 
-  fetchCurrentUserUpdates = createAction(FETCH_CURRENT_USER_UPDATES_REQUEST),
+  fetchCurrentUserUpdates = createAction(FETCH_CURRENT_USER_UPDATES_REQUEST, R.always({}), R.pick(["noMinUpdatedAt"])),
 
   logout = createAction(LOGOUT),
 

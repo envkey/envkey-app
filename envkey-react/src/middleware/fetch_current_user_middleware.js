@@ -10,8 +10,9 @@ export const
 
   attachMinUpdatedAt = store => next => action => {
     if (action.type == FETCH_CURRENT_USER_UPDATES_REQUEST){
-      const lastFetchAt = getLastFetchAt(store.getState())
-      return next(R.assocPath(["payload", "minUpdatedAt"], lastFetchAt, action))
+      const lastFetchAt = getLastFetchAt(store.getState()),
+            minUpdatedAt = R.path(["meta", "noMinUpdatedAt"], action) ? 1 : lastFetchAt
+      return next(R.assocPath(["payload", "minUpdatedAt"], minUpdatedAt, action))
     }
     return next(action)
   }

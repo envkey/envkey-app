@@ -7,6 +7,7 @@ import {
   redirectFromOrgIndexIfNeeded,
   decryptPrivkeyAndDecryptAllIfNeeded,
   dispatchDecryptAllIfNeeded,
+  decryptAllEnvParents,
   execUpdateTrustedPubkeys
 } from './helpers'
 import {
@@ -41,12 +42,14 @@ import {
   SELECT_ORG,
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   DECRYPT_PRIVKEY_SUCCESS,
+  VERIFY_ORG_PUBKEYS_SUCCESS,
   appLoaded,
   login,
   selectOrg,
   socketUnsubscribeAll,
   addTrustedPubkey,
-  decryptPrivkey
+  decryptPrivkey,
+  verifyOrgPubkeys
 } from "actions"
 import {
   getAuth,
@@ -216,6 +219,14 @@ function *onFetchCurrentUserSuccess(action){
   ]
 }
 
+function *onFetchCurrentUserUpdatesSuccess({payload}){
+  if ((payload.users && payload.users.length > 0) ||
+      (payload.servers && payload.servers.length > 0) ||
+      (payload.localKeys && payload.localKeys.length > 0)){
+    yield put(verifyOrgPubkeys())
+  }
+}
+
 function *onLogout(action){
   yield put(socketUnsubscribeAll())
 }
@@ -224,7 +235,9 @@ export default function* authSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
+    takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
+    takeLatest(FETCH_CURRENT_USER_UPDATES_SUCCESS, onFetchCurrentUserUpdatesSuccess),
     takeLatest(VERIFY_EMAIL_REQUEST, onVerifyEmailRequest),
     takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
     takeLatest(VERIFY_EMAIL_CODE_REQUEST, onVerifyEmailCodeRequest),

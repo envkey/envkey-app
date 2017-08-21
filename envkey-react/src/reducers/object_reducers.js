@@ -4,6 +4,7 @@ import pluralize from 'pluralize'
 import {camelize} from 'xcase'
 import {
   FETCH_CURRENT_USER_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
   DECRYPT_ENVS_SUCCESS,
   LOGIN,
   LOGIN_REQUEST,
@@ -32,6 +33,38 @@ import {
 import { indexById } from './helpers'
 
 const
+  getFetchCurrentUserReducer = objectTypePlural => (state, {
+    payload
+  })=>{
+    const objects = payload[objectTypePlural]
+    return objects ? indexById(objects) : state
+  },
+
+  getFetchCurrentUserUpdatesReducer = objectTypePlural => (state, action)=>{
+    let objects = action.payload[objectTypePlural]
+
+    // For apps being overwritten, don't overwrite encryptedEnvsWithMeta -- env update logic takes care of this
+    if (objectTypePlural == "apps"){
+      objects = R.map(newApp => {
+        let stateApp = state[newApp.id]
+        if (stateApp){
+          return R.pipe(
+            R.omit(["encryptedEnvsWithMeta"]),
+            R.assoc("envsWithMeta", stateApp.envsWithMeta)
+          )(newApp)
+        } else {
+          return newApp
+        }
+      }, objects)
+    }
+
+    if (action.meta && action.meta.noMinUpdatedAt){
+      return objects ? indexById(objects) : state
+    } else {
+      return objects && objects.length ? {...state, ...indexById(objects)} : state
+    }
+  },
+
   getUpdateEnvReducer = objectTypePlural => (state, {
     payload: {envsUpdatedAt},
     meta: {parentType, parentId, updatedEnvsWithMeta}
@@ -173,8 +206,10 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case UPDATE_ORG_ROLE_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
-        let objects = action.payload[objectTypePlural]
-        return objects ? indexById(objects) : state
+        return getFetchCurrentUserReducer(objectTypePlural)(state, action)
+
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
+        return getFetchCurrentUserUpdatesReducer(objectTypePlural)(state, action)
 
       case DECRYPT_ENVS_SUCCESS:
         return getDecryptEnvsReducer(objectTypePlural)(state, action)

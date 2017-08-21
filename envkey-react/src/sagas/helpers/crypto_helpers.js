@@ -2,12 +2,10 @@ import { put, select, call, take } from 'redux-saga/effects'
 import R from 'ramda'
 import * as crypto from 'lib/crypto'
 import {
-  DECRYPT_ALL,
   VERIFY_TRUSTED_PUBKEYS_SUCCESS,
   VERIFY_TRUSTED_PUBKEYS_FAILED,
   VERIFY_ORG_PUBKEYS_SUCCESS,
   VERIFY_ORG_PUBKEYS_FAILED,
-  VERIFY_CURRENT_USER_PUBKEY,
   VERIFY_CURRENT_USER_PUBKEY_SUCCESS,
   VERIFY_CURRENT_USER_PUBKEY_FAILED,
   DECRYPT_PRIVKEY,
@@ -15,6 +13,7 @@ import {
   DECRYPT_PRIVKEY_FAILED,
   UPDATE_TRUSTED_PUBKEYS_SUCCESS,
   UPDATE_TRUSTED_PUBKEYS_FAILED,
+  decryptAll,
   decryptEnvs,
   verifyTrustedPubkeys,
   verifyCurrentUserPubkey,
@@ -94,28 +93,30 @@ export function* decryptEnvParent(parent){
   }
 }
 
-export function* decryptAllEnvParents(firstTarget){
+export function* decryptAllEnvParents(firstTarget, background=false){
   const apps = yield select(getApps)
 
   if (apps.length === 0)return false
 
   if (firstTarget){
-    yield put(decryptEnvs({...firstTarget, decryptAllAction: true}))
+    yield put(decryptEnvs({...firstTarget, background, decryptAllAction: true}))
   }
 
-  for (let {id: targetId} of apps){
-    yield put(decryptEnvs({objectType: "app", targetId, decryptAllAction: true}))
+  for (let {id: targetId, encryptedEnvsWithMeta} of apps){
+    if (encryptedEnvsWithMeta){
+      yield put(decryptEnvs({objectType: "app", targetId, background, decryptAllAction: true}))
+    }
   }
 
   return true
 }
 
-export function *verifyCurrentUser(){
+export function *verifyCurrentUser(background=false){
   const privkey = yield select(getPrivkey)
   if(!privkey) throw new Error("Privkey not decrypted.")
 
   const [verifyCurrentUserPubkeyRes, verifyTrustedPubkeysRes] = yield [
-    call(execVerifyCurrentUserPubkey),
+    call(execVerifyCurrentUserPubkey, background),
     call(execVerifyTrustedPubkeys)
   ]
 
@@ -126,9 +127,9 @@ export function *verifyCurrentUser(){
   return verifyOrgPubkeysRes
 }
 
-export function *dispatchDecryptAllIfNeeded(){
+export function *dispatchDecryptAllIfNeeded(background=false){
   const privkey = yield select(getPrivkey)
-  if(privkey) yield put({type: DECRYPT_ALL})
+  if(privkey) yield put(decryptAll({background}))
 }
 
 export function* decryptPrivkeyAndDecryptAllIfNeeded(password){
@@ -149,8 +150,8 @@ export function* checkPubkeyIsValid({pubkey, privkey}){
   }
 }
 
-export function* execVerifyCurrentUserPubkey(){
-  yield put({type: VERIFY_CURRENT_USER_PUBKEY})
+export function* execVerifyCurrentUserPubkey(background=false){
+  yield put(verifyCurrentUserPubkey({background}))
   const res = yield take([VERIFY_CURRENT_USER_PUBKEY_SUCCESS, VERIFY_CURRENT_USER_PUBKEY_FAILED])
   return res
 }

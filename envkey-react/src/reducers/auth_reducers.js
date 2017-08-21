@@ -30,6 +30,8 @@ import {
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
 
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+
   TOKEN_INVALID,
 
   ACCEPT_INVITE,
@@ -265,6 +267,7 @@ export const
   permissions = (state = {}, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
@@ -285,6 +288,7 @@ export const
   orgRolesInvitable = (state = [], action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
@@ -305,6 +309,7 @@ export const
   appEnvironmentsAccessible = (state = {}, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
@@ -325,6 +330,7 @@ export const
   appEnvironmentsAssignable = (state = {}, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
@@ -366,6 +372,7 @@ export const
   lastFetchAt = (state = null, action)=>{
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
       case REGISTER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
