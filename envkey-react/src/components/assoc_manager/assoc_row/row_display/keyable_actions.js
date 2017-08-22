@@ -67,8 +67,8 @@ export default function ({
           h.span(".secondary", "Revoking key...")
         ]
       } else if (keyGeneratedAt){
-        const {firstName, lastName} = isCurrentUser ? currentUser : getUserFn(keyGeneratedById),
-              fullName = [firstName, lastName].join(" ")
+        const user = isCurrentUser ? currentUser : getUserFn(keyGeneratedById),
+              fullName = user ? [user.firstName, user.lastName].join(" ") : "[deleted]"
         contents = [
           h.span(".secondary", `${fullName} `),
           h.span(".key-date", "・ " + twitterShortTs(keyGeneratedAt))
