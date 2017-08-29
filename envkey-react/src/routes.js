@@ -29,7 +29,8 @@ import {
   OnboardOverlayContainer,
   AppCollaboratorsContainer,
   LoginRegisterContainer,
-  InviteFailedContainer
+  InviteFailedContainer,
+  BillingContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 import HomeMenu from 'components/shared/home_menu'
@@ -147,6 +148,8 @@ export default class Routes extends React.Component {
             <IndexRedirect to="settings" />
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentOrg"})}/>
+
+            <Route path="billing" component={BillingContainer}/>
 
           </Route>
 

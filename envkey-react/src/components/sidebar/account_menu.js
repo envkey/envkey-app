@@ -17,7 +17,7 @@ const AccountMenu = ({
       return <Link to={path}
                    onClick={onClick}
                    className={label.split(" ").join("-").toLowerCase() +
-                             (router.location.pathname == path ? " selected" : "")}>
+                             (router.location.pathname.includes(path) ? " selected" : "")}>
               <img src={imagePath(img)} />
               <span>{label}</span>
             </Link>
@@ -49,14 +49,13 @@ const AccountMenu = ({
       if (isOpen){
         return <section className="menu-body">
           {currentUser.role == "org_owner" ? renderMenuRow("My Organization",
-                                                           `/${params.orgSlug}/my_org/settings`,
+                                                           `/${params.orgSlug}/my_org`,
                                                            "briefcase-black.png") :
                                               ""}
 
           {renderMenuRow("My Account",
                          `/${params.orgSlug}/my_account/settings`,
                          "keyhole-black.png")}
-
 
           {renderMenuRow("Sign Out",
                          "/sign_out",

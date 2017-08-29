@@ -13,7 +13,7 @@ build_env =
 
 if build_env == "development"
   use ::Rack::Rewrite do
-    rewrite %r{^\/(?!stylesheets|images|fonts|javascripts|__rack|openpgp)(.*)}, '/index.html'
+    rewrite %r{^\/(?!stylesheets|images|fonts|javascripts|__rack|openpgp|stripe_card\.html)(.*)}, '/index.html'
   end
 end
 

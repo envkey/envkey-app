@@ -2,8 +2,16 @@ import React from 'react'
 import R from 'ramda'
 import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
-import {createObject} from 'actions'
-import {getIsCreating, getOrgRolesAssignable} from 'selectors'
+import {
+  createObject,
+  billingUpgradeSubscription
+} from 'actions'
+import {
+  getIsCreating,
+  getOrgRolesAssignable,
+  getCurrentOrg,
+  getApps
+} from 'selectors'
 import {AppForm, UserForm} from 'components/forms'
 
 const ObjectFormContainerFactory = ({objectType})=> {
@@ -14,7 +22,12 @@ const
   ObjectFormContainer = props => h.div(".new-page", [h(formClass, props)]),
 
   mapStateToProps = (state, ownProps) => {
-    const props = {isSubmitting: getIsCreating({objectType}, state)}
+    const props = {
+      isSubmitting: getIsCreating({objectType}, state),
+      currentOrg: getCurrentOrg(state),
+      numApps: getApps(state).length
+    }
+
     if(objectType == "user"){
       props.orgRolesAssignable = getOrgRolesAssignable(state)
     }
@@ -34,7 +47,8 @@ const
         params: (params.params || params),
         toImport: params.toImport
       }))
-    }
+    },
+    onUpgradeSubscription: ()=> dispatch(billingUpgradeSubscription())
   })
 
   return connect(mapStateToProps, mapDispatchToProps)(ObjectFormContainer)

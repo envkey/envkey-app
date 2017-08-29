@@ -18,13 +18,13 @@
         <span class="authenticating">Authenticating...</span></div>
     </div>
   </div>
-  <script src="http://localhost:4567/openpgp.min.js"></script>
-  <script src="http://localhost:8080/index.js"></script>
-
   <script type="text/javascript">
     require("./renderer-process/clipboard")
     require("./renderer-process/dialog")
+    require("./renderer-process/ipc")
   </script>
+  <script src="http://localhost:4567/openpgp.min.js"></script>
+  <script src="http://localhost:8080/index.js"></script>
 </body>
 
 </html>

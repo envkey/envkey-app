@@ -1,11 +1,11 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 const isDev = require('electron-is-dev')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let win, stripeWin
 
 function createWindow () {
   // Create the browser window.
@@ -32,6 +32,26 @@ function createWindow () {
   })
 }
 
+function createStripeWindow(){
+  stripeWin = new BrowserWindow({width: 600, height: 400})
+
+  stripeWin.loadURL(url.format({
+    pathname: path.join(__dirname, (isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html')),
+    protocol: 'file:',
+    slashes: true
+  }))
+
+  if (isDev){
+    // Open the DevTools.
+    stripeWin.webContents.openDevTools()
+  }
+
+  stripeWin.on('closed', () => {
+    win.webContents.send("stripeFormClosed")
+    stripeWin = null
+  })
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -54,5 +74,21 @@ app.on('activate', () => {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+ipcMain.on("openStripeForm", (e, msg)=>{
+  if(stripeWin){
+    stripeWin.show()
+  } else {
+    createStripeWindow()
+  }
+})
+
+ipcMain.on("stripeToken", (e, msg)=>{
+  win.webContents.send("stripeToken", msg)
+
+})
+
+ipcMain.on("stripeFormClosed", (e, msg)=>{
+  if(stripeWin)stripeWin.close()
+  win.webContents.send("stripeFormClosed", msg)
+})
+

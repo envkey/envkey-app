@@ -7,7 +7,7 @@ var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new EnvkeyWebpackPlugin({
     dotEnvFile: '.env.development',
-    permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY"]
+    permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"]
   })
 ];
 
@@ -33,7 +33,8 @@ module.exports =  {
       'webpack/hot/only-dev-server',
       "./src/index.js"
     ],
-    "head": "./src/head.js"
+    "head": "./src/head.js",
+    "stripe_card": "./src/stripe_card.js"
   },
   resolve: { root: path.join(projectRoot, "src"), modulesDirectories: [path.join(projectRoot,"node_modules")] },
   plugins: plugins,

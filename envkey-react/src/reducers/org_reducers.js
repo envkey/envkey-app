@@ -9,8 +9,11 @@ import {
   LOGOUT,
   ORG_INVALID,
   LOAD_INVITE_API_SUCCESS,
-  ACCEPT_INVITE_SUCCESS
+  ACCEPT_INVITE_SUCCESS,
+  BILLING_UPDATE_SUBSCRIPTION_SUCCESS,
+  BILLING_UPDATE_CARD_SUCCESS
 } from "actions"
+import R from 'ramda'
 import {indexById} from './helpers'
 
 export const currentOrgSlug = (state = null, action)=>{
@@ -49,6 +52,10 @@ export const orgs = (state = {}, action)=>{
 
     case LOAD_INVITE_API_SUCCESS:
       return indexById([action.payload.org])
+
+    case BILLING_UPDATE_CARD_SUCCESS:
+    case BILLING_UPDATE_SUBSCRIPTION_SUCCESS:
+      return R.assoc(action.payload.id, action.payload, state)
 
     case LOGIN:
     case LOGIN_REQUEST:
