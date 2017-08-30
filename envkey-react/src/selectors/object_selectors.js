@@ -21,6 +21,12 @@ export const
     sortBy: "lastName"
   }),
 
+  getOrgOwner = R.pipe(
+    getUserGroupsByRole,
+    R.prop("org_owner"),
+    R.head
+  ),
+
   getNonOrgAdminUsers = db.users.whereNotIn(
     "role",
     ["org_owner", "org_admin"],

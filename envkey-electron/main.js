@@ -1,7 +1,9 @@
-const {app, BrowserWindow, ipcMain} = require('electron')
-const path = require('path')
-const url = require('url')
-const isDev = require('electron-is-dev')
+const
+  electron = require('electron'),
+  path = require('path'),
+  url = require('url'),
+  isDev = require('electron-is-dev'),
+  {app, BrowserWindow, ipcMain} = electron
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -9,7 +11,8 @@ let win, stripeWin
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 800})
+  const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize
+  win = new BrowserWindow({width: Math.min(1400, Math.floor(screenW * 0.9)), height: Math.min(800, Math.floor(screenH * 0.9))})
 
   // and load the index.html of the app.
   win.loadURL(url.format({
@@ -40,11 +43,6 @@ function createStripeWindow(){
     protocol: 'file:',
     slashes: true
   }))
-
-  if (isDev){
-    // Open the DevTools.
-    stripeWin.webContents.openDevTools()
-  }
 
   stripeWin.on('closed', () => {
     win.webContents.send("stripeFormClosed")

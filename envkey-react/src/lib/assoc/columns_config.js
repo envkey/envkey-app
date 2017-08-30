@@ -26,6 +26,9 @@ import {
   getAppsForUser,
   getOrgRolesInvitable,
   getCurrentUserLocalKeysForApp,
+  getCurrentOrg,
+  getOrgOwner,
+  getUsers,
   dissocRelations
 } from 'selectors'
 
@@ -64,6 +67,9 @@ export default function({
         addNewLabel: "Invite New User",
         addExistingTextFn: ({firstName, lastName}) => [firstName, lastName].join(" "),
         addExistingLabelFn: ({firstName, lastName}) => h.span([h.span([firstName, " "]), h.strong(lastName)]),
+        currentOrg: getCurrentOrg(state),
+        numUsers: getUsers(state).length,
+        orgOwner: getOrgOwner(state),
         columns: [
           {
             title: "Admin",

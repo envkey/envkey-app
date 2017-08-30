@@ -8,7 +8,8 @@ import {
   generateKey,
   revokeKey,
   createObject,
-  clearGeneratedAssocKey
+  clearGeneratedAssocKey,
+  billingUpgradeSubscription
 } from 'actions'
 import {
   getIsRemovingById,
@@ -17,7 +18,6 @@ import {
   getPermissions,
   getUser,
   getCurrentUser,
-  getCurrentOrg,
   getIsGrantingEnvAccessByUserId,
   getGeneratedEnvkeysById
 } from 'selectors'
@@ -80,7 +80,8 @@ export default function({
       },
       generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId})),
       revokeKey: targetId => dispatch(revokeKey({...baseAssocParams, targetId})),
-      clearGeneratedAssocKey: targetId => dispatch(clearGeneratedAssocKey(targetId))
+      clearGeneratedAssocKey: targetId => dispatch(clearGeneratedAssocKey(targetId)),
+      onUpgradeSubscription: ()=> dispatch(billingUpgradeSubscription())
     }
   }
 

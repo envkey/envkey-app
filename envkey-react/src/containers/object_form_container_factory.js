@@ -10,7 +10,8 @@ import {
   getIsCreating,
   getOrgRolesAssignable,
   getCurrentOrg,
-  getApps
+  getApps,
+  getOrgOwner
 } from 'selectors'
 import {AppForm, UserForm} from 'components/forms'
 
@@ -25,7 +26,8 @@ const
     const props = {
       isSubmitting: getIsCreating({objectType}, state),
       currentOrg: getCurrentOrg(state),
-      numApps: getApps(state).length
+      numApps: getApps(state).length,
+      orgOwner: getOrgOwner(state)
     }
 
     if(objectType == "user"){

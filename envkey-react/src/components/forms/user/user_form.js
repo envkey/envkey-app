@@ -3,6 +3,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
 import OrgRoleSelect from './org_role_select'
+import SubscriptionWall from 'components/shared/subscription_wall'
 
 export default class UserForm extends React.Component {
 
@@ -15,7 +16,7 @@ export default class UserForm extends React.Component {
   }
 
   componentDidMount(){
-    if(!this.props.user)this.refs.firstName.focus()
+    if(!this.props.user && this.refs.firstName)this.refs.firstName.focus()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -29,7 +30,21 @@ export default class UserForm extends React.Component {
     this.props.onSubmit(R.pick(["firstName", "lastName", "email", "orgRole"],this.state))
   }
 
+  _showSubscriptionWall(){
+    return this.props.numUsers && this.props.currentOrg && this.props.numUsers >= this.props.currentOrg.maxUsers
+  }
+
   render(){
+    if (this._showSubscriptionWall()){
+      return <SubscriptionWall org={this.props.currentOrg}
+                               type="user"
+                               max={this.props.currentOrg.maxUsers}
+                               orgOwner={this.props.orgOwner}
+                               onUpgradeSubscription={this.props.onUpgradeSubscription}
+                               createVerb="invite"
+                               deleteVerb="remove" />
+    }
+
     return h.form(".object-form.new-form.invite-new-user",{
       ref: "form",
       onSubmit: ::this._onSubmit
@@ -103,4 +118,6 @@ export default class UserForm extends React.Component {
       h(SmallLoader) :
       h.button([h.span(this.props.user ? "Update User" : "Send Invitation")])
   }
+
+
 }

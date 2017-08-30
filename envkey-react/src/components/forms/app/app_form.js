@@ -1,6 +1,8 @@
 import React from 'react'
 import {RadioGroup, Radio} from 'react-radio-group'
+import moment from 'moment'
 import AppImporter from './app_importer'
+import SubscriptionWall from 'components/shared/subscription_wall'
 
 export default class AppForm extends React.Component {
 
@@ -10,7 +12,7 @@ export default class AppForm extends React.Component {
   }
 
   componentDidMount(){
-    this.refs.name.focus()
+    if(this.refs.name)this.refs.name.focus()
   }
 
   _onSubmit(e){
@@ -30,15 +32,19 @@ export default class AppForm extends React.Component {
     return this.props.renderImporter && this.state.importOption == "import"
   }
 
-  _needsSubscriptionUpgrade(){
-    return true
-    // return this.props.numApps >= this.props.currentOrg.maxApps
+  _showSubscriptionWall(){
+    return this.props.numApps && this.props.currentOrg && this.props.numApps >= this.props.currentOrg.maxApps
   }
 
   render(){
-    if (this._needsSubscriptionUpgrade()){
-      return this._renderNeedsSubscriptionUpgrade()
+    if (this._showSubscriptionWall()){
+      return <SubscriptionWall org={this.props.currentOrg}
+                               type="app"
+                               max={this.props.currentOrg.maxApps}
+                               orgOwner={this.props.orgOwner}
+                               onUpgradeSubscription={this.props.onUpgradeSubscription} />
     }
+
     return (
       <form ref="form"
             className="object-form new-form app-form"
@@ -58,27 +64,6 @@ export default class AppForm extends React.Component {
         <fieldset>{this._renderSubmit()}</fieldset>
       </form>
     )
-  }
-
-  _renderNeedsSubscriptionUpgrade(){
-    return <div className="needs-upgrade">
-      <p>Your organization has {this.props.currentOrg.numApps} apps, which is the maximum number allowed on the Free Tier.</p>
-
-      <p>To create another, either delete an existing app, or upgrade to the Business Tier by clicking</p>
-
-      <button className="button"
-              onClick={this.props.onUpgradeSubscription}>
-        Upgrade To Business Tier
-      </button>
-    </div>
-  }
-
-  _renderNeedsSubscriptionUpgradeForOwner(){
-
-  }
-
-  _renderNeedsSubscriptionUpgradeForNonOwner(){
-
   }
 
   _renderImportOpts(){

@@ -101,10 +101,11 @@ export default class AssocColumn extends React.Component {
 
   _renderAddAssoc(){
     return h(AddAssoc, {
-      createAssoc: ::this._onCreateAssoc,
-      addAssoc: ::this._onAddAssoc,
+      ...this.props,
       ...this.props.columnsConfig,
-      ...this.props.config
+      ...this.props.config,
+      createAssoc: ::this._onCreateAssoc,
+      addAssoc: ::this._onAddAssoc
     })
   }
 
