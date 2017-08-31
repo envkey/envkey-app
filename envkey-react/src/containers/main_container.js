@@ -3,15 +3,18 @@ import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 import Sidebar from 'components/sidebar'
 import Header from 'components/shared/header'
-import { getApps,
-         getUserGroupsByRole,
-         getIsLoadingAppState,
-         getCurrentUser,
-         getCurrentUserErr,
-         getPermissions,
-         getCurrentOrg,
-         getCurrentOrgSlug } from 'selectors'
-import {fetchCurrentUser, selectOrg, logout} from 'actions'
+import {
+  getAppLoaded,
+  getApps,
+  getUserGroupsByRole,
+  getIsLoadingAppState,
+  getCurrentUser,
+  getCurrentUserErr,
+  getPermissions,
+  getCurrentOrg,
+  getCurrentOrgSlug
+} from 'selectors'
+import {appLoaded, fetchCurrentUser, selectOrg, logout} from 'actions'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
 
@@ -31,7 +34,9 @@ const ensureCurrentUser = (props)=>{
     props.selectOrg(orgSlug)
   }
 
-  if(!appStateLoaded(props)){
+  if(appStateLoaded(props)){
+    if(!props.appLoaded)props.onLoad()
+  } else if(!appStateLoaded(props)){
     props.fetchCurrentUser()
   }
 }
@@ -79,6 +84,7 @@ const mapStateToProps = (state, ownProps) => {
     currentOrg: getCurrentOrg(state),
     apps: getApps(state),
     users: getUserGroupsByRole(state),
+    appLoaded: getAppLoaded(state),
     isLoadingAppState: getIsLoadingAppState(state),
     permissions: getPermissions(state)
   }
@@ -86,6 +92,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    onLoad: ()=> dispatch(appLoaded()),
     fetchCurrentUser: ()=> dispatch(fetchCurrentUser()),
     selectOrg: (slug)=> dispatch(selectOrg(slug)),
     logout: ()=> {

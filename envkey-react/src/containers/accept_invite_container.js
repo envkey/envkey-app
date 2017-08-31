@@ -4,6 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import {appLoaded, loadInviteRequest, acceptInvite, resetAcceptInvite} from 'actions'
 import {
+  getAppLoaded,
   getIsAuthenticating,
   getInviteParams,
   getInviteParamsVerified,
@@ -28,7 +29,7 @@ class AcceptInvite extends React.Component {
   }
 
   componentDidMount() {
-    this.props.onLoad()
+    if(!this.props.appLoaded)this.props.onLoad()
   }
 
   _onSubmitPassword(e){
@@ -168,6 +169,7 @@ class AcceptInvite extends React.Component {
 
 const mapStateToProps = state => {
   return {
+    appLoaded: getAppLoaded(state),
     inviteParams: getInviteParams(state),
     inviteParamsVerified: getInviteParamsVerified(state),
     inviteParamsInvalid: getInviteParamsInvalid(state),

@@ -1,4 +1,6 @@
 import {
+  APP_LOADED,
+
   VERIFY_EMAIL_REQUEST,
   VERIFY_EMAIL_SUCCESS,
   VERIFY_EMAIL_FAILED,
@@ -47,6 +49,14 @@ import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
 
 export const
+
+  appLoaded = (state = false, action)=> {
+    if (action.type == APP_LOADED){
+      return true
+    } else {
+      return state
+    }
+  },
 
   verifyingEmail = (state = null, action)=>{
     switch(action.type){
@@ -153,7 +163,6 @@ export const
         return state
     }
   },
-
 
   auth = (state = null, action)=> {
     switch(action.type){

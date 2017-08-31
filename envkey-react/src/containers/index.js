@@ -17,3 +17,4 @@ export {default as AppCollaboratorsContainer} from './app_collaborators_containe
 export {default as LoginRegisterContainer} from './login_register_container'
 export {default as InviteFailedContainer} from './invite_failed_container'
 export {default as BillingContainer} from './billing_container'
+export {default as HomeMenuContainer} from './home_menu_container'

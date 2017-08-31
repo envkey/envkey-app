@@ -18,6 +18,7 @@ import R from 'ramda'
 import {camelize} from 'xcase'
 
 export const
+  getAppLoaded = db.path("appLoaded"),
 
   getVerifyingEmail = db.path("verifyingEmail"),
 

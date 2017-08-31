@@ -32,6 +32,7 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null
+    if(stripeWin)stripeWin.close()
   })
 }
 
@@ -45,7 +46,7 @@ function createStripeWindow(){
   }))
 
   stripeWin.on('closed', () => {
-    win.webContents.send("stripeFormClosed")
+    if(win)win.webContents.send("stripeFormClosed")
     stripeWin = null
   })
 }
@@ -87,6 +88,6 @@ ipcMain.on("stripeToken", (e, msg)=>{
 
 ipcMain.on("stripeFormClosed", (e, msg)=>{
   if(stripeWin)stripeWin.close()
-  win.webContents.send("stripeFormClosed", msg)
+  if(win)win.webContents.send("stripeFormClosed", msg)
 })
 

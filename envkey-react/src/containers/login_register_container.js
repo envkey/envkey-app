@@ -11,6 +11,7 @@ import {
   register
 } from 'actions'
 import {
+  getAppLoaded,
   getIsAuthenticating,
   getAuthError,
   getVerifyingEmail,
@@ -56,7 +57,7 @@ class LoginRegister extends React.Component {
   }
 
   componentDidMount(){
-    this.props.onLoad()
+    if(!this.props.appLoaded)this.props.onLoad()
     this.refs.email.focus()
   }
 
@@ -247,6 +248,7 @@ class LoginRegister extends React.Component {
 
 const mapStateToProps = state => {
   return {
+    appLoaded: getAppLoaded(state),
     isAuthenticating: getIsAuthenticating(state),
     currentUser: getCurrentUser(state),
     authError: getAuthError(state),

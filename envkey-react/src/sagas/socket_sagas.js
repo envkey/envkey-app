@@ -174,11 +174,17 @@ function *onSocketUpdateOrg(action){
     return
   }
 
-  if (actionType == "deleted"){
-    // Other deletes
+  // Subscription cancelled
+  if (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "cancel_subscription"){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-  } else {
-    // For other changes update in background
+    return
+  }
+
+  if (actionType == "deleted" && !(meta && meta.bulkAction)){
+    // Other deletes that are not bulk actions
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  } else if (!(meta && meta.bulkAction)){
+    // For other non-bulk changes, update in background
     yield put(fetchCurrentUserUpdates())
   }
 }

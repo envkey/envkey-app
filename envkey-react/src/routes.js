@@ -30,10 +30,10 @@ import {
   AppCollaboratorsContainer,
   LoginRegisterContainer,
   InviteFailedContainer,
-  BillingContainer
+  BillingContainer,
+  HomeMenuContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
-import HomeMenu from 'components/shared/home_menu'
 
 const
   UserAuthenticated = UserAuthWrapper({
@@ -63,7 +63,7 @@ export default class Routes extends React.Component {
     if (orgSlug){
       store.dispatch(replace(`/${orgSlug}`))
     } else {
-      store.dispatch(replace("/select_org"))
+      store.dispatch(replace("/home"))
     }
   }
 
@@ -87,7 +87,7 @@ export default class Routes extends React.Component {
 
         <Route path="/" onEnter={::this._redirectIndex} />
 
-        <Route path="/home" component={HomeMenu} />
+        <Route path="/home" component={HomeMenuContainer} />
 
         <Route path="/login" component={LoginRegisterContainer} />
 

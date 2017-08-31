@@ -11,7 +11,8 @@ import {
   LOAD_INVITE_API_SUCCESS,
   ACCEPT_INVITE_SUCCESS,
   BILLING_UPDATE_SUBSCRIPTION_SUCCESS,
-  BILLING_UPDATE_CARD_SUCCESS
+  BILLING_UPDATE_CARD_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
@@ -52,6 +53,13 @@ export const orgs = (state = {}, action)=>{
 
     case LOAD_INVITE_API_SUCCESS:
       return indexById([action.payload.org])
+
+    case FETCH_CURRENT_USER_UPDATES_SUCCESS:
+      if (action.meta && action.meta.noMinUpdatedAt){
+        return action.payload.orgs ? indexById(action.payload.orgs) : state
+      } else {
+        return action.payload.orgs && action.payload.orgs.length ? {...state, ...indexById(action.payload.orgs)} : state
+      }
 
     case BILLING_UPDATE_CARD_SUCCESS:
     case BILLING_UPDATE_SUBSCRIPTION_SUCCESS:
