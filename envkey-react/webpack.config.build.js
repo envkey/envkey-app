@@ -5,15 +5,31 @@ var webpack = require('webpack'),
 
 var isProd = process.env.PRODUCTION_BUILD == "true",
     isDemo = process.env.DEMO_BUILD == "true",
-    buildEnv = isProd ? "production" : (isDemo ? "demo" : "staging"),
+    isK8s = process.env.K8S_BUILD == "true",
+    buildEnv
+
+if (isProd){
+  buildEnv = "production"
+} else if (isDemo){
+  buildEnv = "demo"
+} else if (isK8s){
+  buildEnv = "k8s-production"
+} else {
+  buildEnv = "staging"
+}
 
 var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new EnvkeyWebpackPlugin({
     dotEnvFile: `.env.${buildEnv}`,
-    permitted: ["NODE_ENV", "API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY"],
+    permitted: ["NODE_ENV", "ASSET_HOST", "API_HOST", "HOST", "PUSHER_APP_KEY"],
     define: {BUILD_ENV: buildEnv}
   }),
+  // new EnvkeyWebpackPlugin({
+  //   dotEnvFile: `.env.${buildEnv}`,
+  //   permitted: ["NODE_ENV", "ASSET_HOST", "HOST", "PUSHER_APP_KEY"],
+  //   define: {BUILD_ENV: buildEnv, API_HOST: process.env.API_HOST}
+  // }),
   new webpack.optimize.UglifyJsPlugin({
     output: {comments: false},
     compress: {
