@@ -22,8 +22,8 @@ var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new EnvkeyWebpackPlugin({
     dotEnvFile: `.env.${buildEnv}`,
-    permitted: ["NODE_ENV", "ASSET_HOST", "API_HOST", "HOST", "PUSHER_APP_KEY"],
-    define: {BUILD_ENV: buildEnv}
+    permitted: ["NODE_ENV", "ASSET_HOST", "HOST", "PUSHER_APP_KEY"],
+    define: {BUILD_ENV: buildEnv, API_HOST: process.env.API_HOST}
   }),
   // new EnvkeyWebpackPlugin({
   //   dotEnvFile: `.env.${buildEnv}`,
