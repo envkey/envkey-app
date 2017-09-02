@@ -320,7 +320,7 @@ export const
       h.p([
         "Now that you've entered your config and generated keys, it's time to ",
         h.em(".blue", "add collaborators " ),
-        "so the rest of your team has access, too."
+        "so the rest of your team has access too."
       ]),
 
       h.p([

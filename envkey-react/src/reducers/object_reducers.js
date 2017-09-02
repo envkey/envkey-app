@@ -120,10 +120,15 @@ const
     return state
   },
 
-  getRemoveObjectReducer = objectTypePlural => (state, {payload})=>{
-    const ids = payload[objectTypePlural]
-    if(ids){
-      return R.pick(ids, state)
+  getRemoveObjectReducer = objectTypePlural => (state, {payload, meta})=>{
+    if (meta.objectType == "orgUser"){
+      const objects = payload[objectTypePlural]
+      return objects ? indexById(objects) : state
+    } else {
+      const ids = payload[objectTypePlural]
+      if(ids){
+        return R.pick(ids, state)
+      }
     }
     return state
   },

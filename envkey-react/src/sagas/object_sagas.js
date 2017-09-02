@@ -42,7 +42,8 @@ import {
   generateEnvUpdateId,
   importAllEnvironments,
   decryptEnvs,
-  verifyOrgPubkeys
+  verifyOrgPubkeys,
+  logout
 } from "actions"
 import {
   getCurrentOrg,
@@ -104,7 +105,10 @@ const
   },
 
   onRemoveObject = function*(action){
-    const currentOrg = yield select(getCurrentOrg)
+    const currentOrg = yield select(getCurrentOrg),
+          currentUser = yield select(getCurrentUser),
+          shouldLogout = ((action.meta.objectType == "user" && action.meta.targetId == currentUser.id) ||
+                          (action.meta.objectType == "org" && action.meta.targetId == currentOrg.id))
 
     yield fork(apiSaga({
       authenticated: true,
@@ -116,6 +120,13 @@ const
     if(!action.meta.isOnboardAction){
       const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
       if (apiResultType == API_SUCCESS) {
+        // If user just deleted their account or organization, log them out and return
+        if (shouldLogout){
+          yield put(push("/home"))
+          yield put(logout())
+          return
+        }
+
         yield put(push(`/${currentOrg.slug}`))
       }
 
