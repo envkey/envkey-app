@@ -47,6 +47,7 @@ import {
 } from "actions"
 import {
   getCurrentOrg,
+  getCurrentUser,
   getIsPollingInviteesPendingAcceptance,
   getEnvUpdateId
 } from "selectors"

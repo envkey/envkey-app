@@ -154,7 +154,7 @@ function *onVerifyOrgPubkeys(){
         if(doLogging)console.log("signingUser: ", signingUser)
 
         if(signingUser && signingUser.pubkey){
-          let signedKey = invitedById ? invitePubkey : pubkey,
+          let signedKey = invitedById ? checkingKeyable.invitePubkey : checkingKeyable.pubkey,
               verified
 
           if(doLogging)console.log("Verifying signed key.")
@@ -171,6 +171,7 @@ function *onVerifyOrgPubkeys(){
           }
 
         } else {
+          debugger
           if(doLogging)console.log("Signing user null or has no pubkey, breaking...")
           break
         }
