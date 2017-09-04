@@ -11,14 +11,17 @@ export const
   // User selectors
   getUser = db.users.find(),
 
-  getUsers = db.users.list(),
+  getUsers = db.users.where({deleted: R.not}),
+
+  getUsersWithDeleted = db.users.list(),
 
   getUsersById = db.users.index(),
 
   getUserBySlug = db.users.findBy("slug"),
 
   getUserGroupsByRole = db.users.group("role", {
-    sortBy: "lastName"
+    sortBy: "lastName",
+    where: {deleted: R.not}
   }),
 
   getOrgOwner = R.pipe(
@@ -27,18 +30,18 @@ export const
     R.head
   ),
 
-  getNonOrgAdminUsers = db.users.whereNotIn(
-    "role",
-    ["org_owner", "org_admin"],
+  getNonOrgAdminUsers = db.users.where(
+    {deleted: R.not, role: r => ["org_owner", "org_admin"].includes(r)},
     {sortBy: "lastName"}
   ),
 
   getUserGroupsByRoleForApp = db.apps.hasAndBelongsToMany("users", {
     groupBy: ({relation}) => relation.role,
-    sortBy: "lastName"
+    sortBy: "lastName",
+    where: {deleted: R.not}
   }),
 
-  getUsersForApp = db.apps.hasAndBelongsToMany("users"),
+  getUsersForApp = db.apps.hasAndBelongsToMany("users", {where: {deleted: R.not}}),
 
   getUserWithOrgUserBySlug = (slug, state)=> {
     const user = getUserBySlug(slug, state),

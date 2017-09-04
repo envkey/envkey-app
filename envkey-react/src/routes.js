@@ -147,7 +147,7 @@ export default class Routes extends React.Component {
 
             <IndexRedirect to="settings" />
 
-            <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentOrg"})}/>
+            <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentOrg", targetObjectType: "org"})}/>
 
             <Route path="billing" component={BillingContainer}/>
 
@@ -157,7 +157,7 @@ export default class Routes extends React.Component {
 
             <IndexRedirect to="settings" />
 
-            <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentUser"})}/>
+            <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentUser", targetObjectType: "user"})}/>
 
           </Route>
 
