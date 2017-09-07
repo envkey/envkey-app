@@ -88,10 +88,12 @@ const SelectedObjectContainerFactory = ({
     }
 
     _renderContents(){
-      if(this.props.envsAreDecrypted || this.props.isDecrypting){
+      const isAccountMenu = ["currentUser", "currentOrg"].includes(objectType)
+
+      if(isAccountMenu || this.props.envsAreDecrypted || this.props.isDecrypting){
         return [
           this._renderChildren(),
-          h(DecryptLoader, this.props)
+          (isAccountMenu ? null : h(DecryptLoader, this.props))
         ]
       }  else {
         return [h(DecryptForm, {onSubmit: this.props.decrypt})]

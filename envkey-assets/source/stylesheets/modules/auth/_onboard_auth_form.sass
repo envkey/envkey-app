@@ -1,0 +1,40 @@
+.onboard-auth-form
+  form button
+    font-size: 16px
+    height: 40px
+    margin-top: 10px
+
+  form input
+    font-size: 14px
+
+  form .spinner
+    display: block
+    margin-top: 20px
+    svg
+      width: 40px
+      height: 40px
+
+  .back-link
+    +clearfix
+    display: block
+    cursor: pointer
+    position: absolute
+    bottom: 0px
+    padding: 25px 0
+    left: 0
+    width: 100%
+    text-align: center
+    transition: background 0.15s, color 0.15s
+    &, &:visited
+      color: rgba(#fff, 0.3)
+      text-decoration: none
+
+      span.img
+        position: relative
+        top: 4px
+        font-size: 35px
+        margin-right: 5px
+
+    &:hover
+      background: rgba(#000, 0.2)
+      color: #fff

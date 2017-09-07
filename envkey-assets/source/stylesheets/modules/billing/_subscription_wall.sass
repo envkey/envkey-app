@@ -1,0 +1,35 @@
+.subscription-wall
+  max-width: 350px
+  text-align: center
+  padding: 20px
+
+  p
+    color: hsl(0,0,65)
+    font-weight: 100
+    line-height: 140%
+    margin-bottom: 20px
+    text-align: left
+    font-size: 15px
+
+    strong
+      font-weight: 400
+      color: hsl(0,0,50)
+
+    em
+      font-weight: 400
+      color: $darker-blue
+
+  button
+    margin-top: 10px
+
+  &.is-updating
+    p
+      margin-top: 5px
+      text-align: center
+
+    .spinner
+      display: inline-block
+      margin-top: 5px
+      svg circle
+        fill: $dark-blue
+

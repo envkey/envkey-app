@@ -40,7 +40,9 @@ class AssocRow extends React.Component{
     return [
       "association-row",
       (canRemove(this.props) ? " deletable" : ""),
-      (isGeneratingAssocKey(this.props) ? " generating-key": "")
+      (isRemoving(this.props) ? " is-removing" : ""),
+      (isGeneratingAssocKey(this.props) ? " generating-key": ""),
+      (this.props.assoc.isDefault ? " is-default" : "")
     ]
   }
 

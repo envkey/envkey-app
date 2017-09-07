@@ -3,7 +3,7 @@ import {
   getUser,
   getAppUserBy,
   getServer,
-  getLocalKeysForAppUsers,
+  getLocalKeysForAppUser,
   getOrgUserForUser
 } from './object_selectors'
 import {
@@ -133,7 +133,7 @@ export const
   getCurrentUserLocalKeysForApp = R.curry((appId, state)=> {
     const {id: userId} = getCurrentUser(state),
           {id: appUserId} = getAppUserBy({userId, appId}, state)
-    return getLocalKeysForAppUsers(appUserId, state)
+    return getLocalKeysForAppUser(appUserId, state)
   })
 
 

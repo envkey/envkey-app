@@ -246,7 +246,7 @@ export const
     }
   },
 
-  generatedEnvkeys = ( state = {}, action)=>{
+  generatedEnvKeys = ( state = {}, action)=>{
     switch(action.type){
       case GENERATE_ASSOC_KEY_SUCCESS:
         return R.assoc(action.meta.targetId, {envkey: action.payload.envkey, passphrase: action.meta.passphrase}, state)

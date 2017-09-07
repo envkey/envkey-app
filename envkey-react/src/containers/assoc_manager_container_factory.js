@@ -19,7 +19,7 @@ import {
   getUser,
   getCurrentUser,
   getIsGrantingEnvAccessByUserId,
-  getGeneratedEnvkeysById
+  getGeneratedEnvKeysById
 } from 'selectors'
 import AssocManager from 'components/assoc_manager'
 import {getTrueParentAssoc, getJoinType} from "lib/assoc/helpers"
@@ -46,7 +46,7 @@ export default function({
       isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
       isRevokingAssocKeyById: getIsRevokingAssocKeyById(state),
       isGrantingEnvAccessByUserId: getIsGrantingEnvAccessByUserId(state),
-      generatedEnvkeysById: getGeneratedEnvkeysById(state),
+      generatedEnvKeysById: getGeneratedEnvKeysById(state),
       getUserFn: userId => getUser(userId, state)
     }
   }

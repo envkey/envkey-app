@@ -1,7 +1,8 @@
+import R from 'ramda'
 import { takeLatest, take, put, select, call} from 'redux-saga/effects'
 import {apiSaga} from './helpers'
 import {listenCardForm, openCardForm} from 'lib/billing'
-import {getCurrentOrg} from 'selectors'
+import {getCurrentOrg, getActiveUsers} from 'selectors'
 import {
   APP_LOADED,
 
@@ -47,17 +48,26 @@ function *onAppLoaded(){
 }
 
 function *onBillingUpgradeSubscription(){
-  openCardForm()
+  const currentOrg = yield select(getCurrentOrg),
+        numUsers = (yield select(getActiveUsers)).length,
+        plan = currentOrg.businessPlan,
+        subscription = currentOrg.subscription
+
+  openCardForm("upgrade_subscription", {
+    numUsers,
+    plan: R.pick(["amount", "name"], plan),
+    subscription: R.pick(["status", "trialEndsAt", "currentPeriodEndsAt"], subscription)
+  })
   const formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
   if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
-    const currentOrg = yield select(getCurrentOrg)
-    yield put(billingUpdateSubscriptionRequest({...formResult.payload, planId: currentOrg.businessPlan.id}))
+
+    yield put(billingUpdateSubscriptionRequest({...formResult.payload, planId: currentOrg.businessPlan.id, updateType: "upgrade"}))
   }
 }
 
 function* onBillingCancelSubscription(){
   const currentOrg = yield select(getCurrentOrg)
-  yield put(billingUpdateSubscriptionRequest({planId: currentOrg.freePlan.id}))
+  yield put(billingUpdateSubscriptionRequest({planId: currentOrg.freePlan.id, updateType: "cancel"}))
 
   const res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
 
@@ -67,7 +77,7 @@ function* onBillingCancelSubscription(){
 }
 
 function* onBillingUpdateCard(){
-  openCardForm()
+  openCardForm("update_payment")
   const formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
   if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
     const currentOrg = yield select(getCurrentOrg)

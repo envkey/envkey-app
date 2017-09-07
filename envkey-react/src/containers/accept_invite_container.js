@@ -2,6 +2,7 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import {appLoaded, loadInviteRequest, acceptInvite, resetAcceptInvite} from 'actions'
 import {
   getAppLoaded,
@@ -11,11 +12,12 @@ import {
   getInviteParamsInvalid,
   getAcceptInviteEmailError,
   getIsLoadingInvite,
-  getLoadInviteError
+  getLoadInviteError,
+  getIsInvitee
 } from 'selectors'
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
-import {imagePath} from 'lib/ui'
+import {OnboardOverlay} from 'components/onboard'
 
 class AcceptInvite extends React.Component {
 
@@ -30,6 +32,7 @@ class AcceptInvite extends React.Component {
 
   componentDidMount() {
     if(!this.props.appLoaded)this.props.onLoad()
+    if(this.refs.inviteToken)this.refs.inviteToken.focus()
   }
 
   _onSubmitPassword(e){
@@ -52,13 +55,12 @@ class AcceptInvite extends React.Component {
   }
 
   render(){
-    return h.div(".full-overlay", [
-      h.div(".auth-form.accept-invite", [
-        h.div(".logo", [
-          h.img({src: imagePath("envkey-logo.svg")})
-        ]),
-        h.div(".content", [
-          this._renderContent()
+    return h(OnboardOverlay, [
+      h.div([
+        h.h1([h.em("Accept Invitation")]),
+        h.div(".onboard-auth-form.accept-invite-form", [
+          this._renderContent(),
+          this._renderBackLink()
         ])
       ])
     ])
@@ -74,40 +76,54 @@ class AcceptInvite extends React.Component {
     }
   }
 
+  _renderBackLink(){
+    return h(Link, {className: "back-link", to: "/home", onClick: ::this.props.onReset}, [
+      h.span(".img", "←"),
+      h.span("Back To Home")
+    ])
+  }
+
   _renderLoadInviteForm(){
     return h.div(".load-invite-form", [
-      h.div(".msg", [
-        h.p(`Welcome to Envkey! To accept a secure invitation, you need two codes:`)
-      ]),
+
+      h.p(".copy", "To accept an invitation, you need two tokens."),
 
       h.form({onSubmit: ::this._onLoadInvite}, [
 
-        h.fieldset([
+        h.fieldset({className: "invite-token"}, [
           h.p([
-            h.strong("1.) "),
+            h.strong(".num", "1 "),
+            h.span([
             "An ",
-            h.strong("Invite Code"),
-            ", which you receive in an email from Envkey <support@envkey.com>."
+            h.strong("Invite Token"),
+            ", which you receive in an email from EnvKey <support@envkey.com>:"
+            ])
           ]),
           h.input({
             type: "password",
-            placeholder: "Invite Code",
+            ref: "inviteToken",
+            placeholder: "Invite Token",
+            required: true,
             value: this.state.emailVerificationCode,
             onChange: e => this.setState({emailVerificationCode: e.target.value})
           })
         ]),
 
-        h.fieldset([
+        h.fieldset({className: "encryption-token"}, [
           h.p([
-            h.strong("2.) "),
-            "An ",
-            h.strong("Encryption Code"),
-            ", which you receive directly from the person who invited you."
+            h.strong(".num", "2 "),
+            h.span([
+              "An ",
+              h.strong("Encryption Token"),
+              ", which you receive directly from the person who invited you:"
+            ])
+
           ]),
           h.input({
             type: "password",
-            placeholder: "Encryption Code",
+            placeholder: "Encryption Token",
             value: this.state.encryptionCode,
+            required: true,
             onChange: e => this.setState({encryptionCode: e.target.value})
           })
         ]),
@@ -122,7 +138,7 @@ class AcceptInvite extends React.Component {
 
   _renderLoadError(){
     return h.div(".load-invite-error", [
-      h.div(".msg", "This invitation is invalid or expired. Envkey invitations are valid for 24 hours, and can only be loaded once."),
+      h.div(".msg", "This invitation is invalid or expired. EnvKey invitations are valid for 24 hours, and can only be loaded once."),
       h.button({onClick: this.props.resetAcceptInvite}, "Go Back")
     ])
   }
@@ -131,15 +147,15 @@ class AcceptInvite extends React.Component {
     if (this.props.isLoadingInvite){
       return h(Spinner)
     } else {
-      return h.button("Submit")
+      return h.button("Next")
     }
   }
 
   _passwordCopy(){
     if (this._isNewUser()){
-      return "Invite verified. To sign in, set a master encryption passphrase."
+      return "Invite verified. To sign in, set a strong master encryption passphrase."
     } else {
-      return "Invite verified. To sign in, enter your master encryption passphrase below."
+      return "Invite verified. To sign in, enter your master encryption passphrase."
     }
   }
 
@@ -147,7 +163,7 @@ class AcceptInvite extends React.Component {
     return h.form(".password-form", {
       onSubmit: ::this._onSubmitPassword,
     }, [
-      h.div(".msg", this._passwordCopy()),
+      h.p(".copy", this._passwordCopy()),
       h.fieldset([
         h(PasswordInput, {
           value: this.state.password,
@@ -159,8 +175,8 @@ class AcceptInvite extends React.Component {
   }
 
   _renderSubmitPassword(){
-    if(this.props.isAuthenticating){
-      return <button disabled={true}>Submitting... </button>
+    if(this.props.isAuthenticating || this.props.isInvitee){
+      return h(Spinner)
     } else {
       return <button>Sign In</button>
     }
@@ -176,7 +192,8 @@ const mapStateToProps = state => {
     acceptInviteEmailError: getAcceptInviteEmailError(state),
     isAuthenticating: getIsAuthenticating(state),
     isLoadingInvite: getIsLoadingInvite(state),
-    loadInviteError: getLoadInviteError(state)
+    loadInviteError: getLoadInviteError(state),
+    isInvitee: getIsInvitee(state)
   }
 }
 

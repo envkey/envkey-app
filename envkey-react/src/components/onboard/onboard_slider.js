@@ -78,7 +78,7 @@ export const
         h.em(".blue", "vertical tab bar"),
         ," with several tabs: ",
         h.em(".blue.condensed", " Variables,"),
-        h.em(".blue.condensed", " Envkeys,"),
+        h.em(".blue.condensed", " EnvKeys,"),
         h.em(".blue.condensed", " Collaborators,"),
         " and ",
         h.em(".blue.condensed", " Settings. "),
@@ -119,7 +119,7 @@ export const
         h.em(".blue", "vertical tab bar"),
         ," with several tabs: ",
         h.em(".blue.condensed", " Variables,"),
-        h.em(".blue.condensed", " Envkeys,"),
+        h.em(".blue.condensed", " EnvKeys,"),
         h.em(".blue.condensed", " Collaborators,"),
         " and ",
         h.em(".blue.condensed", " Settings. "),
@@ -160,7 +160,7 @@ export const
         h.em(".blue", "vertical tab bar"),
         ," with several tabs: ",
         h.em(".blue.condensed", " Variables,"),
-        h.em(".blue.condensed", " Envkeys,"),
+        h.em(".blue.condensed", " EnvKeys,"),
         h.em(".blue.condensed", " Collaborators,"),
         " and ",
         h.em(".blue.condensed", " Settings. "),
@@ -202,7 +202,7 @@ export const
         ," with a couple of tabs: ",
         h.em(".blue.condensed", " Variables"),
         " and ",
-        h.em(".blue.condensed", " Envkeys. "),
+        h.em(".blue.condensed", " EnvKeys. "),
         "Let’s start with ",
         h.em(".blue.condensed", "Variables.")
       ]),
@@ -228,7 +228,7 @@ export const
 
       h.p([
         "Welcome to the ",
-        h.em(".blue.condensed", " Envkeys "),
+        h.em(".blue.condensed", " EnvKeys "),
         "tab. This is where you connect the config you just setup to your development environment and your servers."
       ]),
 
@@ -265,7 +265,7 @@ export const
 
       h.p([
         "Welcome to the ",
-        h.em(".blue.condensed", " Envkeys "),
+        h.em(".blue.condensed", " EnvKeys "),
         "tab. This is where you connect the config you just setup to your development environment and your servers."
       ]),
 
@@ -295,7 +295,7 @@ export const
 
       h.p([
         "Welcome to the ",
-        h.em(".blue.condensed", " Envkeys "),
+        h.em(".blue.condensed", " EnvKeys "),
         "tab. This is where you connect the config you just setup to your development environment.",
         h.p("Let’s start with your development environment. Go ahead and generate your development key.")
       ])
@@ -340,9 +340,9 @@ export const
       h.h1([h.em(".orange","That pretty much covers it."), " Questions?"]),
 
       h.p([
-        "Hopefully you now have a good understanding of how to use Envkey to secure and simplify your team's config.",
+        "Hopefully you now have a good understanding of how to use EnvKey to secure and simplify your team's config.",
         " There's really not much to it! ",
-        "If you have questions, please contact Envkey's CEO directly: ",
+        "If you have questions, please contact EnvKey's CEO directly: ",
         h.a(".blue",{href: "mailto:dane@envkey.com"}, "dane@envkey.com"),
       ]),
     ])

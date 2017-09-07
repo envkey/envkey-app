@@ -1,4 +1,6 @@
 import React from 'react'
+import Spinner from 'components/shared/spinner'
+import {OnboardOverlay} from 'components/onboard'
 
 export default function ({orgs, currentOrg, isFetchingOrg, onSelect}){
 
@@ -7,7 +9,7 @@ export default function ({orgs, currentOrg, isFetchingOrg, onSelect}){
   }
 
   const renderOrg = (org, i)=> {
-    return <div key={i || false}>
+    return <div key={i || false} className={i % 2 == 0 ? "even" : "odd"}>
       <label>{org.name}</label>
       {renderSelectButton(org)}
     </div>
@@ -15,15 +17,17 @@ export default function ({orgs, currentOrg, isFetchingOrg, onSelect}){
 
   const renderOrgSelect = ()=> {
     if(isFetchingOrg){
-      return <h3>Loading...</h3>
+      return <Spinner />
     } else {
       return <div className="org-candidates">{orgs.map(renderOrg)}</div>
     }
   }
 
-  return <div className="select-org">
-    <h4>Select An Org</h4>
-    {renderOrgSelect()}
-  </div>
+  return <OnboardOverlay>
+    <div className="onboard-auth-form select-org">
+      <h1><em>Select An Organization</em></h1>
+      {renderOrgSelect()}
+    </div>
+  </OnboardOverlay>
 
 }

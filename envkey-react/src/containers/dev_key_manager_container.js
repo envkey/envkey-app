@@ -5,7 +5,7 @@ import {
   getIsGeneratingAssocKey,
   getCurrentUser,
   getCurrentAppUserForApp,
-  getGeneratedEnvkeysById
+  getGeneratedEnvKeysById
 } from 'selectors'
 import {DevKeyManager} from 'components/assoc_manager'
 
@@ -16,7 +16,7 @@ import {DevKeyManager} from 'components/assoc_manager'
       currentUser: getCurrentUser(state),
       assoc: getCurrentAppUserForApp(appId, state),
       isGeneratingAssocKeyFn: id => getIsGeneratingAssocKey(id, state),
-      generatedEnvkeysById: getGeneratedEnvkeysById(state)
+      generatedEnvKeysById: getGeneratedEnvKeysById(state)
     }
   }
 

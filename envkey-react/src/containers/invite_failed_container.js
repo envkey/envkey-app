@@ -15,7 +15,7 @@ class InviteFailed extends React.Component {
           h.img({src: imagePath("envkey-logo.svg")})
         ]),
         h.div(".content", [
-          h.p("Your invitation to this organization either expired, was revoked, or could not be verified. Envkey invitations expire after 24 hours and can only be loaded once."),
+          h.p("Your invitation to this organization either expired, was revoked, or could not be verified. EnvKey invitations expire after 24 hours and can only be loaded once."),
           h.p("To gain access, ask an admin of your organization to re-invite you. If you're still having trouble, please contact support: support@envkey.com"),
           h.div(".actions", this._renderActions())
         ])

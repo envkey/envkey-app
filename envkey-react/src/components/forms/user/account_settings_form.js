@@ -17,7 +17,8 @@ export default function({
       user: currentUser,
       orgRolesAssignable: [],
       isSubmitting: isUpdatingSettings,
-      onSubmit: onUpdateSettings
+      onSubmit: onUpdateSettings,
+      readOnlyEmail: true
     }),
 
     h.div(".danger-zone", [

@@ -3,7 +3,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
 import OrgRoleSelect from './org_role_select'
-import SubscriptionWall from 'components/shared/subscription_wall'
+import { SubscriptionWallContainer } from 'containers'
 
 export default class UserForm extends React.Component {
 
@@ -27,7 +27,15 @@ export default class UserForm extends React.Component {
 
   _onSubmit(e){
     e.preventDefault()
-    this.props.onSubmit(R.pick(["firstName", "lastName", "email", "orgRole"],this.state))
+    this.props.onSubmit(R.pick(this._userFields(), this.state))
+  }
+
+  _userFields(){
+    const fields = ["firstName", "lastName", "orgRole"]
+    if (!this.props.readOnlyEmail){
+      fields.push("email")
+    }
+    return fields
   }
 
   _showSubscriptionWall(){
@@ -36,13 +44,10 @@ export default class UserForm extends React.Component {
 
   render(){
     if (this._showSubscriptionWall()){
-      return <SubscriptionWall org={this.props.currentOrg}
-                               type="user"
-                               max={this.props.currentOrg.maxUsers}
-                               orgOwner={this.props.orgOwner}
-                               onUpgradeSubscription={this.props.onUpgradeSubscription}
-                               createVerb="invite"
-                               deleteVerb="remove" />
+      return <SubscriptionWallContainer type="user"
+                                        max={this.props.currentOrg.maxUsers}
+                                        createVerb="invite"
+                                        deleteVerb="remove" />
     }
 
     return h.form(".object-form.new-form.invite-new-user",{
@@ -69,15 +74,7 @@ export default class UserForm extends React.Component {
         })
       ]),
 
-      h.fieldset([
-        h.input('.email', {
-          type: "email",
-          placeholder: "Email",
-          required: true,
-          value: this.state.email,
-          onChange: e => this.setState({email: e.target.value})
-        })
-      ]),
+      this._renderEmailField(),
 
       this._renderOrgAdminToggle(),
 
@@ -113,10 +110,23 @@ export default class UserForm extends React.Component {
     }
   }
 
+  _renderEmailField(){
+    return h.fieldset([
+      h.input('.email', {
+        type: "email",
+        placeholder: "Email",
+        disabled: this.props.readOnlyEmail,
+        required: true,
+        value: this.state.email,
+        onChange: e => this.setState({email: e.target.value})
+      })
+    ])
+  }
+
   _renderSubmit(){
     return this.props.isSubmitting ?
       h(SmallLoader) :
-      h.button([h.span(this.props.user ? "Update User" : "Send Invitation")])
+      h.button([h.span(this.props.user ? "Update" : "Send Invitation")])
   }
 
 

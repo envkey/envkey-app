@@ -13,6 +13,11 @@ export const
 
   getUsers = db.users.where({deleted: R.not}),
 
+  getActiveUsers = R.pipe(
+    getUsers,
+    R.filter(({role, inviteAcceptedAt})=> inviteAcceptedAt || role == "org_owner")
+  ),
+
   getUsersWithDeleted = db.users.list(),
 
   getUsersById = db.users.index(),
@@ -31,7 +36,7 @@ export const
   ),
 
   getNonOrgAdminUsers = db.users.where(
-    {deleted: R.not, role: r => ["org_owner", "org_admin"].includes(r)},
+    {deleted: R.not, role: r => !(["org_owner", "org_admin"].includes(r))},
     {sortBy: "lastName"}
   ),
 
@@ -105,7 +110,9 @@ export const
 
   getLocalKeys = db.localKeys.list(),
 
-  getLocalKeysForAppUsers = db.appUsers.hasMany("localKeys"),
+  getLocalKeysForAppUser = db.appUsers.hasMany("localKeys", {
+    sortBy: "createdAt"
+  }),
 
   getLocalKeysWithPubkeyForApp = db.apps.hasMany("localKeys", {
     where: {pubkey: R.complement(R.isNil)}

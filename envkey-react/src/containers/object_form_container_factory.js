@@ -10,8 +10,7 @@ import {
   getIsCreating,
   getOrgRolesAssignable,
   getCurrentOrg,
-  getApps,
-  getOrgOwner
+  getApps
 } from 'selectors'
 import {AppForm, UserForm} from 'components/forms'
 
@@ -26,8 +25,7 @@ const
     const props = {
       isSubmitting: getIsCreating({objectType}, state),
       currentOrg: getCurrentOrg(state),
-      numApps: getApps(state).length,
-      orgOwner: getOrgOwner(state)
+      numApps: getApps(state).length
     }
 
     if(objectType == "user"){
@@ -49,8 +47,7 @@ const
         params: (params.params || params),
         toImport: params.toImport
       }))
-    },
-    onUpgradeSubscription: ()=> dispatch(billingUpgradeSubscription())
+    }
   })
 
   return connect(mapStateToProps, mapDispatchToProps)(ObjectFormContainer)

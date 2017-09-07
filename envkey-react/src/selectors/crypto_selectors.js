@@ -22,7 +22,7 @@ export const
 
   getTrustedPubkeys = db.path("trustedPubkeys"),
 
-  getGeneratedEnvkeysById = db.path("generatedEnvkeys"),
+  getGeneratedEnvKeysById = db.path("generatedEnvKeys"),
 
   getTrustedPubkey = R.curry((keyableId, state)=> db.path("trustedPubkeys", keyableId, "pubkey")(state)),
 

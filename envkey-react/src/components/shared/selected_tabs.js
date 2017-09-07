@@ -6,11 +6,11 @@ import {imagePath} from 'lib/ui'
 const config = {
   variables: ["variables", "Variables", 34, 26],
   collaborators: ["collaborators", "Collaborators", 30.8, 39.6, {objectPermissionPath: ["appUser", "read"]}],
-  keys: ["keys", "Envkeys", 49.275, 23.625],
+  keys: ["keys", "EnvKeys", 49.275, 23.625],
   integration: ["integration", "Integrate", 52, 25],
   settings: ["settings", "Settings", 33, 33, {objectPermissionPath: ["updateSettings"]}],
   apps: ["apps", "Apps", 36, 32],
-  billing: ["billing", "Billing", 0, 0]
+  billing: ["billing", "Billing", 34, 23]
 }
 
 const SelectedTabs = ({tabs, path, selectedTab, permissions, objectPermissions})=>{

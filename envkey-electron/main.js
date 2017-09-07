@@ -36,11 +36,13 @@ function createWindow () {
   })
 }
 
-function createStripeWindow(){
+function createStripeWindow(json){
+  const qs = `?data=${json}`
+
   stripeWin = new BrowserWindow({width: 600, height: 400})
 
   stripeWin.loadURL(url.format({
-    pathname: path.join(__dirname, (isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html')),
+    pathname: path.join(__dirname, ((isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html') + qs)),
     protocol: 'file:',
     slashes: true
   }))
@@ -73,12 +75,9 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on("openStripeForm", (e, msg)=>{
-  if(stripeWin){
-    stripeWin.show()
-  } else {
-    createStripeWindow()
-  }
+ipcMain.on("openStripeForm", (e, json)=>{
+  if(stripeWin)stripeWin.close()
+  createStripeWindow(json)
 })
 
 ipcMain.on("stripeToken", (e, msg)=>{

@@ -5,7 +5,7 @@ import {imagePath, childrenWithProps} from "lib/ui"
 export default function(props){
 
   return h.div(".full-overlay.onboard-overlay", [
-    h.div(".divider.divider"),
+    h.div(".divider"),
     h.div(".center-bg", [
       h.div(".logo", [
         h.img({src: imagePath("envkey-logo.svg")})

@@ -12,7 +12,7 @@ export default function({show}){
 
       h.div(".copy", [
         h.p([
-          "Start using Envkey to improve security and simplify ops. ",
+          "Start using EnvKey to improve security and simplify ops. ",
           "Integration is easy."
         ])
       ]),

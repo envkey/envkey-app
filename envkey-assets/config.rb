@@ -50,6 +50,8 @@ set :fonts_dir, 'fonts'
 # Reload the browser automatically whenever files change
 configure :development do
   activate :livereload,
+           no_swf: true,
+           apply_css_live: true,
            livereload_css_pattern: Regexp.new('.+\.sass$'),
            livereload_css_target: '/stylesheets/application.css',
            port: 35739

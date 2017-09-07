@@ -8,11 +8,10 @@ export default class OnboardAppForm extends React.Component {
     const {createApp, isCreating, currentUser: {firstName}} = this.props
 
     return h.div(".onboard-app-form", [
-      h.h1(".welcome", ["Welcome, ", h.em(firstName + ".")]),
+      h.h1(".welcome", ["Create ", h.em("Application")]),
 
-      h.p("You’re a few steps away from simple, secure config for your team and your servers."),
-
-      h.h2("Create your first application."),
+      h.p(["You're in! Go ahead and create an application. ",
+           "To setup an existing project with EnvKey, select Import Config. Otherwise, choose Start From Scratch."]),
 
       h(AppForm, {onSubmit: createApp, isSubmitting: isCreating, renderImportOpts: true})
     ])

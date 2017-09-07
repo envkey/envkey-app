@@ -5,6 +5,7 @@ import {imagePath, orgRoleLabel} from 'lib/ui'
 const AccountMenu = ({
   currentUser,
   currentOrg,
+  numOrgs,
   router,
   params,
   isOpen,
@@ -45,6 +46,14 @@ const AccountMenu = ({
       </section>
     },
 
+    renderChangeOrgRow = ()=> {
+      if (numOrgs > 1){
+        return renderMenuRow("Change Organization",
+                             "/select_org",
+                             "refresh-black.png")
+      }
+    },
+
     renderMenuBody = ()=>{
       if (isOpen){
         return <section className="menu-body">
@@ -56,6 +65,8 @@ const AccountMenu = ({
           {renderMenuRow("My Account",
                          `/${params.orgSlug}/my_account/settings`,
                          "keyhole-black.png")}
+
+          {renderChangeOrgRow()}
 
           {renderMenuRow("Sign Out",
                          "/sign_out",
@@ -74,8 +85,6 @@ const AccountMenu = ({
   </div>
 }
 
-     // {renderMenuRow("Change Organization",
-     //                     "/select_org",
-     //                     "refresh-black.png")}
+
 
 export default AccountMenu

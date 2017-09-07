@@ -69,6 +69,8 @@ import {
 
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
 
+  SELECT_ORG,
+
   verifyInviteParams,
   acceptInviteRequest,
   loadInviteRequest,
@@ -160,11 +162,7 @@ function* onVerifyInviteParams(action){
 }
 
 function *onAcceptInvite({payload}){
-  // document.body.className += " preloader-authenticate"
-  // const overlay = document.getElementById("preloader-overlay")
-  // overlay.className = overlay.className.replace("hide", "")
-  // document.body.className += " no-scroll"
-  // yield call(delay, 50)
+  document.body.className += " preloader-authenticate"
 
   const {password} = payload,
         identityHash = yield select(getInviteIdentityHash),
@@ -234,6 +232,9 @@ function* onAcceptInviteSuccess({meta: {password, orgSlug}}){
   yield put(push(`/${currentOrg.slug}`))
   yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
   yield call(redirectFromOrgIndexIfNeeded)
+
+  const overlay = document.getElementById("preloader-overlay")
+  overlay.className += " hide"
 }
 
 function* onGenerateInviteLink(action){

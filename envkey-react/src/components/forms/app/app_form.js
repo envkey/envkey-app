@@ -2,7 +2,7 @@ import React from 'react'
 import {RadioGroup, Radio} from 'react-radio-group'
 import moment from 'moment'
 import AppImporter from './app_importer'
-import SubscriptionWall from 'components/shared/subscription_wall'
+import { SubscriptionWallContainer } from 'containers'
 
 export default class AppForm extends React.Component {
 
@@ -38,11 +38,8 @@ export default class AppForm extends React.Component {
 
   render(){
     if (this._showSubscriptionWall()){
-      return <SubscriptionWall org={this.props.currentOrg}
-                               type="app"
-                               max={this.props.currentOrg.maxApps}
-                               orgOwner={this.props.orgOwner}
-                               onUpgradeSubscription={this.props.onUpgradeSubscription} />
+      return <SubscriptionWallContainer type="app"
+                                        max={this.props.currentOrg.maxApps} />
     }
 
     return (

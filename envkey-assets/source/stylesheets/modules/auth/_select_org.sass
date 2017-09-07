@@ -1,0 +1,28 @@
+.select-org
+
+  .org-candidates
+    width: 50%
+    margin: 40px auto 0 auto
+    background: #fff
+
+    > div
+      +clearfix
+      box-sizing: border-box
+      padding: 15px
+
+      label
+        float: left
+        font-size: 18px
+        font-family: $condensed-font
+        position: relative
+        top: 6px
+
+      button
+        float: right
+
+      &:not(:last-of-type)
+        border-bottom: 1px solid hsl(0,0,90)
+
+      &.odd
+        background: hsl(0,0,97)
+

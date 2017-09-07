@@ -1,0 +1,55 @@
+
+
+.home-menu
+  width: 50%
+  min-width: 400px
+  margin: 60px auto
+
+  a, a:visited
+    +clearfix
+    cursor: pointer
+    display: block
+    height: 80px
+    background: none
+    margin-bottom: 40px
+    position: relative
+    text-decoration: none
+    border-radius: 2px
+    border: 1px solid rgba(#fff, 0.5)
+    transition: background 0.1s, border 0.1s
+
+    *
+      cursor: pointer
+
+    .img
+      position: absolute
+      left: 0
+      width: 90px
+      height: 100%
+      border-right: 1px solid rgba(#fff, 0.2)
+
+      img
+        position: relative
+        top: 22px
+
+    &.accept-invite .img img
+      width: 40px
+      top: 24px
+
+    label
+      font-family: $condensed-font
+      font-weight: 200
+      font-size: 24px
+      color: #fff
+      float: right
+      padding: 24px 40px
+
+      small
+        opacity: 0.5
+
+    &:hover
+      background: darken($darker-blue, 12%)
+      border: 1px solid rgba(#fff, 0.9)
+
+
+

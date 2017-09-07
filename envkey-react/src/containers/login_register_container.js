@@ -2,6 +2,7 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import {
   appLoaded,
   verifyEmailRequest,
@@ -27,10 +28,11 @@ import VerifyEmailCodeForm from 'components/forms/auth/verify_email_code_form'
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
 import {imagePath} from 'lib/ui'
+import {OnboardOverlay} from 'components/onboard'
 
 const
   shouldShowRegisterForm = props =>{
-    return props.emailVerificationCode || props.isAuthenticating || props.currentUser
+    return props.emailVerificationCode || props.currentUser
   },
 
   shouldShowVerifyEmailCodeForm = props =>{
@@ -98,13 +100,12 @@ class LoginRegister extends React.Component {
   }
 
   render(){
-    return h.div(".full-overlay", [
-      h.div(".auth-form.login-register", [
-        h.div(".logo", [
-          h.img({src: imagePath("envkey-logo.svg")})
-        ]),
-        h.div(".content", [
-          this._renderContent()
+    return h(OnboardOverlay, [
+      h.div([
+        h.div(".onboard-auth-form.login-register", [
+          h.h1([h.em(["Sign In ", h.small("/"), " Sign Up"])]),
+          this._renderContent(),
+          this._renderBackLink()
         ])
       ])
     ])
@@ -120,11 +121,18 @@ class LoginRegister extends React.Component {
     }
   }
 
+  _renderBackLink(){
+    return h(Link, {className: "back-link", to: "/home", onClick: this.props.onReset}, [
+      h.span(".img", "←"),
+      h.span("Back To Home")
+    ])
+  }
+
   _renderVerifyEmail(){
     return h.div(".verify-email", [
 
       h.div(".msg", [
-        h.p("First, enter your email below."),
+        h.p("Enter your email below:"),
       ]),
 
       this._renderVerifyEmailError(),
@@ -137,6 +145,7 @@ class LoginRegister extends React.Component {
             placeholder: "Your email",
             required: true,
             value: this.state.email,
+            disabled: this.props.isVerifyingEmail,
             onChange: (e)=> this.setState({email: e.target.value})
           })
         ]),
@@ -153,7 +162,7 @@ class LoginRegister extends React.Component {
     if (this.props.isVerifyingEmail){
       return h(Spinner)
     } else {
-      return h.button("Submit")
+      return h.button("Next")
     }
   }
 
@@ -166,7 +175,11 @@ class LoginRegister extends React.Component {
   _renderVerifyEmailCode(){
     const
       codeName = this.props.emailVerificationType == "sign_in" ? "Sign In" : "Sign Up",
-      copy = `Ok, we just sent you an email. When you get it, copy the ${codeName} Code into the input below.`
+      copy = [
+        "Ok, we just sent you an email. When you get it, copy the ",
+        h.strong(`${codeName} Token`),
+        " into the input below."
+      ]
 
     return h(VerifyEmailCodeForm, {
       ...this.props,
@@ -181,7 +194,7 @@ class LoginRegister extends React.Component {
     return h.div(".register-form", [
 
       h.div(".msg", [
-        h.p("Now we need just a few more details to create your organization."),
+        h.p("A few more details are needed to create your organization."),
       ]),
 
       this._renderRegisterError(),

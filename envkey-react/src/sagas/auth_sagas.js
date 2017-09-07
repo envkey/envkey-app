@@ -129,6 +129,7 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
 
 function *onLogin({payload}){
   document.body.className += " preloader-authenticate"
+  document.getElementById("preloader-overlay").className = "full-overlay"
   yield call(delay, 50)
   yield put({
     type: LOGIN_REQUEST,

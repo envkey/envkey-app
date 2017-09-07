@@ -1,0 +1,56 @@
+.accept-invite-form
+  width: 40%
+  min-width: 400px
+  margin: 0 auto
+
+  p.copy
+    margin: 30px auto 0
+
+  fieldset
+    p
+      +clearfix
+      width: 100%
+      margin-bottom: 20px
+      text-align: left
+      font-size: 15.5px
+      color: rgba(#fff, 0.9)
+      strong
+        font-weight: 400
+
+        &.num
+          font-weight: 100
+          color: #000
+          font-size: 60px
+          float: left
+          padding: 10px 20px 20px 0
+          position: relative
+          top: 3px
+
+      span
+        display: inline-block
+        float: right
+        width: 79%
+        text-align: right
+
+    &.invite-token
+      p span > strong
+        color: $lighter-blue
+
+    &.encryption-token
+      p span > strong
+        color: $light-orange
+
+    input
+      width: 100%
+
+  form button
+    margin-top: 30px
+
+  .password-form
+    margin-top: 40px
+    p.copy
+      margin-bottom: 40px
+
+  .msg
+    font-size: 18px
+    line-height: 140%

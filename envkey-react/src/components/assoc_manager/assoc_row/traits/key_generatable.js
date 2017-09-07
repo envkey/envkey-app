@@ -5,11 +5,11 @@ import KeyGenerated from "../key_generated"
 const KeyGeneratable = AssociationRow => class extends AssociationRow {
 
   _showKeyGenerated(){
-    return this.props.assoc.keyGeneratedAt && this._generatedEnvkey()
+    return this.props.assoc.keyGeneratedAt && this._generatedEnvKey()
   }
 
-  _generatedEnvkey(){
-    return this.props.generatedEnvkeysById[this.props.assoc.id]
+  _generatedEnvKey(){
+    return this.props.generatedEnvKeysById[this.props.assoc.id]
   }
 
   _classNames(){
@@ -29,7 +29,7 @@ const KeyGeneratable = AssociationRow => class extends AssociationRow {
       return h(KeyGenerated, {
         ...this.props,
         ...this.props.assoc,
-        ...(this.props.generatedEnvkeysById[this.props.assoc.id] || {}),
+        ...(this.props.generatedEnvKeysById[this.props.assoc.id] || {}),
         onClose: ()=> this.props.clearGeneratedAssocKey(this.props.assoc.id)
       })
     }

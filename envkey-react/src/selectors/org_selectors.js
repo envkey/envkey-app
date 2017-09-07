@@ -15,4 +15,9 @@ export const
 
   getActiveOrgs = db.orgs.where({isActive: true}),
 
-  isFetchingOrg = db.path("isFetchingOrg")
+  getIsFetchingOrg = db.path("isFetchingOrg"),
+
+  getIsUpdatingSubscription = db.path("isUpdatingSubscription"),
+
+  getIsUpdatingStripeCard = db.path("isUpdatingStripeCard")
+

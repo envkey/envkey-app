@@ -8,7 +8,8 @@ import {
   getCurrentAppUserForApp,
   getDecryptedAll,
   getServersForApp,
-  getApps
+  getApps,
+  getLocalKeysForAppUser
 } from 'selectors'
 import {
   DevKeyManagerContainer,
@@ -42,13 +43,13 @@ class KeyManager extends React.Component {
   }
 
   _renderDevKey(){
-    return h.section(".development-key-section", [
+    return h.section(".development-keys-section", [
       h.div(".key-section-head", [
         h.h4(this.props.app.name),
         h.h2([h.strong("Local Development"), " Keys"]),
 
         h.p([
-          "Use these keys to access your config’s development environment locally on machines you own. These are specific to you and can only be generated and managed by you. You shouldn't share them with anyone."
+          "Use these keys to access this app's development environment locally on machines you own. These are specific to you and can only be generated and managed by you. You shouldn't share them with anyone."
         ])
       ]),
 
@@ -65,7 +66,7 @@ class KeyManager extends React.Component {
           h.h4(this.props.app.name),
           h.h2([h.strong("Server"), " Keys"]),
 
-          h.p("Use these keys to give remote servers access to your config. Anyone on the team with Devops or Admin privileges can generate and manage these.")
+          h.p("Use these keys to give remote servers access to this app's config. Anyone with Devops or Admin privileges can generate and manage these.")
 
         ]),
 
@@ -79,24 +80,28 @@ class KeyManager extends React.Component {
 
 const
 
-  mapStateToProps = (state, ownProps) => ({
-    isOnboarding: getIsOnboarding(state),
-    currentAppUser: getCurrentAppUserForApp(ownProps.app.id, state),
-    envsAreDecrypted: getDecryptedAll(state),
-    servers: getServersForApp(ownProps.app.id, state)
-  }),
+  mapStateToProps = (state, ownProps) => {
+    const currentAppUser = getCurrentAppUserForApp(ownProps.app.id, state)
+    return {
+      currentAppUser,
+      isOnboarding: getIsOnboarding(state),
+      envsAreDecrypted: getDecryptedAll(state),
+      servers: getServersForApp(ownProps.app.id, state),
+      localKeys: getLocalKeysForAppUser(currentAppUser.id, state)
+    }
+  },
 
   startedOnboardingFn = (props, state)=> {
     return !(props.currentAppUser.role == "org_owner" && getApps(state).length > 1) &&
-           !props.currentAppUser.keyGeneratedAt &&
+           !props.localKeys[0].keyGeneratedAt &&
            !state.finishedOnboarding
   },
 
   finishedOnboardingFn = (props, state)=> state.startedOnboarding &&
                                           !state.finishedOnboarding &&
-                                          props.currentAppUser.keyGeneratedAt,
+                                          props.localKeys[0].keyGeneratedAt,
 
-  selectedIndexFn = (props, state)=> (props.currentAppUser.keyGeneratedAt || state.finishedOnboarding) ? 1 : 0,
+  selectedIndexFn = (props, state)=> (props.localKeys[0].keyGeneratedAt || state.finishedOnboarding) ? 1 : 0,
 
   OnboardSlider = (props)=> {
     if (appRoleIsAdmin(props.app.role)){

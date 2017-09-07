@@ -25,11 +25,11 @@ export const
     }
   },
 
-  openCardForm = ()=>{
+  openCardForm = (type, data={})=>{
+    const json = encodeURIComponent(JSON.stringify({type, ...data}))
     if (isElectron()){
-      window.ipc.send("openStripeForm", "")
+      window.ipc.send("openStripeForm", json)
     } else {
-      window.open(`/stripe_card.html`, "_blank")
-      // window.open("https://google.com", "_blank")
+      window.open(`/stripe_card.html?data=${json}`, "_blank")
     }
   }

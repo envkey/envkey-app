@@ -41,6 +41,7 @@ module.exports =  {
   devServer: {
     historyApiFallback: true,
     headers: {
+      "Access-Control-Allow-Origin": "*"
       // "Content-Security-Policy": "default-src 'none'; script-src http://localhost:8080 https://use.typekit.net; style-src http://localhost:3000; img-src http://localhost:3000; connect-src http://localhost:3000 http://localhost:8080 ws://localhost:8080; child-src 'self'"
     }
   }

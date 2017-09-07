@@ -1,0 +1,104 @@
+.invite-user-overlay
+  +overlay
+  background: rgba(#000, 0.87)
+
+  .content
+    margin: 0 auto
+    width: 800px
+    position: absolute
+    top: 50%
+    left: 50%
+    color: #fff
+    font-size: 15px
+    line-height: 150%
+    transform: translate(-50%, -50%)
+    text-align: center
+
+    h2
+      color: #fff
+      font-family: $condensed-font
+      font-size: 40px
+
+    p.invited-user
+      color: $lighter-blue
+      font-weight: 400
+      font-size: 17px
+      margin: 30px 0
+
+    .copy
+      p
+        margin-bottom: 15px
+        font-size: 16px
+      strong
+        font-weight: 400
+
+        &.token
+          color: $light-orange
+
+    .encryption-token
+      +clearfix
+      position: relative
+      display: inline-block
+      margin: 20px 0
+      span
+        float: left
+        display: inline-block
+        padding: 7px 14px
+        background: $dark-bg
+        font-size: 13px
+        color: rgba(#fff, 0.85)
+
+      button.copy-btn
+        float: right
+        border-radius: 0
+        outline: none
+
+
+      small
+        position: absolute
+        font-size: 13px
+        font-weight: 400
+        top: 6px
+        left: 100%
+        margin-left: 15px
+
+    .copy.secondary
+      margin: 0 auto
+      width: 77%
+      position: relative
+      strong
+        color: #fff
+      ul
+        width: 92%
+        margin: 0 auto
+        text-align: left
+        font-size: 14px
+        color: rgba(#fff, 0.8)
+
+        li
+          list-style-type: disc
+          margin-bottom: 15px
+
+      h3
+        color: rgba(#fff, 0.7)
+        font-family: $condensed-font
+        font-size: 26px
+        margin: 20px 0 30px
+        padding: 5px 30px
+        background: #212121
+        position: relative
+        z-index: 2
+        display: inline-block
+
+      .divider
+        width: 100%
+        height: 1px
+        background: rgba(#fff, 0.2)
+        position: absolute
+        top: 37px
+
+    button.button
+      background: $orange
+      width: 300px
+      font-size: 16px
+      margin: 30px 0

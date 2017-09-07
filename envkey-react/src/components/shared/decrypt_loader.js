@@ -6,7 +6,7 @@ export default function({isDecrypting}){
   return h.div(".viewport-overlay", {
     className: (isDecrypting ? "" : "hide")
   }, [
-    h.div(".decrypt-loader", [
+    h.div(".overlay-loader.decrypt-loader", [
       h.span(".label", "Decrypting config..."),
       h(Spinner)
     ])

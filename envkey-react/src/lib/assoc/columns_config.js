@@ -13,7 +13,7 @@ import {
   UserForm,
   LocalKeyForm
 } from 'components/forms'
-import { appRoleGroupLabel } from 'lib/ui'
+import { appRoleGroupLabel, imagePath } from 'lib/ui'
 import {
   getUserGroupsByRoleForApp,
   getServerGroupsForApp,
@@ -116,7 +116,13 @@ export default function({
       return {
         rowDisplayType: ServerRowDisplay,
         addFormType: ServerForm,
-        addLabel: "+",
+        addLabel: ({title})=> [h.span(`Add another ${title.toLowerCase()} server key`), h.span(".img", [h.img({src: imagePath("circle-plus-white.svg")})])],
+        removeLabel: [h.span("Cancel"), h.span(".img", [h.span("x")])],
+        inlineAddForm: true,
+        canAddFn: R.anyPass([
+          R.pipe(R.path(["config", "groups"]), R.values, R.head, R.length, R.lt(1)),
+          R.pipe(R.path(["config", "groups"]), R.values, R.head, R.head, R.prop("keyGeneratedAt"), Boolean)
+        ]),
 
         columns: [
           {
@@ -125,7 +131,7 @@ export default function({
             role: "development",
             groups: R.pick(["development"], serverGroups),
             keyLabel: "development",
-            permissionCopyLines: [h.span(["Connects to the ", h.strong("development"), " environment."])],
+            permissionCopyLines: [h.span(["Connect to the ", h.strong("development"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "development"}, state)
           },
@@ -135,7 +141,7 @@ export default function({
             role: "staging",
             groups: R.pick(["staging"], serverGroups),
             keyLabel: "staging",
-            permissionCopyLines: [h.span(["Connects to the ", h.strong("staging"), " environment."])],
+            permissionCopyLines: [h.span(["Connect to the ", h.strong("staging"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "staging"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "staging"}, state)
           },
@@ -145,7 +151,7 @@ export default function({
             role: "production",
             groups: R.pick(["production"], serverGroups),
             keyLabel: "production",
-            permissionCopyLines: [h.span(["Connects to the ", h.strong("production"), " environment."])],
+            permissionCopyLines: [h.span(["Connect to the ", h.strong("production"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "production"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "production"}, state)
           }
@@ -156,7 +162,13 @@ export default function({
       return {
         rowDisplayType: LocalKeyRowDisplay,
         addFormType: LocalKeyForm,
-        addLabel: "+",
+        addLabel: [h.span("Add another local development key"), h.span(".img", [h.img({src: imagePath("circle-plus-white.svg")})])],
+        removeLabel: [h.span("Cancel"), h.span(".img", [h.span("x")])],
+        inlineAddForm: true,
+        canAddFn: R.anyPass([
+          R.pipe(R.path(["config", "groups"]), R.values, R.head, R.length, R.lt(1)),
+          R.pipe(R.path(["config", "groups"]), R.values, R.head, R.head, R.prop("keyGeneratedAt"), Boolean)
+        ]),
 
         columns: [
           {
@@ -165,7 +177,7 @@ export default function({
             role: "development",
             groups: {development: getCurrentUserLocalKeysForApp(parent.id, state)},
             keyLabel: "development",
-            // permissionCopyLines: [h.span(["Connects to the ", h.strong("development"), " environment."])],
+            // permissionCopyLines: [h.span(["Connect to the ", h.strong("development"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
             isCreating: getIsCreating({assocType, parentId: parent.id, role: "development"}, state),
             isCurrentUser: true

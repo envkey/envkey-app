@@ -26,15 +26,33 @@ export default class AssocColumn extends React.Component {
   }
 
   _canAdd(){
-    return (this.props.parentType == "user" ||
-           R.path([this.props.joinType, "create"], this.props.parent.permissions)) &&
-            (this.props.columnsConfig.addFormType ||
-              (this.props.config.candidates && this.props.config.candidates.length))
+    const canAdd = (this.props.parentType == "user" ||
+                   R.path([this.props.joinType, "create"], this.props.parent.permissions)) &&
+                    (this.props.columnsConfig.addFormType ||
+                      (this.props.config.candidates && this.props.config.candidates.length))
+
+    if (this.props.columnsConfig.canAddFn){
+      return canAdd && this.props.columnsConfig.canAddFn(this.props)
+    }
+
+    return canAdd
   }
 
   _parentName(){
     const parentNameFn = this.props.columnsConfig.parentNameFn
     return parentNameFn ? parentNameFn(this.props.parent) : this.props.parent.name
+  }
+
+  _addLabel(){
+    const labelOrFn = this.props.columnsConfig.addLabel
+    if(!labelOrFn)return "+"
+    return (typeof labelOrFn == "function" ? labelOrFn(this.props.config) : labelOrFn)
+  }
+
+  _removeLabel(){
+    const labelOrFn = this.props.columnsConfig.removeLabel
+    if(!labelOrFn)return [h.span("x")]
+    return (typeof labelOrFn == "function" ? labelOrFn(this.props.config) : [h.span(labelOrFn)])
   }
 
   render(){
@@ -57,11 +75,9 @@ export default class AssocColumn extends React.Component {
     if (this.props.config.isAddingAssoc || this.props.config.isCreating){
       return h(SmallLoader)
     } else if (this._canAdd()) {
-      return h.button({
+      return h.button(".add-button", {
         onClick: e => this.setState((state, props)=>({addMode: !state.addMode}))
-      }, [
-        h.span(this.state.addMode ? "⨉" : this.props.columnsConfig.addLabel)
-      ])
+      }, (this.state.addMode ? this._removeLabel() : this._addLabel()))
     }
   }
 
@@ -86,7 +102,7 @@ export default class AssocColumn extends React.Component {
           h.em(title),
           (subtitle ? [" ", subtitle] : "")
         ]),
-        this._renderAddButton()
+        (this.props.columnsConfig.inlineAddForm ? null : this._renderAddButton())
       ]),
 
       this._renderPermissions(),
@@ -94,9 +110,20 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderBody(){
-    return h.div(".column-body", [
-      (this.state.addMode ? this._renderAddAssoc() : this._renderSections())
-    ])
+    let contents
+    if (this.state.addMode){
+      if (this.props.columnsConfig.inlineAddForm){
+        contents = [this._renderSections(), this._renderAddButton(), this._renderAddAssoc()]
+      } else {
+        contents = [this._renderAddAssoc()]
+      }
+    } else if (this.props.columnsConfig.inlineAddForm) {
+      contents = [this._renderSections(), this._renderAddButton()]
+    } else {
+      contents = [this._renderSections()]
+    }
+
+    return h.div(".column-body", contents)
   }
 
   _renderAddAssoc(){

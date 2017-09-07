@@ -1,3 +1,12 @@
+GIT
+  remote: git://github.com/middleman/middleman-livereload.git
+  revision: 22df7adeff22bc8140d41406df6a2ac04d4bfb7f
+  specs:
+    middleman-livereload (3.4.6)
+      em-websocket (~> 0.5.1)
+      middleman-core (>= 3.3)
+      rack-livereload (~> 0.3.15)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -23,7 +32,7 @@ GEM
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.6.0)
     erubis (2.7.0)
-    eventmachine (1.2.1)
+    eventmachine (1.2.5)
     execjs (2.7.0)
     fast_blank (1.0.0)
     fastimage (2.0.1)
@@ -75,10 +84,6 @@ GEM
       servolux
       tilt (~> 2.0)
       uglifier (~> 3.0)
-    middleman-livereload (3.4.6)
-      em-websocket (~> 0.5.1)
-      middleman-core (>= 3.3)
-      rack-livereload (~> 0.3.15)
     middleman-sprockets (4.1.0)
       middleman-core (~> 4.0)
       sprockets (>= 3.0)
@@ -127,7 +132,7 @@ PLATFORMS
 
 DEPENDENCIES
   middleman (>= 4.0.0.rc.1)
-  middleman-livereload
+  middleman-livereload!
   middleman-sprockets (>= 4.0.0.rc.1)
   pry
   rack-rewrite (~> 1.5.0)
@@ -138,4 +143,4 @@ DEPENDENCIES
   wdm (~> 0.1.0)
 
 BUNDLED WITH
-   1.13.7
+   1.14.6
