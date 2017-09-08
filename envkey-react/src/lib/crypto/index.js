@@ -52,14 +52,6 @@ export const
 
   sha256 = s => sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(s)),
 
-  emailSalt = (email)=> sha256(email + "envkey-salt-of-pure-basalt"),
-
-  hashedPassword = (email, password, tries=100000)=> {
-    return sjcl.codec.hex.fromBits(
-      sjcl.misc.pbkdf2(password, emailSalt(email), tries)
-    )
-  },
-
   generateKeys = ({email, passphrase}, worker=false)=>{
     const opts = {
       userIds: [pgpUserIdFromEmail(email)],
@@ -68,20 +60,6 @@ export const
     }
 
     return worker ? proxy().delegate('generateKey', opts) : openpgp.generateKey(opts)
-  },
-
-  getHKPServer = ()=> new openpgp.HKP('https://pgp.mit.edu'),
-
-  uploadPublicKeyToKeyserver = pubkey => {
-    const hkp = getHKPServer()
-    return hkp.upload(pubkey)
-  },
-
-  lookupPublicKeyFromKeyserver = email =>{
-    const hkp = getHKPServer(),
-          opts = {query: pgpUserIdFromEmail(email).name}
-
-    return hkp.lookup(opts)
   },
 
   getPubkeyFingerprint = pubkey => openpgp.key.readArmored(pubkey).keys[0].primaryKey.fingerprint,

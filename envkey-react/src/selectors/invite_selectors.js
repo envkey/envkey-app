@@ -31,4 +31,8 @@ export const
 
   getInvitingUser = R.curry((parentId, state)=> db.path("invitingUser", parentId)(state)),
 
-  getGeneratedInviteLink = R.curry((parentId, state)=> db.path("generatedInviteLinks", parentId)(state))
+  getGeneratedInviteLink = R.curry((parentId, state)=> db.path("generatedInviteLinks", parentId)(state)),
+
+  getIsRevokingInviteByUserId = db.path("isRevokingInvite"),
+
+  getIsRegeneratingInviteByUserId = db.path("isRegeneratingInvite")

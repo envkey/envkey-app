@@ -6,7 +6,9 @@ import {
   RESET_ACCEPT_INVITE,
   VERIFY_INVITE_PARAMS,
   CLOSE_GENERATED_INVITE_LINK,
-  LOAD_INVITE_REQUEST
+  LOAD_INVITE_REQUEST,
+  REVOKE_INVITE,
+  REGEN_INVITE
 } from './action_types'
 
 export const
@@ -31,4 +33,8 @@ export const
 
   verifyInviteParams = createAction(VERIFY_INVITE_PARAMS),
 
-  resetAcceptInvite = createAction(RESET_ACCEPT_INVITE)
+  resetAcceptInvite = createAction(RESET_ACCEPT_INVITE),
+
+  revokeInvite = createAction(REVOKE_INVITE, R.pick(["userId"])),
+
+  regenInvite = createAction(REGEN_INVITE, R.pick(["userId"]), R.pick(["appId"]))

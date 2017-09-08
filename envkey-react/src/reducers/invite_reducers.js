@@ -31,7 +31,15 @@ import {
 
   INVITE_USER,
   INVITE_USER_SUCCESS,
-  INVITE_USER_FAILED
+  INVITE_USER_FAILED,
+
+  REVOKE_INVITE,
+  REVOKE_INVITE_SUCCESS,
+  REVOKE_INVITE_FAILED,
+
+  REGEN_INVITE,
+  REGEN_INVITE_SUCCESS,
+  REGEN_INVITE_FAILED,
 } from "actions"
 
 export const
@@ -288,6 +296,46 @@ export const
       case RESET_ACCEPT_INVITE:
       case ACCEPT_INVITE_SUCCESS:
         return null
+
+      default:
+        return state
+    }
+  },
+
+  isRevokingInvite = (state={}, action)=>{
+    switch(action.type){
+      case REVOKE_INVITE:
+        return {...state, [action.payload.userId]: true}
+
+      case REVOKE_INVITE_SUCCESS:
+      case REVOKE_INVITE_FAILED:
+        return R.dissoc(action.meta.userId, state)
+
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+        return {}
+
+      default:
+        return state
+    }
+  },
+
+  isRegeneratingInvite = (state={}, action)=>{
+    switch(action.type){
+      case REGEN_INVITE:
+        return {...state, [action.payload.userId]: true}
+
+      case REGEN_INVITE_SUCCESS:
+      case REGEN_INVITE_FAILED:
+        return R.dissoc(action.meta.userId, state)
+
+      case LOGOUT:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+        return {}
 
       default:
         return state

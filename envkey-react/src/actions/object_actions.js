@@ -20,7 +20,8 @@ const pickMeta = R.pick([
                   "isOutdatedEnvsRequest",
                   "willImport",
                   "isOnboardAction",
-                  "toImport"
+                  "toImport",
+                  "noRedirect"
                  ]),
       payloadFn = ({objectType, params})=> ({[decamelize(objectType)]: params})
 

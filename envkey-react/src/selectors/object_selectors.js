@@ -121,6 +121,8 @@ export const
   // Org user selectors
   getOrgUserForUser = db.orgUsers.findBy("userId"),
 
+  getOrgUsers = db.orgUsers.list(),
+
   // Generic object selectors
   getSelectedObjectType = db.path("selectedObjectType"),
 

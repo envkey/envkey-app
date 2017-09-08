@@ -13,7 +13,8 @@ import {
   checkInviteePubkeyIsValid,
   envParamsForInvitee,
   redirectFromOrgIndexIfNeeded,
-  decryptPrivkeyAndDecryptAllIfNeeded
+  decryptPrivkeyAndDecryptAllIfNeeded,
+  execAddAssoc
 } from './helpers'
 import {
   getInviteParams,
@@ -23,7 +24,10 @@ import {
   getPrivkey,
   getCurrentOrg,
   getCurrentUser,
-  getInviteeEncryptedPrivkey
+  getInviteeEncryptedPrivkey,
+  getOrgUserForUser,
+  getUser,
+  getAppUserBy
 } from 'selectors'
 import {
   decryptPrivateKey,
@@ -51,6 +55,14 @@ import {
   ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
 
+  REVOKE_INVITE,
+  REVOKE_INVITE_SUCCESS,
+  REVOKE_INVITE_FAILED,
+
+  REGEN_INVITE,
+  REGEN_INVITE_SUCCESS,
+  REGEN_INVITE_FAILED,
+
   DECRYPT_ALL,
   DECRYPT_ALL_SUCCESS,
   DECRYPT_ALL_FAILED,
@@ -71,13 +83,22 @@ import {
 
   SELECT_ORG,
 
+  REMOVE_OBJECT_SUCCESS,
+  REMOVE_OBJECT_FAILED,
+
+  CREATE_ASSOC_SUCCESS,
+  CREATE_ASSOC_FAILED,
+
   verifyInviteParams,
   acceptInviteRequest,
   loadInviteRequest,
   addTrustedPubkey,
   grantEnvAccessRequest,
   decryptPrivkey,
-  selectOrg
+  selectOrg,
+  removeObject,
+  createAssoc,
+  addAssoc
 } from 'actions'
 
 const
@@ -296,6 +317,58 @@ function* onGenerateInviteLink(action){
   }
 }
 
+function *onRevokeInvite({payload: {userId}}){
+  const orgUser = yield select(getOrgUserForUser(userId))
+  yield put(removeObject({objectType: "orgUser", targetId: orgUser.id, noRedirect: true}))
+
+  const res = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
+
+  if (res.error){
+    yield put({type: REVOKE_INVITE_FAILED, error: true, payload: res.payload, meta: {userId}})
+    return
+  }
+
+  yield put({type: REVOKE_INVITE_SUCCESS, meta: {userId}})
+}
+
+function *onRegenInvite(action){
+  let res
+  const {payload: {userId}, meta: {appId}} = action,
+        user = yield select(getUser(userId)),
+        appUser = yield select(getAppUserBy({appId, userId}))
+
+  yield put({...action, type: REVOKE_INVITE})
+
+  res = yield take([REVOKE_INVITE_SUCCESS, REVOKE_INVITE_FAILED])
+
+  if (res.error){
+    yield put({type: REGEN_INVITE_FAILED, error: true, payload: res.payload, meta: {userId}})
+    return
+  }
+
+  yield put(createAssoc({
+    params: {
+      ...R.pick(["firstName", "lastName", "email"], user),
+      role: appUser.role,
+      orgRole: user.role
+    },
+    role: appUser.role,
+    parentType: "app",
+    assocType: "user",
+    joinType: "appUser",
+    isManyToMany: true,
+    parentId: appId
+  }))
+
+  res = yield take([CREATE_ASSOC_SUCCESS, CREATE_ASSOC_FAILED])
+
+  if (res.error){
+    yield put({type: REVOKE_INVITE_FAILED, error: true, payload: res.payload, meta: {userId}})
+  }
+
+  yield put({type: REGEN_INVITE_SUCCESS, meta: {userId}})
+}
+
 function *onGrantEnvAccess({payload: invitees, meta}){
   for (let invitee of invitees){
 
@@ -319,6 +392,8 @@ export default function* inviteSagas(){
     takeLatest(ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
     takeEvery(GENERATE_INVITE_LINK, onGenerateInviteLink),
     takeEvery(GRANT_ENV_ACCESS, onGrantEnvAccess),
-    takeEvery(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest)
+    takeEvery(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest),
+    takeEvery(REVOKE_INVITE, onRevokeInvite),
+    takeEvery(REGEN_INVITE, onRegenInvite)
   ]
 }

@@ -128,11 +128,13 @@ const
           return
         }
 
-        yield put(push(`/${currentOrg.slug}`))
+        if (!action.meta.noRedirect){
+          yield put(push(`/${currentOrg.slug}`))
+        }
       }
 
       const {type: resultType} = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
-      if (resultType == REMOVE_OBJECT_SUCCESS){
+      if (resultType == REMOVE_OBJECT_SUCCESS && !action.meta.noRedirect){
         yield call(redirectFromOrgIndexIfNeeded)
       }
     }

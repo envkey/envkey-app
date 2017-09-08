@@ -9,7 +9,8 @@ import {
   revokeKey,
   createObject,
   clearGeneratedAssocKey,
-  billingUpgradeSubscription
+  regenInvite,
+  revokeInvite
 } from 'actions'
 import {
   getIsRemovingById,
@@ -17,10 +18,14 @@ import {
   getIsRevokingAssocKeyById,
   getPermissions,
   getUser,
+  getOrgUserForUser,
+  getOrgUsers,
   getCurrentUser,
   getCurrentOrg,
   getIsGrantingEnvAccessByUserId,
-  getGeneratedEnvKeysById
+  getGeneratedEnvKeysById,
+  getIsRevokingInviteByUserId,
+  getIsRegeneratingInviteByUserId
 } from 'selectors'
 import AssocManager from 'components/assoc_manager'
 import {getTrueParentAssoc, getJoinType} from "lib/assoc/helpers"
@@ -49,7 +54,11 @@ export default function({
       isRevokingAssocKeyById: getIsRevokingAssocKeyById(state),
       isGrantingEnvAccessByUserId: getIsGrantingEnvAccessByUserId(state),
       generatedEnvKeysById: getGeneratedEnvKeysById(state),
-      getUserFn: userId => getUser(userId, state)
+      orgUsers: getOrgUsers(state),
+      isRevokingInviteByUserId: getIsRevokingInviteByUserId(state),
+      isRegeneratingInviteByUserId: getIsRegeneratingInviteByUserId(state),
+      getUserFn: userId => getUser(userId, state),
+      getOrgUserForUserFn: userId => getOrgUserForUser(userId, state)
     }
   }
 
@@ -83,7 +92,8 @@ export default function({
       generateKey: targetId => dispatch(generateKey({...baseAssocParams, targetId})),
       revokeKey: targetId => dispatch(revokeKey({...baseAssocParams, targetId})),
       clearGeneratedAssocKey: targetId => dispatch(clearGeneratedAssocKey(targetId)),
-      onUpgradeSubscription: ()=> dispatch(billingUpgradeSubscription())
+      revokeInvite: userId => dispatch(revokeInvite({userId})),
+      regenInvite: userId => dispatch(regenInvite({userId, appId: parent.id}))
     }
   }
 
