@@ -1,10 +1,12 @@
 import React from 'react'
+import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
+import { SubscriptionWallContainer } from 'containers'
 
 export default class ServerForm extends React.Component {
 
   componentDidMount(){
-    this.refs.name.focus()
+    if(this.refs.name)this.refs.name.focus()
   }
 
   _onSubmit(e){
@@ -12,7 +14,21 @@ export default class ServerForm extends React.Component {
     this.props.onSubmit({name: this.refs.name.value})
   }
 
+  _numKeys(){
+    return R.flatten(R.values(this.props.groups)).length
+  }
+
+  _showSubscriptionWall(){
+    return this.props.currentOrg && this._numKeys() >= this.props.currentOrg.maxKeysPerEnv
+  }
+
   render(){
+    if (this._showSubscriptionWall()){
+      return <SubscriptionWallContainer subject={`The ${this.props.role} environment`}
+                                        type="key"
+                                        max={this.props.currentOrg.maxKeysPerEnv} />
+    }
+
     return (
       <form className="object-form add-server"
             onSubmit={this._onSubmit.bind(this)}>

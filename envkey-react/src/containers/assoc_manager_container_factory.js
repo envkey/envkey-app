@@ -18,6 +18,7 @@ import {
   getPermissions,
   getUser,
   getCurrentUser,
+  getCurrentOrg,
   getIsGrantingEnvAccessByUserId,
   getGeneratedEnvKeysById
 } from 'selectors'
@@ -40,6 +41,7 @@ export default function({
       parent,
       joinType: joinType || getJoinType({parentType, assocType, isManyToMany}),
       currentUser: getCurrentUser(state),
+      currentOrg: getCurrentOrg(state),
       columnsConfig: columnsConfig({parentType, assocType, parent, state}),
       permissions: getPermissions(state),
       isRemovingById: getIsRemovingById(state),

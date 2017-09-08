@@ -193,12 +193,29 @@
 
   .show-add-keyable .add-button, .add-button:hover
     background: $dark-blue
+
     > span
       color: #fff
-    > .img
+    .img
       background: $darker-blue
 
   .show-add-keyable .add-button
+    padding-left: 0
+    padding-right: 0
+    > span
+      display: block
+      width: 100%
+      text-align: left
+      position: relative
+      height: 100%
+      box-sizing: border-box
+      padding-left: 10px
+      padding-right: 10px
+      padding-top: 8px
+
+    .img
+      top: 0
+
     .img > span
       text-transform: uppercase
       display: inline-block

@@ -8,6 +8,7 @@ import Spinner from 'components/shared/spinner'
 
 const SubscriptionWall = function({
   org,
+  subject,
   type,
   max,
   orgOwner,
@@ -47,7 +48,7 @@ const SubscriptionWall = function({
 
     renderNeedsSubscriptionUpgradeForOwner = ()=>{
       return <div className="subscription-wall">
-        <p>{org.name} has <strong>{max} {type}s</strong>, which is the maximum for the <em>Free Tier.</em></p>
+        <p>{subject || org.name} has <strong>{max} {type}s</strong>, which is the maximum for the <em>Free Tier.</em></p>
 
         <p>To {createVerb} another, either {deleteVerb} an existing {type} or upgrade to the <em>Business Tier.</em></p>
 
@@ -65,7 +66,7 @@ const SubscriptionWall = function({
             ownerStr = `${ownerName} <${orgOwner.email}>`
 
       return <div className="subscription-wall">
-        <p>{org.name} has <strong>{max} {type}s</strong>, which is the maximum for the <em>Free Tier.</em></p>
+        <p>{subject || org.name} has <strong>{max} {type}s</strong>, which is the maximum for the <em>Free Tier.</em></p>
         <p>To {createVerb} another, either {deleteVerb} an existing {type} or ask {ownerStr} to upgrade to the <em>Business Tier.</em></p>
       </div>
     },
