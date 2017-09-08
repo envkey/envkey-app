@@ -56,7 +56,7 @@ export default class InviteUserOverlay extends React.Component {
         h.p([
           `You also need to send ${firstName} the following `,
           h.strong(".token", "Encryption Token"),
-          " by any private channel: "
+          " by any reasonably private channel: "
         ])
       ]),
 

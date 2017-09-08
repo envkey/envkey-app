@@ -36,25 +36,25 @@ export const
 
   getIsRevokingAssocKey = (id, state)=> getIsRevokingAssocKeyById(state)[id] || false,
 
-  getIsUpdatingEnv = (parentId, state)=> {
-    return getIsCreatingEnvEntry(parentId, state) || R.pipe(
+  getIsUpdatingEnv = (appId, state)=> {
+    return getIsCreatingEnvEntry(appId, state) || R.pipe(
       db.path("isUpdatingEnv"),
-      R.propOr({}, parentId),
+      R.propOr({}, appId),
       flattenObj,
       R.complement(R.isEmpty)
     )(state)
   },
 
-  getIsUpdatingEnvVal = ({parentId, entryKey, environment}, state)=>{
-    return db.path("isUpdatingEnv", parentId, entryKey, environment)(state)
+  getIsUpdatingEnvVal = ({appId, entryKey, environment}, state)=>{
+    return db.path("isUpdatingEnv", appId, entryKey, environment)(state)
   },
 
-  getIsUpdatingEnvEntry = ({parentId, entryKey, environment}, state)=>{
-    return db.path("isUpdatingEnv", parentId, entryKey, "key")(state)
+  getIsUpdatingEnvEntry = ({appId, entryKey, environment}, state)=>{
+    return db.path("isUpdatingEnv", appId, entryKey, "key")(state)
   },
 
-  getIsCreatingEnvEntry = (parentId, state)=>{
-    const val = db.path("isCreatingEnvEntry", parentId)(state)
+  getIsCreatingEnvEntry = (appId, state)=>{
+    const val = db.path("isCreatingEnvEntry", appId)(state)
     return val && !R.isEmpty(val)
   },
 

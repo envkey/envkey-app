@@ -10,6 +10,10 @@ export const
 
   getPrivkey = db.path("privkey"),
 
+  getDecryptPrivkeyErr = db.path("decryptPrivkeyErr"),
+
+  getDecryptEnvsErr = db.path("decryptEnvsErr"),
+
   getIsDecryptingPrivkey = db.path("isDecryptingPrivkey"),
 
   getIsDecryptingAll = db.path("isDecryptingAll"),

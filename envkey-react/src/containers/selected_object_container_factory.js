@@ -12,7 +12,9 @@ import {
   getUserWithOrgUserBySlug,
   getPermissions,
   getIsDecryptingAll,
-  getDecryptedAll
+  getDecryptedAll,
+  getDecryptPrivkeyErr,
+  getDecryptEnvsErr
 } from "selectors"
 import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
@@ -96,7 +98,7 @@ const SelectedObjectContainerFactory = ({
           (isAccountMenu ? null : h(DecryptLoader, this.props))
         ]
       }  else {
-        return [h(DecryptForm, {onSubmit: this.props.decrypt})]
+        return [h(DecryptForm, {...this.props, onSubmit: this.props.decrypt})]
       }
     }
 
@@ -127,7 +129,9 @@ const SelectedObjectContainerFactory = ({
         [objectType]: obj,
         permissions: getPermissions(state),
         isDecrypting: getIsDecryptingAll(state),
-        envsAreDecrypted: getDecryptedAll(state)
+        envsAreDecrypted: getDecryptedAll(state),
+        decryptPrivkeyErr: getDecryptPrivkeyErr(state),
+        decryptEnvsErr: getDecryptEnvsErr(state)
       }
     },
 

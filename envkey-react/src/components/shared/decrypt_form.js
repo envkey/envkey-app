@@ -16,10 +16,21 @@ export default class DecryptForm extends React.Component {
   render(){
     return h.div(".viewport-overlay", [
       h.form(".auth-form.decrypt-form", {onSubmit: ::this._onSubmit}, [
+        this._renderError(),
         h.fieldset([h(PasswordInput, {ref: "password"})]),
         h.fieldset([h.button("Decrypt Environments")])
       ])
     ])
   }
+
+  _renderError(){
+    if (this.props.decryptPrivkeyErr){
+      return h.div(".msg", "Incorrect passphrase. Please try again.")
+    } else if (this.props.decryptEnvsErr){
+      return h.div(".msg", "Your passphrase was correct, but there was a problem decrypting and verifying your config. If the problem persists, please email support@envkey.com.")
+    }
+  }
+
+
 
 }

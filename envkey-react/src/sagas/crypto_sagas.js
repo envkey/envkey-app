@@ -171,7 +171,6 @@ function *onVerifyOrgPubkeys(){
           }
 
         } else {
-          debugger
           if(doLogging)console.log("Signing user null or has no pubkey, breaking...")
           break
         }

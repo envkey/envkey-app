@@ -25,6 +25,7 @@ import {
 
   VERIFY_CURRENT_USER_PUBKEY,
   DECRYPT_ALL,
+  DECRYPT_ALL_FAILED,
   DECRYPT_ALL_SUCCESS,
 
   GENERATE_USER_KEYPAIR,
@@ -53,7 +54,7 @@ export const
         return !R.path(["meta", "background"], action)
 
       case DECRYPT_ALL_SUCCESS:
-      case DECRYPT_ENVS_FAILED:
+      case DECRYPT_ALL_FAILED:
       case LOGOUT:
       case SELECT_ORG:
       case LOGIN:
@@ -185,6 +186,32 @@ export const
       case REGISTER:
       case LOAD_INVITE_REQUEST:
         return false
+      default:
+        return state
+    }
+  },
+
+  decryptPrivkeyErr = (state = null, action)=>{
+    switch(action.type){
+      case DECRYPT_PRIVKEY:
+        return null
+
+      case DECRYPT_PRIVKEY_FAILED:
+        return action.payload
+
+      default:
+        return state
+    }
+  },
+
+  decryptEnvsErr = (state = null, action)=>{
+    switch(action.type){
+      case DECRYPT_ENVS:
+        return null
+
+      case DECRYPT_ENVS_FAILED:
+        return action.payload
+
       default:
         return state
     }

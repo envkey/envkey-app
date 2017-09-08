@@ -39,10 +39,6 @@ const CommitPromptable = Editable => class extends Editable {
   _renderCommitPrompt(){
     const className = "commit-prompt " + (this.state.showCommitPrompt ? "show" : "")
 
-    if (className.endsWith("show")){
-      console.log(className)
-    }
-
     return h.div({className}, [
       h.div(".col-left",[
         h.span([h.em("esc"), " to cancel"])

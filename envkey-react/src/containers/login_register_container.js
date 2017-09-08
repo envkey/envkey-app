@@ -168,7 +168,7 @@ class LoginRegister extends React.Component {
 
   _renderVerifyEmailError(){
     if (this.props.verifyEmailError){
-      return h.p(".error", ["Oops! The request failed. Check your internet connection and try again. If it's still not working, contact support: support@envkey.com"])
+      return h.p(".error", ["Oops! The request failed. Check your internet connection, ensure you entered a valid email address, and try again. If it's still not working, contact support: support@envkey.com"])
     }
   }
 
