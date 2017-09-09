@@ -5,24 +5,14 @@ import isElectron from 'is-electron'
 export const
 
   listenCardForm = ()=>{
-    if(isElectron()){
-      window.ipc.on("stripeToken", (e, msg)=>{
-        store.dispatch(billingStripeFormSubmitted({stripeToken: JSON.parse(msg)}))
-      })
-
-      window.ipc.on("stripeFormClosed", ()=>{
+    const tokenReceive = (e)=> {
+      if (e.key == 'stripeToken' && e.newValue) {
+        store.dispatch(billingStripeFormSubmitted({stripeToken: JSON.parse(e.newValue)}))
+      } else if (e.key == 'stripeFormClosed'){
         store.dispatch(billingStripeFormClosed())
-      })
-    } else {
-      const tokenReceive = (e)=> {
-        if (e.key == 'stripeToken' && e.newValue) {
-          store.dispatch(billingStripeFormSubmitted({stripeToken: JSON.parse(e.newValue)}))
-        } else if (e.key == 'stripeFormClosed'){
-          store.dispatch(billingStripeFormClosed())
-        }
       }
-      window.addEventListener("storage", tokenReceive)
     }
+    window.addEventListener("storage", tokenReceive)
   },
 
   openCardForm = (type, data={})=>{

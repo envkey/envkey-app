@@ -4,7 +4,6 @@ import h from "lib/ui/hyperscript_with_helpers"
 import {StripeProvider, Elements, injectStripe, CardElement} from 'react-stripe-elements'
 import BillingColumns from 'components/billing/billing_columns'
 import queryString from 'query-string'
-import isElectron from 'is-electron'
 import {imagePath} from "lib/ui"
 
 class StripeCardForm extends React.Component {
@@ -13,13 +12,8 @@ class StripeCardForm extends React.Component {
     e.preventDefault()
     this.props.stripe.createToken().then(({token}) => {
       if (token){
-        if (isElectron()){
-          window.ipc.send("stripeToken", JSON.stringify(token.id))
-        } else {
-          window.localStorage.setItem("stripeToken", JSON.stringify(token.id))
-          window.localStorage.removeItem("stripeToken")
-        }
-
+        window.localStorage.setItem("stripeToken", JSON.stringify(token.id))
+        window.localStorage.removeItem("stripeToken")
         window.close()
       }
     })

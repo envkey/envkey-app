@@ -34,15 +34,15 @@ import {
 
 const adminUserPermissions = [
         h.span(["Can view + edit all environments."]),
-        h.span(["Can manage user access + server access for all environments."]),
+        h.span(["Can manage server access."]),
         h.span(["Can invite collaborators + edit app settings."])
       ],
       productionUserPermissions = [
         h.span(["Can view + edit all environments."]),
-        h.span(["Can manage server access for all environments."])
+        h.span(["Can manage server access."])
       ],
       developmentUserPermissions = [
-        h.span(["Can view + edit development and staging environments."])
+        h.span(["Can view + edit development and staging."])
       ]
 
 export default function({

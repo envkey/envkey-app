@@ -14,7 +14,12 @@ function createWindow () {
   const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({
     width: Math.min(1400, Math.floor(screenW * 0.9)),
-    height: Math.min(800, Math.floor(screenH * 0.9))
+    height: Math.min(800, Math.floor(screenH * 0.9)),
+    minWidth: 1100,
+    minHeight: 450,
+    center: true,
+    backgroundColor: "#333333",
+    title: "EnvKey"
   })
 
   // and load the index.html of the app.
@@ -44,7 +49,17 @@ function createStripeWindow(json){
         qs = `?data=${json}`,
         h = type == "upgrade_subscription" ? 714 : 365
 
-  stripeWin = new BrowserWindow({width: 650, height: h})
+  stripeWin = new BrowserWindow({
+    width: 650,
+    height: h,
+    parent: win,
+    alwaysOnTop: true,
+    center: true,
+    title: "EnvKey",
+    webPreferences: {
+      nodeIntegration: false
+    }
+  })
 
   stripeWin.loadURL(url.format({
     pathname: path.join(__dirname, (isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html')),

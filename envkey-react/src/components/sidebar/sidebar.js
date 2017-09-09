@@ -23,7 +23,6 @@ const menuSelected = props => {
 const defaultState = props => {
   return {
     accountMenuOpen: defaultAccountMenuExpanded(props),
-    scrollX: 0,
     showRegisterPrompt: showRegisterPrompt
   }
 }
@@ -38,8 +37,6 @@ export default class Sidebar extends React.Component {
   }
 
   componentDidMount() {
-    // if(window)window.addEventListener("scroll",::this._onWindowScroll)
-
     if (isDemo){
       setTimeout(()=> {
         showRegisterPrompt = true
@@ -47,10 +44,6 @@ export default class Sidebar extends React.Component {
       }, demoPromptDelay * 1000)
     }
   }
-
-  // componentWillUnmount() {
-  //   if(window)window.removeEventListener("scroll",::this._onWindowScroll)
-  // }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.location.pathname != nextProps.location.pathname || !R.equals(this.props.params, nextProps.params)){
@@ -77,9 +70,7 @@ export default class Sidebar extends React.Component {
     return (
       <div>
         <div className={"sidebar"  +
-                       (this.state.accountMenuOpen ? " account-menu-open" : "")}
-
-             style={{left: this.state.scrollX}}  >
+                       (this.state.accountMenuOpen ? " account-menu-open" : "")}>
 
           <AccountMenu {...this.props}
                        isOpen={this.state.accountMenuOpen}

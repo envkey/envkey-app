@@ -66,9 +66,6 @@ export default class EntryRow extends React.Component {
           const envEntry = envsWithMeta[environment][entryKey],
                 valCellClass = envEntry.locked ? LockedValCell : EnvValCell
 
-          console.log("isUpdatingValFn:")
-          console.log(this.props.isUpdatingValFn(entryKey, environment))
-
           return h.div(".val-col", {key: i}, [
             h(valCellClass, {
               ...this.props,

@@ -14,7 +14,7 @@ var plugins = [
 var presets = ['es2015', 'react', 'stage-2', 'react-hmre'];
 
 module.exports =  {
-  devtool: 'eval',
+  devtool: 'cheap-source-map',
   output: { filename: '[name].js', publicPath: "http://localhost:8080/"},
   module: {
     loaders: [

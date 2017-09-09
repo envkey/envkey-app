@@ -1,14 +1,27 @@
 {
   "name": "envkey-electron",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Envkey's cross-platform Electron app",
+  "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
+  "homepage": "https://www.envkey.com",
+  "license": "MIT",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
-  "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
-  "license": "MIT",
+  "build": {
+    "appId": "com.envkey.EnvKeyApp",
+    "productName": "EnvKey"
+  },
   "dependencies": {
     "electron-is-dev": "^0.3.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^19.27.7",
+    "electron-updater": "^2.8.9",
+    "envkey": "^0.3.0"
   }
 }
