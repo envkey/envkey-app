@@ -1,9 +1,10 @@
 {
   "name": "envkey-electron",
   "version": "1.0.0",
-  "description": "Envkey's cross-platform Electron app",
+  "description": "EnvKey's cross-platform Electron app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
   "homepage": "https://www.envkey.com",
+  "repository": "https://github.com/envkey/envkey-ui",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
