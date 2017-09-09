@@ -26,8 +26,8 @@ export default class DecryptForm extends React.Component {
   _renderError(){
     if (this.props.decryptPrivkeyErr){
       return h.div(".msg", "Incorrect passphrase. Please try again.")
-    } else if (this.props.decryptEnvsErr){
-      return h.div(".msg", "Your passphrase was correct, but there was a problem decrypting and verifying your config. If the problem persists, please email support@envkey.com.")
+    } else if (this.props.decryptAllErr){
+      return h.div(".msg", "There was a problem decrypting and verifying your config. Enter your passphrase and try again. If the problem persists, please email support@envkey.com.")
     }
   }
 

@@ -25,7 +25,7 @@ export default class AppImporter extends React.Component {
 
   render(){
     return h.form(".object-form.app-importer", [
-      h.p("Paste in your development, staging, and production config in .env (VAR=VAL) format. If you aren’t ready to import an environment, just leave it blank."),
+      h.p("Paste in your development, staging, and production config in .env (KEY=VAL) format. If you aren’t ready to import an environment, just leave it blank."),
       h.div(".tabs", [
         this._renderTabBar(),
         this._renderSelectedTab()

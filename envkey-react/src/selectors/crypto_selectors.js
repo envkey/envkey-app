@@ -1,6 +1,6 @@
 import db from 'lib/db'
 import R from 'ramda'
-import { getApps } from './object_selectors'
+import { getApps, getUser } from './object_selectors'
 import { getCurrentUser } from './auth_selectors'
 
 export const
@@ -12,7 +12,7 @@ export const
 
   getDecryptPrivkeyErr = db.path("decryptPrivkeyErr"),
 
-  getDecryptEnvsErr = db.path("decryptEnvsErr"),
+  getDecryptAllErr = db.path("decryptAllErr"),
 
   getIsDecryptingPrivkey = db.path("isDecryptingPrivkey"),
 
@@ -27,8 +27,6 @@ export const
   getTrustedPubkeys = db.path("trustedPubkeys"),
 
   getGeneratedEnvKeysById = db.path("generatedEnvKeys"),
-
-  getTrustedPubkey = R.curry((keyableId, state)=> db.path("trustedPubkeys", keyableId, "pubkey")(state)),
 
   getEnvsAreDecrypting = (id, state) => {
     if(!state)return R.partial(getEnvsAreDecrypting, [id])
@@ -49,7 +47,7 @@ export const
     )(state)
   },
 
-  // Gets list of trusted pubkeys back to the org owner
+  // Gets list of trusted pubkeys back to the org owner -- allows
   getTrustedPubkeyChain = state => {
     const currentUser = getCurrentUser(state),
           trustedPubkeys = getTrustedPubkeys(state),
@@ -58,12 +56,18 @@ export const
     let currentId = currentUser.id
 
     while (true){
-      let currentPubkeyData = trustedPubkeys[currentId]
-      if (!currentPubkeyData)throw new Error("Trusted pubkey chain broken.")
-      trustChain[currentId] = currentPubkeyData
-      if (currentPubkeyData.invitedById){
-        currentId = currentPubkeyData.invitedById
+      let trusted = trustedPubkeys[currentId]
+      if (!trusted)throw new Error("Trusted pubkey chain broken.")
+
+      let trustedInviter = getUser(currentId, state)
+      if (!trustedInviter)throw new Error("Trusted user not found. Chain broken.")
+      trustChain[currentId] = R.pick(["invitePubkey", "pubkey", "invitedById"], trustedInviter)
+
+      if (trustedInviter.invitedById){
+        // Continue checking chain of invites
+        currentId = trustedInviter.invitedById
       } else {
+        // Found owner, return chain
         return trustChain
       }
     }

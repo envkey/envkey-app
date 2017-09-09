@@ -14,7 +14,7 @@ import {
   getIsDecryptingAll,
   getDecryptedAll,
   getDecryptPrivkeyErr,
-  getDecryptEnvsErr
+  getDecryptAllErr
 } from "selectors"
 import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
@@ -131,7 +131,7 @@ const SelectedObjectContainerFactory = ({
         isDecrypting: getIsDecryptingAll(state),
         envsAreDecrypted: getDecryptedAll(state),
         decryptPrivkeyErr: getDecryptPrivkeyErr(state),
-        decryptEnvsErr: getDecryptEnvsErr(state)
+        decryptAllErr: getDecryptAllErr(state)
       }
     },
 

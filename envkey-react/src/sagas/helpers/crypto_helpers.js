@@ -27,7 +27,6 @@ import {
   getAllEnvParentsAreDecrypted,
   getSignedTrustedPubkeys,
   getTrustedPubkeys,
-  getTrustedPubkey,
   getCurrentOrg,
   getCurrentUser,
   getUser,
@@ -35,6 +34,11 @@ import {
 } from "selectors"
 import { normalizeEnvsWithMeta } from 'lib/env/transform'
 import { TRUSTED_PUBKEY_PROPS } from 'constants'
+
+const
+  devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
+
+  doLogging = devMode
 
 export function* signTrustedPubkeys(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),
@@ -53,12 +57,57 @@ export function* signTrustedPubkeyChain(signWithPrivkey=null){
 }
 
 export function* keyableIsTrusted(keyable){
-  const {id: keyableId} = keyable,
+  if(doLogging){
+    console.log("keyableIsTrusted: checking keyable")
+    console.log(keyable)
+  }
+
+  const {id: keyableId, pubkey, invitePubkey} = keyable,
         {id: orgId} = yield select(getCurrentOrg),
         trustedPubkeys = yield select(getTrustedPubkeys),
         trusted = R.prop(keyableId, trustedPubkeys)
 
-  return Boolean(trusted) && R.equals(R.pick(TRUSTED_PUBKEY_PROPS, keyable), R.pick(TRUSTED_PUBKEY_PROPS, trusted))
+  if (!(pubkey || invitePubkey)){
+    if(doLogging)console.log("keyableIsTrusted: Missing either pubkey or invitePubkey. Not trusted.")
+    return false
+  }
+
+  if (!trusted){
+    if(doLogging)console.log("keyableIsTrusted: Not trusted.")
+    return false
+  }
+
+  if((pubkey && !trusted.pubkeyFingerprint) || (invitePubkey && !trusted.invitePubkeyFingerprint)){
+    if(doLogging)console.log("keyableIsTrusted: Trusted keyable is missing either pubkeyFingerprint or invitePubkeyFingerprint.")
+    return false
+  }
+
+  const keyableProps = R.pick(TRUSTED_PUBKEY_PROPS, keyable),
+        trustedProps = R.pick(TRUSTED_PUBKEY_PROPS, trusted)
+
+  if(doLogging){
+    console.log("keyableIsTrusted: keyableProps -- ", keyableProps)
+    console.log("keyableIsTrusted: trustedProps -- ", trustedProps)
+  }
+
+  if (!R.equals(keyableProps, trustedProps)){
+    if(doLogging)console.log("keyableIsTrusted: keyable props do not match trusted keyable props.")
+    return false
+  }
+
+  if(pubkey && crypto.getPubkeyFingerprint(pubkey) != trusted.pubkeyFingerprint){
+    if(doLogging)console.log("keyableIsTrusted: pubkeyFingerprint does not match pubkey")
+    return false
+  }
+
+  if(invitePubkey && crypto.getPubkeyFingerprint(invitePubkey) != trusted.invitePubkeyFingerprint){
+    if(doLogging)console.log("keyableIsTrusted: invitePubkeyFingerprint does not match invitePubkey")
+    return false
+  }
+
+  if(doLogging)console.log("keyableIsTrusted: trusted.")
+
+  return true
 }
 
 export function* decryptEnvParent(parent){
@@ -77,11 +126,13 @@ export function* decryptEnvParent(parent){
 
         if(!signedById) throw new Error(`Parent ${parent.id} ${environment} environment not signed.`)
 
-        let trustedPubkey = signedById ? (yield select(getTrustedPubkey(signedById))) : null
+        let signedByUser = yield select(getUser(signedById)),
 
-        if (!trustedPubkey) throw new Error(`Trusted public key not found for user ${signedById}.`)
+            trusted = yield call(keyableIsTrusted, signedByUser)
 
-        decrypted[environment] = yield crypto.decryptJson({encrypted, privkey, pubkey: trustedPubkey})
+        if (!trusted) throw new Error(`Signing user ${signedById} not trusted.`)
+
+        decrypted[environment] = yield crypto.decryptJson({encrypted, privkey, pubkey: signedByUser.pubkey})
       }
     }
     return R.pipe(

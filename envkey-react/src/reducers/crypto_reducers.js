@@ -166,6 +166,7 @@ export const
       case LOGOUT:
       case REGISTER:
       case DECRYPT_ENVS_FAILED:
+      case DECRYPT_ALL_FAILED:
       case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
         return null
@@ -204,12 +205,12 @@ export const
     }
   },
 
-  decryptEnvsErr = (state = null, action)=>{
+  decryptAllErr = (state = null, action)=>{
     switch(action.type){
-      case DECRYPT_ENVS:
+      case DECRYPT_ALL:
         return null
 
-      case DECRYPT_ENVS_FAILED:
+      case DECRYPT_ALL_FAILED:
         return action.payload
 
       default:

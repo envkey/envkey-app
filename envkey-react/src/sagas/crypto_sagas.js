@@ -79,8 +79,8 @@ function *onVerifyOrgPubkeys(){
         localKeys = yield select(getLocalKeys),
         servers = yield select(getServers),
         keyables = R.flatten([users, localKeys, servers]),
-        newlyTrustedPubkeys = {},
-        unverifiedPubkeys = {}
+        newlyTrustedKeyables = {},
+        unverifiedKeyables = {}
 
   for (let keyables of [users, localKeys, servers]){
     for (let keyable of keyables){
@@ -93,9 +93,6 @@ function *onVerifyOrgPubkeys(){
       let initialSignedById
       if (keyable.keyGeneratedById){
         initialSignedById = keyable.keyGeneratedById
-      } else if (keyable.appUserId){
-        let appUser = yield select(getAppUser(keyable.appUserId))
-        initialSignedById = appUser.userId
       }
 
       if(doLogging)console.log("initialSignedById: ", initialSignedById)
@@ -117,10 +114,9 @@ function *onVerifyOrgPubkeys(){
         continue
       } else if (!(initialSignedById || initialInvitedById)){
         if(doLogging)console.log("Keyable ", keyableId, "has no initialSignedById or initialInvitedById--marking unverified...")
-        unverifiedPubkeys[keyableId] = keyable
+        unverifiedKeyables[keyableId] = keyable
         continue
       }
-
 
       // Otherwise, attempt to verify signature chain back to a trusted key
       if(doLogging)console.log("Verifying to trusted root...")
@@ -142,7 +138,7 @@ function *onVerifyOrgPubkeys(){
         }
 
         // If signing user has already been marked unverified, break
-        if (unverifiedPubkeys[signingId]){
+        if (unverifiedKeyables[signingId]){
           if(doLogging)console.log("signing user marked unverified... breaing")
           break
         }
@@ -191,10 +187,10 @@ function *onVerifyOrgPubkeys(){
         }
 
         // Check if signing user is trusted
-        if (newlyTrustedPubkeys[signingId]){
+        if (newlyTrustedKeyables[signingId]){
         // if already verified signing user in earlier pass, set trusted root
           if(doLogging)console.log("Signing id already verified... set trustedRoot")
-          trustedRoot = newlyTrustedPubkeys[signingId]
+          trustedRoot = newlyTrustedKeyables[signingId]
         } else {
         // otherwise try to look up in trusted pubkeys
           if(doLogging)console.log("Signing id not yet verified... looking in trustedPubkeys")
@@ -218,21 +214,21 @@ function *onVerifyOrgPubkeys(){
       // Else, mark unverified
       if (trustedRoot){
         if(doLogging)console.log("trustedRoot found: ", trustedRoot)
-        newlyTrustedPubkeys[keyableId] = keyable
+        newlyTrustedKeyables[keyableId] = keyable
       } else {
         if(doLogging)console.log("no trustedRoot found.")
-        unverifiedPubkeys[keyableId] = keyable
+        unverifiedKeyables[keyableId] = keyable
       }
     }
   }
 
-  if (R.isEmpty(unverifiedPubkeys)){
-    if(doLogging)console.log("No unverifiedPubkeys... success!")
-      if(doLogging)console.log("newlyTrustedPubkeys:")
-    if(doLogging)console.log(newlyTrustedPubkeys)
-    if (!R.isEmpty(newlyTrustedPubkeys)){
-      for (let kid in newlyTrustedPubkeys){
-        let keyable = newlyTrustedPubkeys[kid]
+  if (R.isEmpty(unverifiedKeyables)){
+    if(doLogging)console.log("No unverifiedKeyables... success!")
+      if(doLogging)console.log("newlyTrustedKeyables:")
+    if(doLogging)console.log(newlyTrustedKeyables)
+    if (!R.isEmpty(newlyTrustedKeyables)){
+      for (let kid in newlyTrustedKeyables){
+        let keyable = newlyTrustedKeyables[kid]
         yield put(addTrustedPubkey({keyable, orgId}))
       }
 
@@ -241,12 +237,12 @@ function *onVerifyOrgPubkeys(){
       }
     }
 
-    yield put({type: VERIFY_ORG_PUBKEYS_SUCCESS, payload: R.values(newlyTrustedPubkeys)})
+    yield put({type: VERIFY_ORG_PUBKEYS_SUCCESS, payload: R.values(newlyTrustedKeyables)})
   } else {
-    if(doLogging)console.log("Has unverifiedPubkeys... failure :(")
-    if(doLogging)console.log(unverifiedPubkeys)
+    if(doLogging)console.log("Has unverifiedKeyables... failure :(")
+    if(doLogging)console.log(unverifiedKeyables)
 
-    yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: R.values(unverifiedPubkeys)})
+    yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: R.values(unverifiedKeyables)})
   }
 }
 
