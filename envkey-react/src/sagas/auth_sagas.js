@@ -45,6 +45,7 @@ import {
   VERIFY_ORG_PUBKEYS_SUCCESS,
   appLoaded,
   login,
+  logout,
   selectOrg,
   socketUnsubscribeAll,
   addTrustedPubkey,
@@ -220,6 +221,11 @@ function *onFetchCurrentUserSuccess(action){
   ]
 }
 
+function *onFetchCurrentUserFailed(action){
+  yield put(logout())
+  yield put(push("/home"))
+}
+
 function *onFetchCurrentUserUpdatesSuccess({payload}){
   if ((payload.users && payload.users.length > 0) ||
       (payload.servers && payload.servers.length > 0) ||
@@ -238,6 +244,7 @@ export default function* authSagas(){
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
+    takeLatest(FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
     takeLatest(FETCH_CURRENT_USER_UPDATES_SUCCESS, onFetchCurrentUserUpdatesSuccess),
     takeLatest(VERIFY_EMAIL_REQUEST, onVerifyEmailRequest),
     takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),

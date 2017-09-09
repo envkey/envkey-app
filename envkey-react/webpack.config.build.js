@@ -64,7 +64,6 @@ module.exports =  {
   },
   entry: {
     "index": "./src/index.js",
-    "head": "./src/head.js",
     "stripe_card": "./src/stripe_card.js"
   },
   resolve: { root: path.resolve("./src"), modulesDirectories: [path.resolve("./node_modules")] },

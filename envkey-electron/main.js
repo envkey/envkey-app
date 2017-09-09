@@ -12,7 +12,10 @@ let win, stripeWin
 function createWindow () {
   // Create the browser window.
   const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize
-  win = new BrowserWindow({width: Math.min(1400, Math.floor(screenW * 0.9)), height: Math.min(800, Math.floor(screenH * 0.9))})
+  win = new BrowserWindow({
+    width: Math.min(1400, Math.floor(screenW * 0.9)),
+    height: Math.min(800, Math.floor(screenH * 0.9))
+  })
 
   // and load the index.html of the app.
   win.loadURL(url.format({
@@ -37,15 +40,23 @@ function createWindow () {
 }
 
 function createStripeWindow(json){
-  const qs = `?data=${json}`
+  const type = JSON.parse(decodeURIComponent(json)).type,
+        qs = `?data=${json}`,
+        h = type == "upgrade_subscription" ? 714 : 365
 
-  stripeWin = new BrowserWindow({width: 600, height: 400})
+  stripeWin = new BrowserWindow({width: 650, height: h})
 
   stripeWin.loadURL(url.format({
-    pathname: path.join(__dirname, ((isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html') + qs)),
+    pathname: path.join(__dirname, (isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html')),
     protocol: 'file:',
-    slashes: true
+    slashes: true,
+    search: qs
   }))
+
+  if (isDev){
+    // Open the DevTools.
+    stripeWin.webContents.openDevTools()
+  }
 
   stripeWin.on('closed', () => {
     if(win)win.webContents.send("stripeFormClosed")

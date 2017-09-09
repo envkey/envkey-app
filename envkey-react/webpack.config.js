@@ -33,7 +33,6 @@ module.exports =  {
       'webpack/hot/only-dev-server',
       "./src/index.js"
     ],
-    "head": "./src/head.js",
     "stripe_card": "./src/stripe_card.js"
   },
   resolve: { root: path.join(projectRoot, "src"), modulesDirectories: [path.join(projectRoot,"node_modules")] },

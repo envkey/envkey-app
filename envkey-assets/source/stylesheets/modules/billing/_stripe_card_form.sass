@@ -1,17 +1,17 @@
 .stripe-card-form
-
+  text-align: center
+  background: hsl(0,0,98)
   header
     position: relative
     height: 80px
     background: $dark-bg-gradient
-    margin-bottom: 40px
 
     .logo
       position: absolute
       height: 100%
-      left: 0
+      left: 50%
       top: 0
-      padding-left: 30px
+      transform: translateX(-50%)
       img
         width: 140px
 
@@ -31,6 +31,16 @@
     width: 100%
     max-width: 423px
     margin: 20px auto 0
+
+  .plan-info
+    margin-top: 10px
+    .billing-columns:first-of-type
+      margin-bottom: 10px
+      .column
+        float: none
+
+    .billing-columns:last-of-type
+      display: inline-block
 
   form
     box-sizing: border-box

@@ -10,6 +10,7 @@ import {
   getUserGroupsByRole,
   getIsLoadingAppState,
   getCurrentUser,
+  getAuth,
   getCurrentUserErr,
   getPermissions,
   getCurrentOrg,
@@ -26,6 +27,10 @@ const appStateLoaded = (props)=>{
 }
 
 const ensureCurrentUser = (props)=>{
+  if(!props.auth){
+    props.logout()
+    return
+  }
   if(props.isLoadingAppState)return
   const orgSlug = props.params.orgSlug.toLowerCase()
   //avoid request loop on failure
@@ -88,7 +93,8 @@ const mapStateToProps = (state, ownProps) => {
     users: getUserGroupsByRole(state),
     appLoaded: getAppLoaded(state),
     isLoadingAppState: getIsLoadingAppState(state),
-    permissions: getPermissions(state)
+    permissions: getPermissions(state),
+    auth: getAuth(state)
   }
 }
 

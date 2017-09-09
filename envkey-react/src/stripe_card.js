@@ -39,10 +39,6 @@ class StripeCardForm extends React.Component {
     return this._formData().type
   }
 
-  _formTitle(){
-    return {upgrade_subscription: "Upgrade Plan", update_payment: "Update Payment Method"}[this._formType()]
-  }
-
   _submitCopy(){
    return {upgrade_subscription: "Upgrade", update_payment: "Update"}[this._formType()]
   }
@@ -64,8 +60,7 @@ class StripeCardForm extends React.Component {
     return h.header([
       h.div(".logo", [
         h.img({src: imagePath("envkey-logo.svg")})
-      ]),
-      h.h1(this._formTitle())
+      ])
     ])
   }
 
@@ -75,7 +70,7 @@ class StripeCardForm extends React.Component {
             numUsers = this._formData().numUsers
 
       return h.section(".plan-info", [
-        h.h2("Your New Plan"),
+        h.h2("Upgrade Plan"),
         h.h3(plan.name),
         BillingColumns({columns: [
           [
@@ -83,16 +78,18 @@ class StripeCardForm extends React.Component {
               [
                 "Unlimited users",
                 "Unlimited apps",
-                "Unlimited EnvKeys per environment"
+                "Unlimited EnvKeys"
               ]
             ],
-          ],
-
+          ]
+        ]}),
+        BillingColumns({columns: [
           [
             ["Active users", [numUsers]],
-
-            ["Total charge", [`$${parseInt(plan.amount * numUsers / 100)} / month`]],
           ],
+          [
+            ["Total charge", [`$${parseInt(plan.amount * numUsers / 100)} / month`]],
+          ]
         ]})
       ])
     }

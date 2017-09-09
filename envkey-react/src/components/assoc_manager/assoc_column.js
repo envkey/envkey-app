@@ -55,11 +55,16 @@ export default class AssocColumn extends React.Component {
     return (typeof labelOrFn == "function" ? labelOrFn(this.props.config) : [h.span(labelOrFn)])
   }
 
+  _numItems(){
+    return R.flatten(R.values(this.props.config.groups)).length
+  }
+
   render(){
     return h.div(".column.keyable-column", {
       className: [
         this.props.config.role,
-        this.state.addMode ? "show-add-keyable" : ""
+        this.state.addMode ? "show-add-keyable" : "",
+        this._numItems() == 1 ? "single-item" : ""
       ].join(" ")
     }, [
       this._renderHeader(),

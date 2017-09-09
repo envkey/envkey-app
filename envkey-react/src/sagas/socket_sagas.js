@@ -93,7 +93,7 @@ function *onSocketUpdateOrg(action){
 
   // Handle org deleted
   if (actionType == "deleted" && targetType == "Org" && targetId == currentOrg.id){
-    alertBox("This organization has been deleted by the owner.")
+    alert("This organization has been deleted by the owner.")
     yield put(push("/home"))
     yield put(logout())
     return
@@ -101,7 +101,7 @@ function *onSocketUpdateOrg(action){
 
   // Handle lost org access
   if (actionType == "deleted" && targetType == "OrgUser" && targetId == currentOrgUser.id){
-    alertBox("Your access to this organization has been removed by an org admin.")
+    alert("Your access to this organization has been removed by an org admin.")
     yield put(push("/home"))
     yield put(logout())
     return
@@ -109,7 +109,7 @@ function *onSocketUpdateOrg(action){
 
   // Handle org access change
   if (actionType == "created" && targetType == "OrgUser" && meta && meta.userId == auth.id){
-    alertBox("Your organization access level has been updated by an org admin.")
+    alert("Your organization access level has been updated by an org admin.")
     yield put(selectOrg(currentOrg.slug))
     return
   }
@@ -117,7 +117,7 @@ function *onSocketUpdateOrg(action){
   // Current app deleted
   if (actionType == "deleted" && targetType == "App" && targetId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-    alertBox("This app has been deleted by an org admin.")
+    alert("This app has been deleted by an org admin.")
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -126,7 +126,7 @@ function *onSocketUpdateOrg(action){
   // Current app access removed
   if (actionType == "deleted" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-    alertBox("Your access to this app has been removed by an app admin.")
+    alert("Your access to this app has been removed by an app admin.")
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -135,14 +135,14 @@ function *onSocketUpdateOrg(action){
   // Current app access changed
   if (actionType == "created" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-    alertBox("Your app access level has been updated by an app admin.")
+    alert("Your app access level has been updated by an app admin.")
     return
   }
 
   // Selected user deleted
   if (actionType == "deleted" && targetType == "OrgUser" && meta && meta.userId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-    alertBox("This user has been removed from the organization by an org admin.")
+    alert("This user has been removed from the organization by an org admin.")
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return

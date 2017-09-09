@@ -20,7 +20,7 @@
       margin-bottom: 15px
 
       strong
-        font-weight: 500
+        font-weight: 400
         color: $dark-blue
 
     p
@@ -98,6 +98,16 @@
             transition: opacity 0.15s
             opacity: 0.5
 
+  .server-keys-section, .development-keys-section
+    .single-item .association-row
+      &:first-of-type
+        margin-top: 10px
+      .name
+        display: none
+
+  .development-keys-section .single-item .association-row:first-of-type
+    margin-top: 0
+
 
   .association-manager
     .column
@@ -133,7 +143,7 @@
         font-size: 15px
         color: hsl(0,0,75)
         em
-          font-weight: 500
+          font-weight: 400
 
       .head .parent-name
         display: none
@@ -169,10 +179,10 @@
       font-family: $default-font
       float: left
       text-transform: none
-      font-weight: 200
+      font-weight: 300
       font-size: 13px
       position: relative
-      top: 1px
+      top: 0
       color: hsl(0,0,60)
 
     .img
