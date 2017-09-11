@@ -43,7 +43,7 @@ export default function({parentType,
     },
 
     renderShowHide = ()=> {
-      if (!isEmpty && hasAnyVal){
+      // if (!isEmpty && hasAnyVal){
         return h.label(".show-hide",[
           h.input({
             type: "checkbox",
@@ -52,7 +52,7 @@ export default function({parentType,
           }),
           h.img({src: imagePath("hide-white.svg")})
         ])
-      }
+      // }
     },
 
     renderUpdatingEnv = ()=>{

@@ -3,7 +3,7 @@ const
   path = require('path'),
   url = require('url'),
   isDev = require('electron-is-dev'),
-  {app, BrowserWindow, ipcMain} = electron
+  {app, BrowserWindow, ipcMain, Menu} = electron
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,7 +19,8 @@ function createWindow () {
     minHeight: 540,
     center: true,
     backgroundColor: "#333333",
-    title: "EnvKey"
+    title: "EnvKey",
+    icon: path.join(__dirname, 'assets/icons/png/64x64.png')
   })
 
   // and load the index.html of the app.
@@ -29,10 +30,10 @@ function createWindow () {
     slashes: true
   }))
 
-  if (isDev){
+  // if (isDev){
     // Open the DevTools.
     win.webContents.openDevTools()
-  }
+  // }
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -55,7 +56,7 @@ function createStripeWindow(json){
     parent: win,
     alwaysOnTop: true,
     center: true,
-    title: "EnvKey",
+    title: "EnvKey Billing",
     webPreferences: {
       nodeIntegration: false
     }
@@ -83,6 +84,8 @@ function createStripeWindow(json){
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
+
+app.on('ready', createMenu)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -116,3 +119,90 @@ ipcMain.on("stripeFormClosed", (e, msg)=>{
   if(win)win.webContents.send("stripeFormClosed", msg)
 })
 
+function createMenu(){
+
+  const template = [
+    {
+      label: 'Edit',
+      submenu: [
+        {role: 'undo'},
+        {role: 'redo'},
+        {type: 'separator'},
+        {role: 'cut'},
+        {role: 'copy'},
+        {role: 'paste'},
+        {role: 'delete'},
+        {role: 'selectall'}
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {role: 'reload'},
+        {type: 'separator'},
+        {role: 'resetzoom'},
+        {role: 'zoomin'},
+        {role: 'zoomout'},
+        {type: 'separator'},
+        {role: 'togglefullscreen'}
+      ]
+    },
+    {
+      role: 'window',
+      submenu: [
+        {role: 'minimize'},
+        {role: 'close'}
+      ]
+    },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Learn More',
+          click () { require('electron').shell.openExternal('https://www.envkey.com') }
+        }
+      ]
+    }
+  ]
+
+  if (process.platform === 'darwin') {
+    template.unshift({
+      label: app.getName(),
+      submenu: [
+        {role: 'about'},
+        {type: 'separator'},
+        {role: 'services', submenu: []},
+        {type: 'separator'},
+        {role: 'hide'},
+        {role: 'hideothers'},
+        {role: 'unhide'},
+        {type: 'separator'},
+        {role: 'quit'}
+      ]
+    })
+
+    // Edit menu
+    template[1].submenu.push(
+      {type: 'separator'},
+      {
+        label: 'Speech',
+        submenu: [
+          {role: 'startspeaking'},
+          {role: 'stopspeaking'}
+        ]
+      }
+    )
+
+    // Window menu
+    template[3].submenu = [
+      {role: 'close'},
+      {role: 'minimize'},
+      {role: 'zoom'},
+      {type: 'separator'},
+      {role: 'front'}
+    ]
+  }
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}

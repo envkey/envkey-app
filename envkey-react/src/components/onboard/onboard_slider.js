@@ -17,9 +17,9 @@ const
     h.h1(".code", [`${R.path(["lastAddedEntry", "entryKey"], props)}=`, h.em(".orange","ENCRYPTED_AND_SAVED")]),
 
     h.p([
-      "Easy, right? ",
-      h.em(".blue", "Editing variables"),
-      " is easy too. Just hover over the value you want to edit and click. ",
+      "To ",
+      h.em(".blue", "edit variables"),
+      ", hover over a key or value and click. ",
       "Use the enter key to commit after you’ve made a change, or escape to cancel.",
     ]),
 
@@ -36,7 +36,7 @@ const
     ]),
 
     h.p([
-      "You might have noticed that any value you set is masked with a bunch of dots. If you want to reveal your config, uncheck the ",
+      "You might have noticed that any value you set is masked. If you want to reveal your config, uncheck the ",
       h.em(".blue", "mask toggle "),
       "next to your app’s name at the top of the ",
       h.em(".blue.condensed", " Variables "),
@@ -48,8 +48,8 @@ const
 
     h.p([
       (isOwner ? "Go ahead and finish inputting your app’s config. " : ""),
-      "When you’re ready to move on, head to the ",
-      h.em(".blue.condensed", "Keys"),
+      "When you’re done, head to the ",
+      h.em(".blue.condensed", "EnvKeys"),
       " tab."
     ])
   ])
@@ -58,25 +58,20 @@ export const
 
   OrgOwnerAppEnvSlider = props => h(OnboardSlider, {...props, className: "app-env-slider"}, [
     h.div(".slide-0", [
-      h.h1([h.em(".orange","Nice."), " You created your first app."]),
+      h.h1([h.em(".orange","App created."), " Now add some config."]),
 
       h.p([
-        "If you look left, you’ll see that ",
+        "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
-        " is selected in the ",
-        h.em(".blue", "sidebar.")
-      ]),
-
-      h.p([
-        "The sidebar lists all the apps and users in your organization. You can also manage your account or sign out by clicking the gear icon. ",
+        " selected in the ",
+        h.em(".blue", "sidebar, "),
+        ` which lists all of ${props.currentOrg.name}'s apps and users.`
       ]),
 
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll see a ",
-        h.em(".blue", "vertical tab bar"),
-        ," with several tabs: ",
+        "Next to the sidebar, you’ll see several vertical tabs: ",
         h.em(".blue.condensed", " Variables,"),
         h.em(".blue.condensed", " EnvKeys,"),
         h.em(".blue.condensed", " Collaborators,"),
@@ -88,7 +83,7 @@ export const
 
       h.p([
         "This is where you set your app’s config variables for each environment. ",
-        "Go to the top of the page and try ",
+        "Try ",
         h.em(".orange", "adding a new variable."),
         (props.didOnboardImport ? " It's ok if you don't actually need to add one right now—you can delete it right away." : "")
       ]),
@@ -105,19 +100,14 @@ export const
         "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
         " selected in the ",
-        h.em(".blue", "sidebar.")
-      ]),
-
-      h.p([
-        "The sidebar lists all the apps and users in your organization. You can also manage your account or sign out by clicking the gear icon. ",
+        h.em(".blue", "sidebar."),
+        ` which lists all of ${props.currentOrg.name}'s apps and users.`
       ]),
 
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll see a ",
-        h.em(".blue", "vertical tab bar"),
-        ," with several tabs: ",
+        "Next to the sidebar, you’ll see several vertical tabs: ",
         h.em(".blue.condensed", " Variables,"),
         h.em(".blue.condensed", " EnvKeys,"),
         h.em(".blue.condensed", " Collaborators,"),
@@ -129,7 +119,7 @@ export const
 
       h.p([
         "This is where you set your app’s config variables for each environment. ",
-        "Go to the top of the page and try ",
+        "Try ",
         h.em(".orange", "adding a new variable."),
         " It's ok if you don't actually need to add one right now—you can delete it right away."
       ]),
@@ -146,19 +136,14 @@ export const
         "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
         " selected in the ",
-        h.em(".blue", "sidebar.")
-      ]),
-
-      h.p([
-        "The sidebar lists all the apps you've been given access to. You can also manage your account or sign out by clicking the gear icon. ",
+        h.em(".blue", "sidebar,"),
+        ` which lists all the apps you've been given access to.`
       ]),
 
       h.div(".small-divider"),
 
       h.p([
-        "Next to the sidebar, you’ll see a ",
-        h.em(".blue", "vertical tab bar"),
-        ," with several tabs: ",
+        "Next to the sidebar, you’ll see several vertical tabs: ",
         h.em(".blue.condensed", " Variables,"),
         h.em(".blue.condensed", " EnvKeys,"),
         h.em(".blue.condensed", " Collaborators,"),
@@ -170,7 +155,7 @@ export const
 
       h.p([
         "This is where you set your app’s config variables for each environment. ",
-        "Go to the top of the page and try ",
+        "Try ",
         h.em(".orange", "adding a new variable."),
         " It's ok if you don't actually need to add one right now—you can delete it right away."
       ]),
@@ -187,7 +172,8 @@ export const
         "If you look left, you’ll see ",
         h.strong(".app-name", props.parent.name),
         " selected in the ",
-        h.em(".blue", "sidebar.")
+        h.em(".blue", "sidebar, "),
+
       ]),
 
       h.p([
@@ -209,7 +195,7 @@ export const
 
       h.p([
         "This is where you set your app’s config variables for each environment. ",
-        "Go to the top of the page and try ",
+        "Try ",
         h.em(".orange", "adding a new variable."),
       ]),
 
@@ -238,15 +224,15 @@ export const
 
     h.div(".slide-1", [
 
-      h.h1(["It turned ", h.em(".blue", " blue!")]),
+      h.h1(["It turned ", h.em(".blue", " blue...")]),
 
       h.p("That means a new OpenPGP keypair was generated and your config was encrypted with the public key. "),
 
-      h.p("Go ahead and follow the instructions in the blue box. You’ll have your app securely connected in no time. "),
+      h.p("Follow the instructions in the blue box to give yourself development access. "),
 
       h.div(".small-divider"),
 
-      h.p("When you’re done with that, you can connect your servers too. It’s just as easy."),
+      h.p("When you’re done with that, you can give servers access too."),
 
       h.div(".small-divider"),
 
@@ -279,11 +265,11 @@ export const
 
       h.p("That means a new OpenPGP keypair was generated and your config was encrypted with the public key. "),
 
-      h.p("Go ahead and follow the instructions in the blue box. You’ll have your app securely connected in no time. "),
+      h.p("Follow the instructions in the blue box to give yourself development access. "),
 
       h.div(".small-divider"),
 
-      h.p("When you’re done with that, you can connect your servers too. It’s just as easy.")
+      h.p("When you’re done with that, you can give servers access too.")
 
     ])
   ]),
@@ -307,7 +293,7 @@ export const
 
       h.p("That means a new OpenPGP keypair was generated and your config was encrypted with the public key. "),
 
-      h.p("Go ahead and follow the instructions in the blue box. You’ll have your app securely connected in no time. ")
+      h.p("Follow the instructions in the blue box to give yourself development access. "),
 
     ])
   ]),
@@ -318,18 +304,18 @@ export const
       h.h1([h.em(".orange","Last step:"), " securely share your config."]),
 
       h.p([
-        "Now that you've entered your config and generated keys, it's time to ",
-        h.em(".blue", "add collaborators " ),
+        "Now it's time to ",
+        h.em(".blue", "invite collaborators " ),
         "so the rest of your team has access too."
       ]),
 
       h.p([
         "Have a look at the ",
         h.em(".blue", " access levels "),
-        "described at the top of each column.",
-        " When you're ready, ",
+        "at the top of each column.",
+        " To ",
         h.em(".orange", " invite a user"),
-        " by clicking the ",
+        ", click the ",
         h.em(".blue", " + "),
         "button for the access level you want to grant."
       ])
@@ -341,9 +327,8 @@ export const
 
       h.p([
         "Hopefully you now have a good understanding of how to use EnvKey to secure and simplify your team's config.",
-        " There's really not much to it! ",
-        "If you have questions, please contact EnvKey's CEO directly: ",
-        h.a(".blue",{href: "mailto:dane@envkey.com"}, "dane@envkey.com"),
+        " If you have questions, please reach out: ",
+        h.a(".blue",{href: "mailto:support@envkey.com"}, "support@envkey.com"),
       ]),
     ])
 

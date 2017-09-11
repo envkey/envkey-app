@@ -17,6 +17,7 @@ import {
   getEntries,
   getCurrentAppUserForApp,
   getCurrentUser,
+  getCurrentOrg,
   getIsUpdatingEnvVal,
   getIsUpdatingEnvEntry,
   getIsCreatingEnvEntry,
@@ -64,6 +65,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
             envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, appId, state)
 
       return {
+        currentOrg: getCurrentOrg(state),
         envsWithMeta: envsWithMetaWithPending,
         entries: getEntries(envsWithMetaWithPending),
         isUpdatingEnv: getIsUpdatingEnv(appId, state),

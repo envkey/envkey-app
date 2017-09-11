@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
+import moment from 'moment'
 import { getColumnsFlattened } from "lib/assoc/helpers"
 import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink } from 'selectors'
 import { closeGeneratedInviteLink } from 'actions'
@@ -12,19 +13,31 @@ import AssocManager from 'components/assoc_manager'
 import {InviteUserOverlay} from 'components/invites'
 
 const
+  justInvitedFirstUser = (users)=>{
+    if(users.length != 2)return false
+    const invitedUser = R.sortBy(R.path(["relation", "createdAt"]), users)[1],
+          date = moment(invitedUser.relation.createdAt),
+          diffMinutes = moment().diff(date, "minutes")
+
+    return diffMinutes < 5
+  },
+
   startedOnboardingFn = (props, state)=> {
     const users = getColumnsFlattened(props.columnsConfig.columns),
           candidates = R.flatten(props.columnsConfig.columns.map(R.prop('candidates')))
     return candidates.length == 0 &&
-           users.length == 1 &&
+           (users.length == 1 || justInvitedFirstUser(users)) &&
            !state.finishedOnboarding
   },
 
   finishedOnboardingFn = (props, state)=> {
-    const users = getColumnsFlattened(props.columnsConfig.columns)
-    return state.startedOnboarding &&
-           !state.finishedOnboarding &&
-           users.length > 1
+    const users = getColumnsFlattened(props.columnsConfig.columns),
+          res =  state.startedOnboarding &&
+                 !state.finishedOnboarding &&
+                 users.length > 1 &&
+                 !justInvitedFirstUser(users)
+
+    return res
   },
 
   selectedIndexFn = (props, state)=> {

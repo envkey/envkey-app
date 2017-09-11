@@ -10,12 +10,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder",
+    "dist": "electron-builder -mwl",
+    "distmac": "electron-builder -m",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "appId": "com.envkey.EnvKeyApp",
-    "productName": "EnvKey"
+    "productName": "EnvKey",
+    "linux": {
+      "category": "Development"
+    }
   },
   "dependencies": {
     "electron-is-dev": "^0.3.0"
