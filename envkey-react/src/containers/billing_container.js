@@ -12,6 +12,7 @@ import {
 import {imagePath} from 'lib/ui'
 import BillingColumns from 'components/billing/billing_columns'
 import Spinner from 'components/shared/spinner'
+import {trialDaysRemaining} from "lib/billing"
 
 class Billing extends React.Component {
 
@@ -120,7 +121,7 @@ class Billing extends React.Component {
         h.h3("Business Tier"),
         h(BillingColumns, {columns: [
           [
-            [`$${parseInt(this.props.subscription.amount / 100)} / user / month`,
+            [`$${parseInt(this.props.subscription.amount / 100)}.00 USD / user / month`,
               [
                 "Unlimited users",
                 "Unlimited apps",
@@ -140,7 +141,7 @@ class Billing extends React.Component {
           [
             ["Active users", [this.props.numUsers]],
 
-            ["Next invoice total", [`$${parseInt(this.props.subscription.amount * this.props.numUsers / 100)} / month`]],
+            ["Next invoice total charge", [`$${parseInt(this.props.subscription.amount * this.props.numUsers / 100)}.00`]],
           ],
         ]}),
 
@@ -191,7 +192,7 @@ class Billing extends React.Component {
       h.h3("Business Tier"),
       h(BillingColumns, {columns: [
         [
-          [`$${parseInt(this.props.businessPlan.amount / 100)} / user / month`,
+          [`$${parseInt(this.props.businessPlan.amount / 100)}.00 / user / month`,
             [
               "Unlimited users",
               "Unlimited apps",
@@ -213,10 +214,9 @@ class Billing extends React.Component {
   }
 
   _renderUpgradeTrialRemaining(){
-    if (this.props.subscription.trialEndsAt){
-      const trialEnds = moment(this.props.subscription.trialEndsAt),
-            numDays = moment().diff(trialEnds, "days"),
-            txt = `You have ${numDays} days of free trial remaining for the Business Tier.`
+    const days = trialDaysRemaining(this.props.subscription.trialEndsAt)
+    if (days > 0){
+      const txt = `You have ${days} day${days == 1 ? "" : "s"} of free trial remaining for the Business Tier.`
 
       return h.div(".trial-remaining", txt)
     }

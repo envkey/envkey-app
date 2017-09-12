@@ -1,10 +1,9 @@
 import React from 'react'
-import moment from 'moment'
 import { connect } from 'react-redux'
 import { billingUpgradeSubscription } from 'actions'
 import { getCurrentOrg, getOrgOwner, getIsUpdatingSubscription } from 'selectors'
 import Spinner from 'components/shared/spinner'
-
+import { trialDaysRemaining } from "lib/billing"
 
 const SubscriptionWall = function({
   org,
@@ -18,30 +17,14 @@ const SubscriptionWall = function({
   deleteVerb="delete"
 }){
   const
-    trialDaysRemaining = ()=> {
-      if (org.subscription.trialEndsAt){
-        const now = moment.utc(),
-              endsAt = moment.utc(org.subscription.trialEndsAt * 1000)
-
-        if(now.isAfter(endsAt)){
-          return 0
-        }
-
-        return now.diff(endsAt) / (1000 * 60 * 60 * 24)
-
-      } else {
-        return 0
-      }
-    },
-
     renderFreeTrialInfo = ()=> {
-      const days = trialDaysRemaining(org)
+      const days = trialDaysRemaining(org.subscription.trialEndsAt)
 
       if (days > 0){
         const dayStr = days < 1 ? "less than a day" : `${Math.round(days)} days`
 
         return <div className="trial-info">
-          <p> New organization accounts get 30 days to try the Business Tier before being billed. You have {dayStr} of free trial remaining.</p>
+          <p> New organization get <strong>30 days</strong> to try the Business Tier before being billed. You have <strong>{dayStr}</strong> of free your trial remaining.</p>
         </div>
       }
     },

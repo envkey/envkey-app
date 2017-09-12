@@ -30,10 +30,10 @@ function createWindow () {
     slashes: true
   }))
 
-  // if (isDev){
+  if (isDev){
     // Open the DevTools.
     win.webContents.openDevTools()
-  // }
+  }
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -46,9 +46,12 @@ function createWindow () {
 }
 
 function createStripeWindow(json){
-  const type = JSON.parse(decodeURIComponent(json)).type,
+  const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize,
+        type = JSON.parse(decodeURIComponent(json)).type,
         qs = `?data=${json}`,
-        h = type == "upgrade_subscription" ? 714 : 365
+        h = type == "upgrade_subscription" ?
+          Math.min(800, Math.floor(screenH * 0.9)) :
+          365
 
   stripeWin = new BrowserWindow({
     width: 650,
