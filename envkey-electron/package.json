@@ -1,5 +1,5 @@
 {
-  "name": "envkey-electron",
+  "name": "EnvKey",
   "version": "1.0.0",
   "description": "EnvKey's cross-platform Electron app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
