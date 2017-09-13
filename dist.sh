@@ -14,6 +14,8 @@ cp envkey-assets/build/javascripts/* envkey-assets/build/*.js envkey-electron/as
 echo "Building and signing apps"
 (cd envkey-electron && npm run dist)
 
+
+
 echo "Clearing middleman build and electron assets"
 rm -rf envkey-assets/build/*
 rm -rf envkey-electron/assets/*
