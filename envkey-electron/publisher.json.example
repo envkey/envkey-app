@@ -1,7 +1,7 @@
 {
   "transport": {
     "module": "github",
-    "token": "b2348a00c9e2dba6021941b6cfed2020787896f7",
+    "token": "",
     "repository": "envkey/envkey-ui",
     "updatesJsonPath": "envkey-electron/updates.json"
   }
