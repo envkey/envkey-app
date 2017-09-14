@@ -329,7 +329,7 @@ export const
         "Hopefully you now have a good understanding of how to use EnvKey to secure and simplify your team's config.",
         " If you have questions, feedback, or run into problems, please either email us -- ",
         h.a(".blue",{href: "mailto:support@envkey.com"}, "support@envkey.com"),
-        " -- or post an issue on "
+        " -- or post an issue on ",
         h.a(".blue",{href: "https://github.com/envkey/envkey-ui/issues"}, "Github"),
         "."
       ])

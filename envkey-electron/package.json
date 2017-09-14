@@ -7,6 +7,9 @@
   "repository": "https://github.com/envkey/envkey-ui",
   "license": "MIT",
   "main": "main.js",
+  "bin": {
+    "remove-releases": "bin/remove_releases.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --dir",
@@ -40,6 +43,7 @@
     "electron-builder": "^19.27.7",
     "electron-builder-squirrel-windows": "^19.28.3",
     "electron-simple-publisher": "^0.4.7",
-    "envkey": "^0.3.0"
+    "envkey": "^0.3.0",
+    "github-remove-all-releases": "^1.0.1"
   }
 }
