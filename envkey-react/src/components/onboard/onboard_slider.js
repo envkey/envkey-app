@@ -306,7 +306,7 @@ export const
       h.p([
         "Now it's time to ",
         h.em(".blue", "invite collaborators " ),
-        "so the rest of your team has access too."
+        "and give the rest of your team access."
       ]),
 
       h.p([
@@ -317,7 +317,7 @@ export const
         h.em(".orange", " invite a user"),
         ", click the ",
         h.em(".blue", " + "),
-        "button for the access level you want to grant."
+        "button for the permissions you want to grant."
       ])
     ]),
 
@@ -327,9 +327,12 @@ export const
 
       h.p([
         "Hopefully you now have a good understanding of how to use EnvKey to secure and simplify your team's config.",
-        " If you have questions, please reach out: ",
+        " If you have questions, feedback, or run into problems, please either email us -- ",
         h.a(".blue",{href: "mailto:support@envkey.com"}, "support@envkey.com"),
-      ]),
+        " -- or post an issue on "
+        h.a(".blue",{href: "https://github.com/envkey/envkey-ui/issues"}, "Github"),
+        "."
+      ])
     ])
 
   ])
