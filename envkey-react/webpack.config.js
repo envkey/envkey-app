@@ -7,7 +7,8 @@ var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new EnvkeyWebpackPlugin({
     dotEnvFile: '.env.development',
-    permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"]
+    permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"],
+
   })
 ];
 
