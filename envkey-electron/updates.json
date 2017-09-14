@@ -5,13 +5,8 @@
     "version": "0.9.5"
   },
   "linux-x64-prod": {
-    "update": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.6/EnvKey-0.9.6-x86_64.AppImage",
-    "install": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.6/EnvKey-0.9.6-x86_64.AppImage",
-    "version": "0.9.6"
-  },
-  "win32-x64-prod": {
-    "update": "https://github.com/envkey/envkey-ui/releases/download/win32-x64-prod-v0.9.7",
-    "install": "https://github.com/envkey/envkey-ui/releases/download/win32-x64-prod-v0.9.7/EnvKey.Setup.0.9.7.exe",
+    "update": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.7/EnvKey-0.9.7-x86_64.AppImage",
+    "install": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.7/EnvKey-0.9.7-x86_64.AppImage",
     "version": "0.9.7"
   }
 }
