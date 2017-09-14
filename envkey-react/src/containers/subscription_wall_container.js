@@ -24,7 +24,7 @@ const SubscriptionWall = function({
         const dayStr = days < 1 ? "less than a day" : `${Math.round(days)} days`
 
         return <div className="trial-info">
-          <p> New organization get <strong>30 days</strong> to try the Business Tier before being billed. You have <strong>{dayStr}</strong> of free your trial remaining.</p>
+          <p> New organizations get <strong>30 days</strong> to try the Business Tier before being billed. Your free trial has <strong>{dayStr}</strong> remaining.</p>
         </div>
       }
     },
