@@ -4,7 +4,7 @@ import sjcl from 'sjcl'
 let currentProxy = 0
 const
   workerPath = `${process.env.ASSET_HOST}/openpgp.worker.min.js`,
-  concurrency = (navigator.hardwareConcurrency || 4) - 1,
+  concurrency = Math.min(1, (navigator.hardwareConcurrency || 4) - 1),
   proxyPool = [],
 
   initProxyPool = ()=>{
