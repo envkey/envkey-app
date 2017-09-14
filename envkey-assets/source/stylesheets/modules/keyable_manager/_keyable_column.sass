@@ -96,12 +96,18 @@
   &.development .column-header .title em
     color: $darker-blue
 
-  &.show-add-keyable .column-header .head > button
-    background: $darker-blue
-    color: #fff
-    font-size: 13px
-    span
-      top: 1px
+  &.show-add-keyable
+    .column-header .head > button
+      background: $darker-blue
+      color: #fff
+      font-size: 13px
+      span
+        top: 1px
+
+    .object-form.invite-new-user
+      position: relative
+      z-index: 2
+      background: #fff
 
   .permissions
     height: $app-tab-height

@@ -40,18 +40,18 @@ export default class KeyGenerated extends React.Component {
             server: [
               "Copy and set it as an",
               h.strong(" environment variable"),
-              " on your server."
+              " on your server. Don't share it or store it anywhere else."
             ],
 
             localKey: [
               "Copy it into a",
               h.strong(" .env file"),
-              " at the root of your project directory."
+              " at the root of your project directory.",
+              " This file should be",
+              h.strong(" ignored "),
+              " in git, svn, mercurial, etc."
             ]
-          }[this.props.joinType]).concat([
-            h.br(),
-            "We can't retrieve your key, but you can always generate a new one."
-          ])
+          }[this.props.joinType])
         ),
 
         h.a({href: "https://www.envkey.com/#integration", target: "__blank"}, "Integration quickstart ‣")

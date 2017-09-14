@@ -3,18 +3,24 @@ const
   path = require('path'),
   url = require('url'),
   isDev = require('electron-is-dev'),
-  {app, BrowserWindow, ipcMain, Menu} = electron
+  createMenu = require('./main-process/create_menu'),
+  logger = require("electron-log"),
+  updater = require('electron-simple-updater'),
+  {app, BrowserWindow, ipcMain} = electron
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win, stripeWin
 
+// Auto-update
+updater.init({logger})
+
 function createWindow () {
   // Create the browser window.
   const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({
-    width: Math.min(1400, Math.floor(screenW * 0.9)),
-    height: Math.min(800, Math.floor(screenH * 0.9)),
+    width: Math.min(1400, Math.floor(screenW)),
+    height: Math.min(800, Math.floor(screenH)),
     minWidth: 1080,
     minHeight: 540,
     center: true,
@@ -50,7 +56,7 @@ function createStripeWindow(json){
         type = JSON.parse(decodeURIComponent(json)).type,
         qs = `?data=${json}`,
         h = type == "upgrade_subscription" ?
-          Math.min(800, Math.floor(screenH * 0.9)) :
+          Math.min(800, Math.floor(screenH)) :
           365
 
   stripeWin = new BrowserWindow({
@@ -121,91 +127,3 @@ ipcMain.on("stripeFormClosed", (e, msg)=>{
   if(stripeWin)stripeWin.close()
   if(win)win.webContents.send("stripeFormClosed", msg)
 })
-
-function createMenu(){
-
-  const template = [
-    {
-      label: 'Edit',
-      submenu: [
-        {role: 'undo'},
-        {role: 'redo'},
-        {type: 'separator'},
-        {role: 'cut'},
-        {role: 'copy'},
-        {role: 'paste'},
-        {role: 'delete'},
-        {role: 'selectall'}
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        {role: 'reload'},
-        {type: 'separator'},
-        {role: 'resetzoom'},
-        {role: 'zoomin'},
-        {role: 'zoomout'},
-        {type: 'separator'},
-        {role: 'togglefullscreen'}
-      ]
-    },
-    {
-      role: 'window',
-      submenu: [
-        {role: 'minimize'},
-        {role: 'close'}
-      ]
-    },
-    {
-      role: 'help',
-      submenu: [
-        {
-          label: 'Learn More',
-          click () { require('electron').shell.openExternal('https://www.envkey.com') }
-        }
-      ]
-    }
-  ]
-
-  if (process.platform === 'darwin') {
-    template.unshift({
-      label: app.getName(),
-      submenu: [
-        {role: 'about'},
-        {type: 'separator'},
-        {role: 'services', submenu: []},
-        {type: 'separator'},
-        {role: 'hide'},
-        {role: 'hideothers'},
-        {role: 'unhide'},
-        {type: 'separator'},
-        {role: 'quit'}
-      ]
-    })
-
-    // Edit menu
-    template[1].submenu.push(
-      {type: 'separator'},
-      {
-        label: 'Speech',
-        submenu: [
-          {role: 'startspeaking'},
-          {role: 'stopspeaking'}
-        ]
-      }
-    )
-
-    // Window menu
-    template[3].submenu = [
-      {role: 'close'},
-      {role: 'minimize'},
-      {role: 'zoom'},
-      {type: 'separator'},
-      {role: 'front'}
-    ]
-  }
-
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-}

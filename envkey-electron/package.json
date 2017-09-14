@@ -1,7 +1,7 @@
 {
-  "name": "envkey-electron",
-  "version": "1.0.0",
-  "description": "EnvKey's cross-platform Electron app",
+  "name": "EnvKey",
+  "version": "0.9.0",
+  "description": "EnvKey's cross-platform native app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
   "homepage": "https://www.envkey.com",
   "repository": "https://github.com/envkey/envkey-ui",
@@ -12,6 +12,7 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder -mwl",
     "distmac": "electron-builder -m",
+    "publish": "publish darwin win32 linux",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
@@ -19,14 +20,26 @@
     "productName": "EnvKey",
     "linux": {
       "category": "Development"
+    },
+    "win": {
+      "target": "squirrel"
+    },
+    "squirrelWindows": {
+      "iconUrl": "https://raw.githubusercontent.com/envkey/envkey-ui/master/envkey-electron/build/icon.ico"
     }
   },
+  "updater": {
+    "url": "https://raw.githubusercontent.com/envkey/envkey-ui/master/envkey-electron/updates.json"
+  },
   "dependencies": {
-    "electron-is-dev": "^0.3.0"
+    "electron-is-dev": "^0.3.0",
+    "electron-log": "^2.2.9",
+    "electron-simple-updater": "^1.2.1"
   },
   "devDependencies": {
     "electron-builder": "^19.27.7",
-    "electron-updater": "^2.8.9",
+    "electron-builder-squirrel-windows": "^19.28.3",
+    "electron-simple-publisher": "^0.4.7",
     "envkey": "^0.3.0"
   }
 }

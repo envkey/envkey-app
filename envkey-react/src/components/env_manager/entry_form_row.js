@@ -131,8 +131,10 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     const {environments} = this.props
 
     return h.div(".row.entry-row",{
-      className: (this._isEditingEntry() ? "editing-entry" : "") +
-                 (this.state.hoveringVals ? "hovering-vals" : "")
+      className: (this._isEditingEntry() ? " editing-entry" : "") +
+                 (this._isEditing() ? " is-editing" : "") +
+                 (!this._formEmpty() ? " not-empty" : "") +
+                 (this.state.hoveringVals ? " hovering-vals" : "")
     },[
       h.div(".entry-col",[
         h(FormEntryCell, {
@@ -157,6 +159,11 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
         environments.map((environment,i)=>{
           return h.div(".val-col", {key: i}, [this._renderFormCell(environment)])
         })
+      ]),
+
+      h.span(".submit-prompt", [
+        h.i(".arrow", "←"),
+        " Click to save"
       ])
 
     ])
