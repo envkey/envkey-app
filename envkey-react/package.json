@@ -1,6 +1,6 @@
 {
   "name": "envkey-react",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "React/redux layer for EnvKey ui.",
   "author": "Dane Schneider",
   "bin": {},
