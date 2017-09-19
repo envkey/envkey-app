@@ -86,7 +86,7 @@ class AcceptInvite extends React.Component {
   _renderLoadInviteForm(){
     return h.div(".load-invite-form", [
 
-      h.p(".copy", "To accept an invitation, you need two tokens."),
+      // h.p(".copy", "To accept an invitation, you need two tokens."),
 
       h.form({onSubmit: ::this._onLoadInvite}, [
 
@@ -94,9 +94,8 @@ class AcceptInvite extends React.Component {
           h.p([
             h.strong(".num", "1 "),
             h.span([
-            "An ",
             h.strong("Invite Token"),
-            ", which you receive in an email from EnvKey <support@envkey.com>:"
+            ", received in an email from EnvKey <support@envkey.com>"
             ])
           ]),
           h.input({
@@ -113,9 +112,8 @@ class AcceptInvite extends React.Component {
           h.p([
             h.strong(".num", "2 "),
             h.span([
-              "An ",
               h.strong("Encryption Token"),
-              ", which you receive directly from the person who invited you:"
+              ", received directly from the person who invited you"
             ])
 
           ]),

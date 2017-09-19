@@ -21,8 +21,8 @@ function createWindow () {
   win = new BrowserWindow({
     width: Math.min(1400, Math.floor(screenW)),
     height: Math.min(800, Math.floor(screenH)),
-    minWidth: 1080,
-    minHeight: 540,
+    minWidth: 1180,
+    minHeight: 640,
     center: true,
     backgroundColor: "#333333",
     title: "EnvKey",
