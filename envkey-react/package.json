@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "axios": "^0.15.3",
+    "axios-retry": "^3.0.1",
     "babel-plugin-transform-function-bind": "^6.8.0",
     "babel-polyfill": "^6.16.0",
     "babel-preset-stage-2": "^6.18.0",
