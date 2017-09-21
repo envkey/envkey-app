@@ -47,11 +47,13 @@ const AccountMenu = ({
     },
 
     renderChangeOrgRow = ()=> {
-      if (numOrgs > 1){
-        return renderMenuRow("Change Organization",
-                             "/select_org",
-                             "refresh-black.png")
-      }
+      // Currently causes a decryption bug -- removing from menu for now
+
+      // if (numOrgs > 1){
+      //   return renderMenuRow("Change Organization",
+      //                        "/select_org",
+      //                        "refresh-black.png")
+      // }
     },
 
     renderMenuBody = ()=>{
