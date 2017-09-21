@@ -26,9 +26,11 @@ import {
 } from 'selectors'
 import VerifyEmailCodeForm from 'components/forms/auth/verify_email_code_form'
 import PasswordInput from 'components/shared/password_input'
+import PasswordCopy from 'components/shared/password_copy'
 import Spinner from 'components/shared/spinner'
 import {imagePath} from 'lib/ui'
 import {OnboardOverlay} from 'components/onboard'
+
 
 const
   shouldShowRegisterForm = props =>{
@@ -54,7 +56,10 @@ class LoginRegister extends React.Component {
       email: props.verifyingEmail || "",
       emailVerificationCode: props.emailVerificationCode || "",
       orgName: "",
-      password: ""
+      password: "",
+      passwordValid: false,
+      passwordScore: null,
+      passwordFeedback: null
     }
   }
 
@@ -97,6 +102,10 @@ class LoginRegister extends React.Component {
 
   _onReset(){
     this.props.onReset()
+  }
+
+  _createOrgEnabled(){
+    return this.state.firstName && this.state.lastName && this.state.orgName && this.state.passwordValid
   }
 
   render(){
@@ -200,7 +209,7 @@ class LoginRegister extends React.Component {
       this._renderRegisterError(),
 
       h.form({onSubmit: ::this._onRegister}, [
-        h.fieldset([
+        h.fieldset(".org-name", [
           h.input({
             ref: "orgName",
             placeholder: "Organization name",
@@ -210,7 +219,7 @@ class LoginRegister extends React.Component {
           })
         ]),
 
-        h.fieldset([
+        h.fieldset(".first-name",[
           h.input({
             placeholder: "Your first name",
             required: true,
@@ -219,7 +228,7 @@ class LoginRegister extends React.Component {
           })
         ]),
 
-        h.fieldset([
+        h.fieldset(".last-name",[
           h.input({
             placeholder: "Your last name",
             required: true,
@@ -228,18 +237,29 @@ class LoginRegister extends React.Component {
           })
         ]),
 
-        h.fieldset([
+        h.fieldset(".passphrase",[
           h(PasswordInput, {
             value: this.state.password,
-            onChange: (e)=> this.setState({password: e.target.value})
+            validateStrength: true,
+            valid: this.state.passwordValid,
+            score: this.state.passwordScore,
+            feedback: this.state.passwordFeedback,
+            strengthUserInputs: [this.state.orgName, this.state.firstName, this.state.lastName, this.state.email],
+            onChange: (val, valid, score, feedback) => this.setState({
+              password: val,
+              passwordValid: valid,
+              passwordScore: score,
+              passwordFeedback: feedback
+            })
           })
         ]),
 
         h.fieldset([
           this._renderRegisterSubmit()
-        ])
+        ]),
+      ]),
 
-      ])
+      h(PasswordCopy)
     ])
   }
 
@@ -247,7 +267,7 @@ class LoginRegister extends React.Component {
     if (this.props.isAuthenticating || this.props.currentUser){
       return h(Spinner)
     } else {
-      return h.button("Create Organization")
+      return h.button({disabled: !this._createOrgEnabled()}, "Create Organization")
     }
   }
 

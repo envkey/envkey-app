@@ -1,8 +1,16 @@
 .onboard-auth-form
+  form
+    max-width: 350px
+    margin: 0 auto
+    position: relative
+
   form button
     font-size: 16px
     height: 40px
     margin-top: 10px
+
+    &[disabled]
+      opacity: 0.5
 
   form input
     font-size: 14px
@@ -13,6 +21,24 @@
     svg
       width: 40px
       height: 40px
+
+  form
+    .password-input
+      position: relative
+
+    .password-strength
+      +popover($update-flash-bg, $update-flash-bg, 10px, left)
+      position: absolute
+      left: calc(100% + 30px)
+      min-width: 240px
+      display: inline-block
+      text-align: left
+      color: #fff
+      box-sizing: border-box
+      background: $update-flash-bg
+      line-height: 140%
+      padding: 15px 30px
+      border-radius: 2px
 
   .back-link
     +clearfix
@@ -39,3 +65,13 @@
     &:hover
       background: rgba(#000, 0.2)
       color: #fff
+
+  .passphrase-copy
+    font-size: 14.5px
+    line-height: 150%
+    color: rgba(#fff, 0.7)
+    text-align: center
+
+    strong
+      font-weight: 400
+      color: rgba(#fff, 0.85)

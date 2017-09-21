@@ -1,18 +1,36 @@
-=popover($border-color, $fill-color)
+=popover($border-color, $fill-color, $size, $pos: top)
+  +vertical-center
+  +filter-drop-shadow(0px, 0px, 2px, rgba(#000, 0.2))
+  border: 1px solid rgba(#000, 0.1)
+  position: relative
   &::before, &::after
     content: ""
     position: absolute
     width: 0
     height: 0
-    border-width: 20px
+    border-width: $size
     border-style: solid
-    left: 50%
+    top: calc(50% - 10px)
     transform: translateX(-50%)
 
-  &::before
-    border-color: transparent transparent $border-color transparent
-    top: -40px
+  @if $pos == top
+    left: 50%
+    &::before
+      border-color: transparent transparent $border-color transparent
+      top: ($size * -2)
 
-  &::after
-    border-color: transparent transparent $fill-color transparent
-    top: -39px
+    &::after
+      border-color: transparent transparent $fill-color transparent
+      top: ($size * -2 - 1px)
+
+
+  @else if $pos == left
+    left: 86%
+    &::before
+      border-color: transparent $border-color transparent transparent
+      left: ($size * -1.1 + 1px)
+
+
+    &::after
+      border-color: transparent $fill-color transparent transparent
+      left: ($size * -1.1)

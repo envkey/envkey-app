@@ -31,8 +31,9 @@ export default class UserForm extends React.Component {
   }
 
   _userFields(){
-    const fields = ["firstName", "lastName", "orgRole"]
-    if (!this.props.readOnlyEmail){
+    const fields = ["firstName", "lastName"]
+    if (!this.props.isAccountForm){
+      fields.push("orgRole")
       fields.push("email")
     }
     return fields
@@ -115,7 +116,7 @@ export default class UserForm extends React.Component {
       h.input('.email', {
         type: "email",
         placeholder: "Email",
-        disabled: this.props.readOnlyEmail,
+        disabled: this.props.isAccountForm,
         required: true,
         value: this.state.email,
         onChange: e => this.setState({email: e.target.value})

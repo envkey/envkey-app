@@ -18,6 +18,7 @@ import {
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
+import PasswordCopy from 'components/shared/password_copy'
 
 class AcceptInvite extends React.Component {
 
@@ -26,7 +27,10 @@ class AcceptInvite extends React.Component {
     this.state = {
       emailVerificationCode: "",
       encryptionCode: "",
-      password: ""
+      password: "",
+      passwordValid: false,
+      passwordScore: null,
+      passwordFeedback: null
     }
   }
 
@@ -149,7 +153,7 @@ class AcceptInvite extends React.Component {
     }
   }
 
-  _passwordCopy(){
+  _passwordPrompt(){
     if (this._isNewUser()){
       return "Invite verified. To sign in, set a strong master encryption passphrase."
     } else {
@@ -158,17 +162,31 @@ class AcceptInvite extends React.Component {
   }
 
   _renderPasswordForm(){
-    return h.form(".password-form", {
-      onSubmit: ::this._onSubmitPassword,
-    }, [
-      h.p(".copy", this._passwordCopy()),
-      h.fieldset([
-        h(PasswordInput, {
-          value: this.state.password,
-          onChange: e => this.setState({password: e.target.value})
-        })
+    return h.div([
+      h.form(".password-form", {
+        onSubmit: ::this._onSubmitPassword,
+      }, [
+        h.p(".copy", this._passwordPrompt()),
+        h.fieldset([
+          h(PasswordInput, {
+            value: this.state.password,
+            validateStrength: this._isNewUser(),
+            valid: this.state.passwordValid,
+            score: this.state.passwordScore,
+            feedback: this.state.passwordFeedback,
+            strengthUserInputs: R.values(R.pick(["email", "firstName", "lastName"], this.props.inviteParams.invitee)),
+            onChange: (val, valid, score, feedback) => this.setState({
+              password: val,
+              passwordValid: valid,
+              passwordScore: score,
+              passwordFeedback: feedback
+            })
+          })
+        ]),
+        h.fieldset([this._renderSubmitPassword()]),
       ]),
-      h.fieldset([this._renderSubmitPassword()])
+
+      (this._isNewUser() ? h(PasswordCopy) : null)
     ])
   }
 
@@ -176,7 +194,7 @@ class AcceptInvite extends React.Component {
     if(this.props.isAuthenticating || this.props.isInvitee){
       return h(Spinner)
     } else {
-      return <button>Sign In</button>
+      return <button disabled={!this.state.passwordValid}>Sign In</button>
     }
   }
 }
