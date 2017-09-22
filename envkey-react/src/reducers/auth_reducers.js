@@ -62,12 +62,10 @@ export const
   },
 
   disconnected = (state = false, action)=> {
+    // don't flip back to false on reconnect, just do a hard refresh
     if (action.type == DISCONNECTED){
       return true
-    } else if (action.type == RECONNECTED){
-      return false
     }
-
     return state
   },
 

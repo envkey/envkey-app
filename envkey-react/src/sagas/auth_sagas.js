@@ -51,8 +51,7 @@ import {
   socketUnsubscribeAll,
   addTrustedPubkey,
   decryptPrivkey,
-  verifyOrgPubkeys,
-  fetchCurrentUserUpdates
+  verifyOrgPubkeys
 } from "actions"
 import {
   getAuth,
@@ -127,7 +126,8 @@ function *onAppLoaded(){
 }
 
 function *onReconnected(){
-  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  // do a hard refresh here to ensure we're updated before taking any action
+  window.location.reload()
 }
 
 function *onVerifyEmailFailed({payload, meta: {status, message}}){
