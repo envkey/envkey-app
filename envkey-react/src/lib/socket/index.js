@@ -39,7 +39,8 @@ const
         headers: R.pick(["access-token", "uid", "client"], auth),
         params: { org_id: orgSlug }
       },
-      encrypted: true
+      encrypted: true,
+      disableStats: true
     })
   },
 
@@ -71,6 +72,11 @@ export const
 
   ensureSocket = (auth, orgSlug)=>{
     socket = pusherClient(auth, orgSlug)
+
+    socket.connection.bind('disconnected', ()=>{
+      socket = null
+      ensureSocket(auth, orgSlug)
+    })
   },
 
   unsubscribeOrgChannels = ()=>{
