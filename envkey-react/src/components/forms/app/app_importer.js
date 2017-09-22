@@ -51,6 +51,7 @@ export default class AppImporter extends React.Component {
   _renderSelectedTab(){
     return h.div(".selected-tab", [
       h.textarea({
+        disabled: this.props.isSubmitting,
         value: this.state.textByEnvironment[this.state.tab] || "",
         placeholder: `# Paste your app's ${this.state.tab} variables here\n\nSOME_API_KEY=${secureRandomAlphanumeric(40)}\nEMPTY_STRING=\n\n# A comment - ignored by parser\n\nWITH_QUOTES='some ${this.state.tab} value'`,
         onChange: e => {

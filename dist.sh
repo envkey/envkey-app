@@ -5,6 +5,7 @@ echo "Building middleman assets for production"
 echo "Clearing envkey-electron/assets and envkey-electron/dist"
 rm -rf envkey-electron/assets/*
 rm -rf envkey-electron/dist/*
+rm envkey-assets/source/javascripts/*
 
 echo "Copying assets to envkey-electron"
 cp -r envkey-assets/build/fonts envkey-assets/build/images envkey-assets/build/stylesheets envkey-electron/assets/
@@ -22,3 +23,4 @@ export WIN_CSC_KEY_PASSWORD=$(cat .wincertpw)
 echo "Clearing middleman build and electron assets"
 rm -rf envkey-assets/build/*
 rm -rf envkey-electron/assets/*
+rm envkey-assets/source/javascripts/*

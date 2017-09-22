@@ -48,7 +48,9 @@ export default class AppForm extends React.Component {
             onSubmit={this._onSubmit.bind(this)}>
 
         <fieldset>
-          <input className="app-name"
+          <input type="text"
+                 className="app-name"
+                 disabled={this.props.isSubmitting}
                  ref="name"
                  placeholder="App Name"
                  required />
@@ -67,10 +69,10 @@ export default class AppForm extends React.Component {
     return <fieldset className="radio-opts import-opts">
       <RadioGroup selectedValue={this.state.importOption} onChange={::this._onImportOptionChange}>
         <label className={this.state.importOption == "noImport" ? "selected" : ""}>
-          <Radio value="noImport" /> <strong>Start from scratch</strong>
+          <Radio disabled={this.props.isSubmitting} value="noImport" /> <strong>Start from scratch</strong>
         </label>
         <label className={this.state.importOption == "import" ? "selected" : ""}>
-          <Radio value="import" /><strong>Import config</strong>
+          <Radio disabled={this.props.isSubmitting} value="import" /><strong>Import config</strong>
         </label>
       </RadioGroup>
     </fieldset>

@@ -34,7 +34,9 @@ export default class LocalKeyForm extends React.Component {
             onSubmit={this._onSubmit.bind(this)}>
 
         <fieldset>
-          <input className="local-key-name"
+          <input type="text"
+                 className="local-key-name"
+                 disabled={this.props.isSubmitting}
                  ref="name"
                  placeholder="Local Dev Key Name"
                  required />

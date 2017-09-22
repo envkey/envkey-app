@@ -34,7 +34,9 @@ export default class ServerForm extends React.Component {
             onSubmit={this._onSubmit.bind(this)}>
 
         <fieldset>
-          <input className="server-name"
+          <input type="text"
+                 disabled={this.props.isSubmitting}
+                 className="server-name"
                  ref="name"
                  placeholder="Server Name"
                  required />

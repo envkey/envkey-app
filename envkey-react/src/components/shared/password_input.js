@@ -36,6 +36,7 @@ export default class PasswordInput extends React.Component {
 
         <input  value={this.props.value}
                 onChange={::this._onChange}
+                disabled={this.props.disabled}
                 ref="input"
                 type="password"
                 placeholder="Your master encryption passphrase (10-256 characters)"
@@ -47,7 +48,7 @@ export default class PasswordInput extends React.Component {
   }
 
   _renderStrength(){
-    if (this.props.validateStrength && this.props.value.length >= 10){
+    if (!this.props.disabled && this.props.validateStrength && this.props.value.length >= 10){
       const {score, feedback: {suggestions, warning}} = this.props
 
       const type = ["Very weak", "Weak", "Mediocre", "Pretty strong", "Strong"][score]

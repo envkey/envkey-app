@@ -104,6 +104,7 @@ class AcceptInvite extends React.Component {
           ]),
           h.input({
             type: "password",
+            disabled: this.props.isLoadingInvite,
             ref: "inviteToken",
             placeholder: "Invite Token",
             required: true,
@@ -124,6 +125,7 @@ class AcceptInvite extends React.Component {
           h.input({
             type: "password",
             placeholder: "Encryption Token",
+            disabled: this.props.isLoadingInvite,
             value: this.state.encryptionCode,
             required: true,
             onChange: e => this.setState({encryptionCode: e.target.value})
@@ -169,6 +171,7 @@ class AcceptInvite extends React.Component {
         h.p(".copy", this._passwordPrompt()),
         h.fieldset([
           h(PasswordInput, {
+            disabled: this.props.isAuthenticating || this.props.isInvitee,
             value: this.state.password,
             validateStrength: this._isNewUser(),
             valid: this.state.passwordValid,

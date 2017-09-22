@@ -71,11 +71,12 @@ import {
   getInviteesPendingAcceptance,
   getIsDemo,
   getUser,
-  getCurrentUser
+  getCurrentUser,
+  getLastFetchAt,
+  getAppLoaded
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
-import {startConnectionWatcher, startReactivatedWatcher} from 'lib/status'
 
 const
   onFetchCurrentUserRequest = apiSaga({
@@ -122,26 +123,48 @@ const
     urlFn: (action)=> "/auth.json"
   })
 
-function *onAppLoaded(){
-  document.getElementById("preloader-overlay").className += " hide"
+function *loginSelectOrg(){
+  var overlay = document.getElementById("preloader-overlay")
+  if(!overlay.className.includes("hide")){
+    overlay.className += " hide"
+  }
   document.body.className = document.body.className.replace("no-scroll","")
-  startConnectionWatcher()
-  startReactivatedWatcher()
+                                                   .replace("preloader-authenticate","")
+
+
+  yield put(push("/select_org"))
+}
+
+function *onAppLoaded(){
+  var overlay = document.getElementById("preloader-overlay")
+  if(!overlay.className.includes("hide")){
+    overlay.className += " hide"
+  }
+  document.body.className = document.body.className.replace("no-scroll","")
 }
 
 function *onReconnected(){
   // do a hard refresh here to ensure we're updated before taking any action
+
   window.location.reload()
 }
 
 function *onReactivatedBrief(){
-  // get udpdates in background since we were supsended less than a minute
-  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  // assuming we've already done a fetch, get updates in background since we were supsended less than a minute
+  const lastFetchAt = yield select(getLastFetchAt)
+
+  if (lastFetchAt){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  }
 }
 
 function *onReactivatedLong(){
-  // since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
-  window.location.reload()
+  // assuming we've already done a fetch, since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
+  const lastFetchAt = yield select(getLastFetchAt)
+
+  if (lastFetchAt){
+    window.location.reload()
+  }
 }
 
 function *onVerifyEmailFailed({payload, meta: {status, message}}){
@@ -151,7 +174,7 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
 }
 
 function *onLogin({payload}){
-  document.body.className += " preloader-authenticate"
+  if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
   document.getElementById("preloader-overlay").className = "full-overlay"
   yield call(delay, 50)
   yield put({
@@ -170,16 +193,18 @@ function* onLoginSuccess({meta: {password, orgSlug}}){
     yield put(selectOrg(orgSlug))
   } else {
     const orgs = yield select(getOrgs)
+
     yield (
       orgs.length == 1 && orgs[0].isActive ?
         put(selectOrg(orgs[0].slug)) :
-        put(push("/select_org"))
+        call(loginSelectOrg)
     )
   }
 }
 
 function *onRegister({payload}){
-  document.body.className += " preloader-register"
+  // if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
+  // document.getElementById("preloader-overlay").className = "full-overlay"
 
   const isDemo = yield select(getIsDemo)
 
@@ -204,6 +229,11 @@ function *onRegister({payload}){
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
+  // var overlay = document.getElementById("preloader-overlay")
+  // if(!overlay.className.includes("hide")){
+  //   overlay.className += " hide"
+  // }
+
   const currentOrg = yield select(getCurrentOrg),
         currentUser = yield select(getCurrentUser),
         [ , decryptPrivkeyResult] = yield [

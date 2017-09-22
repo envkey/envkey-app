@@ -15,7 +15,7 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder -mwl --x64 --ia32",
     "distmac": "electron-builder -m",
-    "publish": "publish darwin win32 linux",
+    "publish": "publish darwin-x64 win32-x64 win32-ia32 linux-x64 linux-ia32",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
@@ -40,9 +40,10 @@
     "electron-simple-updater": "^1.2.1"
   },
   "devDependencies": {
-    "electron-builder": "^19.27.7",
-    "electron-builder-squirrel-windows": "^19.28.3",
-    "electron-simple-publisher": "^0.4.7",
+    "ajv": "^5.0.0",
+    "electron-builder": "^19.29.0",
+    "electron-builder-squirrel-windows": "^19.29.0",
+    "electron-simple-publisher": "envkey/electron-simple-publisher",
     "envkey": "^0.3.0",
     "github-remove-all-releases": "^1.0.1"
   }

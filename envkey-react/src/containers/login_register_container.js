@@ -31,7 +31,6 @@ import Spinner from 'components/shared/spinner'
 import {imagePath} from 'lib/ui'
 import {OnboardOverlay} from 'components/onboard'
 
-
 const
   shouldShowRegisterForm = props =>{
     return props.emailVerificationCode || props.currentUser
@@ -149,8 +148,9 @@ class LoginRegister extends React.Component {
       h.form({onSubmit: ::this._onVerifyEmail}, [
         h.fieldset([
           h.input({
-            ref: "email",
             type: "email",
+            disabled: this.props.isVerifyingEmail,
+            ref: "email",
             placeholder: "Your email",
             required: true,
             value: this.state.email,
@@ -211,6 +211,8 @@ class LoginRegister extends React.Component {
       h.form({onSubmit: ::this._onRegister}, [
         h.fieldset(".org-name", [
           h.input({
+            type: "text",
+            disabled: this.props.isAuthenticating || this.props.currentUser,
             ref: "orgName",
             placeholder: "Organization name",
             required: true,
@@ -221,6 +223,8 @@ class LoginRegister extends React.Component {
 
         h.fieldset(".first-name",[
           h.input({
+            type: "text",
+            disabled: this.props.isAuthenticating || this.props.currentUser,
             placeholder: "Your first name",
             required: true,
             value: this.state.firstName,
@@ -230,6 +234,8 @@ class LoginRegister extends React.Component {
 
         h.fieldset(".last-name",[
           h.input({
+            type: "text",
+            disabled: this.props.isAuthenticating || this.props.currentUser,
             placeholder: "Your last name",
             required: true,
             value: this.state.lastName,
@@ -239,6 +245,8 @@ class LoginRegister extends React.Component {
 
         h.fieldset(".passphrase",[
           h(PasswordInput, {
+            type: "text",
+            disabled: this.props.isAuthenticating || this.props.currentUser,
             value: this.state.password,
             validateStrength: true,
             valid: this.state.passwordValid,

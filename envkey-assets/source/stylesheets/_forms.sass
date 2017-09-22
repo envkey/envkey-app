@@ -52,6 +52,15 @@ form
     input
       width: 100%
 
+  input[type=text], input[type=password], input[type=email], textarea
+    &[disabled]
+      cursor: not-allowed
+      outline: none
+      background: hsl(0,0,96)
+
+  radio[disabled], checkbox[disabled], select[disabled]
+    cursor: not-allowed
+
   button, input[type=submit]
     width: 100%
 
