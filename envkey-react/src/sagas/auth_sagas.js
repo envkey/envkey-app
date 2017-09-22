@@ -51,7 +51,8 @@ import {
   socketUnsubscribeAll,
   addTrustedPubkey,
   decryptPrivkey,
-  verifyOrgPubkeys
+  verifyOrgPubkeys,
+  fetchCur
 } from "actions"
 import {
   getAuth,
@@ -72,7 +73,7 @@ import {
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
-import {startConnectionWatcher} from 'lib/connection'
+import {startConnectionWatcher, startReactivatedWatcher} from 'lib/status'
 
 const
   onFetchCurrentUserRequest = apiSaga({
@@ -123,10 +124,21 @@ function *onAppLoaded(){
   document.getElementById("preloader-overlay").className += " hide"
   document.body.className = document.body.className.replace("no-scroll","")
   startConnectionWatcher()
+  startReactivatedWatcher()
 }
 
 function *onReconnected(){
   // do a hard refresh here to ensure we're updated before taking any action
+  window.location.reload()
+}
+
+function *onReactivatedBrief(){
+  // get udpdates in background since we were supsended less than a minute
+  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+}
+
+function *onReactivatedLong(){
+  // since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
   window.location.reload()
 }
 
@@ -250,6 +262,8 @@ export default function* authSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
     takeLatest(RECONNECTED, onReconnected),
+    takeLatest(REACTIVATED_BRIEF, onReactivatedBrief),
+    takeLatest(REACTIVATED_LONG, onReactivatedLong),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
