@@ -19,8 +19,8 @@ export default function ({status, timestamp}){
     ])
   } else if (status == "confirmed"){
     return h.span(classStr, [
-      "Access ",
-      h.em(".granted", "granted "),
+      "Invite ",
+      h.em(".granted", "accepted "),
       ts
     ])
   } else if (status == "expired"){

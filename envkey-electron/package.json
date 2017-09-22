@@ -1,6 +1,6 @@
 {
   "name": "EnvKey",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "EnvKey's cross-platform native app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
   "homepage": "https://www.envkey.com",
@@ -13,7 +13,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder -mwl",
+    "dist": "electron-builder -mwl --x64 --ia32",
     "distmac": "electron-builder -m",
     "publish": "publish darwin win32 linux",
     "postinstall": "electron-builder install-app-deps"
