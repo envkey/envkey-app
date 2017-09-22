@@ -5,13 +5,13 @@
     "version": "0.9.5"
   },
   "linux-x64-prod": {
-    "update": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.91/EnvKey-0.9.91-x86_64.AppImage",
-    "install": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.91/EnvKey-0.9.91-x86_64.AppImage",
-    "version": "0.9.91"
+    "update": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.9/EnvKey-0.9.9-x86_64.AppImage",
+    "install": "https://github.com/envkey/envkey-ui/releases/download/linux-x64-prod-v0.9.9/EnvKey-0.9.9-x86_64.AppImage",
+    "version": "0.9.9"
   },
   "linux-ia32-prod": {
-    "update": "https://github.com/envkey/envkey-ui/releases/download/linux-ia32-prod-v0.9.9/EnvKey-0.9.9-i386.AppImage",
-    "install": "https://github.com/envkey/envkey-ui/releases/download/linux-ia32-prod-v0.9.9/EnvKey-0.9.9-i386.AppImage",
-    "version": "0.9.9"
+    "update": "https://github.com/envkey/envkey-ui/releases/download/linux-ia32-prod-v0.9.91/EnvKey-0.9.91-i386.AppImage",
+    "install": "https://github.com/envkey/envkey-ui/releases/download/linux-ia32-prod-v0.9.91/EnvKey-0.9.91-i386.AppImage",
+    "version": "0.9.91"
   }
 }
