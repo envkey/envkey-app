@@ -6,7 +6,7 @@ const
   createMenu = require('./main-process/create_menu'),
   logger = require("electron-log"),
   updater = require('electron-simple-updater'),
-  {app, BrowserWindow, ipcMain} = electron
+  {app, BrowserWindow} = electron
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -108,22 +108,9 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  if (win) {
+
+  } else {
     createWindow()
   }
-})
-
-ipcMain.on("openStripeForm", (e, json)=>{
-  if(stripeWin)stripeWin.close()
-  createStripeWindow(json)
-})
-
-ipcMain.on("stripeToken", (e, msg)=>{
-  win.webContents.send("stripeToken", msg)
-
-})
-
-ipcMain.on("stripeFormClosed", (e, msg)=>{
-  if(stripeWin)stripeWin.close()
-  if(win)win.webContents.send("stripeFormClosed", msg)
 })
