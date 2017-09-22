@@ -12,6 +12,7 @@ import {
 } from './helpers'
 import {
   APP_LOADED,
+  RECONNECTED,
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
@@ -50,7 +51,8 @@ import {
   socketUnsubscribeAll,
   addTrustedPubkey,
   decryptPrivkey,
-  verifyOrgPubkeys
+  verifyOrgPubkeys,
+  fetchCurrentUserUpdates
 } from "actions"
 import {
   getAuth,
@@ -71,6 +73,7 @@ import {
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
+import {startConnectionWatcher} from 'lib/connection'
 
 const
   onFetchCurrentUserRequest = apiSaga({
@@ -120,6 +123,11 @@ const
 function *onAppLoaded(){
   document.getElementById("preloader-overlay").className += " hide"
   document.body.className = document.body.className.replace("no-scroll","")
+  startConnectionWatcher()
+}
+
+function *onReconnected(){
+  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
 }
 
 function *onVerifyEmailFailed({payload, meta: {status, message}}){
@@ -241,6 +249,7 @@ function *onLogout(action){
 export default function* authSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
+    takeLatest(RECONNECTED, onReconnected),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),

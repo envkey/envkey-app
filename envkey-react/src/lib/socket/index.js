@@ -68,6 +68,8 @@ const
     }
   }
 
+let reconnectInterval;
+
 export const
 
   ensureSocket = (auth, orgSlug)=>{
@@ -77,6 +79,14 @@ export const
       socket = null
       ensureSocket(auth, orgSlug)
     })
+
+    if(reconnectInterval)clearInterval(reconnectInterval)
+    reconnectInterval = setInterval(()=>{
+      if (!["connecting", "connected"].includes(socket.connection.state)){
+        socket = null
+        ensureSocket(auth, orgSlug)
+      }
+    }, 5000)
   },
 
   unsubscribeOrgChannels = ()=>{

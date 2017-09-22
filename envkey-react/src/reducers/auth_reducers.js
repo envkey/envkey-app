@@ -1,6 +1,9 @@
 import {
   APP_LOADED,
 
+  DISCONNECTED,
+  RECONNECTED,
+
   VERIFY_EMAIL_REQUEST,
   VERIFY_EMAIL_SUCCESS,
   VERIFY_EMAIL_FAILED,
@@ -56,6 +59,16 @@ export const
     } else {
       return state
     }
+  },
+
+  disconnected = (state = false, action)=> {
+    if (action.type == DISCONNECTED){
+      return true
+    } else if (action.type == RECONNECTED){
+      return false
+    }
+
+    return state
   },
 
   verifyingEmail = (state = null, action)=>{

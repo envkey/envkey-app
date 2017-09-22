@@ -5,6 +5,7 @@ import Sidebar from 'components/sidebar'
 import Header from 'components/shared/header'
 import {
   getAppLoaded,
+  getDisconnected,
   getApps,
   getOrgs,
   getUserGroupsByRole,
@@ -19,6 +20,7 @@ import {
 import {appLoaded, fetchCurrentUser, selectOrg, logout} from 'actions'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
+import Spinner from "components/shared/spinner"
 
 const appStateLoaded = (props)=>{
   return !props.isLoadingAppState &&
@@ -65,6 +67,18 @@ class Main extends React.Component {
   }
 
   render(){
+    if (this.props.disconnected){
+      return <div className="full-overlay disconnected-overlay">
+
+        <div className="connection-info">
+          <p>EnvKey can't seem to connect to the internet.</p>
+          <p>Attempting to reconnect...</p>
+          <Spinner />
+        </div>
+
+      </div>
+    }
+
     if (appStateLoaded(this.props)){
 
       return <div className={this._classNames().join(" ")}>
@@ -84,6 +98,7 @@ class Main extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     ...R.pick(["route", "params"], ownProps),
+    disconnected: getDisconnected(state),
     currentOrgSlug: getCurrentOrgSlug(state),
     currentUser: getCurrentUser(state),
     currentUserErr: getCurrentUserErr(state),

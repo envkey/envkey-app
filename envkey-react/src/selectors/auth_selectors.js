@@ -20,6 +20,8 @@ import {camelize} from 'xcase'
 export const
   getAppLoaded = db.path("appLoaded"),
 
+  getDisconnected = db.path("disconnected"),
+
   getVerifyingEmail = db.path("verifyingEmail"),
 
   getEmailVerificationCode = db.path("emailVerificationCode"),
