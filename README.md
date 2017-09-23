@@ -18,7 +18,7 @@ Read the [integration quickstart](https://docs.envkey.com/integration-quickstart
 
 Read the [security and cryptography overview](https://security.envkey.com).
 
-## Need help? Have ideas or feedback?
+## Need help? Have questions, feedback, or ideas?
 
 Post an [issue](https://github.com/envkey/envkey-app/issues) or email us: [support@envkey.com](mailto:support@envkey.com).
 
