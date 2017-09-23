@@ -4,7 +4,7 @@ This is [EnvKey](https://www.envkey.com)'s cross-platform native application. It
 
 EnvKey is an end-to-end encrypted secrets and configuration management tool. It keeps your configuration securely and automatically in sync for all your developers and servers.
 
-The EnvKey App enforces a zero-knowledge protocol. The server never sees configuration in plain text, and never sees encryption passphrases. Even if EnvKey's server were to turn malicious, this client would protect you from divulging sensitive information.
+The EnvKey App enforces a zero-knowledge protocol. The server never sees configuration in plain text, and never sees encryption passphrases.
 
 ## Installation
 
