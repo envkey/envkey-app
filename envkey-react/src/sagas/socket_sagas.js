@@ -37,7 +37,6 @@ import {
   getAnonSocketEnvsStatus,
   getSelectedObjectId
 } from 'selectors'
-import {alertBox} from 'lib/ui/alert_box'
 import {
   UPDATE_ENVS,
   UPDATE_ENVS_STATUS,

@@ -12,10 +12,10 @@ cp -r envkey-assets/build/fonts envkey-assets/build/images envkey-assets/build/s
 cp envkey-assets/build/javascripts/* envkey-assets/build/*.js envkey-electron/assets/
 
 # echo "Building dmg only without signing"
-export CSC_IDENTITY_AUTO_DISCOVERY=false
+# export CSC_IDENTITY_AUTO_DISCOVERY=false
 (cd envkey-electron && npm run distmac)
 
 echo "Clearing middleman build and electron assets"
-# rm -rf envkey-assets/build/*
-# rm -rf envkey-electron/assets/*
-# rm envkey-assets/source/javascripts/*
+rm -rf envkey-assets/build/*
+rm -rf envkey-electron/assets/*
+rm envkey-assets/source/javascripts/*

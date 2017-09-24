@@ -21,11 +21,11 @@ const devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV =
         sagaMiddleware
       ]
 
-if (devMode) {
+// if (devMode) {
   const createLogger = require("redux-logger"),
         logger = createLogger()
   middlewares.push(logger)
-}
+// }
 
 const [privkeyStorageAdapter, privkeyStorage] = isElectron() ?
         [localStorageAdapter, window.localStorage] :

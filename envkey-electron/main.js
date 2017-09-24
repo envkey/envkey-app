@@ -13,7 +13,7 @@ const
 let win, stripeWin
 
 // Auto-update
-updater.init({logger})
+updater.init({logger, autoDownload: false})
 
 function createWindow () {
   // Create the browser window.
@@ -36,10 +36,10 @@ function createWindow () {
     slashes: true
   }))
 
-  if (isDev){
+  // if (isDev){
     // Open the DevTools.
     win.webContents.openDevTools()
-  }
+  // }
 
   // Emitted when the window is closed.
   win.on('closed', () => {
