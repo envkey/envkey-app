@@ -3,6 +3,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from 'components/shared/small_loader'
 import UserDetails from './user_details'
 import DeleteField from '../shared/delete_field'
+import {UpdatePasswordFormContainer} from 'containers'
 
 export default function({
   currentUser,
@@ -12,6 +13,8 @@ export default function({
 
   return h.div(".user-settings.my-account-settings", [
     h(UserDetails, currentUser),
+
+    h(UpdatePasswordFormContainer),
 
     h.div(".danger-zone", [
       h.h3("Danger Zone"),

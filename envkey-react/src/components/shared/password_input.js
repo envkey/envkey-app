@@ -25,9 +25,9 @@ export default class PasswordInput extends React.Component {
       return
     }
 
-    const {score, feedback} = zxcvbn(val, [...this.props.strengthUserInputs, "envkey", "passphrase"])
+    const {score, feedback} = zxcvbn(val.substr(0,25), [...this.props.strengthUserInputs, "envkey", "passphrase"])
 
-    if(this.props.onChange)this.props.onChange(val, score > 2, score, feedback)
+    if(this.props.onChange)this.props.onChange(val, score > 3, score, feedback)
   }
 
 
@@ -39,7 +39,7 @@ export default class PasswordInput extends React.Component {
                 disabled={this.props.disabled}
                 ref="input"
                 type="password"
-                placeholder="Your master encryption passphrase (10-256 characters)"
+                placeholder={this.props.placeholder || "Your master encryption passphrase (10-256 characters)"}
                 pattern=".{10,256}"
                 required />
 
@@ -51,9 +51,9 @@ export default class PasswordInput extends React.Component {
     if (!this.props.disabled && this.props.validateStrength && this.props.value.length >= 10){
       const {score, feedback: {suggestions, warning}} = this.props
 
-      const type = ["Very weak", "Weak", "Mediocre", "Pretty strong", "Strong"][score]
+      const type = ["horrendously weak", "fairly weak", "weak", "mediocre", "strong"][score]
 
-      let msg = type + " passphrase."
+      let msg = "Seems like a " + type + " passphrase."
 
       if (warning){
         msg += " " + warning + "."
