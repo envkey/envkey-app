@@ -4,9 +4,9 @@
     "install": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v0.9.0/EnvKey-0.9.0-i386.AppImage",
     "version": "0.9.0"
   },
-  "darwin-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v0.9.0/release.json",
-    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v0.9.0/EnvKey-0.9.0.dmg",
+  "win32-x64-prod": {
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v0.9.0",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v0.9.0/EnvKey.Setup.0.9.0.exe",
     "version": "0.9.0"
   }
 }
