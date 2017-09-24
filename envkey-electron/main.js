@@ -36,10 +36,10 @@ function createWindow () {
     slashes: true
   }))
 
-  if (isDev){
+  // if (isDev){
     // Open the DevTools.
     win.webContents.openDevTools()
-  }
+  // }
 
   // Emitted when the window is closed.
   win.on('closed', () => {

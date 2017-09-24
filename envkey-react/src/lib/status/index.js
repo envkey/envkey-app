@@ -1,4 +1,3 @@
-import isOnline from 'is-online'
 import {store} from 'init_redux'
 import {DISCONNECTED, RECONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
 
@@ -7,6 +6,15 @@ import {DISCONNECTED, RECONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'ac
       lastActive
 
   const
+    isOnline = ()=>{
+      return fetch("https://ipv4.icanhazip.com/").then(response => {
+        return response.ok
+      }).catch(error => {
+        return false
+      })
+
+    },
+
     checkConnection = ()=> {
       isCheckingConnection = true
       const disconnected = store.getState().disconnected

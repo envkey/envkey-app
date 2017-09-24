@@ -1,6 +1,6 @@
 {
   "name": "envkey-react",
-  "version": "0.9.91",
+  "version": "0.9.92",
   "description": "React/redux layer for EnvKey ui.",
   "author": "Dane Schneider",
   "bin": {},
@@ -30,7 +30,6 @@
     "es6-promise": "^4.0.5",
     "hyperscript-helpers": "^3.0.2",
     "is-electron": "^2.1.0",
-    "is-online": "^7.0.0",
     "js-base64": "^2.1.9",
     "lodash": "^4.17.4",
     "moment": "^2.17.1",
