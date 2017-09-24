@@ -14,9 +14,9 @@
     "install": "https://github.com/envkey/envkey-ui/releases/download/linux-ia32-prod-v0.9.91/EnvKey-0.9.91-i386.AppImage",
     "version": "0.9.91"
   },
-  "win32-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v0.9.92",
-    "install": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v0.9.92/EnvKey.Setup.0.9.92.exe",
+  "win32-ia32-prod": {
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v0.9.92",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v0.9.92/EnvKey.Setup.0.9.92.exe",
     "version": "0.9.92"
   }
 }
