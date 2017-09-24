@@ -186,6 +186,7 @@ class LoginRegister extends React.Component {
       codeName = this.props.emailVerificationType == "sign_in" ? "Sign In" : "Sign Up",
       copy = [
         "Ok, we just sent you an email. When you get it, copy the ",
+        h.br(),
         h.strong(`${codeName} Token`),
         " into the input below."
       ]

@@ -2,7 +2,7 @@
   user-select: none
   width: $app-tab-width
   height: 100%
-  background: hsl(0,0,96)
+  background: hsl(0,0,95)
   // background: #fff
   position: fixed
   left: $sidebar-width
@@ -19,9 +19,11 @@
     width: 100%
     height: $app-tab-height
     // border-bottom: 1px solid hsl(0,0,90)
-    border-bottom: 1px solid #fff
+    border-bottom: 1.5px solid #fff
     transition: background 0.15s ease-out
     box-sizing: border-box
+    position: relative
+    left: 1px
 
     span
       display: block
@@ -39,7 +41,7 @@
       text-decoration: none
       label
         color: $dark-blue
-        font-size: 13px
+        font-size: 13.5px
         font-family: $condensed-font
         font-weight: 400
         display: inline-block

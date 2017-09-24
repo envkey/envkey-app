@@ -10,7 +10,7 @@ export default function({
   onRemove
 }){
 
-  return h.div(".settings.user-settings.my-account-settings", [
+  return h.div(".user-settings.my-account-settings", [
     h(UserDetails, currentUser),
 
     h.div(".danger-zone", [
