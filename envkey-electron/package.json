@@ -4,7 +4,7 @@
   "description": "EnvKey's cross-platform native app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
   "homepage": "https://www.envkey.com",
-  "repository": "https://github.com/envkey/envkey-ui",
+  "repository": "https://github.com/envkey/envkey-app",
   "license": "MIT",
   "main": "main.js",
   "bin": {
@@ -28,11 +28,11 @@
       "target": "squirrel"
     },
     "squirrelWindows": {
-      "iconUrl": "https://raw.githubusercontent.com/envkey/envkey-ui/master/envkey-electron/build/icon.ico"
+      "iconUrl": "https://raw.githubusercontent.com/envkey/envkey-app/master/envkey-electron/build/icon.ico"
     }
   },
   "updater": {
-    "url": "https://raw.githubusercontent.com/envkey/envkey-ui/master/envkey-electron/updates.json"
+    "url": "https://raw.githubusercontent.com/envkey/envkey-app/master/envkey-electron/updates.json"
   },
   "dependencies": {
     "electron-is-dev": "^0.3.0",
