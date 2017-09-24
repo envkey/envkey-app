@@ -14,6 +14,9 @@ const
   onUpdateAvailable = meta =>{
     console.log("Update available.")
     console.log(meta)
+
+    if(meta.version == versionAvailable)return
+
     versionAvailable = meta.version
     updater.downloadUpdate()
   }

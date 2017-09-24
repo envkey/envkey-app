@@ -15,6 +15,5 @@ document.body.className += " react-loaded"
 
 startConnectionWatcher()
 startReactivatedWatcher()
-startWindowFocusWatcher()
-
-listenUpdater()
+// startWindowFocusWatcher()
+// listenUpdater()
