@@ -92,7 +92,7 @@ class UpdatePassword extends React.Component {
       const errString = this.props.updateEncryptedPrivkeyErr.toString(),
             msg = errString == "Invalid passphrase" ?
               <span>Current passphrase invalid.</span> :
-              <span>There was a problem setting your new passphrase. If the problem persists, please post an <a target="__blank" href="https://github.com/envkey/envkey-app/issues">issue</a> or email <a href="mailto:support@envkey.com">support@envkey.com</a>.</span>
+              <span>There was a problem setting your new passphrase. If the problem persists, please email support@envkey.com.</span>
 
       return h.div(".msg.update-password-error", [msg])
     }

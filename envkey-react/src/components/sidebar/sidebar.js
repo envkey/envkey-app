@@ -80,6 +80,8 @@ export default class Sidebar extends React.Component {
 
           {this._renderDemoRegisterPrompt()}
 
+          {this._renderVersion()}
+
         </div>
       </div>
     )
@@ -112,8 +114,6 @@ export default class Sidebar extends React.Component {
                                     groups: R.reverse(ORG_ROLES),
                                     groupLabelFn: orgRoleGroupLabel})}
 
-
-
     </section>
   }
 
@@ -129,6 +129,12 @@ export default class Sidebar extends React.Component {
   _renderDemoRegisterPrompt(){
     if (isDemo){
       return <RegisterPrompt show={this.state.showRegisterPrompt} />
+    }
+  }
+
+  _renderVersion(){
+    if (window.updater){
+      return <small className="version">v{window.updater.version}</small>
     }
   }
 

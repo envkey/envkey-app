@@ -48,5 +48,5 @@ export const
     // Check for updates every 10 minutes
     // setInterval(checkForUpdates, 1000 * 60 * 10)
 
-    setInterval(checkForUpdates, 10 * 60 * 10)
+    setInterval(checkForUpdates, 1000 * 60 * 10)
   }

@@ -19,5 +19,5 @@ const devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV =
 startConnectionWatcher()
 startReactivatedWatcher()
 // startWindowFocusWatcher()
-// listenUpdater()
+listenUpdater()
 
