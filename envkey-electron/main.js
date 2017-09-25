@@ -6,7 +6,7 @@ const
   createMenu = require('./main-process/create_menu'),
   logger = require("electron-log"),
   updater = require('electron-simple-updater'),
-  {app, BrowserWindow} = electron
+  {app, BrowserWindow, ipcMain} = electron
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -113,4 +113,9 @@ app.on('activate', () => {
   } else {
     createWindow()
   }
+})
+
+ipcMain.on("openStripeForm", (e, json)=>{
+  if(stripeWin)stripeWin.close()
+  createStripeWindow(json)
 })

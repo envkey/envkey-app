@@ -40,14 +40,29 @@ const
     })
   },
 
+  reactivateIfConnected = type => {
+    isOnline().then(online => {
+      if (online){
+        store.dispatch({type})
+      } else {
+        store.dispatch({type: DISCONNECTED})
+      }
+    })
+  },
+
   checkReactivated = ()=> {
-    const time = Date.now(),
+    const disconnected = store.getState().disconnected,
+          time = Date.now(),
           diff = time - lastActiveAt
 
-    if (diff > (1000 * 60)){
-      store.dispatch({type: REACTIVATED_LONG})
-    } else if (diff > (1000 * 10)){
-      store.dispatch({type: REACTIVATED_BRIEF})
+    if (!disconnected){
+      if (diff > (1000 * 60)){
+        console.log("REACTIVATED_LONG if connected")
+        reactivateIfConnected(REACTIVATED_LONG)
+      } else if (diff > (1000 * 10)){
+        console.log("REACTIVATED_BRIEF if connected")
+        reactivateIfConnected(REACTIVATED_BRIEF)
+      }
     }
 
     lastActiveAt = time

@@ -24,6 +24,13 @@ export default class KeyGenerated extends React.Component {
     }
   }
 
+  _onIntegrationQuickstart(e){
+    if(shell){
+      e.preventDefault()
+      shell.openExternal(e.target.href)
+    }
+  }
+
   render(){
     return h.div(".key-generated", [
       h.span(".close", {onClick: this.props.onClose}, "⨉"),
@@ -54,7 +61,11 @@ export default class KeyGenerated extends React.Component {
           }[this.props.joinType])
         ),
 
-        h.a({href: "https://www.envkey.com/#integration", target: "__blank"}, "Integration quickstart ‣")
+        h.a({
+          href: "https://docs.envkey.com/integration-quickstart.html",
+          target: "__blank",
+          onClick: ::this._onIntegrationQuickstart
+        }, "Integration quickstart ‣")
       ])
     ])
   }

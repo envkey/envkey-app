@@ -1,5 +1,5 @@
 const electron = require("electron"),
-      {clipboard, remote, ipcRenderer} = electron,
+      {clipboard, remote, ipcRenderer, shell} = electron,
       updater = remote.require("electron-simple-updater")
 
 window.copy = s => {
@@ -8,5 +8,5 @@ window.copy = s => {
 }
 
 window.ipc = ipcRenderer
-
 window.updater = updater
+window.shell = shell
