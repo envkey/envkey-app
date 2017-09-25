@@ -16,7 +16,7 @@
   },
   "win32-ia32-prod": {
     "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.0.1",
-    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.0.1/EnvKey.Setup.1.0.1.exe",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.0.1/EnvKey Setup 1.0.1.exe",
     "version": "1.0.1"
   },
   "darwin-x64-prod": {
