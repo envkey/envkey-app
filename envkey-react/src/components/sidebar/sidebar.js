@@ -7,8 +7,6 @@ import {ORG_ROLES} from 'constants'
 import {orgRoleGroupLabel} from 'lib/ui'
 import RegisterPrompt from '../demo/register_prompt'
 
-let showRegisterPrompt = false
-
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 
 const menuSelected = props => {
@@ -22,8 +20,7 @@ const menuSelected = props => {
 
 const defaultState = props => {
   return {
-    accountMenuOpen: defaultAccountMenuExpanded(props),
-    showRegisterPrompt: showRegisterPrompt
+    accountMenuOpen: defaultAccountMenuExpanded(props)
   }
 }
 
@@ -34,15 +31,6 @@ export default class Sidebar extends React.Component {
   constructor(props){
     super(props)
     this.state = defaultState(props)
-  }
-
-  componentDidMount() {
-    if (isDemo){
-      setTimeout(()=> {
-        showRegisterPrompt = true
-        this.setState({showRegisterPrompt})
-      }, demoPromptDelay * 1000)
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -77,8 +65,6 @@ export default class Sidebar extends React.Component {
                        onToggle={()=> this.setState(state => ({accountMenuOpen: !state.accountMenuOpen}))} />
 
           {this._renderMenuSections()}
-
-          {this._renderDemoRegisterPrompt()}
 
           {this._renderVersion()}
 
@@ -123,12 +109,6 @@ export default class Sidebar extends React.Component {
       return <SidebarMenu {...this.props}
                           {...componentParams}
                           {...{type, items, label, icon}} />
-    }
-  }
-
-  _renderDemoRegisterPrompt(){
-    if (isDemo){
-      return <RegisterPrompt show={this.state.showRegisterPrompt} />
     }
   }
 
