@@ -29,7 +29,8 @@ import {
   InviteFailedContainer,
   BillingContainer,
   HomeMenuContainer,
-  RequiresConnection
+  RequiresConnection,
+  DemoLoginContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -89,6 +90,8 @@ export default class Routes extends React.Component {
         <Route path="/home" component={RequiresConnection(HomeMenuContainer)} />
 
         <Route path="/login" component={RequiresConnection(LoginRegisterContainer)} />
+
+        <Route path="/demo/:bs64props" component={RequiresConnection(DemoLoginContainer)} />
 
         <Route path="/accept_invite" component={RequiresConnection(AcceptInviteContainer)} />
 

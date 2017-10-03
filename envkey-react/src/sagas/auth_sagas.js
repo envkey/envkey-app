@@ -46,6 +46,7 @@ import {
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   DECRYPT_PRIVKEY_SUCCESS,
   VERIFY_ORG_PUBKEYS_SUCCESS,
+  START_DEMO,
   appLoaded,
   login,
   logout,
@@ -54,7 +55,7 @@ import {
   addTrustedPubkey,
   decryptPrivkey,
   verifyOrgPubkeys,
-  fetchCur
+  fetchCurrentUserUpdates
 } from "actions"
 import {
   getAuth,
@@ -69,7 +70,6 @@ import {
   getEnvsAreDecrypted,
   getInviteesNeedingAccess,
   getInviteesPendingAcceptance,
-  getIsDemo,
   getUser,
   getCurrentUser,
   getLastFetchAt,
@@ -173,13 +173,13 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
   }
 }
 
-function *onLogin({payload}){
+function *onLogin(action){
   if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
   document.getElementById("preloader-overlay").className = "full-overlay"
   yield call(delay, 50)
   yield put({
-    type: LOGIN_REQUEST,
-    payload
+    ...action,
+    type: LOGIN_REQUEST
   })
 }
 
@@ -206,9 +206,7 @@ function *onRegister({payload}){
   // if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
   // document.getElementById("preloader-overlay").className = "full-overlay"
 
-  const isDemo = yield select(getIsDemo)
-
-  if (!isDemo) yield call(delay, 500)
+  yield call(delay, 500)
 
   yield put({type: GENERATE_USER_KEYPAIR, payload})
 
@@ -248,6 +246,17 @@ function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
       yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
       yield call(redirectFromOrgIndexIfNeeded)
     }
+  }
+}
+
+function* onStartDemo({payload: {email, token, password}}){
+  // 'password' below is stored in action.meta, not sent to server -- allows decryption after login
+  yield put(login({email, emailVerificationCode: token, password}))
+
+  const res = yield take([LOGIN_SUCCESS, LOGIN_FAILED])
+
+  if (res.type == LOGIN_FAILED){
+    yield put(push("/home"))
   }
 }
 
@@ -311,7 +320,7 @@ export default function* authSagas(){
     takeLatest(REGISTER_REQUEST, onRegisterRequest),
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
-
+    takeLatest(START_DEMO, onStartDemo),
     takeLatest(LOGOUT, onLogout)
   ]
 }

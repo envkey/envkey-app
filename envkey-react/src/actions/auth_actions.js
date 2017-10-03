@@ -24,7 +24,11 @@ export const
 
   resetVerifyEmail = createAction(RESET_VERIFY_EMAIL),
 
-  login = createAction(LOGIN),
+  login = createAction(
+    LOGIN,
+    R.pick(["email", "emailVerificationCode"]),
+    R.pick(["password", "orgSlug"])
+  ),
 
   register = createAction(REGISTER),
 

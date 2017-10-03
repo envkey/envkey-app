@@ -5,7 +5,6 @@ import SidebarMenu from './sidebar_menu'
 import AccountMenu from './account_menu'
 import {ORG_ROLES} from 'constants'
 import {orgRoleGroupLabel} from 'lib/ui'
-import RegisterPrompt from '../demo/register_prompt'
 
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 

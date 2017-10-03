@@ -30,7 +30,7 @@ export const
   },
 
   promptRestartIfUpdateDownloaded = ()=>{
-    if(!updater || !versionDownloaded)return
+    if(!window.updater || !versionDownloaded)return
 
     if (window.confirm(`EnvKey has auto-updated to v${versionDownloaded}. Do you want to restart with the latest version?`)) {
       updater.quitAndInstall()
@@ -40,7 +40,7 @@ export const
   },
 
   listenUpdater = ()=>{
-    if (!updater)return
+    if (!window.updater)return
 
     updater.on('update-downloaded', onUpdateDownloaded)
     updater.on('update-available', onUpdateAvailable)
