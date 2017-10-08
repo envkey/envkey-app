@@ -5,42 +5,19 @@ import Filter from 'components/shared/filter'
 import BroadcastLoader from 'components/shared/broadcast_loader'
 
 export default function({parentType,
+                         parent,
                          emptyOnInit,
-                         addVar,
                          hideValues,
                          isEmpty,
                          isUpdatingEnv,
                          entries,
                          hasAnyVal,
-                         onToggleHideValues,
-                         onFilter,
-                         onAddVar }) {
+                         onToggleHideValues}) {
 
   const
-    renderFilter = ()=> {
-      if(entries.length > 1){
-        return h(Filter, {placeholder: "Type here to filter...", onFilter})
-      }
-    },
-
-    renderAddVar = ()=>{
-      if (!emptyOnInit){
-        return h.button(".split-strong.add-var", {
-          className: (addVar ? " selected" : ""),
-          onClick: onAddVar
-        }, [
-          addVar ? h.strong("⨉") :
-                   h.span([
-                            // h.img({src: imagePath("var-black.svg")}),
-                            h.span([
-                              "Add",
-                              " ",
-                              h.strong("Var")
-                            ])
-                          ])
-        ])
-      }
-    },
+    renderTitleCell = ()=> h.div(".label-cell.title-cell", {key: "title"}, [
+      h.label(parent.name)
+    ]),
 
     renderShowHide = ()=> {
       // if (!isEmpty && hasAnyVal){
@@ -64,8 +41,7 @@ export default function({parentType,
 
 
   return h.header(".env-header", [
-    // renderFilter(),
-    // renderAddVar(),
+    renderTitleCell(),
     renderShowHide(),
     renderUpdatingEnv()
   ])

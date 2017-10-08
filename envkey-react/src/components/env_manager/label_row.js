@@ -3,7 +3,7 @@ import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import {imagePath} from "lib/ui"
 
-export default function({parent, environments}) {
+export default function({parent, environments, onOpenSubEnvs}) {
 
   const
     renderEnvLabel = (environment, i)=> {
@@ -12,21 +12,17 @@ export default function({parent, environments}) {
         key: i,
         className: `env-${environment} ${locked ? 'locked' : ''}`
       }, [
+        h.span(".open-subenvs", {onClick: ()=> onOpenSubEnvs(environment)}, [
+          h.img({src: imagePath("subenvs-white.svg")})
+        ]),
         h.label([
           locked ? h.img(".img-locked", {src: imagePath("padlock.svg")}) : "",
           environment
         ])
       ])
-    },
-
-    renderTitle = ()=> h.div(".label-cell.title-cell", {key: "title"}, [
-      h.label([
-        h.img({src: imagePath("menu-lightning-white.svg")}),
-        parent.name
-      ])
-    ])
+    }
 
   return h.div(".row.label-row",
-    [h.div(".cols", [renderTitle()].concat(environments.map(renderEnvLabel)))]
+    [h.div(".cols", environments.map(renderEnvLabel))]
   )
 }

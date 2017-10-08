@@ -3,6 +3,7 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import EnvHeader from './env_header'
 import EnvGrid from './env_grid'
+import SubEnvs from './sub_envs'
 import {AddAssoc} from 'components/assoc_manager'
 import SmallLoader from 'components/shared/small_loader'
 
@@ -11,10 +12,9 @@ export default class EnvManager extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      addVar: true,
       hideValues: true,
-      filter: "",
-      lastSocketUserUpdatingEnvs: null
+      lastSocketUserUpdatingEnvs: null,
+      subEnvsOpen: false
     }
   }
 
@@ -34,7 +34,6 @@ export default class EnvManager extends React.Component {
     return [
       "environments",
       [this.props.parentType, "parent"].join("-"),
-      (this.state.addVar ? "add-var" : ""),
       (this.props.isUpdatingEnv ? "updating-env" : ""),
       (this._isEmpty() ? "empty" : ""),
       (this.state.hideValues ? "hide-values" : ""),
@@ -51,7 +50,7 @@ export default class EnvManager extends React.Component {
   _renderContents(){
     return [
       this._renderHeader(),
-      this._renderGrid(),
+      (this.state.subEnvsOpen ? this._renderSubEnvs() : this._renderGrid()),
       this._renderSocketUpdate()
     ]
   }
@@ -59,18 +58,25 @@ export default class EnvManager extends React.Component {
   _renderHeader(){
     return h(EnvHeader, {
       ...this.props,
-      ...R.pick(["addVar", "hideValues"], this.state),
+      ...R.pick(["hideValues"], this.state),
       isEmpty: this._isEmpty(),
-      onFilter: s => this.setState({filter: s.trim().toLowerCase()}),
       onToggleHideValues: ()=> this.setState(state => ({hideValues: !state.hideValues})),
-      onAddVar: ()=> this.setState(state => ({addVar: !state.addVar})),
     })
   }
 
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "filter", "addVar", "startedOnboarding"], this.state)
+      ...R.pick(["hideValues", "startedOnboarding"], this.state),
+      onOpenSubEnvs: environment => this.setState({subEnvsOpen: environment})
+    })
+  }
+
+  _renderSubEnvs(){
+    return h(SubEnvs, {
+      ...this.props,
+      ...R.pick(["hideValues"], this.state),
+      environment: this.state.subEnvsOpen
     })
   }
 
