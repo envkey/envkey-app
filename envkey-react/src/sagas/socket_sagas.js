@@ -34,7 +34,8 @@ import {
   getLocalSocketEnvsStatus,
   getEnvironmentLabelsWithSubEnvs,
   getAnonSocketEnvsStatus,
-  getSelectedObjectId
+  getSelectedObjectId,
+  getSubEnvs
 } from 'selectors'
 import {
   UPDATE_ENVS,
@@ -194,7 +195,8 @@ function *onSocketUpdateEnvsStatus(action){
         selectedObjectType = yield select(getSelectedObjectType),
         currentUser = yield select(getCurrentUser),
         environments = yield select(getEnvironmentLabelsWithSubEnvs(selectedObject.id)),
-        deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments)
+        subEnvs = yield select(getSubEnvs(selectedObject.id)),
+        deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments, subEnvs)
 
   yield put(processedSocketUpdateEnvStatus({status: deanonStatus, userId: action.payload.userId}))
 }

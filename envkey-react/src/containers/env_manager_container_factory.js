@@ -116,7 +116,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
         },
 
         stoppedEditing: ()=> dispatch(socketUpdateLocalStatus({})),
-        addingEntry: ()=> dispatch(socketUpdateLocalStatus({addingEntry: (subEnvId || "@@__base__")})),
+        addingEntry: (subEnvId)=> dispatch(socketUpdateLocalStatus({addingEntry: (subEnvId || "@@__base__")})),
         stoppedAddingEntry: ()=> dispatch(socketUpdateLocalStatus({}))
       }
     },

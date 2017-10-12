@@ -85,7 +85,9 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
   }
 
   _renderSocketAddingEntries(){
-    return h.div(".socket-adding-entries-block", this.props.socketAddingEntry.map(({firstName, lastName})=>{
+    const socketAddingEntries = this.props.socketAddingEntry[this.props.subEnvId || "@@__base__"] || []
+
+    return h.div(".socket-adding-entries-block", socketAddingEntries.map(({firstName, lastName})=>{
       return h.div([
         h.span(".name", [firstName, lastName].join(" ")),
         h.span(" is adding a variable")
@@ -109,8 +111,8 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
       ref: `row-${entryKey}`,
       highlightRow: Boolean(this.state.highlightRows[entryKey]),
       editing: this.state.editing,
-      socketUserEditingEntry: this.props.socketEditingEntry[entryKey],
-      socketUserRemovingEntry: this.props.socketRemovingEntry[entryKey],
+      socketUserEditingEntry: R.path([entryKey, this.props.subEnvId || "@@__base__"], this.props.socketEditingEntry),
+      socketUserRemovingEntry: R.path([entryKey, this.props.subEnvId || "@@__base__"], this.props.socketRemovingEntry),
       onEditCell: ::this._onEditCell,
       onCommitEntry: ::this._onCommitEntry,
       onCommitEntryVal: ::this._onCommitEntryVal,

@@ -36,7 +36,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   componentWillUpdate(nextProps, nextState) {
     if (!this._isEditing(this.state) && this._isEditing(nextState) && !this._formEmpty(nextState)){
-      this.props.addingEntry()
+      this.props.addingEntry(this.props.subEnvId)
     }
   }
 
@@ -55,7 +55,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   _onChangeFn(prevState){
     return nextState => {
       if (this._formEmpty(prevState) && !this._formEmpty(nextState)){
-        this.props.addingEntry()
+        this.props.addingEntry(this.props.subEnvId)
       } else if (this._formEmpty(nextState) && !this._formEmpty(prevState)){
         this.props.stoppedAddingEntry()
       }

@@ -6,7 +6,7 @@ import SubEnvForm from './sub_env_form'
 import SubEnvsList from './sub_envs_list'
 import SubEnvGrid from './sub_env_grid'
 
-const envWithMeta = props => props.parent.envsWithMeta[props.environment],
+const envWithMeta = props => props.envsWithMeta[props.environment],
 
       subEnvs = props => envWithMeta(props)["@@__sub__"] || {}
 
