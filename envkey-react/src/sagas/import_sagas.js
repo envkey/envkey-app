@@ -6,12 +6,12 @@ import {
   getImportErrors,
   getImportActionsPending,
   getEnvsWithMetaWithPendingWithImports,
-  getEntries,
   getEnvUpdateId,
   getCurrentOrg,
   getObject,
   getEnvironmentsAccessible
 } from 'selectors'
+import { allEntries } from 'lib/env/query'
 import {
   IMPORT_ENVIRONMENT,
   IMPORT_ENVIRONMENT_SUCCESS,
@@ -70,7 +70,7 @@ function* onImportEnvironment({
 
   const {parentType, parentId} = meta,
         envsWithMeta = yield select(getEnvsWithMetaWithPendingWithImports(parentType, parentId)),
-        entries = new Set(getEntries(envsWithMeta)),
+        entries = new Set(allEntries(envsWithMeta)),
         environments = yield select(getEnvironmentsAccessible(parentId))
 
   for (let entryKey in parsed){

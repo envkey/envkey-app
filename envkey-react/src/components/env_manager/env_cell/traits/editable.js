@@ -34,7 +34,7 @@ const Editable = Cell => class extends Cell {
   }
 
   _onEdit(){
-    this.props.onEditCell(this.props.entryKey, this.props.environment)
+    this.props.onEditCell(this.props.entryKey, this.props.environment, this.props.subEnvId)
   }
 
   _onInputChange(e){

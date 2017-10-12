@@ -5,6 +5,10 @@ import {
   REMOVE_ENTRY,
   UPDATE_ENTRY_VAL,
 
+  ADD_SUB_ENV,
+  REMOVE_SUB_ENV,
+  RENAME_SUB_ENV,
+
   GENERATE_ENV_UPDATE_ID,
   UPDATE_ENV_REQUEST,
   UPDATE_ENV_API_SUCCESS,
@@ -36,13 +40,6 @@ import {
 
   COMMIT_IMPORT_ACTIONS
 } from "actions"
-import {
-  rawEnv,
-  createEntry,
-  updateEntry,
-  removeEntry,
-  updateEntryVal
-} from 'lib/env/transform'
 import { isOutdatedEnvsResponse } from 'lib/actions'
 
 const
@@ -105,6 +102,9 @@ export const
       case UPDATE_ENTRY:
       case REMOVE_ENTRY:
       case UPDATE_ENTRY_VAL:
+      case ADD_SUB_ENV:
+      case REMOVE_SUB_ENV:
+      case RENAME_SUB_ENV:
         if(action.meta.importAction){
           return state
         } else {

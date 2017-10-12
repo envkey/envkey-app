@@ -11,6 +11,7 @@ import {
   getEnvironmentsAssignableForAppUser,
   getAppEnvironmentsAccessible,
   getAppEnvironmentsAssignable,
+  getSubEnvs
 } from './env_selectors'
 import {getIsInvitee} from './invite_selectors'
 import {ORG_ROLES} from 'constants'
@@ -130,6 +131,14 @@ export const
     // return R.without(["productionMetaOnly"], environmentsAccessible)
 
     return ["development", "staging", "production"]
+  }),
+
+  getEnvironmentsAccessibleWithSubEnvs = R.curry((appId, state)=>{
+    return getEnvironmentsAccessible(appId, state).concat(getSubEnvs(appId, state))
+  }),
+
+  getEnvironmentLabelsWithSubEnvs = R.curry((appId, state)=>{
+    return getEnvironmentLabels(appId, state).concat(getSubEnvs(appId, state))
   }),
 
   getCurrentUserLocalKeysForApp = R.curry((appId, state)=> {

@@ -1,4 +1,4 @@
-import { createSelector, defaultMemoize } from 'reselect'
+import { defaultMemoize } from 'reselect'
 import db from 'lib/db'
 import {
   getApp,
@@ -9,20 +9,11 @@ import {
 } from './object_selectors'
 import {getImportActionsPending} from './import_selectors'
 import {rawEnv, transformEnv} from 'lib/env/transform'
-import {allKeys} from 'lib/env/query'
+import {allSubEnvsSorted} from 'lib/env/query'
 import R from 'ramda'
 import {camelize} from 'xcase'
 
 export const
-
-  getEntries = defaultMemoize(allKeys),
-
-  getHasAnyVal = defaultMemoize(R.pipe(
-    R.values,
-    R.map(R.values),
-    R.flatten,
-    R.any(R.prop('val'))
-  )),
 
   getEnvActionsPendingByEnvUpdateId = R.curry((parentId, envUpdateId, state) => {
     return db.path("envActionsPending", parentId, envUpdateId)(state) || []
@@ -118,4 +109,9 @@ export const
     }
 
     return environments.map(s => camelize(s))
+  }),
+
+  getSubEnvs = R.curry((appId, state)=>{
+    const envsWithMeta = getApp(appId, state).envsWithMeta
+    return allSubEnvsSorted(envsWithMeta)
   })

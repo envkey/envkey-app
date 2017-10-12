@@ -1,11 +1,15 @@
 import R from 'ramda'
 import {inheritedVal} from './inheritance'
-import {allKeys} from './query'
+import {allKeys, allEntries, subEnvPath} from './query'
+import uuid from 'uuid'
 import {
   CREATE_ENTRY,
   UPDATE_ENTRY,
   REMOVE_ENTRY,
-  UPDATE_ENTRY_VAL
+  UPDATE_ENTRY_VAL,
+  ADD_SUB_ENV,
+  REMOVE_SUB_ENV,
+  RENAME_SUB_ENV
 } from 'actions'
 
 const
@@ -44,7 +48,7 @@ const
   },
 
   withLockedProduction = envsWithMeta => {
-    const keys = allKeys(envsWithMeta),
+    const entries = allEntries(envsWithMeta),
           productionMetaOnly = envsWithMeta.productionMetaOnly || {},
           prodVals = R.map(
             key => {
@@ -59,18 +63,18 @@ const
                 return {[key]: lockedVal}
               }
             },
-            keys
+            entries
           )
 
     return {...envsWithMeta, production: R.mergeAll(prodVals)}
   },
 
-  withMissingKeys = envsWithMeta => {
-    const keys = allKeys(envsWithMeta),
+  withMissingEntries = envsWithMeta => {
+    const entries = allEntries(envsWithMeta),
           withMissing = R.map(env => R.mergeAll(
             R.map(
               key => ({[key]: (env[key] || {val: null, inherits: null})}),
-              keys
+              entries
             )
           ))(R.omit(["productionMetaOnly"], envsWithMeta))
 
@@ -78,17 +82,34 @@ const
       ...envsWithMeta,
       ...withMissing
     }
+  },
+
+  subEnvUpdatable = updateFn => {
+    return params => {
+      const {subEnvId, envsWithMeta} = params
+      if (subEnvId){
+        const path = subEnvPath(subEnvId, envsWithMeta),
+              subEnv = R.path(path, envsWithMeta),
+              updatedSubEnv = updateFn({
+                ...params, envsWithMeta: {[subEnvId]: subEnv}
+              })[subEnvId]
+
+        return R.assocPath(path, updatedSubEnv, envsWithMeta)
+      } else {
+        return updateFn(params)
+      }
+    }
   }
 
 export const
-  normalizeEnvsWithMeta = R.pipe(
-    // R.omit(["productionMetaOnly"]),
+  normalizeEnvsWithMeta = envsWithMeta => {
+    const withNormalizedEntries = R.pipe(
+      withMissingEntries,
+      withLockedProduction
+    )(envsWithMeta)
 
-    withMissingKeys,
-
-    withLockedProduction
-
-  ),
+    return R.mergeDeepRight(envsWithMeta, withNormalizedEntries)
+  },
 
   rawEnv = ({envsWithMeta, environment})=> {
     return R.mapObjIndexed(
@@ -97,26 +118,46 @@ export const
     )
   },
 
-  createEntry = ({envsWithMeta, entryKey, vals})=>{
+  createEntry = subEnvUpdatable(({envsWithMeta, entryKey, vals})=>{
     return R.mapObjIndexed(
-      (env, name) => vals[name] ? R.assoc(entryKey, vals[name], env) : env,
+      (env, name) => {
+        return vals[name] ? R.assoc(entryKey, vals[name], env) : env
+      },
       envsWithMeta
     )
-  },
+  }),
 
-  updateEntry = ({envsWithMeta, entryKey, newKey})=>{
+  updateEntry = subEnvUpdatable(({envsWithMeta, entryKey, newKey})=>{
     return R.mapObjIndexed(
       (env)=> ({...R.dissoc(entryKey, env), [newKey]: env[entryKey]}),
       envsWithMeta
     )
-  },
+  }),
 
-  removeEntry = ({envsWithMeta, entryKey})=>{
+  removeEntry = subEnvUpdatable(({envsWithMeta, entryKey})=>{
     return R.mapObjIndexed(R.dissoc(entryKey), envsWithMeta)
+  }),
+
+  updateEntryVal = subEnvUpdatable(({envsWithMeta, entryKey, environment, update})=>{
+    return R.assocPath([environment, entryKey], update, envsWithMeta)
+  }),
+
+  addSubEnv = ({envsWithMeta, environment, name})=>{
+    const
+      subEnv = {"@@__name__": name},
+      id = uuid(),
+      path = [environment, "@@__sub__", id]
+
+    return R.assocPath(path, subEnv, envsWithMeta)
   },
 
-  updateEntryVal = ({envsWithMeta, entryKey, environment, update})=>{
-    return R.assocPath([environment, entryKey], update, envsWithMeta)
+  removeSubEnv = ({envsWithMeta, environment, id})=>{
+    return R.dissocPath([environment, "@__sub__", id], envsWithMeta)
+  },
+
+  renameSubEnv = ({envsWithMeta, environment, id, name})=>{
+    const path = [environment, "@@__sub__", id, "@@__name__"]
+    return R.assocPath(path, name, envsWithMeta)
   },
 
   transformEnv = (envsWithMeta, {type, payload})=> {
@@ -124,7 +165,10 @@ export const
             [CREATE_ENTRY]: createEntry,
             [UPDATE_ENTRY]: updateEntry,
             [REMOVE_ENTRY]: removeEntry,
-            [UPDATE_ENTRY_VAL]: updateEntryVal
+            [UPDATE_ENTRY_VAL]: updateEntryVal,
+            [ADD_SUB_ENV]: addSubEnv,
+            [REMOVE_SUB_ENV]: removeSubEnv,
+            [RENAME_SUB_ENV]: renameSubEnv
           }[type]
 
     return R.pipe(

@@ -16,6 +16,9 @@ import {
   UPDATE_ENTRY,
   REMOVE_ENTRY,
   UPDATE_ENTRY_VAL,
+  ADD_SUB_ENV,
+  REMOVE_SUB_ENV,
+  RENAME_SUB_ENV,
   FETCH_OBJECT_DETAILS_SUCCESS,
   VERIFY_ORG_PUBKEYS_SUCCESS,
   fetchObjectDetails,
@@ -88,7 +91,10 @@ export default function* envSagas(){
       CREATE_ENTRY,
       UPDATE_ENTRY,
       REMOVE_ENTRY,
-      UPDATE_ENTRY_VAL
+      UPDATE_ENTRY_VAL,
+      ADD_SUB_ENV,
+      REMOVE_SUB_ENV,
+      RENAME_SUB_ENV
     ], onTransformEnv),
 
     takeLatest(UPDATE_ENV_REQUEST, onUpdateEnvRequest),

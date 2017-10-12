@@ -13,7 +13,7 @@ export default function(props) {
   }
 
   return h.div(".grid.env-grid", [
-    h(LabelRow, props),
+    (props.subEnvId ? null : h(LabelRow, props)),
     renderAddVar(),
     h(EnvGridContent, props)
   ])

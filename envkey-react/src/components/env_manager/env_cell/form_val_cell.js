@@ -15,7 +15,7 @@ export default class FormValCell extends BaseClass {
 
   _formCellPlaceholder(){
     return h.small([
-      `Set ${this.props.environment} value`,
+      `Set ${this.props.environmentLabel || this.props.environment} value`,
       h.em(".optional", "(optional)")
     ])
   }

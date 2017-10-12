@@ -7,6 +7,7 @@ import scrollIntoView from 'scroll-into-view'
 import EntryRow from './entry_row'
 import EditableCellsParent from './traits/editable_cells_parent'
 import {toClass} from 'recompose'
+import { allEntries } from 'lib/env/query'
 
 const HIGHLIGHT_ROW_DELAY = 2000
 
@@ -61,19 +62,19 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
     this.props.stoppedEditing()
   }
 
-  _onEditCell(entryKey, environment){
-    this.setState({editing: {entryKey, environment}})
-    this.props.editCell(entryKey, environment)
+  _onEditCell(entryKey, environment, subEnvId){
+    this.setState({editing: {entryKey, environment, subEnvId}})
+    this.props.editCell(entryKey, environment, subEnvId)
   }
 
   _onCommitEntryVal(entryKey, environment, update){
     this._clearEditing()
-    this.props.updateEntryVal(entryKey, environment, update)
+    this.props.updateEntryVal(entryKey, environment, update, this.props.subEnvId)
   }
 
   _onCommitEntry(entryKey, update){
     this._clearEditing()
-    this.props.updateEntry(entryKey, update)
+    this.props.updateEntry(entryKey, update, this.props.subEnvId)
   }
 
   render(){
@@ -94,7 +95,7 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
 
   _renderEntryRows(){
     return h.div(".vars-block", [
-      h.div(".entry-rows", this.props.entries.map(::this._renderEntryRow))
+      h.div(".entry-rows", allEntries(this.props.envsWithMeta).map(::this._renderEntryRow))
     ])
   }
 

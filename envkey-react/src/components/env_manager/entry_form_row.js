@@ -28,6 +28,12 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     this.state = defaultState(props)
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.subEnvId != nextProps.subEnvId){
+      this.setState(defaultState(nextProps))
+    }
+  }
+
   componentWillUpdate(nextProps, nextState) {
     if (!this._isEditing(this.state) && this._isEditing(nextState) && !this._formEmpty(nextState)){
       this.props.addingEntry()
@@ -37,7 +43,8 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   formData() {
     return {
       entryKey: this.state.entryKey,
-      vals: this._vals()
+      vals: this._vals(),
+      subEnvId: this.props.subEnvId
     }
   }
 
@@ -99,8 +106,9 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
     return h(FormValCell, {
       ...envEntry, //for 'val' and 'inherits'
-      environments: this.props.environmentsAssignable,
       environment,
+      environmentLabel: this.props.subEnvName || environment,
+      environments: this.props.environmentsAssignable,
       didCommit: Boolean(R.path(["didCommit", environment], this.state)),
       isEditing: this.state.editing.environment === environment,
       entryKey: "entry",

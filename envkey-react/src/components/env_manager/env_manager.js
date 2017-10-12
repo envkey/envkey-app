@@ -6,6 +6,7 @@ import EnvGrid from './env_grid'
 import SubEnvs from './sub_envs'
 import {AddAssoc} from 'components/assoc_manager'
 import SmallLoader from 'components/shared/small_loader'
+import { allEntries, hasAnyVal } from 'lib/env/query'
 
 export default class EnvManager extends React.Component {
 
@@ -27,7 +28,7 @@ export default class EnvManager extends React.Component {
 
   _isEmpty(arg=null){
     const props = arg || this.props
-    return props.entries.length == 0
+    return allEntries(props.envsWithMeta).length == 0
   }
 
   _classNames(){
@@ -37,7 +38,7 @@ export default class EnvManager extends React.Component {
       (this.props.isUpdatingEnv ? "updating-env" : ""),
       (this._isEmpty() ? "empty" : ""),
       (this.state.hideValues ? "hide-values" : ""),
-      (this.props.hasAnyVal ? "" : "has-no-val"),
+      (hasAnyVal(this.props.envsWithMeta) ? "" : "has-no-val"),
       (this.props.socketUserUpdatingEnvs ? "receiving-socket-update" : ""),
       (this.props.didOnboardImport ? "did-onboard-import" : "")
     ]
@@ -76,7 +77,8 @@ export default class EnvManager extends React.Component {
     return h(SubEnvs, {
       ...this.props,
       ...R.pick(["hideValues"], this.state),
-      environment: this.state.subEnvsOpen
+      environment: this.state.subEnvsOpen,
+      onCloseSubEnvs: ()=> this.setState({subEnvsOpen: false})
     })
   }
 

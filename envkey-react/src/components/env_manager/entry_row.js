@@ -14,6 +14,7 @@ export default class EntryRow extends React.Component {
       entryKey,
       envsWithMeta,
       environments,
+      subEnvId,
       editing,
       highlightRow,
       socketUserEditingEntry,
@@ -55,9 +56,10 @@ export default class EntryRow extends React.Component {
       h.div(".entry-col",[
         h(entryCellClass, {
           ...this.props,
+          environment: null,
           val: entryKey.toUpperCase(),
           isUpdating: this.props.isUpdatingEntryFn(entryKey),
-          isEditing: editing.entryKey === entryKey && !editing.environment
+          isEditing: editing.entryKey === entryKey && editing.subEnvId == subEnvId && !editing.environment
         })
       ]),
 

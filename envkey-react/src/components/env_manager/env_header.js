@@ -11,7 +11,6 @@ export default function({parentType,
                          isEmpty,
                          isUpdatingEnv,
                          entries,
-                         hasAnyVal,
                          onToggleHideValues}) {
 
   const
@@ -20,16 +19,14 @@ export default function({parentType,
     ]),
 
     renderShowHide = ()=> {
-      // if (!isEmpty && hasAnyVal){
-        return h.label(".show-hide",[
-          h.input({
-            type: "checkbox",
-            checked: hideValues,
-            onClick: onToggleHideValues
-          }),
-          h.img({src: imagePath("hide-white.svg")})
-        ])
-      // }
+      return h.label(".show-hide",[
+        h.input({
+          type: "checkbox",
+          checked: hideValues,
+          onClick: onToggleHideValues
+        }),
+        h.img({src: imagePath("hide-white.svg")})
+      ])
     },
 
     renderUpdatingEnv = ()=>{
