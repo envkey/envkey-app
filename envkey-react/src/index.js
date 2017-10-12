@@ -13,13 +13,6 @@ crypto.init()
 
 document.body.className += " react-loaded"
 
-const devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging"
-
-if(process.env.NODE_ENV != "development"){
-  startConnectionWatcher()
-  listenUpdater()
-  startReactivatedWatcher()
-}
-
-
-
+startConnectionWatcher()
+startReactivatedWatcher()
+listenUpdater()

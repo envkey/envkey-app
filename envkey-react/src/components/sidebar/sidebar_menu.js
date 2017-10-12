@@ -105,7 +105,7 @@ export default class SidebarMenu extends React.Component {
           selectedClass = itemSelected ? "selected" : "",
           arrowIconPath ="menu-right-arrow-white.png",
           path = this.props.location.pathname.includes(`/${this.props.type}/${this.props.params.slug}`) ?
-            this.props.location.pathname.replace(this.props.params.slug, item.slug) :
+            this.props.location.pathname.replace(`/${this.props.type}/${this.props.params.slug}`, `/${this.props.type}/${item.slug}`) :
             this.props.pathFn(item)
 
       return (
