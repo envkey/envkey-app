@@ -33,7 +33,8 @@ export default class EntryRow extends React.Component {
           socketUserRemovingName = [removingFirstName, removingLastName].join(" "),
           productionLocked = Boolean(R.path(["production", entryKey, "locked"], envsWithMeta)),
           hasProductionMetaOnly = Boolean(R.path(["productionMetaOnly", entryKey], envsWithMeta)),
-          entryEditable = (!productionLocked || (productionLocked && !hasProductionMetaOnly)),
+          entryEditable = !(this.props.app.role == "development" && this.props.subEnvId && this.props.parentEnvironment == "production") &&
+                          (!productionLocked || (productionLocked && !hasProductionMetaOnly)),
           entryCellClass = entryEditable ? EnvEntryCell : LockedEntryCell
 
     return h.div(".row.entry-row", { className: classNames.join(" ")}, [

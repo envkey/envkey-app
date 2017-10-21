@@ -1,5 +1,5 @@
 import {store} from 'init_redux'
-import {DISCONNECTED, RECONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
+import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
 import {promptRestartIfUpdateDownloaded} from 'lib/updates'
 
 let isCheckingConnection = false,
@@ -8,21 +8,24 @@ let isCheckingConnection = false,
     lastUserActionAt
 
 const
-  isOnline = ()=>{
+  isOnline = (retries)=>{
     return fetch("https://ipv4.icanhazip.com/").then(response => {
       return response.ok
     }).catch(error => {
+      if (!retries || retries < 2){
+        return isOnline((retries || 0) + 1)
+      }
       return false
     })
-
   },
 
   checkConnection = ()=> {
     isCheckingConnection = true
-    const disconnected = store.getState().disconnected
+    const disconnected = store.getState().disconnected == true
 
     // if navigator.onLine is off, don't need to do full isOnline check
     if(!navigator.onLine && !disconnected){
+      console.log("dispatch DISCONNECTED - navigator")
       store.dispatch({type: DISCONNECTED})
       setTimeout(checkConnection, 5000)
       return
@@ -31,9 +34,10 @@ const
     isOnline().then(online => {
       if (online){
         if (disconnected){
-          store.dispatch({type: RECONNECTED})
+          window.location.reload()
         }
       } else if (!disconnected) {
+        console.log("dispatch DISCONNECTED - isOnline")
         store.dispatch({type: DISCONNECTED})
       }
       setTimeout(checkConnection, 5000)
@@ -45,13 +49,14 @@ const
       if (online){
         store.dispatch({type})
       } else {
+        console.log("dispatch DISCONNECTED - reactivateIfConnected")
         store.dispatch({type: DISCONNECTED})
       }
     })
   },
 
   checkReactivated = ()=> {
-    const disconnected = store.getState().disconnected,
+    const disconnected = store.getState().disconnected == true,
           time = Date.now(),
           diff = time - lastActiveAt
 

@@ -38,7 +38,7 @@ import { TRUSTED_PUBKEY_PROPS } from 'constants'
 const
   devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
 
-  doLogging = devMode
+  doLogging = false
 
 export function* signTrustedPubkeys(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),

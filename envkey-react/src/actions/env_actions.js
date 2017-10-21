@@ -13,7 +13,7 @@ import {
   RENAME_SUB_ENV
 } from './action_types'
 
-const metaKeys = ["parent", "parentType", "parentId", "timestamp", "importAction"],
+const metaKeys = ["parent", "parentType", "parentId", "timestamp", "importAction", "environment", "id"],
       pickMeta = R.pick(metaKeys)
 
 export const
@@ -44,7 +44,14 @@ export const
 
   generateEnvUpdateId = createAction(GENERATE_ENV_UPDATE_ID, uuid, pickMeta),
 
-  addSubEnv = createAction(ADD_SUB_ENV, R.pick(["environment", "name"]), pickMeta),
+  addSubEnv = createAction(
+    ADD_SUB_ENV,
+    R.pipe(
+      R.pick(["environment", "name"]),
+      R.over(R.lensProp("id"), uuid)
+    ),
+    pickMeta
+  ),
 
   removeSubEnv = createAction(REMOVE_SUB_ENV, R.pick(["environment", "id"]), pickMeta),
 

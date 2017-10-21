@@ -100,9 +100,17 @@ export const
     where: {pubkey: R.complement(R.isNil)}
   }),
 
-  getServerGroupsForApp = db.apps.hasMany("servers", {
-    groupBy: "role",
-    sortBy: "createdAt"
+  getServerGroupsForApp = R.pipe(
+    db.apps.hasMany("servers", {
+      groupBy: "role",
+      sortBy: "createdAt"
+    }),
+    R.map(R.groupBy(R.prop("subEnvId")))
+  ),
+
+  getServersForSubEnv = R.curry((appId, subEnvId, state)=>{
+    const servers = getServersForApp(appId, state)
+    return servers.filter(R.propEq("subEnvId", subEnvId))
   }),
 
   // Local key selectors

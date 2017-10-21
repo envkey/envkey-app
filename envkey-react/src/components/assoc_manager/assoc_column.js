@@ -6,6 +6,7 @@ import AssocRow from "./assoc_row"
 import AddAssoc from "./add_assoc"
 import SmallLoader from 'components/shared/small_loader'
 import {imagePath} from "lib/ui"
+import {dasherize} from "underscore.string"
 
 
 export default class AssocColumn extends React.Component {
@@ -165,7 +166,7 @@ export default class AssocColumn extends React.Component {
 
   _renderSection(associations, k){
     if (associations.length){
-      return h.div(".section", {key: k}, [
+      return h.div(".section", {className: k == "null" ? "base-env" : "sub-env", key: k}, [
         this._renderSectionTitle(k),
         h.div(".associations",
           associations.map(assoc => h(AssocRow, {...this.props, assoc}))
@@ -175,11 +176,12 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderSectionTitle(k){
-    const sectionLabelFn = this.props.config.sectionLabelFn
-
-    if (sectionLabelFn){
+    const sectionTitleFn = this.props.columnsConfig.sectionTitleFn || this.props.config.sectionTitleFn,
+          sectionSubtitleFn = this.props.columnsConfig.sectionSubtitleFn || this.props.config.sectionSubtitleFn
+    if (sectionTitleFn){
       return  h.div(".section-title", [
-        h.span(sectionLabelFn(k))
+        h.span(".title", sectionTitleFn(k, this.props)),
+        h.span(".subtitle", sectionSubtitleFn ? sectionSubtitleFn(k, this.props) : "")
       ])
     }
   }

@@ -28,7 +28,8 @@ export default class SubEnvGrid extends React.Component {
       subEnvName: name,
       environments: [id],
       environmentsAssignable: [id],
-      environment: id
+      environment: id,
+      parentEnvironment: this.props.environment
     })
   }
 

@@ -15,7 +15,7 @@ export default function({
     renderSubEnvsAction = (environment)=>{
       if (isSubEnvsLabel){
         return h.span(".close-subenvs", {onClick: onCloseSubEnvs}, [
-          h.span("←")
+          h.i("←")
         ])
       } else {
         return h.span(".open-subenvs", {onClick: ()=> onOpenSubEnvs(environment)}, [
@@ -33,7 +33,8 @@ export default function({
         renderSubEnvsAction(environment),
         h.label([
           locked ? h.img(".img-locked", {src: imagePath("padlock.svg")}) : "",
-          environment
+          h.strong(environment),
+          isSubEnvsLabel ? h.small(" Sub-Environments") : ""
         ])
       ])
     }

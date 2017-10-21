@@ -15,36 +15,46 @@ export default class SubEnvs extends React.Component {
     super(props)
 
     this.state = {
-      selected: R.path([0, "@@__id__"], this._sortedSubEnvs()),
-      isAddingSubEnv: false
+      selected: this._defaultSelectedId(),
+      isAddingSubEnv: false,
+      addedSubEnv: false
     }
   }
 
   componentWillReceiveProps(nextProps) {
     const lastKeys = R.keys(subEnvs(this.props)),
           newKeys = R.keys(subEnvs(nextProps)),
-          diff = R.difference(newKeys, lastKeys)
+          added = R.difference(newKeys, lastKeys),
+          removed = R.difference(lastKeys, newKeys)
 
-    if (diff.length){
-      this.setState({selected: diff[0], isAddingSubEnv: false})
+    if (added.length && this.state.addedSubEnv){
+      this.setState({selected: added[0], isAddingSubEnv: false, addedSubEnv: false})
+    } else if (removed.length && removed.includes(this.state.selected)){
+      this.setState({selected: this._defaultSelectedId(nextProps), isAddingSubEnv: false})
     }
+  }
+
+  _defaultSelectedId(props){
+    return R.path([0, "@@__id__"], this._sortedSubEnvs(props || this.props))
   }
 
   _envWithMeta(){
     return envsWithMeta(this.props)
   }
 
-  _subEnvs(){
-    return subEnvs(this.props)
+  _subEnvs(props){
+    return subEnvs(props || this.props)
   }
 
-  _sortedSubEnvs(){
-    const obj = this._subEnvs()
+  _sortedSubEnvs(props){
+    const obj = this._subEnvs(props)
     if (R.isEmpty(obj))return []
     return R.pipe(
       R.toPairs,
       R.map(([id, subEnv])=> ({...subEnv, "@@__id__": id})),
-      R.sort(R.ascend(R.prop("@@__name__")))
+      R.sort(R.ascend(
+        R.pipe(R.prop("@@__name__"), R.toLower)
+      ))
     )(obj)
   }
 
@@ -54,9 +64,8 @@ export default class SubEnvs extends React.Component {
     return {...subEnv, "@@__id__": this.state.selected}
   }
 
-  _onAddSubEnv(e){
-    e.preventDefault()
-    this.props.onAddSubEnv()
+  _addSubEnv(params){
+    this.setState({addedSubEnv: true}, ()=> this.props.addSubEnv(params))
   }
 
   render(){
@@ -84,9 +93,9 @@ export default class SubEnvs extends React.Component {
 
   _renderPlaceholder(){
     return h.div(".placeholder", [
-      <p className="copy"><strong>Sub-environments</strong> allow you to create additional environments on top of Development, Staging, and Production by adding additional variables and/or overriding existing ones.</p>,
+      <p className="copy"><strong>Sub-environments</strong> allow for additional environments on top of Development, Staging, and Production by setting new variables and/or overriding existing ones.</p>,
 
-      h(SubEnvForm, this.props)
+      this._renderSubEnvForm()
     ])
   }
 
@@ -94,7 +103,9 @@ export default class SubEnvs extends React.Component {
     return h(SubEnvsList, {
       ...this.props,
       subEnvs: this._sortedSubEnvs(),
-      onAddSubEnv: ()=> this.setState({selected: null, isAddingSubEnv: true}),
+      selected: this.state.selected,
+      isAddingSubEnv: this.state.isAddingSubEnv,
+      onSelectAddSubEnv: ()=> this.setState({selected: null, isAddingSubEnv: true}),
       onSelect: id => this.setState({selected: id, isAddingSubEnv: false})
     })
   }
@@ -104,9 +115,14 @@ export default class SubEnvs extends React.Component {
   }
 
   _renderAddForm(){
-    return h.div(".add-subenv-form", [
-      h(SubEnvForm, this.props)
-    ])
+    return h.div(".add-sub-env-form", [this._renderSubEnvForm()])
+  }
+
+  _renderSubEnvForm(){
+    return h(SubEnvForm, {
+      ...this.props,
+      addSubEnv: ::this._addSubEnv
+    })
   }
 
   _renderGrid(){

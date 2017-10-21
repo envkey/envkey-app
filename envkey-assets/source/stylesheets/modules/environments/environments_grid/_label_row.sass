@@ -1,5 +1,5 @@
 .grid .label-row
-  height: $env-grid-header-height
+  height: $env-grid-header-height + 2px
 
 .label-row
   position: fixed
@@ -21,6 +21,7 @@
     height: 100%
     border-right: 1px solid rgba(#000, 0.1)
     position: relative
+    top: -2px
 
     +safari-only
       top: 0
@@ -41,8 +42,9 @@
       text-transform: uppercase
       display: inline-block
       position: relative
-      top: 8px
+      top: 11px
       width: 100%
+      z-index: 1
 
       +safari-only
         +retina
@@ -50,14 +52,20 @@
         +non-retina
           font-weight: 600
 
+      small
+        font-weight: 300
+        color: rgba(#fff, 0.5)
+
     &.locked
-      top: -1px
+      top: 0
 
     .img-locked
-      margin-right: 10px
+      margin-right: 12px
       line-height: 0
       position: relative
-      top: 1.5px
+      top: 1.25px
+      opacity: 0.25
+
 
     &.env-development
       background: darken($darker-blue, 3.5%)
@@ -67,6 +75,41 @@
 
     &.env-production
       background: $dark-blue
+
+    .open-subenvs, .close-subenvs
+      position: absolute
+      left: 0
+      top: 0
+      width: 45px
+      height: 100%
+      text-align: center
+      border-right: 1px solid rgba(#000, 0.1)
+      z-index: 2
+      cursor: pointer
+      background: rgba(#fff, 0.0)
+      transition: background 0.1s
+
+      img, i
+        color: #fff
+        position: absolute
+        top: 49%
+        left: 50%
+        transform: translate(-50%, -50%)
+        opacity: 0.85
+        transition: opacity 0.1s
+
+      img
+        width: 15.5px
+
+      i
+        font-size: 18px
+
+      &:hover
+        background: rgba(#fff, 0.1)
+        img, i
+          opacity: 1
+
+
 
 // .app-role-development .label-row
 //   .label-cell

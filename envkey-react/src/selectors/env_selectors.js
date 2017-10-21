@@ -9,7 +9,7 @@ import {
 } from './object_selectors'
 import {getImportActionsPending} from './import_selectors'
 import {rawEnv, transformEnv} from 'lib/env/transform'
-import {allSubEnvsSorted} from 'lib/env/query'
+import {allSubEnvsSorted, serverSubEnvOptsByRole} from 'lib/env/query'
 import R from 'ramda'
 import {camelize} from 'xcase'
 
@@ -74,13 +74,13 @@ export const
 
   getRawEnvWithPendingForApp = R.curry((opts, state)=> {
     const
-      {appId, environment} = opts,
+      {appId, environment, subEnvId} = opts,
 
       app = getApp(appId, state),
 
       envsWithMeta = getEnvsWithMetaWithPending("app", app.id, state)
 
-    return rawEnv({envsWithMeta, environment})
+    return rawEnv({envsWithMeta, environment, subEnvId})
   }),
 
   getEnvironmentsAccessibleForAppUser = R.curry(({appId, userId, role}, state)=>{
@@ -114,4 +114,10 @@ export const
   getSubEnvs = R.curry((appId, state)=>{
     const envsWithMeta = getApp(appId, state).envsWithMeta
     return allSubEnvsSorted(envsWithMeta)
+  }),
+
+  getServerSubEnvOptsByRole = R.curry((appId, state)=>{
+    const envsWithMeta = getApp(appId, state).envsWithMeta
+    return serverSubEnvOptsByRole(envsWithMeta)
   })
+

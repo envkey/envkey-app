@@ -1,6 +1,7 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
+import SmallLoader from "components/shared/small_loader"
 
 export default class SubEnvForm extends React.Component {
 
@@ -23,7 +24,11 @@ export default class SubEnvForm extends React.Component {
         type: "text",
         placeholder: "Sub-environment name"
       }),
-      h.button(".button", `Add ${this.props.environment} Sub-environment`)
+      this._renderSubmit()
     ])
+  }
+
+  _renderSubmit(){
+    return h.button(".button", `Add ${this.props.environment} Sub-environment`)
   }
 }

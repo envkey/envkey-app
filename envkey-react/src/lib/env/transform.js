@@ -1,7 +1,6 @@
 import R from 'ramda'
 import {inheritedVal} from './inheritance'
-import {allKeys, allEntries, subEnvPath} from './query'
-import uuid from 'uuid'
+import {allKeys, allEntries, subEnvPath, findSubEnv} from './query'
 import {
   CREATE_ENTRY,
   UPDATE_ENTRY,
@@ -26,20 +25,38 @@ const
     return {inherits, val, hasVal, locked: true}
   },
 
+  prodValToProdMetaOnlyValFn = (envsWithMeta, keyPath=[]) => (entryVal, entryKey)=>{
+    if (entryKey.indexOf("@@__") == 0)return entryVal
+    if(!entryVal || entryVal.locked){
+      return R.path(["productionMetaOnly"].concat(keyPath).concat(entryKey), envsWithMeta)
+    }
+    const {val, inherits} = entryVal
+    return {
+      inherits,
+      hasVal: Boolean(val),
+      isUndefined: (!inherits && val === null),
+      isEmpty: (!inherits && val === "")
+    }
+  },
+
   withProductionMetaOnly = envsWithMeta => {
     if(!envsWithMeta.production)return envsWithMeta
-
     return {
       ...envsWithMeta,
       productionMetaOnly: R.mapObjIndexed(
         (entryVal, entryKey)=> {
-          if(!entryVal || entryVal.locked)return R.path(["productionMetaOnly", entryKey], envsWithMeta)
-          const {val, inherits} = entryVal
-          return {
-            inherits,
-            hasVal: Boolean(val),
-            isUndefined: (!inherits && val === null),
-            isEmpty: (!inherits && val === "")
+          if(entryKey == "@@__sub__"){
+            const subEnvs = entryVal
+            return R.mapObjIndexed(
+              (subEnv, subEnvId)=> {
+                const keyPath = ["@@__sub__", subEnvId],
+                      prodValToProdMetaOnlyVal = prodValToProdMetaOnlyValFn(envsWithMeta, keyPath)
+                return R.mapObjIndexed(prodValToProdMetaOnlyVal, subEnv)
+              },
+              subEnvs
+            )
+          } else {
+            return prodValToProdMetaOnlyValFn(envsWithMeta)(entryVal, entryKey)
           }
         },
         envsWithMeta.production
@@ -47,36 +64,57 @@ const
     }
   },
 
+  prodKeyWithLockedProductionFn = (envsWithMeta, keyPath=[]) => key => {
+    const prodPath = ["production"].concat(keyPath).concat(key),
+          prodMetaPath = ["productionMetaOnly"].concat(keyPath).concat(key),
+          prodVal = R.path(prodPath, envsWithMeta),
+          prodMetaVal = R.path(prodMetaPath, envsWithMeta)
+
+    if (prodVal || key.indexOf("@@__") == 0){
+      return {[key]: prodVal || prodMetaVal}
+    } else {
+      const lockedVal = prodMetaVal ?
+              productionMetaValToLockedProductionVal(prodMetaVal) :
+              {val: null, inherits: null, locked: true, hasVal: !envsWithMeta.productionMetaOnly}
+
+      return {[key]: lockedVal}
+    }
+  },
+
   withLockedProduction = envsWithMeta => {
-    const entries = allEntries(envsWithMeta),
-          productionMetaOnly = envsWithMeta.productionMetaOnly || {},
+    const keys = allKeys(envsWithMeta),
           prodVals = R.map(
             key => {
-              const existingVal = R.path(["production", key], envsWithMeta)
-              if (existingVal){
-                return {[key]: existingVal}
-              } else {
-                const lockedVal = productionMetaOnly[key] ?
-                  productionMetaValToLockedProductionVal(productionMetaOnly[key]) :
-                  {val: null, inherits: null, locked: true, hasVal: !envsWithMeta.productionMetaOnly}
-
-                return {[key]: lockedVal}
+              if (key == "@@__sub__" && R.path(["productionMetaOnly", "@@__sub__"], envsWithMeta)){
+                return {"@@__sub__": R.mapObjIndexed(
+                  (subEnv, subEnvId)=> R.mergeAll(
+                    R.map(prodKeyWithLockedProductionFn(envsWithMeta, ["@@__sub__", subEnvId]), R.keys(subEnv))
+                  ),
+                  envsWithMeta.productionMetaOnly["@@__sub__"]
+                )}
               }
+
+              return prodKeyWithLockedProductionFn(envsWithMeta)(key)
             },
-            entries
+            keys
           )
 
     return {...envsWithMeta, production: R.mergeAll(prodVals)}
   },
 
   withMissingEntries = envsWithMeta => {
-    const entries = allEntries(envsWithMeta),
-          withMissing = R.map(env => R.mergeAll(
+    const keys = allKeys(envsWithMeta),
+          withMissing = R.map(env => R.mergeAll(R.filter(R.identity,
             R.map(
-              key => ({[key]: (env[key] || {val: null, inherits: null})}),
-              entries
+              key => {
+                if(key.indexOf("@@__") == 0){
+                  return env[key] ? {[key]: env[key]} : null
+                }
+                return {[key]: (env[key] || {val: null, inherits: null})}
+              },
+              keys
             )
-          ))(R.omit(["productionMetaOnly"], envsWithMeta))
+          )))(R.omit(["productionMetaOnly"], envsWithMeta))
 
     return {
       ...envsWithMeta,
@@ -102,20 +140,25 @@ const
   }
 
 export const
-  normalizeEnvsWithMeta = envsWithMeta => {
-    const withNormalizedEntries = R.pipe(
-      withMissingEntries,
-      withLockedProduction
-    )(envsWithMeta)
+  normalizeEnvsWithMeta = R.pipe(
+    withMissingEntries,
+    withLockedProduction
+  ),
 
-    return R.mergeDeepRight(envsWithMeta, withNormalizedEntries)
-  },
-
-  rawEnv = ({envsWithMeta, environment})=> {
-    return R.mapObjIndexed(
+  rawEnv = ({envsWithMeta, environment, subEnvId})=> {
+    const res = R.mapObjIndexed(
       getMetaToValFn(envsWithMeta),
       envsWithMeta[environment]
     )
+
+    if (subEnvId){
+      return {
+        ...res,
+        ...R.mapObjIndexed(getMetaToValFn(envsWithMeta), findSubEnv(subEnvId, envsWithMeta))
+      }
+    } else {
+      return res
+    }
   },
 
   createEntry = subEnvUpdatable(({envsWithMeta, entryKey, vals})=>{
@@ -142,17 +185,16 @@ export const
     return R.assocPath([environment, entryKey], update, envsWithMeta)
   }),
 
-  addSubEnv = ({envsWithMeta, environment, name})=>{
+  addSubEnv = ({envsWithMeta, environment, name, id})=>{
     const
       subEnv = {"@@__name__": name},
-      id = uuid(),
       path = [environment, "@@__sub__", id]
 
     return R.assocPath(path, subEnv, envsWithMeta)
   },
 
   removeSubEnv = ({envsWithMeta, environment, id})=>{
-    return R.dissocPath([environment, "@__sub__", id], envsWithMeta)
+    return R.dissocPath([environment, "@@__sub__", id], envsWithMeta)
   },
 
   renameSubEnv = ({envsWithMeta, environment, id, name})=>{

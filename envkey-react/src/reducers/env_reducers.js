@@ -143,7 +143,7 @@ export const
         if (isOutdatedEnvsResponse(action)){
           return state
         } else {
-          return R.dissoc(action.meta.parentId)
+          return R.dissoc(action.meta.parentId, state)
         }
 
       default:

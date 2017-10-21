@@ -12,6 +12,7 @@ export const
   )),
 
   allEntries = defaultMemoize(R.pipe(
+    // R.filter(R.complement(R.prop("@@__hidden__"))),
     allKeys,
     R.filter(k => k.indexOf("@@__") != 0)
   )),
@@ -40,6 +41,20 @@ export const
     )(envsWithMeta)
   }),
 
+  serverSubEnvOptsByRole = defaultMemoize(envsWithMeta => {
+    return R.pipe(
+      R.map(role => ({
+        [role]: allSubEnvsSorted(R.pick([role], (envsWithMeta || {}))).map(
+          subEnvId => {
+            const {"@@__name__": name} = findSubEnv(subEnvId, envsWithMeta)
+            return {name, id: subEnvId}
+          }
+        )
+      })),
+      R.mergeAll
+    )(["development", "staging", "production"])
+  }),
+
   hasAnyVal = defaultMemoize(R.pipe(
     R.values,
     R.map(R.values),
@@ -54,7 +69,7 @@ export const
         return path
       }
     }
-    return null
+    return []
   },
 
   findSubEnv = (subEnvId, envsWithMeta)=>{

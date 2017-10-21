@@ -25,6 +25,9 @@ import {
   UPDATE_ENTRY,
   REMOVE_ENTRY,
   UPDATE_ENTRY_VAL,
+  ADD_SUB_ENV,
+  REMOVE_SUB_ENV,
+  RENAME_SUB_ENV,
 
   UPDATE_ENV_REQUEST,
   UPDATE_ENV_FAILED,
@@ -280,6 +283,54 @@ export const
       case REGISTER:
       case LOAD_INVITE_REQUEST:
         return {}
+
+      default:
+        return state
+    }
+  },
+
+  isAddingSubEnv = (state = {}, action)=>{
+    switch(action.type){
+      case ADD_SUB_ENV:
+        return R.assocPath([action.meta.parentId, action.payload.environment], true, state)
+
+      case UPDATE_ENV_SUCCESS:
+      case UPDATE_ENV_FAILED:
+        if (isOutdatedEnvsResponse(action)){
+          return state
+        } else {
+          const dissocFns = R.pipe(
+                  R.filter(R.propEq("type", ADD_SUB_ENV)),
+                  R.map(({payload: {environment}})=> R.dissocPath([action.meta.parentId, environment])),
+                )(action.meta.envActionsPending)
+
+          return dissocFns.length ? R.pipe(...dissocFns)(state) : state
+        }
+
+      default:
+        return state
+    }
+  },
+
+  isUpdatingSubEnv = (state = {}, action)=>{
+    switch(action.type){
+      case REMOVE_SUB_ENV:
+      case RENAME_SUB_ENV:
+        return R.assocPath([action.meta.parentId, action.payload.environment, action.payload.id], true, state)
+
+      case UPDATE_ENV_SUCCESS:
+      case UPDATE_ENV_FAILED:
+        if (isOutdatedEnvsResponse(action)){
+          return state
+        } else {
+          const updateActionTypes = [REMOVE_SUB_ENV, RENAME_SUB_ENV],
+                dissocFns = R.pipe(
+                  R.filter(R.propSatisfies(t => updateActionTypes.includes(t),'type')),
+                  R.map(({payload: {environment, id}})=> R.dissocPath([action.meta.parentId, environment, id])),
+                )(action.meta.envActionsPending)
+
+          return dissocFns.length ? R.pipe(...dissocFns)(state) : state
+        }
 
       default:
         return state

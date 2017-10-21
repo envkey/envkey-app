@@ -6,10 +6,12 @@ import EntryForm from './entry_form'
 
 export default function(props) {
   const renderAddVar = ()=>{
-    return h(EntryForm, {
-      ...props,
-      onSubmit: props.createEntry
-    })
+    if(!(props.app.role == "development" && props.subEnvId && props.parentEnvironment == "production")){
+      return h(EntryForm, {
+        ...props,
+        onSubmit: props.createEntry
+      })
+    }
   }
 
   return h.div(".grid.env-grid", [

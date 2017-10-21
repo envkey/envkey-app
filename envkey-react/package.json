@@ -58,6 +58,7 @@
     "scroll-into-view": "^1.8.0",
     "sjcl": "^1.0.6",
     "traversty": "^1.0.5",
+    "underscore.string": "^3.3.4",
     "uuid": "^3.0.1",
     "workerpool": "^2.2.0",
     "xcase": "^2.0.0",

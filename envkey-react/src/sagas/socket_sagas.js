@@ -190,10 +190,16 @@ function *onSocketUpdateOrg(action){
 }
 
 function *onSocketUpdateEnvsStatus(action){
+  const currentUser = yield select(getCurrentUser)
+
+  // Don't receive updates from current user broadcasts
+  if (action.payload.userId == currentUser.id){
+    return
+  }
+
   const selectedObject = yield select(getSelectedObject),
         entries = yield call(allEntriesWithSubEnvs, selectedObject.envsWithMeta),
         selectedObjectType = yield select(getSelectedObjectType),
-        currentUser = yield select(getCurrentUser),
         environments = yield select(getEnvironmentLabelsWithSubEnvs(selectedObject.id)),
         subEnvs = yield select(getSubEnvs(selectedObject.id)),
         deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments, subEnvs)

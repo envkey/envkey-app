@@ -3,7 +3,12 @@ import { take, put, call, select, takeEvery, takeLatest } from 'redux-saga/effec
 import { delay } from 'redux-saga'
 import pluralize from 'pluralize'
 import {decamelize} from 'xcase'
-import {apiSaga, dispatchEnvUpdateRequestIfNeeded, dispatchEnvUpdateRequest} from './helpers'
+import {
+  apiSaga,
+  dispatchEnvUpdateRequestIfNeeded,
+  dispatchEnvUpdateRequest,
+  clearSubEnvServersIfNeeded
+} from './helpers'
 import {
   getEnvActionsPendingByEnvUpdateId,
   getObject
@@ -48,6 +53,7 @@ function* onTransformEnv(action){
 }
 
 function* onUpdateEnvSuccess(action){
+  yield call(clearSubEnvServersIfNeeded, action)
   yield call(dispatchEnvUpdateRequestIfNeeded, {...action, ...action.meta, skipDelay: true})
 }
 

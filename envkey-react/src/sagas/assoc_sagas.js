@@ -158,7 +158,7 @@ function* onGenerateKey(action){
 
     signedPubkey = yield signPublicKey({pubkey, privkey: currentUserPrivkey}),
 
-    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment})),
+    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment, subEnvId: target.subEnvId})),
 
     [
       encryptedRawEnv,

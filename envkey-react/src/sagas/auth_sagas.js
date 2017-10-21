@@ -12,7 +12,6 @@ import {
 } from './helpers'
 import {
   APP_LOADED,
-  RECONNECTED,
   REACTIVATED_BRIEF,
   REACTIVATED_LONG,
   FETCH_CURRENT_USER_REQUEST,
@@ -141,12 +140,6 @@ function *onAppLoaded(){
     overlay.className += " hide"
   }
   document.body.className = document.body.className.replace("no-scroll","")
-}
-
-function *onReconnected(){
-  // do a hard refresh here to ensure we're updated before taking any action
-
-  window.location.reload()
 }
 
 function *onReactivatedBrief(){
@@ -302,7 +295,6 @@ function *onLogout(action){
 export default function* authSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
-    takeLatest(RECONNECTED, onReconnected),
     takeLatest(REACTIVATED_BRIEF, onReactivatedBrief),
     takeLatest(REACTIVATED_LONG, onReactivatedLong),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),

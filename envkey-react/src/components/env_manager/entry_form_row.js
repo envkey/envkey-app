@@ -94,7 +94,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   }
 
   _renderFormCell(environment){
-    if ((this.props.app && this.props.app.role == "development") && environment == "production"){
+    if ((this.props.app && this.props.app.role == "development") && (environment == "production" || this.props.parentEnvironment == "production")){
       return this._renderLockedCell()
     } else {
       return this._renderFormValCell(environment)
