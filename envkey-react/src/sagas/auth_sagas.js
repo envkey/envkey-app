@@ -1,6 +1,6 @@
-import {delay} from 'redux-saga'
+import { delay } from 'redux-saga'
 import { takeLatest, takeEvery, put, select, call, fork, take } from 'redux-saga/effects'
-import {push } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import R from 'ramda'
 import {
   apiSaga,

@@ -8,34 +8,34 @@ import SubEnvGrid from './sub_env_grid'
 
 const envWithMeta = props => props.envsWithMeta[props.environment],
 
-      subEnvs = props => envWithMeta(props)["@@__sub__"] || {}
+      subEnvs = props => envWithMeta(props)["@@__sub__"] || {},
+
+      subEnvsReadOnly = props => props.app.role == "development",
+
+      varsReadOnly = props => props.app.role == "development" && props.environment == "production"
 
 export default class SubEnvs extends React.Component {
   constructor(props){
     super(props)
-
-    this.state = {
-      selected: this._defaultSelectedId(),
-      isAddingSubEnv: false,
-      addedSubEnv: false
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const lastKeys = R.keys(subEnvs(this.props)),
-          newKeys = R.keys(subEnvs(nextProps)),
-          added = R.difference(newKeys, lastKeys),
-          removed = R.difference(lastKeys, newKeys)
-
-    if (added.length && this.state.addedSubEnv){
-      this.setState({selected: added[0], isAddingSubEnv: false, addedSubEnv: false})
-    } else if (removed.length && removed.includes(this.state.selected)){
-      this.setState({selected: this._defaultSelectedId(nextProps), isAddingSubEnv: false})
-    }
   }
 
   _defaultSelectedId(props){
     return R.path([0, "@@__id__"], this._sortedSubEnvs(props || this.props))
+  }
+
+  _selected(props){
+    const sel = (props || this.props).location.query.sel
+    if (sel == "first"){
+      return this._defaultSelectedId(props)
+    } else if (sel == "add") {
+      return null
+    } else {
+      return sel
+    }
+  }
+
+  _isAddingSubEnv(props){
+    return (props || this.props).location.query.sel == "add"
   }
 
   _envWithMeta(){
@@ -59,17 +59,33 @@ export default class SubEnvs extends React.Component {
   }
 
   _selectedSubEnv(){
-    if(!this.state.selected)return null
-    const subEnv = this._subEnvs()[this.state.selected]
-    return {...subEnv, "@@__id__": this.state.selected}
+    if(!this._selected())return null
+    const subEnv = this._subEnvs()[this._selected()]
+    return {...subEnv, "@@__id__": this._selected()}
+  }
+
+  _subEnvsReadOnly(){
+    return subEnvsReadOnly(this.props)
+  }
+
+  _varsReadOnly(){
+    return varsReadOnly(this.props)
   }
 
   _addSubEnv(params){
     this.setState({addedSubEnv: true}, ()=> this.props.addSubEnv(params))
   }
 
+  _classNames(){
+    return [
+      this.props.environment,
+      subEnvsReadOnly(this.props) ? "subenvs-read-only" : "",
+      varsReadOnly(this.props) ? "subenv-vars-read-only" : ""
+    ]
+  }
+
   render(){
-    return h.div(".sub-envs", [
+    return h.div(".sub-envs", {className: this._classNames().join(" ")}, [
       this._renderLabelRow(),
       this._renderContent()
     ])
@@ -103,32 +119,36 @@ export default class SubEnvs extends React.Component {
     return h(SubEnvsList, {
       ...this.props,
       subEnvs: this._sortedSubEnvs(),
-      selected: this.state.selected,
-      isAddingSubEnv: this.state.isAddingSubEnv,
-      onSelectAddSubEnv: ()=> this.setState({selected: null, isAddingSubEnv: true}),
-      onSelect: id => this.setState({selected: id, isAddingSubEnv: false})
+      selected: this._selected(),
+      isReadOnly: this._subEnvsReadOnly(),
+      isAddingSubEnv: this._isAddingSubEnv()
     })
   }
 
   _renderSelected(){
-    return this.state.isAddingSubEnv ? this._renderAddForm() : this._renderGrid()
+    return this._isAddingSubEnv() ? this._renderAddForm() : this._renderGrid()
   }
 
   _renderAddForm(){
-    return h.div(".add-sub-env-form", [this._renderSubEnvForm()])
+    if (!this._subEnvsReadOnly()){
+      return h.div(".add-sub-env-form", [this._renderSubEnvForm()])
+    }
   }
 
   _renderSubEnvForm(){
-    return h(SubEnvForm, {
-      ...this.props,
-      addSubEnv: ::this._addSubEnv
-    })
+    if(!this._subEnvsReadOnly()){
+      return h(SubEnvForm, {
+        ...this.props,
+        addSubEnv: ::this._addSubEnv
+      })
+    }
   }
 
   _renderGrid(){
     if (this._selectedSubEnv()){
       return h(SubEnvGrid, {
         ...this.props,
+        isReadOnly: this._varsReadOnly(),
         subEnv: this._selectedSubEnv()
       })
     }

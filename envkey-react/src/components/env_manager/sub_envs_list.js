@@ -1,5 +1,7 @@
 import React from 'react'
+import R from 'ramda'
 import h from 'lib/ui/hyperscript_with_helpers'
+import {Link} from 'react-router'
 import {imagePath} from 'lib/ui'
 import ConfirmAction from 'components/shared/confirm_action'
 
@@ -7,10 +9,7 @@ export default class SubEnvsList extends React.Component {
 
   constructor(props){
     super(props)
-
-    this.state = {
-      confirmingDelete: null
-    }
+    this.state = { confirmingDelete: null }
   }
 
   _onDeleteClickFn(id){
@@ -27,9 +26,33 @@ export default class SubEnvsList extends React.Component {
 
   _renderContent(){
     return [
-      this._renderActions(),
+      this._renderHeader(),
       this._renderList()
     ]
+  }
+
+  _renderHeader(){
+    return h.header([
+      h.label([
+        h.img({src: imagePath("subenvs-white.svg")}),
+        h.span("Sub-environments")
+      ]),
+
+      this._renderAddSubEnv()
+    ])
+  }
+
+  _renderAddSubEnv(){
+    if (!this.props.isReadOnly){
+      const addBtnFn = this.props.isAddingSubEnv ?
+        R.partial(h.span, [".add-subenv.selected"]) :
+        R.partial(h, [Link, {
+          className: "add-subenv",
+          to: (this.props.location.pathname + this.props.location.search).replace(/sel=.*/, `sel=add`)
+        }])
+
+      return addBtnFn([h.i("+")])
+    }
   }
 
   _renderList(){
@@ -37,19 +60,20 @@ export default class SubEnvsList extends React.Component {
   }
 
   _renderListItem({"@@__name__": name, "@@__id__": id}){
+    const selected = this.props.selected == id,
+          contentFn = selected ?
+            R.partial(h.div, [".content"]) :
+            R.partial(h, [Link, {
+              className: "content",
+              to: (this.props.location.pathname + this.props.location.search).replace(/sel=.*/, `sel=${id}`)
+            }])
+
     return h.li({
-      className: (this.props.selected == id ? "selected" : "") +
+      className: (selected ? "selected" : "") +
                  (this.state.confirmingDelete == id ? " confirming-delete" : "")
     }, [
-      h.span(".delete", {
-        onClick: this._onDeleteClickFn(id)
-      }, [
-        h.img(".delete-dark", {src: imagePath("remove-circle-black.png")}),
-        h.img(".delete-light", {src: imagePath("remove-circle-white.png")})
-      ]),
-      h.div(".content", {
-        onClick: ()=> this.props.onSelect(id)
-      }, [
+      this._renderDelete(id),
+      contentFn([
         h.label(name),
         h.img({src: imagePath("menu-right-arrow-white.png")})
       ]),
@@ -62,16 +86,13 @@ export default class SubEnvsList extends React.Component {
     ])
   }
 
-  _renderActions(){
-    if (!(this.props.app.role == "development" && this.props.environment == "production")){
-      return h.div(".actions", [
-        h.div(".add-subenv", {
-          className: this.props.isAddingSubEnv ? "selected" : "",
-          onClick: this.props.onSelectAddSubEnv
-        }, [
-          h.label("Add Sub-environment"),
-          h.i("+")
-        ])
+  _renderDelete(id){
+    if (!this.props.isReadOnly){
+      return h.span(".delete", {
+        onClick: this._onDeleteClickFn(id)
+      }, [
+        h.img(".delete-dark", {src: imagePath("remove-circle-black.png")}),
+        h.img(".delete-light", {src: imagePath("remove-circle-white.png")})
       ])
     }
   }

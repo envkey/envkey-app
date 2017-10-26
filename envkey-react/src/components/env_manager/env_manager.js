@@ -14,8 +14,7 @@ export default class EnvManager extends React.Component {
     super(props)
     this.state = {
       hideValues: true,
-      lastSocketUserUpdatingEnvs: null,
-      subEnvsOpen: false
+      lastSocketUserUpdatingEnvs: null
     }
   }
 
@@ -24,6 +23,10 @@ export default class EnvManager extends React.Component {
        nextProps.socketUserUpdatingEnvs != this.state.lastSocketUserUpdatingEnvs){
       this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
     }
+  }
+
+  _subEnvsOpen(){
+    return (this.props.envsWithMeta && this.props.location.query.sub) || false
   }
 
   _isEmpty(arg=null){
@@ -51,7 +54,7 @@ export default class EnvManager extends React.Component {
   _renderContents(){
     return [
       this._renderHeader(),
-      (this.state.subEnvsOpen ? this._renderSubEnvs() : this._renderGrid()),
+      (this._subEnvsOpen() ? this._renderSubEnvs() : this._renderGrid()),
       this._renderSocketUpdate()
     ]
   }
@@ -68,8 +71,7 @@ export default class EnvManager extends React.Component {
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "startedOnboarding"], this.state),
-      onOpenSubEnvs: environment => this.setState({subEnvsOpen: environment})
+      ...R.pick(["hideValues", "startedOnboarding"], this.state)
     })
   }
 
@@ -77,8 +79,7 @@ export default class EnvManager extends React.Component {
     return h(SubEnvs, {
       ...this.props,
       ...R.pick(["hideValues"], this.state),
-      environment: this.state.subEnvsOpen,
-      onCloseSubEnvs: ()=> this.setState({subEnvsOpen: false})
+      environment: this._subEnvsOpen()
     })
   }
 
@@ -87,8 +88,7 @@ export default class EnvManager extends React.Component {
     return h.div(".socket-update-envs", [
       h.label([
         h.span("Receiving update from "),
-        h.span(".name", [firstName, lastName].join(" ")),
-        // h.span(["..."])
+        h.span(".name", [firstName, lastName].join(" "))
       ]),
       h(SmallLoader)
     ])

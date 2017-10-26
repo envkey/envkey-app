@@ -1,5 +1,5 @@
 .grid .label-row
-  height: $env-grid-header-height + 2px
+  height: $env-grid-header-height
 
 .label-row
   position: fixed
@@ -21,7 +21,6 @@
     height: 100%
     border-right: 1px solid rgba(#000, 0.1)
     position: relative
-    top: -2px
 
     +safari-only
       top: 0
@@ -42,7 +41,7 @@
       text-transform: uppercase
       display: inline-block
       position: relative
-      top: 11px
+      top: 12px
       width: 100%
       z-index: 1
 
@@ -63,9 +62,8 @@
       margin-right: 12px
       line-height: 0
       position: relative
-      top: 1.25px
       opacity: 0.25
-
+      position: absolute
 
     &.env-development
       background: darken($darker-blue, 3.5%)
@@ -75,6 +73,8 @@
 
     &.env-production
       background: $dark-blue
+      label > strong
+        margin-left: 20px
 
     .open-subenvs, .close-subenvs
       position: absolute
@@ -92,17 +92,18 @@
       img, i
         color: #fff
         position: absolute
-        top: 49%
-        left: 50%
+        top: 48%
+        left: 53%
         transform: translate(-50%, -50%)
         opacity: 0.85
         transition: opacity 0.1s
 
       img
-        width: 15.5px
+        width: 26px
 
       i
-        font-size: 18px
+        font-size: 22px
+        top: 45%
 
       &:hover
         background: rgba(#fff, 0.1)

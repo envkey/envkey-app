@@ -113,6 +113,18 @@ export const
     return servers.filter(R.propEq("subEnvId", subEnvId))
   }),
 
+  getMostServersPerEnvironment = R.pipe(
+    db.servers.group("appId"),
+    R.values,
+    R.map(R.pipe(
+      R.groupBy(R.prop("role")),
+      R.values,
+      R.map(R.length),
+      R.apply(Math.max)
+    )),
+    R.apply(Math.max)
+  ),
+
   // Local key selectors
   getLocalKey = db.localKeys.find(),
 
@@ -125,6 +137,21 @@ export const
   getLocalKeysWithPubkeyForApp = db.apps.hasMany("localKeys", {
     where: {pubkey: R.complement(R.isNil)}
   }),
+
+  getMostLocalKeysPerAppUser = R.pipe(
+    db.localKeys.group("appUserId"),
+    R.values,
+    R.map(R.length),
+    R.apply(Math.max)
+  ),
+
+  // EnvKey (Servers / LocalKeys) selectors
+  getMostEnvKeysPerEnvironment = state => {
+    return Math.max(
+      getMostServersPerEnvironment(state),
+      getMostLocalKeysPerAppUser(state)
+    )
+  },
 
   // Org user selectors
   getOrgUserForUser = db.orgUsers.findBy("userId"),

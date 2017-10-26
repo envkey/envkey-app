@@ -11,10 +11,7 @@
     .label-cell
       &, &:first-of-type
         width: 100%
-        height: $env-grid-header-height + 2px
-
-        label
-          top: 13px
+        height: $env-grid-header-height
 
       &.locked
         height: $env-grid-header-height
@@ -41,6 +38,10 @@
       width: 66.67%
       .val-col
         width: 100%
+
+  .empty-msg
+    padding-left: calc(25% + 15px)
+    padding-top: 10px
 
   .placeholder
     box-sizing: border-box
@@ -101,41 +102,56 @@
     left: $sidemenu-width
     text-transform: uppercase
 
-    li, .actions > div
+    li, header
       box-sizing: border-box
       height: $env-grid-header-height - 1px
-      border-bottom: 1px solid hsl(0,0,90)
-      border-right: 1px solid hsl(0,0,90)
       font-family: $condensed-font
-      &, *
-        cursor: pointer
 
       label
         position: relative
         top: 1px
 
-    .actions > div
-      padding: 11px 15px 10.5px
+    header
+      padding: 11px 15px 10.5px 11px
       font-size: 14px
       font-weight: 400
-      color: $dark-blue
+      color: #fff
       background: hsl(0,0,99)
       transition: background 0.1s, color 0.1s
-      i
-        float: right
-        font-size: 25px
-        position: relative
-        top: -5px
+      position: relative
 
-      &:hover
-        color: $light-blue
-        background: #fff
+      label
+        > img
+          width: 15px
+          position: relative
+          top: -1px
 
-      &.selected, &.selected:hover
-        background: $light-blue
-        color: #fff
-        border-right: $light-blue
+        > span
+          margin-left: 25px
+          position: relative
+          top: -2.5px
+          font-size: 15px
+          color: lighten($lighter-blue, 15%)
 
+      .add-subenv
+        border-left: 1px solid rgba(#000, 0.1)
+        position: absolute
+        height: 100%
+        right: 0
+        top: 0
+        width: 40px
+        text-align: center
+        cursor: pointer
+
+        &:hover
+          background: rgba(#fff, 0.1)
+        &.selected, &.selected:hover
+          background: $light-blue
+        i
+          color: #fff
+          font-size: 25px
+          position: relative
+          top: 6px
 
     li
       font-size: 14px
@@ -145,6 +161,10 @@
       position: relative
       overflow: hidden
       padding-left: 36px
+      border-bottom: 1px solid hsl(0,0,90)
+      border-right: 1px solid hsl(0,0,90)
+      &, *
+        cursor: pointer
 
       .content
         padding: 10.5px 15px
@@ -152,6 +172,7 @@
         box-sizing: border-box
         left: 36px
         width: calc(100% - 36px)
+        color: $dark-text
 
         > img
           width: 7px
@@ -175,8 +196,9 @@
         border-right: 1px solid hsl(0,0,40)
 
         .content
-          cursor: default
           color: #fff
+          &, *
+            cursor: default
 
         .delete
           .delete-dark
@@ -216,10 +238,10 @@
           transition: opacity 0.1s
 
           &.delete-dark
-            width: 18px
+            width: 17px
             opacity: 0.3
           &.delete-light
-            width: 16.5px
+            width: 15px
             opacity: 0.5
 
         .delete-light
@@ -273,8 +295,47 @@
         .confirm-action
           left: 0
 
+  .entry-form .entry-cell
+    .autocomplete-options
+      position: fixed
+      top: calc(#{$env-grid-header-height * 2} - 1px)
+      left: calc(#{$sidemenu-width} + (25% - #{$sidemenu-width / 4}))
+      width: calc(25% - #{$sidemenu-width / 4} + 0.5px)
+      max-height: calc(100% - #{$env-grid-header-height * 2})
+      overflow-y: auto
+      transition: opacity 0.15s
+      opacity: 1
+    &.hiding-autocomplete .autocomplete-options
+      opacity: 0
+      pointer-events: none
 
+  &.development .sub-envs-list header
+    background: darken($darker-blue, 3.5%)
 
+  &.staging .sub-envs-list header
+    background: lighten($darker-blue, 3.5%)
 
+  &.production .sub-envs-list header
+    background: $dark-blue
 
+  &.subenvs-read-only
+    .sub-envs-list
+      header
+        padding-left: 15px
+        label > span
+          margin-left: 10px
+      li
+        padding-left: 0
+        .content
+          left: 0
+          width: 100%
+
+  &.subenv-vars-read-only
+    .grid.env-grid
+      padding-top: 2px
+
+  .transition-overlay
+    width: calc(100% - (#{$sidemenu-width} + (25% - #{$sidemenu-width / 4})))
+    left: auto
+    right: 0
 

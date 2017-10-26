@@ -125,7 +125,7 @@ export default function({
         inlineAddForm: true,
         canAddFn: R.anyPass([
           R.pipe(R.path(["config", "groups"]), R.values, R.head, R.length, R.lt(1)),
-          R.pipe(R.path(["config", "groups"]), R.values, R.head, R.head, R.prop("keyGeneratedAt"), Boolean)
+          R.pipe(R.path(["config", "groups"]), R.values, R.any(R.any(R.prop("keyGeneratedAt"))))
         ]),
         sectionTitleFn: (subEnvId, props) => {
           if (!parent.envsWithMeta)return null
@@ -136,7 +136,7 @@ export default function({
               h.span(`${findSubEnv(subEnvId, parent.envsWithMeta)["@@__name__"]}`)
             ]
         },
-        sectionSubtitleFn: (subEnvId, props) => `${props.config.role} Sub-environment`,
+        sectionSubtitleFn: (subEnvId, props) => `Sub-environment`,
         columns: [
           {
             title: "Test",

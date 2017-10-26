@@ -65,7 +65,7 @@ export default class AssocColumn extends React.Component {
       className: [
         this.props.config.role,
         this.state.addMode ? "show-add-keyable" : "",
-        this._numItems() == 1 ? "single-item" : ""
+        this._numItems() == 1 ? "single-item-col" : ""
       ].join(" ")
     }, [
       this._renderHeader(),
@@ -166,7 +166,11 @@ export default class AssocColumn extends React.Component {
 
   _renderSection(associations, k){
     if (associations.length){
-      return h.div(".section", {className: k == "null" ? "base-env" : "sub-env", key: k}, [
+      return h.div(".section", {
+        key: k,
+        className: (k == "null" ? "base-env" : "sub-env") +
+                   (associations.length == 1 ? " single-item-section" : "")
+      }, [
         this._renderSectionTitle(k),
         h.div(".associations",
           associations.map(assoc => h(AssocRow, {...this.props, assoc}))

@@ -24,15 +24,16 @@ const
     "role",
     "passphrase",
     "createOnly",
-    "subEnvId"
+    "subEnvId",
+    "skipKeygen"
   ])
 
 export const
   addAssoc = createAction(
     ADD_ASSOC_REQUEST,
-    ({joinType, assocType, assocId, role, name, subEnvId})=> {
+    ({joinType, assocType, assocId, role, name, subEnvId, undeletable})=> {
       const k = joinType || assocType,
-            obj =  {role, name, subEnvId, [`${assocType}Id`]: assocId}
+            obj =  {role, name, subEnvId, undeletable, [`${assocType}Id`]: assocId}
       return {[k]: obj}
     },
     pickMeta

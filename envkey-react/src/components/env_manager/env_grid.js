@@ -6,7 +6,7 @@ import EntryForm from './entry_form'
 
 export default function(props) {
   const renderAddVar = ()=>{
-    if(!(props.app.role == "development" && props.subEnvId && props.parentEnvironment == "production")){
+    if(!props.isReadOnly){
       return h(EntryForm, {
         ...props,
         onSubmit: props.createEntry

@@ -6,25 +6,6 @@ import {imagePath} from 'lib/ui'
 
 export default class EnvCell extends React.Component {
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if(nextProps.isRebasingOutdatedEnvs){
-  //     return false
-  //   }
-
-  //   const p = [
-  //     "val",
-  //     "inherits",
-  //     "isEditing",
-  //     "isUpdating",
-  //     "socketUserEditingEntryVal"
-  //   ]
-  //   if(R.equals(R.pick(p, this.props), R.pick(p, nextProps)) &&
-  //      R.equals(this.state, nextState)){
-  //     return false
-  //   }
-  //   return true
-  // }
-
   _actions(){ return [] }
 
   _valDisplay(){ return this._valString() }

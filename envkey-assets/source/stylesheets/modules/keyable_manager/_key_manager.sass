@@ -99,21 +99,30 @@
             opacity: 0.5
 
   .server-keys-section, .development-keys-section
-    .single-item .association-row
-      &:first-of-type
-        margin-top: 10px
-      .name
-        display: none
+    .association-manager
+      .single-item-col, .single-item-section
+        .association-row
+          &:first-of-type
+            margin-top: 10px
+          .name
+            display: none
+        .column-header
+          margin-bottom: 25px
+
+  .server-keys-section .association-manager
+    .single-item-col, .single-item-section
+      .association-row:first-of-type
+        margin-top: 20px
 
   .development-keys-section
     .column-header
       display: none
 
-    .single-item .association-row:first-of-type
+    .single-item-col .association-row:first-of-type
       margin-top: 0
 
   .server-keys-section .section-title
-    margin: 22px 0 45px 0
+    margin-top: 22px
     background: hsl(0,0,63)
     padding-top: 10px
     padding-bottom: 10px
@@ -160,7 +169,6 @@
 
       .column-header
         +clearfix
-        margin-bottom: 50px
         padding-top: 23px
         padding-bottom: 7px
         border-top: 1px solid hsl(0,0,90)
@@ -293,13 +301,11 @@
     .association-manager .column
       margin-bottom: 40px
     .association-row:first-of-type
-      margin-top: 34px
-
-
+      margin-top: 40px
 
   .onboard-slider
     position: absolute
-    left: 470px
+    left: 490px
     width: 325px
     top: 25px
 

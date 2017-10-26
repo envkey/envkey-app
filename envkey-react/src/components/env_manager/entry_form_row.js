@@ -5,9 +5,16 @@ import FormEntryCell from './env_cell/form_entry_cell'
 import FormValCell from './env_cell/form_val_cell'
 import LockedFormValCell from './env_cell/locked_form_val_cell'
 import EditableCellsParent from './traits/editable_cells_parent'
+import {allEntries} from 'lib/env/query'
 
 const
-  defaultEditing = {entryKey: "entry", environment: null},
+  defaultEditing = props => {
+    if (props.subEnvId && allEntries(props.envsWithMeta).length > 0){
+      return {}
+    } else {
+      return {entryKey: "entry", environment: null}
+    }
+  },
 
   defaultState = props => ({
     envsWithMeta: props.environmentsAssignable.reduce((acc, environment) => {
@@ -15,7 +22,7 @@ const
         "entry": {val: null, inherits: null}
       }}
     }, {}),
-    editing: defaultEditing,
+    editing: defaultEditing(props),
     didCommit: {},
     entryKey: "",
     hoveringVals: false
@@ -36,7 +43,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   componentWillUpdate(nextProps, nextState) {
     if (!this._isEditing(this.state) && this._isEditing(nextState) && !this._formEmpty(nextState)){
-      this.props.addingEntry(this.props.subEnvId)
+      this._addingEntry()
     }
   }
 
@@ -50,6 +57,10 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   reset(){
     this.setState(defaultState(this.props))
+  }
+
+  _addingEntry(){
+    this.props.addingEntry(this.props.subEnvId)
   }
 
   _onChangeFn(prevState){
@@ -136,7 +147,8 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   }
 
   render(){
-    const {environments} = this.props
+    const {environments} = this.props,
+          formEntryCellClass = this.props.formEntryCellClass || FormEntryCell
 
     return h.div(".row.entry-row",{
       className: (this._isEditingEntry() ? " editing-entry" : "") +
@@ -145,8 +157,10 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
                  (this.state.hoveringVals ? " hovering-vals" : "")
     },[
       h.div(".entry-col",[
-        h(FormEntryCell, {
-          onEditCell: ()=> this.setState({editing: defaultEditing}),
+        h(formEntryCellClass, {
+          ...this.props,
+          onEditCell: ()=> this.setState({editing: defaultEditing(this.props)}),
+          onAddingEntry: ::this._addingEntry,
           onCommit: ({val})=> {
             this.setState({entryKey: val.trim().toUpperCase()})
             this._clearEditing()
@@ -156,7 +170,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
             this.setState({entryKey: val.trim().toUpperCase()}, this._onChangeFn(state))
           },
           val: this.state.entryKey.toUpperCase(),
-          isEditing: this._isEditingEntry()
+          isEditing: this._isEditingEntry(),
         })
       ]),
 

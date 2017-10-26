@@ -13,9 +13,11 @@ import {
   getServersForSubEnv
 } from 'selectors'
 import {
+  ADD_SUB_ENV,
   REMOVE_SUB_ENV,
   updateEnvRequest,
-  removeAssoc
+  removeAssoc,
+  addAssoc
 } from "actions"
 
 let dispatchingEnvUpdateId
@@ -77,6 +79,21 @@ export function* clearSubEnvServersIfNeeded({meta: {envActionsPending, parentId}
       yield put(removeAssoc({parentId, parentType: "app", assocType: "server", targetId: server.id}))
     }
   }
+}
 
+export function* addDefaultSubEnvServerIfNeeded({meta: {envActionsPending, parentId}}){
+  const addSubEnvActions = envActionsPending.filter(R.propEq("type", ADD_SUB_ENV))
 
+  for (let {payload: {environment, name, id: subEnvId}} of addSubEnvActions){
+    yield put(addAssoc({
+      parentId,
+      subEnvId,
+      name: `${name} Key`,
+      role: environment,
+      parentType: "app",
+      assocType: "server",
+      skipKeygen: true,
+      undeletable: true
+    }))
+  }
 }

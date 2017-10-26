@@ -1,13 +1,15 @@
 import R from 'ramda'
 import { take, put, call, select, takeEvery, takeLatest } from 'redux-saga/effects'
 import { delay } from 'redux-saga'
+import { push } from 'react-router-redux'
 import pluralize from 'pluralize'
-import {decamelize} from 'xcase'
+import { decamelize } from 'xcase'
 import {
   apiSaga,
   dispatchEnvUpdateRequestIfNeeded,
   dispatchEnvUpdateRequest,
-  clearSubEnvServersIfNeeded
+  clearSubEnvServersIfNeeded,
+  addDefaultSubEnvServerIfNeeded
 } from './helpers'
 import {
   getEnvActionsPendingByEnvUpdateId,
@@ -54,6 +56,7 @@ function* onTransformEnv(action){
 
 function* onUpdateEnvSuccess(action){
   yield call(clearSubEnvServersIfNeeded, action)
+  yield call(addDefaultSubEnvServerIfNeeded, action)
   yield call(dispatchEnvUpdateRequestIfNeeded, {...action, ...action.meta, skipDelay: true})
 }
 
@@ -91,6 +94,18 @@ function* onUpdateEnvFailed(action){
   }
 }
 
+function* onAddSubEnv(action){
+  yield put(push(window.location.href.replace("sel=add",`sel=${action.payload.id}`)))
+}
+
+function* onRemoveSubEnv(action){
+  const path = window.location.href,
+        param = `sel=${action.payload.id}`
+  if (path.includes(param)){
+    yield put(push(path.replace(param,"sel=first")))
+  }
+}
+
 export default function* envSagas(){
   yield [
     takeEvery([
@@ -102,6 +117,9 @@ export default function* envSagas(){
       REMOVE_SUB_ENV,
       RENAME_SUB_ENV
     ], onTransformEnv),
+
+    takeLatest(ADD_SUB_ENV, onAddSubEnv),
+    takeLatest(REMOVE_SUB_ENV, onRemoveSubEnv),
 
     takeLatest(UPDATE_ENV_REQUEST, onUpdateEnvRequest),
     takeLatest(UPDATE_ENV_SUCCESS, onUpdateEnvSuccess),

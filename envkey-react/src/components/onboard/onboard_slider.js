@@ -282,9 +282,10 @@ export const
       h.p([
         "Welcome to the ",
         h.em(".blue.condensed", " EnvKeys "),
-        "tab. This is where you connect the config you just setup to your development environment.",
-        h.p("Let’s start with your development environment. Go ahead and generate your development key.")
-      ])
+        "tab. This is where you connect the config you just setup to your development environment."
+      ]),
+
+      h.p("Let’s start with your development environment. Go ahead and generate your development key.")
     ]),
 
     h.div(".slide-1", [

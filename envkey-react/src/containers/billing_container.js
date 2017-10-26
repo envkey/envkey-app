@@ -3,7 +3,14 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import moment from "moment"
-import {getCurrentOrg, getApps, getActiveUsers, getIsUpdatingSubscription, getIsUpdatingStripeCard} from "selectors"
+import {
+  getCurrentOrg,
+  getApps,
+  getActiveUsers,
+  getIsUpdatingSubscription,
+  getIsUpdatingStripeCard,
+  getMostEnvKeysPerEnvironment
+} from "selectors"
 import {
   billingUpgradeSubscription,
   billingCancelSubscription,
@@ -30,7 +37,8 @@ class Billing extends React.Component {
   }
 
   _subscriptionStatus(){
-    if (["past_due", "unpaid"].includes(this.props.subscription.status)){
+    if (["past_due",
+    "unpaid"].includes(this.props.subscription.status)){
       return "overdue"
     } else if (this.props.subscription.status == "trialing"){
       `trial - ${0} days left`
@@ -109,6 +117,7 @@ class Billing extends React.Component {
               [
                 "Unlimited users",
                 "Unlimited apps",
+                "Unilimited sub-environments",
                 "Unlimited EnvKeys per environment"
               ]
             ],
@@ -125,6 +134,7 @@ class Billing extends React.Component {
               [
                 "Unlimited users",
                 "Unlimited apps",
+                "Unilimited sub-environments",
                 "Unlimited EnvKeys per environment"
               ]
             ],
@@ -196,6 +206,7 @@ class Billing extends React.Component {
             [
               "Unlimited users",
               "Unlimited apps",
+              "Unlimited sub-environments",
               "Unlimited EnvKeys per environment"
             ]
           ],
@@ -244,13 +255,14 @@ class Billing extends React.Component {
   }
 
   _renderCancelWarning(){
-    const {maxUsers, maxApps} = this.props.freePlan
+    const {maxUsers, maxApps, maxKeysPerEnv} = this.props.freePlan
 
     if (this.props.numUsers > maxUsers ||
-        this.props.numApps > maxApps ){
+        this.props.numApps > maxApps ||
+        this.props.mostEnvKeys > maxKeysPerEnv ){
       return h.div(".cancel-warning", [
         h.strong("Warning"),
-        h.p(`Since your organization has more than the Free Tier maximum of ${maxUsers} users and ${maxApps} apps, canceling your subscription will cause all but the first ${maxUsers} users and first ${maxApps} apps (by join/creation date) to be removed from your organization. This cannot be undone.`),
+        h.p(`Since your organization has more than the Free Tier maximum of ${maxUsers} users, ${maxApps} apps, and/or ${maxKeysPerEnv} EnvKeys per environment, canceling your subscription will cause all but the first ${maxUsers} users (by join date), first ${maxApps} apps (by creation date), and first ${maxKeysPerEnv} EnvKeys per environment (by creation date) to be removed from your organization. This cannot be undone.`),
         h.p("If you want to have more control, you can delete apps or remove users until you are below the limits, then cancel.")
       ])
     }
@@ -272,8 +284,10 @@ const mapStateToProps = state => {
     ),
     numApps: getApps(state).length,
     numUsers: getActiveUsers(state).length,
+    mostEnvKeys: getMostEnvKeysPerEnvironment(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
-    isUpdatingStripeCard: getIsUpdatingStripeCard(state)
+    isUpdatingStripeCard: getIsUpdatingStripeCard(state),
+
   }
 }
 
