@@ -8,11 +8,13 @@ import EditableCellsParent from './traits/editable_cells_parent'
 import {allEntries} from 'lib/env/query'
 
 const
+  entryEditing = {entryKey: "entry", environment: null},
+
   defaultEditing = props => {
     if (props.subEnvId && allEntries(props.envsWithMeta).length > 0){
       return {}
     } else {
-      return {entryKey: "entry", environment: null}
+      return entryEditing
     }
   },
 
@@ -159,7 +161,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
       h.div(".entry-col",[
         h(formEntryCellClass, {
           ...this.props,
-          onEditCell: ()=> this.setState({editing: defaultEditing(this.props)}),
+          onEditCell: ()=> this.setState({editing: entryEditing}),
           onAddingEntry: ::this._addingEntry,
           onCommit: ({val})=> {
             this.setState({entryKey: val.trim().toUpperCase()})

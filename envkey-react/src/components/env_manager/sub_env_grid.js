@@ -26,6 +26,10 @@ export default class SubEnvGrid extends React.Component {
     return this.props.subEnv["@@__name__"]
   }
 
+  _isEmpty(){
+    return allEntries(this.props.subEnv).length == 0
+  }
+
   render(){
     return h.div(".sub-env-grid", [
       this._renderHeader(),
@@ -61,7 +65,7 @@ export default class SubEnvGrid extends React.Component {
   }
 
   _renderEmpty(){
-    if(this.props.isReadOnly && allEntries(this.props.subEnv).length == 0){
+    if(this.props.isReadOnly && this._isEmpty()){
       return h.p(".empty-msg", `${this._name()} has no variables set.`)
     }
   }
