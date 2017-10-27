@@ -13,7 +13,7 @@ const
 let win, stripeWin
 
 // Auto-update
-updater.init({logger, autoDownload: true})
+updater.init({logger, autoDownload: false})
 
 function createWindow () {
   // Create the browser window.

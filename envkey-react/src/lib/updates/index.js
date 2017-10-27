@@ -9,6 +9,7 @@ const
   onUpdateDownloaded = ()=>{
     console.log("Update downloaded.")
     versionDownloaded = versionAvailable
+    setTimeout(promptRestart, 1000)
   },
 
   onUpdateAvailable = meta =>{
@@ -29,14 +30,17 @@ export const
     updater.checkForUpdates()
   },
 
-  promptRestartIfUpdateDownloaded = ()=>{
-    if(!window.updater || !versionDownloaded)return
-
+  promptRestart = ()=> {
     if (window.confirm(`EnvKey has auto-updated to v${versionDownloaded}. Do you want to restart with the latest version?`)) {
-      updater.quitAndInstall()
+      window.installUpdate()
     } else {
       rejectedVersion = versionDownloaded
     }
+  },
+
+  promptRestartIfUpdateDownloaded = ()=>{
+    if(!window.updater || !versionDownloaded || (rejectedVersion && rejectedVersion == versionDownloaded))return
+    promptRestart()
   },
 
   listenUpdater = ()=>{
@@ -46,7 +50,7 @@ export const
     updater.on('update-available', onUpdateAvailable)
 
     // Check for updates every 10 minutes
-    // setInterval(checkForUpdates, 1000 * 60 * 10)
-
     setInterval(checkForUpdates, 1000 * 60 * 10)
+
+    checkForUpdates()
   }

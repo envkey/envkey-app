@@ -80,14 +80,13 @@ const
 
   onWindowFocus = ()=>{
     // If it's been at least a minute since any user action and an update is available, prompt for restart
-
     const time = Date.now(),
           sinceUserAction = time - lastUserActionAt
 
     console.log("Window focused")
     console.log("Since user action: ", sinceUserAction)
 
-    if (sinceUserAction > (10 * 60)){
+    if (sinceUserAction > (1000 * 60)){
       console.log("prompting for restart if update downloaded")
       promptRestartIfUpdateDownloaded()
     }

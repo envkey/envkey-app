@@ -10,3 +10,7 @@ window.copy = s => {
 window.ipc = ipcRenderer
 window.updater = updater
 window.shell = shell
+
+window.installUpdate = ()=> {
+  updater.quitAndInstall()
+}
