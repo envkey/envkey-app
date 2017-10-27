@@ -12,6 +12,8 @@ import {
 } from 'actions'
 
 const
+  isEntry = (v, k)=> k.indexOf("@@__") != 0,
+
   getMetaToValFn = (envsWithMeta)=> (meta, entryKey)=>{
     if (meta.inherits){
       return inheritedVal({entryKey, envsWithMeta, inherits: meta.inherits}) || meta.inheritedVal
@@ -148,13 +150,16 @@ export const
   rawEnv = ({envsWithMeta, environment, subEnvId})=> {
     const res = R.mapObjIndexed(
       getMetaToValFn(envsWithMeta),
-      envsWithMeta[environment]
+      R.pickBy(isEntry, envsWithMeta[environment])
     )
 
     if (subEnvId){
       return {
         ...res,
-        ...R.mapObjIndexed(getMetaToValFn(envsWithMeta), findSubEnv(subEnvId, envsWithMeta))
+        ...R.mapObjIndexed(
+          getMetaToValFn(envsWithMeta),
+          R.pickBy(isEntry, findSubEnv(subEnvId, envsWithMeta))
+        )
       }
     } else {
       return res
