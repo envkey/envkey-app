@@ -24,7 +24,7 @@ export default class SubEnvs extends React.Component {
   }
 
   _selected(props){
-    const sel = (props || this.props).location.query.sel
+    const sel = (props || this.props).params.sel
     if (sel == "first"){
       return this._defaultSelectedId(props)
     } else if (sel == "add") {
@@ -35,7 +35,7 @@ export default class SubEnvs extends React.Component {
   }
 
   _isAddingSubEnv(props){
-    return (props || this.props).location.query.sel == "add"
+    return (props || this.props).params.sel == "add"
   }
 
   _envWithMeta(){

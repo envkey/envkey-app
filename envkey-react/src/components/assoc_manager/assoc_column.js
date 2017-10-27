@@ -166,6 +166,11 @@ export default class AssocColumn extends React.Component {
 
   _renderSection(associations, k){
     if (associations.length){
+      const showSectionFn = this.props.config.showSectionFn || this.props.columnsConfig.showSectionFn
+      if (showSectionFn && !showSectionFn(k, this.props)){
+        return
+      }
+
       return h.div(".section", {
         key: k,
         className: (k == "null" ? "base-env" : "sub-env") +
@@ -180,8 +185,8 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderSectionTitle(k){
-    const sectionTitleFn = this.props.columnsConfig.sectionTitleFn || this.props.config.sectionTitleFn,
-          sectionSubtitleFn = this.props.columnsConfig.sectionSubtitleFn || this.props.config.sectionSubtitleFn
+    const sectionTitleFn = this.props.config.sectionTitleFn || this.props.columnsConfig.sectionTitleFn,
+          sectionSubtitleFn = this.props.config.sectionSubtitleFn || this.props.columnsConfig.sectionSubtitleFn
     if (sectionTitleFn){
       return  h.div(".section-title", [
         h.span(".title", sectionTitleFn(k, this.props)),

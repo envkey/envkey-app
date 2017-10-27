@@ -26,7 +26,7 @@ export default class EnvManager extends React.Component {
   }
 
   _subEnvsOpen(){
-    return (this.props.envsWithMeta && this.props.location.query.sub) || false
+    return (this.props.envsWithMeta && this.props.params.sub) || false
   }
 
   _isEmpty(arg=null){

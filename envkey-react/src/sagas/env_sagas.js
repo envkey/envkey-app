@@ -33,6 +33,7 @@ import {
   socketBroadcastEnvsStatus
 } from "actions"
 import { isOutdatedEnvsResponse } from 'lib/actions'
+import isElectron from 'is-electron'
 
 const onUpdateEnvRequest = apiSaga({
   authenticated: true,
@@ -94,16 +95,20 @@ function* onUpdateEnvFailed(action){
   }
 }
 
-function* onAddSubEnv(action){
-  yield put(push(window.location.href.replace("sel=add",`sel=${action.payload.id}`)))
+function* onAddSubEnv({payload: {environment, id}}){
+  const path = isElectron() ? window.location.hash.replace("#", "") : window.location.href,
+        newPath = path.replace(new RegExp(`/${environment}/add$`), `/${environment}/${id}`)
+
+  console.log("\n\npath: ", path)
+  console.log("newPath: ", newPath)
+
+  yield put(push(newPath))
 }
 
-function* onRemoveSubEnv(action){
-  const path = window.location.href,
-        param = `sel=${action.payload.id}`
-  if (path.includes(param)){
-    yield put(push(path.replace(param,"sel=first")))
-  }
+function* onRemoveSubEnv({payload: {environment, id}}){
+  const path = isElectron() ? window.location.hash.replace("#", "") : window.location.href,
+        newPath = path.replace(new RegExp(`/${environment}/${id}$`),`/${environment}/first`)
+  if(path != newPath)yield put(push(newPath))
 }
 
 export default function* envSagas(){

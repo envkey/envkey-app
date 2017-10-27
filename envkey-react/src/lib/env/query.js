@@ -73,7 +73,8 @@ export const
   },
 
   findSubEnv = (subEnvId, envsWithMeta)=>{
-    return R.path(subEnvPath(subEnvId, envsWithMeta), envsWithMeta)
+    const path = subEnvPath(subEnvId, envsWithMeta)
+    return R.isEmpty(path) ? null : R.path(path, envsWithMeta)
   }
 
 

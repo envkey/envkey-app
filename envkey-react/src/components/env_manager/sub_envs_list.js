@@ -48,7 +48,7 @@ export default class SubEnvsList extends React.Component {
         R.partial(h.span, [".add-subenv.selected"]) :
         R.partial(h, [Link, {
           className: "add-subenv",
-          to: (this.props.location.pathname + this.props.location.search).replace(/sel=.*/, `sel=add`)
+          to: this.props.location.pathname.replace(new RegExp(`/${this.props.params.sub}/.*$`), `/${this.props.params.sub}/add`)
         }])
 
       return addBtnFn([h.i("+")])
@@ -65,7 +65,7 @@ export default class SubEnvsList extends React.Component {
             R.partial(h.div, [".content"]) :
             R.partial(h, [Link, {
               className: "content",
-              to: (this.props.location.pathname + this.props.location.search).replace(/sel=.*/, `sel=${id}`)
+              to: this.props.location.pathname.replace(new RegExp(`/${this.props.params.sub}/.*$`), `/${this.props.params.sub}/${id}`)
             }])
 
     return h.li({

@@ -127,6 +127,9 @@ export default function({
           R.pipe(R.path(["config", "groups"]), R.values, R.head, R.length, R.lt(1)),
           R.pipe(R.path(["config", "groups"]), R.values, R.any(R.any(R.prop("keyGeneratedAt"))))
         ]),
+        showSectionFn: (subEnvId, props)=> {
+          return Boolean(!subEnvId || subEnvId == "null" || !props.parent.envsWithMeta || findSubEnv(subEnvId, props.parent.envsWithMeta))
+        },
         sectionTitleFn: (subEnvId, props) => {
           if (!parent.envsWithMeta)return null
           return subEnvId == "null" ?

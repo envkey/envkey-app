@@ -121,6 +121,8 @@ export default class Routes extends React.Component {
 
             <Route path="variables" component={EnvManagerContainerFactory({parentType: "app"})} />
 
+            <Route path="variables/:sub/:sel" component={EnvManagerContainerFactory({parentType: "app"})} />
+
             <Route path="keys" component={KeyManagerContainer} />
 
             <Route path="collaborators" component={AppCollaboratorsContainer} />

@@ -11,7 +11,8 @@ export default function({
   isSubEnvsLabel,
   onOpenSubEnvs,
   onCloseSubEnvs,
-  location
+  location,
+  params
 }) {
 
   const
@@ -22,11 +23,11 @@ export default function({
     renderSubEnvsAction = (environment)=>{
       if (!(parent.role == "development" && !hasSubEnvs(environment))){
         if (isSubEnvsLabel){
-          return h(Link, {className: "close-subenvs", to: location.pathname}, [
+          return h(Link, {className: "close-subenvs", to: location.pathname.replace(new RegExp(`/${params.sub}/.*$`), "")}, [
             h.i("←")
           ])
         } else {
-          return h(Link, {className: "open-subenvs", to: location.pathname + `?sub=${environment}&sel=first`}, [
+          return h(Link, {className: "open-subenvs", to: location.pathname + `/${environment}/first`}, [
             h.img({src: imagePath("subenvs-zoom-white.svg")})
           ])
         }
