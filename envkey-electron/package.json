@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "ajv": "^5.0.0",
-    "electron": "1.7.6",
+    "electron": "1.7.9",
     "electron-builder": "^19.29.0",
     "electron-builder-squirrel-windows": "^19.29.0",
     "electron-simple-publisher": "envkey/electron-simple-publisher",
