@@ -36,6 +36,10 @@ class Billing extends React.Component {
     return this.props.subscription.planId == this.props.businessPlan.id
   }
 
+  _isCustomPlan(){
+    return this.props.subscription.planId == this.props.customPlan.id
+  }
+
   _subscriptionStatus(){
     if (["past_due",
     "unpaid"].includes(this.props.subscription.status)){
@@ -73,8 +77,13 @@ class Billing extends React.Component {
         ])
       ]
     } else {
-      return this._isFreeTier() ? this._renderFreeTierContents() :
-                                  this._renderPaidTierContents()
+      if (this._isCustomPlan()){
+        return this._renderCustomPlanContents()
+      } else if (this._isFreeTier()){
+        return this._renderFreeTierContents()
+      } else if (this._isBusinessTier()) {
+        return this._renderPaidTierContents()
+      }
     }
   }
 
@@ -90,6 +99,10 @@ class Billing extends React.Component {
       this._renderSubscription(),
       this._renderUpgrade()
     ]
+  }
+
+  _renderCustomPlanContents(){
+    return [this._renderSubscription()]
   }
 
   _renderAlert(){
@@ -108,7 +121,12 @@ class Billing extends React.Component {
   _renderSubscription(){
     let contents
 
-    if (this._isFreeTier()){
+    if (this._isCustomPlan()){
+      contents = [
+        h.h3("Custom Plan"),
+        <p>Your organization is subscribed to a customized plan. Please email <strong>support@envkey.com</strong> to discuss any billing issues.</p>
+      ]
+    } else if (this._isFreeTier()){
       contents = [
         h.h3("Free Tier"),
         h(BillingColumns, {columns: [
@@ -279,7 +297,7 @@ const mapStateToProps = state => {
 
   return {
     ...R.pick(
-      ["subscription", "freePlan", "businessPlan", "stripeCard", "invoices"],
+      ["subscription", "freePlan", "businessPlan", "customPlan", "stripeCard", "invoices"],
       currentOrg
     ),
     numApps: getApps(state).length,
