@@ -63,13 +63,13 @@ export function* envParamsWithAppUser({
 export function* envParamsWithServer({appId, serverId}, envParams={}){
   const privkey = yield select(getPrivkey),
         server = yield select(getServer(serverId)),
-        {pubkey, role: serverRole} = server,
+        {pubkey, subEnvId, role: serverRole} = server,
         environment = yield select(getCurrentUserEnvironmentAssignableToServer({appId, serverId}))
 
   if(!(yield call(keyableIsTrusted, server))) return envParams
 
   if (environment){
-    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment}))
+    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment, subEnvId}))
     return R.assocPath(["servers", serverId], {
       env: yield encryptJson({data: rawEnv, pubkey, privkey })
     }, envParams)

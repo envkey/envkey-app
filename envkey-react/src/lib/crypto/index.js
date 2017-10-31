@@ -4,7 +4,7 @@ import sjcl from 'sjcl'
 let currentProxy = 0
 const
   workerPath = `${process.env.ASSET_HOST}/openpgp.worker.min.js`,
-  concurrency = (navigator.hardwareConcurrency || 4) - 1,
+  concurrency = Math.max(1, (navigator.hardwareConcurrency || 4) - 1),
   proxyPool = [],
 
   initProxyPool = ()=>{
@@ -106,6 +106,12 @@ export const
       privateKey: openpgp.key.readArmored(privkey).keys[0],
       passphrase
     }).then(({key}) => key.armor())
+  },
+
+  encryptPrivateKey = ({privkey, passphrase})=>{
+    const key = openpgp.key.readArmored(privkey).keys[0]
+    key.encrypt(passphrase)
+    return key.armor()
   },
 
   signPublicKey = ({privkey: privkeyArmored, pubkey: pubkeyArmored})=>{

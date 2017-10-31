@@ -4,6 +4,8 @@ import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
 import {secureRandomAlphanumeric} from 'lib/crypto'
 
+const EXAMPLE_KEY = secureRandomAlphanumeric(40)
+
 export default class AppImporter extends React.Component {
 
   constructor(props) {
@@ -51,8 +53,9 @@ export default class AppImporter extends React.Component {
   _renderSelectedTab(){
     return h.div(".selected-tab", [
       h.textarea({
+        disabled: this.props.isSubmitting,
         value: this.state.textByEnvironment[this.state.tab] || "",
-        placeholder: `# Paste your app's ${this.state.tab} variables here\n\nSOME_API_KEY=${secureRandomAlphanumeric(40)}\nEMPTY_STRING=\n\n# A comment - ignored by parser\n\nWITH_QUOTES='some ${this.state.tab} value'`,
+        placeholder: `# Paste your app's ${this.state.tab} variables here\n\nSOME_API_KEY=${EXAMPLE_KEY}\nEMPTY_STRING=\n\n# A comment - ignored by parser\n\nWITH_QUOTES='some ${this.state.tab} value'`,
         onChange: e => {
           this.setState(R.assocPath(["textByEnvironment", this.state.tab], e.target.value))
         }

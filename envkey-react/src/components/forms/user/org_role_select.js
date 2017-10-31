@@ -5,7 +5,8 @@ import {orgRoleLabel} from 'lib/ui'
 export default function({
   value,
   onChange,
-  orgRolesAssignable
+  orgRolesAssignable,
+  isSubmitting
 }){
 
   const renderRoleOption = (orgRole, i)=> {
@@ -16,7 +17,7 @@ export default function({
     h.label("Organization Role"),
     h.select(
       ".org-role",
-      {value, onChange},
+      {value, onChange, disabled: isSubmitting},
       orgRolesAssignable.map(renderRoleOption)
     )
   ])

@@ -36,7 +36,7 @@ export default class AutocompleteOptions extends React.Component {
     const i = optIndex(this.props.searchStr, props.opts)
     if (i > -1){
       return i
-    } else if (props.searchStr) {
+    } else if (props.searchStr && !props.noAutoSelect) {
       return 0
     } else {
       return -1

@@ -1,7 +1,6 @@
 import { browserHistory, hashHistory } from 'react-router'
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly'
-import createLogger from 'redux-logger'
 import persistState, {mergePersistedState} from 'redux-localstorage'
 import localStorageAdapter from 'redux-localstorage/lib/adapters/localStorage'
 import sessionStorageAdapter from 'redux-localstorage/lib/adapters/sessionStorage'

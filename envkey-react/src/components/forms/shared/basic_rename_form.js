@@ -25,6 +25,8 @@ export default class BasicRenameForm extends React.Component {
   render(){
     return h.form(".rename", {onSubmit: ::this._onSubmit}, [
       h.input(".name", {
+        type: "text",
+        disabled: this.props.isRenaming,
         placeholder: `${this.props.label} Name`,
         required: true,
         value: this.state.name,

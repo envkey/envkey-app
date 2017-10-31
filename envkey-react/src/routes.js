@@ -10,12 +10,11 @@ import {
   getCurrentOrgSlug,
   getOrgs,
   getPermissions,
-  getApps
+  getApps,
+  getDisconnected
 } from 'selectors'
 import {
   MainContainer,
-  LoginContainer,
-  RegistrationContainer,
   SelectOrgContainer,
   SelectedObjectContainerFactory,
   EnvManagerContainerFactory,
@@ -23,15 +22,15 @@ import {
   ObjectFormContainerFactory,
   SettingsFormContainerFactory,
   AcceptInviteContainer,
-  DemoLoginContainer,
-  DemoRegisterContainer,
   KeyManagerContainer,
   OnboardOverlayContainer,
   AppCollaboratorsContainer,
   LoginRegisterContainer,
   InviteFailedContainer,
   BillingContainer,
-  HomeMenuContainer
+  HomeMenuContainer,
+  RequiresConnection,
+  DemoLoginContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -82,26 +81,25 @@ export default class Routes extends React.Component {
   }
 
   render(){
+
     return <Provider store={store}>
       <Router history={history}>
 
         <Route path="/" onEnter={::this._redirectIndex} />
 
-        <Route path="/home" component={HomeMenuContainer} />
+        <Route path="/home" component={RequiresConnection(HomeMenuContainer)} />
 
-        <Route path="/login" component={LoginRegisterContainer} />
+        <Route path="/login" component={RequiresConnection(LoginRegisterContainer)} />
 
-        <Route path="/accept_invite" component={AcceptInviteContainer} />
+        <Route path="/demo/:bs64props" component={RequiresConnection(DemoLoginContainer)} />
 
-        <Route path="/invite_failed" component={InviteFailedContainer} />
+        <Route path="/accept_invite" component={RequiresConnection(AcceptInviteContainer)} />
 
-        <Route path="/demo/:credentialsbs64" component={DemoLoginContainer} />
+        <Route path="/invite_failed" component={RequiresConnection(InviteFailedContainer)} />
 
-        <Route path="/demo" component={DemoRegisterContainer} />
+        <Route path="/select_org" component={RequiresConnection(OrgsLoaded(UserAuthenticated(SelectOrgContainer)))} />
 
-        <Route path="/select_org" component={OrgsLoaded(UserAuthenticated(SelectOrgContainer))} />
-
-        <Route path="/:orgSlug" component={OrgSelected(UserAuthenticated(MainContainer))}>
+        <Route path="/:orgSlug" component={RequiresConnection(OrgSelected(UserAuthenticated(MainContainer)))}>
 
           <IndexRoute />
 
@@ -122,6 +120,8 @@ export default class Routes extends React.Component {
             <IndexRedirect to="variables" />
 
             <Route path="variables" component={EnvManagerContainerFactory({parentType: "app"})} />
+
+            <Route path="variables/:sub/:sel" component={EnvManagerContainerFactory({parentType: "app"})} />
 
             <Route path="keys" component={KeyManagerContainer} />
 

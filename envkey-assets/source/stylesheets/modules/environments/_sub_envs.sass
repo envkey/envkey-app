@@ -1,0 +1,341 @@
+.sub-envs
+  padding-top: $env-grid-header-height
+  box-sizing: border-box
+
+  &, .content
+    height: 100%
+
+
+  .label-row
+    top: 0
+    .label-cell
+      &, &:first-of-type
+        width: 100%
+        height: $env-grid-header-height
+
+      &.locked
+        height: $env-grid-header-height
+
+        label
+          top: 10px
+
+  .grid.env-grid
+    padding-top: $env-grid-header-height * 2
+    padding-left: 25%
+
+    .entry-form
+      right: 0
+      min-width: 0
+      width: calc(100% - (#{$sidemenu-width} + (25% - #{$sidemenu-width / 4})))
+
+      .submit-row button
+        width: calc(33.33% + 1px)
+
+    .entry-col
+      width: 33.33%
+
+    .val-cols
+      width: 66.67%
+      .val-col
+        width: 100%
+
+  .empty-msg
+    padding-left: calc(25% + 15px)
+    padding-top: 10px
+
+  .placeholder
+    box-sizing: border-box
+    width: 100%
+    padding: 40px 15px
+
+    .copy
+      font-size: 18px
+      line-height: 150%
+      text-align: center
+      max-width: 620px
+      margin: 0 auto
+
+      strong
+        font-weight: 500
+        font-family: $condensed-font
+        text-transform: uppercase
+        color: $dark-blue
+        font-size: 20px
+
+    .sub-env-form
+      margin: 30px auto 0
+
+
+  .sub-env-form
+    width: 100%
+    max-width: 600px
+    text-align: center
+
+    input, button
+      width: 100%
+      max-width: 350px
+      margin: 0 auto
+
+    button
+      background: $orange
+
+      &:hover
+        background: darken($orange, 7%)
+
+    input
+      margin-bottom: 15px
+
+    .small-loader
+      display: block
+
+  .add-sub-env-form
+    position: absolute
+    left: calc(#{$sidemenu-width} + (25% - #{$sidemenu-width / 4}) + 20px)
+    top: $env-grid-header-height + 20px
+
+
+  .sub-envs-list
+    width: calc(25% - #{$sidemenu-width / 4})
+    height: 100%
+    background: hsl(0,0,97)
+    position: fixed
+    left: $sidemenu-width
+    text-transform: uppercase
+
+    li, header
+      box-sizing: border-box
+      height: $env-grid-header-height - 1px
+      font-family: $condensed-font
+
+      label
+        position: relative
+        top: 1px
+
+    header
+      padding: 11px 15px 10.5px 11px
+      font-size: 14px
+      font-weight: 400
+      color: #fff
+      background: hsl(0,0,99)
+      transition: background 0.1s, color 0.1s
+      position: relative
+
+      label
+        > img
+          width: 15px
+          position: relative
+          top: -1px
+
+        > span
+          margin-left: 25px
+          position: relative
+          top: -2.5px
+          font-size: 15px
+          color: lighten($lighter-blue, 15%)
+
+      .add-subenv
+        border-left: 1px solid rgba(#000, 0.1)
+        position: absolute
+        height: 100%
+        right: 0
+        top: 0
+        width: 40px
+        text-align: center
+        cursor: pointer
+
+        &:hover
+          background: rgba(#fff, 0.1)
+        &.selected, &.selected:hover
+          background: $light-blue
+        i
+          color: #fff
+          font-size: 25px
+          position: relative
+          top: 6px
+
+    li
+      font-size: 14px
+      font-weight: 400
+      text-transform: uppercase
+      color: $dark-text
+      position: relative
+      overflow: hidden
+      padding-left: 36px
+      border-bottom: 1px solid hsl(0,0,90)
+      border-right: 1px solid hsl(0,0,90)
+      &, *
+        cursor: pointer
+
+      .content
+        padding: 10.5px 15px
+        position: absolute
+        box-sizing: border-box
+        left: 36px
+        width: calc(100% - 36px)
+        color: $dark-text
+
+        > img
+          width: 7px
+          float: right
+          position: relative
+          top: 2px
+          display: none
+
+      &:hover
+        background: hsl(0,0,90)
+
+        &:not(.selected) .content:hover
+          background: rgba(#000, 0.1)
+
+      &:hover, &.selected
+        .content > img
+          display: inline
+
+      &.selected, &.selected:hover
+        background: hsl(0,0,40)
+        border-right: 1px solid hsl(0,0,40)
+
+        .content
+          color: #fff
+          &, *
+            cursor: default
+
+        .delete
+          .delete-dark
+            display: none
+          .delete-light
+            display: inline
+
+        .confirm-action
+          > span
+            color: #fff
+
+          button.cancel
+            color: rgba(#fff, 0.8)
+            border-color: rgba(#fff, 0.5)
+            background: transparent
+
+            &:hover
+              color: #fff
+              border-color: #fff
+              background: rgba(#000, 0.1)
+
+      .delete
+        position: absolute
+        width: 36px
+        height: 100%
+        left: 0
+        top: 0
+        text-align: center
+        border-right: 1px solid rgba(#000, 0.1)
+        cursor: pointer
+
+        > img
+          position: absolute
+          top: 50%
+          left: 50%
+          transform: translate(-50%,-50%)
+          transition: opacity 0.1s
+
+          &.delete-dark
+            width: 17px
+            opacity: 0.3
+          &.delete-light
+            width: 15px
+            opacity: 0.5
+
+        .delete-light
+          display: none
+
+        &:hover
+          background: rgba(#000, 0.1)
+          img.delete-dark
+            opacity: 0.6
+          img.delete-light
+            opacity: 0.9
+
+      .delete, .content
+        transition: left 0.2s
+
+      .confirm-action
+        position: absolute
+        left: 100%
+        top: 50%
+        transition: left 0.2s
+        width: 100%
+        padding-left: 15px
+        box-sizing: border-box
+
+        > span
+          text-transform: none
+          font-size: 14px
+
+        button
+          height: 25px
+
+          &.cancel
+            color: hsl(0,0,50)
+            border-color: hsl(0,0,70)
+            background: rgba(#fff, 0.8)
+
+            &:hover
+              color: hsl(0,0,40)
+              border-color: hsl(0,0,30)
+              background: #fff
+
+          &.confirm
+            border: 1px solid $light-blue
+            &:hover
+              background: lighten($light-blue, 6%)
+              border: 1px solid #fff
+
+      &.confirming-delete
+        .delete, .content
+          left: -110%
+        .confirm-action
+          left: 0
+
+  .entry-form .entry-cell
+    .autocomplete-options
+      position: fixed
+      top: calc(#{$env-grid-header-height * 2} - 1px)
+      left: calc(#{$sidemenu-width} + (25% - #{$sidemenu-width / 4}))
+      width: calc(25% - #{$sidemenu-width / 4} + 0.5px)
+      max-height: calc(100% - #{$env-grid-header-height * 2})
+      overflow-y: auto
+      transition: opacity 0.15s
+      opacity: 1
+    &.hiding-autocomplete .autocomplete-options
+      opacity: 0
+      pointer-events: none
+
+  &.development .sub-envs-list header
+    background: darken($darker-blue, 3.5%)
+
+  &.staging .sub-envs-list header
+    background: lighten($darker-blue, 3.5%)
+
+  &.production .sub-envs-list header
+    background: $dark-blue
+
+  &.subenvs-read-only
+    .sub-envs-list
+      header
+        padding-left: 15px
+        label > span
+          margin-left: 10px
+      li
+        padding-left: 0
+        .content
+          left: 0
+          width: 100%
+
+  &.subenv-vars-read-only
+    .grid.env-grid
+      padding-top: 2px
+
+  .transition-overlay
+    width: calc(100% - (#{$sidemenu-width} + (25% - #{$sidemenu-width / 4})))
+    left: auto
+    right: 0
+

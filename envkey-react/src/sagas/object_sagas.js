@@ -93,7 +93,7 @@ const
     yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
     const currentOrg = yield select(getCurrentOrg)
 
-    if (object && object.broadcastChannel && object.id != currentOrg.id){
+    if (object && object.objectType == "app" && object.broadcastChannel && object.id != currentOrg.id){
       yield put(socketSubscribeObjectChannel(object))
     }
 

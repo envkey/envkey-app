@@ -12,11 +12,35 @@
     color: hsl(0,0,60)
     cursor: not-allowed
 
+  fieldset
+    > label
+      text-transform: uppercase
+      font-family: $condensed-font
+      font-weight: 500
+      font-size: 14px
+      display: block
+      margin-bottom: 15px
+      color: hsl(0,0,70)
+
+    > span
+      font-size: 14px
+
+  .msg
+    color: $dark-text
+    font-weight: 300
+
+  .details
+    fieldset:not(:last-of-type)
+      margin-bottom: 20px
+
+    fieldset > label
+      margin-bottom: 10px
+
   form.rename, form.object-form, .details
     padding: 0
     margin-bottom: 25px
     padding-bottom: 25px
-    border-bottom: 1px solid hsl(0,0,93)
+    border-bottom: 1px solid hsl(0,0,90)
 
   form.object-form
     button, input[type=submit]
@@ -25,6 +49,14 @@
       &:not([disabled]):hover
         background: darken($darker-blue, 5%)
 
+  .update-password-form
+    padding-bottom: 25px
+    margin-bottom: 25px
+    border-bottom: 1px solid hsl(0,0,90)
+
+    .small-loader
+      display: block
+      margin-top: 10px
 
   .danger-zone
     h3
@@ -37,35 +69,12 @@
       background: $orange
       font-weight: 400
 
-  .delete-field
-    padding: 20px 20px
-    width: 100%
-    box-sizing: border-box
-    border: 1px solid hsl(0,0,95)
-    border-top: none
-
-    // button
-    //   background: $orange
-    //   &:hover
-    //     background: darken($orange, 5%)
-
-  fieldset
-    > label
-      text-transform: uppercase
-      font-family: $condensed-font
-      font-weight: 600
-      font-size: 13px
-      display: block
-      margin-bottom: 10px
-      color: hsl(0,0,75)
-
-    > span
-      font-size: 14px
-
-
-  .details
-    fieldset:not(:last-of-type)
-      margin-bottom: 20px
+    .content
+      padding: 20px 20px
+      width: 100%
+      box-sizing: border-box
+      border: 1px solid hsl(0,0,90)
+      border-top: none
 
 
 

@@ -1,6 +1,6 @@
-import {delay} from 'redux-saga'
+import { delay } from 'redux-saga'
 import { takeLatest, takeEvery, put, select, call, fork, take } from 'redux-saga/effects'
-import {push } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import R from 'ramda'
 import {
   apiSaga,
@@ -12,6 +12,8 @@ import {
 } from './helpers'
 import {
   APP_LOADED,
+  REACTIVATED_BRIEF,
+  REACTIVATED_LONG,
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
@@ -43,6 +45,7 @@ import {
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   DECRYPT_PRIVKEY_SUCCESS,
   VERIFY_ORG_PUBKEYS_SUCCESS,
+  START_DEMO,
   appLoaded,
   login,
   logout,
@@ -50,7 +53,8 @@ import {
   socketUnsubscribeAll,
   addTrustedPubkey,
   decryptPrivkey,
-  verifyOrgPubkeys
+  verifyOrgPubkeys,
+  fetchCurrentUserUpdates
 } from "actions"
 import {
   getAuth,
@@ -65,9 +69,10 @@ import {
   getEnvsAreDecrypted,
   getInviteesNeedingAccess,
   getInviteesPendingAcceptance,
-  getIsDemo,
   getUser,
-  getCurrentUser
+  getCurrentUser,
+  getLastFetchAt,
+  getAppLoaded
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
@@ -117,9 +122,42 @@ const
     urlFn: (action)=> "/auth.json"
   })
 
-function *onAppLoaded(){
-  document.getElementById("preloader-overlay").className += " hide"
+function *loginSelectOrg(){
+  var overlay = document.getElementById("preloader-overlay")
+  if(!overlay.className.includes("hide")){
+    overlay.className += " hide"
+  }
   document.body.className = document.body.className.replace("no-scroll","")
+                                                   .replace("preloader-authenticate","")
+
+
+  yield put(push("/select_org"))
+}
+
+function *onAppLoaded(){
+  var overlay = document.getElementById("preloader-overlay")
+  if(!overlay.className.includes("hide")){
+    overlay.className += " hide"
+  }
+  document.body.className = document.body.className.replace("no-scroll","")
+}
+
+function *onReactivatedBrief(){
+  // assuming we've already done a fetch, get updates in background since we were supsended less than a minute
+  const lastFetchAt = yield select(getLastFetchAt)
+
+  if (lastFetchAt){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  }
+}
+
+function *onReactivatedLong(){
+  // assuming we've already done a fetch, since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
+  const lastFetchAt = yield select(getLastFetchAt)
+
+  if (lastFetchAt){
+    window.location.reload()
+  }
 }
 
 function *onVerifyEmailFailed({payload, meta: {status, message}}){
@@ -128,13 +166,13 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
   }
 }
 
-function *onLogin({payload}){
-  document.body.className += " preloader-authenticate"
+function *onLogin(action){
+  if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
   document.getElementById("preloader-overlay").className = "full-overlay"
   yield call(delay, 50)
   yield put({
-    type: LOGIN_REQUEST,
-    payload
+    ...action,
+    type: LOGIN_REQUEST
   })
 }
 
@@ -148,20 +186,20 @@ function* onLoginSuccess({meta: {password, orgSlug}}){
     yield put(selectOrg(orgSlug))
   } else {
     const orgs = yield select(getOrgs)
+
     yield (
       orgs.length == 1 && orgs[0].isActive ?
         put(selectOrg(orgs[0].slug)) :
-        put(push("/select_org"))
+        call(loginSelectOrg)
     )
   }
 }
 
 function *onRegister({payload}){
-  document.body.className += " preloader-register"
+  // if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
+  // document.getElementById("preloader-overlay").className = "full-overlay"
 
-  const isDemo = yield select(getIsDemo)
-
-  if (!isDemo) yield call(delay, 500)
+  yield call(delay, 500)
 
   yield put({type: GENERATE_USER_KEYPAIR, payload})
 
@@ -182,6 +220,11 @@ function *onRegister({payload}){
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
+  // var overlay = document.getElementById("preloader-overlay")
+  // if(!overlay.className.includes("hide")){
+  //   overlay.className += " hide"
+  // }
+
   const currentOrg = yield select(getCurrentOrg),
         currentUser = yield select(getCurrentUser),
         [ , decryptPrivkeyResult] = yield [
@@ -196,6 +239,17 @@ function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
       yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
       yield call(redirectFromOrgIndexIfNeeded)
     }
+  }
+}
+
+function* onStartDemo({payload: {email, token, password}}){
+  // 'password' below is stored in action.meta, not sent to server -- allows decryption after login
+  yield put(login({email, emailVerificationCode: token, password}))
+
+  const res = yield take([LOGIN_SUCCESS, LOGIN_FAILED])
+
+  if (res.type == LOGIN_FAILED){
+    yield put(push("/home"))
   }
 }
 
@@ -241,6 +295,8 @@ function *onLogout(action){
 export default function* authSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
+    takeLatest(REACTIVATED_BRIEF, onReactivatedBrief),
+    takeLatest(REACTIVATED_LONG, onReactivatedLong),
     takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
     takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
@@ -256,7 +312,7 @@ export default function* authSagas(){
     takeLatest(REGISTER_REQUEST, onRegisterRequest),
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
-
+    takeLatest(START_DEMO, onStartDemo),
     takeLatest(LOGOUT, onLogout)
   ]
 }

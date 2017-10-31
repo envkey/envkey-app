@@ -159,6 +159,7 @@ export const
 
       case GENERATE_INVITE_LINK:
       case CLOSE_GENERATED_INVITE_LINK:
+      case INVITE_USER_FAILED:
         return R.dissoc(action.meta.parentId, state)
 
       case LOGOUT:

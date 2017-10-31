@@ -69,3 +69,29 @@
 // .app-role-development .entry-form
 //   .submit
 //     width: 33.33%
+
+.entry-form
+  .submit-prompt
+    position: absolute
+    top: 150%
+    transform: translateY(-50%)
+    transition: opacity 0.5s ease-out
+    color: rgba(#000, 0.3)
+    font-family: $condensed-font
+    text-transform: uppercase
+    font-weight: 500
+    font-size: 14px
+    padding-left: 35px
+    margin-left: 10px
+    opacity: 0
+
+    .arrow
+      font-size: 30px
+      position: absolute
+      left: 0
+      top: 50%
+      transform: translateY(-52%)
+
+  .is-editing.not-empty
+    .submit-prompt
+      opacity: 1

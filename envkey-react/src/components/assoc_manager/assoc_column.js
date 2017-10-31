@@ -6,6 +6,7 @@ import AssocRow from "./assoc_row"
 import AddAssoc from "./add_assoc"
 import SmallLoader from 'components/shared/small_loader'
 import {imagePath} from "lib/ui"
+import {dasherize} from "underscore.string"
 
 
 export default class AssocColumn extends React.Component {
@@ -64,7 +65,7 @@ export default class AssocColumn extends React.Component {
       className: [
         this.props.config.role,
         this.state.addMode ? "show-add-keyable" : "",
-        this._numItems() == 1 ? "single-item" : ""
+        this._numItems() == 1 ? "single-item-col" : ""
       ].join(" ")
     }, [
       this._renderHeader(),
@@ -165,7 +166,16 @@ export default class AssocColumn extends React.Component {
 
   _renderSection(associations, k){
     if (associations.length){
-      return h.div(".section", {key: k}, [
+      const showSectionFn = this.props.config.showSectionFn || this.props.columnsConfig.showSectionFn
+      if (showSectionFn && !showSectionFn(k, this.props)){
+        return
+      }
+
+      return h.div(".section", {
+        key: k,
+        className: (k == "null" ? "base-env" : "sub-env") +
+                   (associations.length == 1 ? " single-item-section" : "")
+      }, [
         this._renderSectionTitle(k),
         h.div(".associations",
           associations.map(assoc => h(AssocRow, {...this.props, assoc}))
@@ -175,11 +185,12 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderSectionTitle(k){
-    const sectionLabelFn = this.props.config.sectionLabelFn
-
-    if (sectionLabelFn){
+    const sectionTitleFn = this.props.config.sectionTitleFn || this.props.columnsConfig.sectionTitleFn,
+          sectionSubtitleFn = this.props.config.sectionSubtitleFn || this.props.columnsConfig.sectionSubtitleFn
+    if (sectionTitleFn){
       return  h.div(".section-title", [
-        h.span(sectionLabelFn(k))
+        h.span(".title", sectionTitleFn(k, this.props)),
+        h.span(".subtitle", sectionSubtitleFn ? sectionSubtitleFn(k, this.props) : "")
       ])
     }
   }

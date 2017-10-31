@@ -5,9 +5,6 @@ import SidebarMenu from './sidebar_menu'
 import AccountMenu from './account_menu'
 import {ORG_ROLES} from 'constants'
 import {orgRoleGroupLabel} from 'lib/ui'
-import RegisterPrompt from '../demo/register_prompt'
-
-let showRegisterPrompt = false
 
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 
@@ -22,27 +19,14 @@ const menuSelected = props => {
 
 const defaultState = props => {
   return {
-    accountMenuOpen: defaultAccountMenuExpanded(props),
-    showRegisterPrompt: showRegisterPrompt
+    accountMenuOpen: defaultAccountMenuExpanded(props)
   }
 }
-
-const isDemo = process.env.BUILD_ENV == "demo",
-      demoPromptDelay = 20
 
 export default class Sidebar extends React.Component {
   constructor(props){
     super(props)
     this.state = defaultState(props)
-  }
-
-  componentDidMount() {
-    if (isDemo){
-      setTimeout(()=> {
-        showRegisterPrompt = true
-        this.setState({showRegisterPrompt})
-      }, demoPromptDelay * 1000)
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -78,7 +62,7 @@ export default class Sidebar extends React.Component {
 
           {this._renderMenuSections()}
 
-          {this._renderDemoRegisterPrompt()}
+          {this._renderVersion()}
 
         </div>
       </div>
@@ -112,8 +96,6 @@ export default class Sidebar extends React.Component {
                                     groups: R.reverse(ORG_ROLES),
                                     groupLabelFn: orgRoleGroupLabel})}
 
-
-
     </section>
   }
 
@@ -126,9 +108,9 @@ export default class Sidebar extends React.Component {
     }
   }
 
-  _renderDemoRegisterPrompt(){
-    if (isDemo){
-      return <RegisterPrompt show={this.state.showRegisterPrompt} />
+  _renderVersion(){
+    if (window.updater){
+      return <small className="version">v{window.updater.version}</small>
     }
   }
 

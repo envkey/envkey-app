@@ -7,6 +7,7 @@ import scrollIntoView from 'scroll-into-view'
 import EntryRow from './entry_row'
 import EditableCellsParent from './traits/editable_cells_parent'
 import {toClass} from 'recompose'
+import { allEntries } from 'lib/env/query'
 
 const HIGHLIGHT_ROW_DELAY = 2000
 
@@ -61,19 +62,19 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
     this.props.stoppedEditing()
   }
 
-  _onEditCell(entryKey, environment){
-    this.setState({editing: {entryKey, environment}})
-    this.props.editCell(entryKey, environment)
+  _onEditCell(entryKey, environment, subEnvId){
+    this.setState({editing: {entryKey, environment, subEnvId}})
+    this.props.editCell(entryKey, environment, subEnvId)
   }
 
   _onCommitEntryVal(entryKey, environment, update){
     this._clearEditing()
-    this.props.updateEntryVal(entryKey, environment, update)
+    this.props.updateEntryVal(entryKey, environment, update, this.props.subEnvId)
   }
 
   _onCommitEntry(entryKey, update){
     this._clearEditing()
-    this.props.updateEntry(entryKey, update)
+    this.props.updateEntry(entryKey, update, this.props.subEnvId)
   }
 
   render(){
@@ -84,7 +85,9 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
   }
 
   _renderSocketAddingEntries(){
-    return h.div(".socket-adding-entries-block", this.props.socketAddingEntry.map(({firstName, lastName})=>{
+    const socketAddingEntries = this.props.socketAddingEntry[this.props.subEnvId || "@@__base__"] || []
+
+    return h.div(".socket-adding-entries-block", socketAddingEntries.map(({firstName, lastName})=>{
       return h.div([
         h.span(".name", [firstName, lastName].join(" ")),
         h.span(" is adding a variable")
@@ -94,7 +97,7 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
 
   _renderEntryRows(){
     return h.div(".vars-block", [
-      h.div(".entry-rows", this.props.entries.map(::this._renderEntryRow))
+      h.div(".entry-rows", allEntries(this.props.envsWithMeta).map(::this._renderEntryRow))
     ])
   }
 
@@ -108,8 +111,8 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
       ref: `row-${entryKey}`,
       highlightRow: Boolean(this.state.highlightRows[entryKey]),
       editing: this.state.editing,
-      socketUserEditingEntry: this.props.socketEditingEntry[entryKey],
-      socketUserRemovingEntry: this.props.socketRemovingEntry[entryKey],
+      socketUserEditingEntry: R.path([entryKey, this.props.subEnvId || "@@__base__"], this.props.socketEditingEntry),
+      socketUserRemovingEntry: R.path([entryKey, this.props.subEnvId || "@@__base__"], this.props.socketRemovingEntry),
       onEditCell: ::this._onEditCell,
       onCommitEntry: ::this._onCommitEntry,
       onCommitEntryVal: ::this._onCommitEntryVal,

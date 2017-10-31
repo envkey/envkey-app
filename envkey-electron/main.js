@@ -13,16 +13,16 @@ const
 let win, stripeWin
 
 // Auto-update
-updater.init({logger})
+updater.init({logger, autoDownload: false})
 
 function createWindow () {
   // Create the browser window.
   const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize
   win = new BrowserWindow({
-    width: Math.min(1400, Math.floor(screenW * 0.9)),
-    height: Math.min(800, Math.floor(screenH * 0.9)),
-    minWidth: 1080,
-    minHeight: 540,
+    width: Math.min(1400, Math.floor(screenW)),
+    height: Math.min(800, Math.floor(screenH)),
+    minWidth: 1180,
+    minHeight: 640,
     center: true,
     backgroundColor: "#333333",
     title: "EnvKey",
@@ -56,7 +56,7 @@ function createStripeWindow(json){
         type = JSON.parse(decodeURIComponent(json)).type,
         qs = `?data=${json}`,
         h = type == "upgrade_subscription" ?
-          Math.min(800, Math.floor(screenH * 0.9)) :
+          Math.min(800, Math.floor(screenH)) :
           365
 
   stripeWin = new BrowserWindow({
@@ -108,7 +108,9 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  if (win) {
+
+  } else {
     createWindow()
   }
 })
@@ -116,14 +118,4 @@ app.on('activate', () => {
 ipcMain.on("openStripeForm", (e, json)=>{
   if(stripeWin)stripeWin.close()
   createStripeWindow(json)
-})
-
-ipcMain.on("stripeToken", (e, msg)=>{
-  win.webContents.send("stripeToken", msg)
-
-})
-
-ipcMain.on("stripeFormClosed", (e, msg)=>{
-  if(stripeWin)stripeWin.close()
-  if(win)win.webContents.send("stripeFormClosed", msg)
 })

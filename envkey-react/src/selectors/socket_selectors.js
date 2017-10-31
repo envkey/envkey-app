@@ -3,9 +3,10 @@ import { defaultMemoize } from 'reselect'
 import R from 'ramda'
 import merge from 'lodash/merge'
 import {getUser, getSelectedObject, getSelectedObjectType} from './object_selectors'
-import {getEnvironmentsAccessible} from './auth_selectors'
-import {getEntries, getSelectedParentEnvUpdateId} from './env_selectors'
+import {getEnvironmentsAccessibleWithSubEnvs} from './auth_selectors'
+import {getSelectedParentEnvUpdateId, getSubEnvs} from './env_selectors'
 import {anonymizeEnvStatus, statusKeysToArrays} from 'lib/env/update_status'
+import { allEntriesWithSubEnvs } from 'lib/env/query'
 
 const
   getUserByIdFn = state => R.flip(getUser)(state),
@@ -15,29 +16,28 @@ const
 export const
 
   getSocketEnvsStatus = defaultMemoize(state => {
-    const mergeWithKeyFn = (k, l, r) => k == 'addingEntry' ? R.concat(l, r) : merge({}, l, r)
     return R.pipe(
       R.mapObjIndexed((byEnvUpdateId, userId)=> {
-        const editRemoveEntryEvolveFn = R.pipe(
-                R.map(entryKey => ({[entryKey]: getUser(userId, state)})),
-                R.mergeAll
+        const evolveFn = R.pipe(
+                R.map(R.curry(R.assocPath)(R.__, getUser(userId, state), {})),
+                R.reduce(R.mergeDeepRight, {}),
               )
         return R.pipe(
           R.map(R.evolve({
-            removingEntry: editRemoveEntryEvolveFn,
-            editingEntry: editRemoveEntryEvolveFn,
-            editingEntryVal: R.pipe(
-              R.map(R.curry(R.assocPath)(R.__, getUser(userId, state), {})),
-              R.reduce(R.mergeWith(R.merge), {}),
-            ),
-            addingEntry: R.ifElse(R.identity, R.always([getUser(userId, state)]), R.always([]))
+            removingEntry: evolveFn,
+            editingEntry: evolveFn,
+            editingEntryVal: evolveFn,
+            addingEntry: R.pipe(
+              R.map(subEnvId => ({[subEnvId]: [getUser(userId, state)]})),
+              R.mergeAll
+            )
           })),
           R.values,
-          R.reduce(R.mergeWithKey(mergeWithKeyFn), {})
+          R.reduce(R.mergeDeepRight, {})
         )(byEnvUpdateId)
       }),
       R.values,
-      R.reduce(R.mergeWithKey(mergeWithKeyFn), {}),
+      R.reduce(R.mergeDeepRight, {}),
     )(state.socketEnvsStatus)
   }),
 
@@ -52,18 +52,20 @@ export const
 
   getSocketEditingEntryVal = R.pipe(getSocketEnvsStatus, R.propOr({},'editingEntryVal')),
 
-  getSocketAddingEntry= R.pipe(getSocketEnvsStatus, R.propOr([],'addingEntry')),
+  getSocketAddingEntry= R.pipe(getSocketEnvsStatus, R.propOr({},'addingEntry')),
 
   getAnonSocketEnvsStatus = state => {
     const
       parent = getSelectedObject(state),
       parentType = getSelectedObjectType(state),
       envUpdateId = getSelectedParentEnvUpdateId(state),
-      environments = getEnvironmentsAccessible(parent.id, state),
-      entries = getEntries(parent.envsWithMeta),
+      environments = getEnvironmentsAccessibleWithSubEnvs(parent.id, state),
+      subEnvs = getSubEnvs(parent.id, state),
+      entries = allEntriesWithSubEnvs(parent.envsWithMeta),
       local = {[envUpdateId]: state.localSocketEnvsStatus},
       merged = merge({}, local, state.pendingLocalSocketEnvsStatus),
-      mergedWithStatusKeyArrays = R.map(statusKeysToArrays, merged)
+      mergedWithStatusKeyArrays = R.map(statusKeysToArrays, merged),
+      anon = anonymizeEnvStatus(mergedWithStatusKeyArrays, entries, environments, subEnvs)
 
-    return anonymizeEnvStatus(mergedWithStatusKeyArrays, entries, environments)
+    return anon
   }

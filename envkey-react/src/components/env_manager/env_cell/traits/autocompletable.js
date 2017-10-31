@@ -98,15 +98,20 @@ const Autocompletable = Editable => class extends Editable {
 
   _renderAutocompleteOptions(){
     if(!this.props.isEditing)return
-    const opts = this._autocompleteOpts()
+    const props = this._propsForAutoCompleteOptions()
 
-    if (opts.length){
-      return h(AutocompleteOptions, {
-        opts,
-        ref: "autocompleteOptions",
-        searchStr: this._searchStr(),
-        onSelect: ::this._onAutocompleteSelect
-      })
+    if (props.opts.length){
+      return h(AutocompleteOptions, props)
+    }
+  }
+
+  _propsForAutoCompleteOptions(){
+    const opts = this._autocompleteOpts()
+    return {
+      opts,
+      ref: "autocompleteOptions",
+      searchStr: this._searchStr(),
+      onSelect: ::this._onAutocompleteSelect
     }
   }
 }

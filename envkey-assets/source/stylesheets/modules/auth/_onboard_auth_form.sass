@@ -1,8 +1,16 @@
 .onboard-auth-form
+  form
+    max-width: 350px
+    margin: 0 auto
+    position: relative
+
   form button
     font-size: 16px
     height: 40px
     margin-top: 10px
+
+    &[disabled]
+      opacity: 0.5
 
   form input
     font-size: 14px
@@ -20,11 +28,12 @@
     cursor: pointer
     position: absolute
     bottom: 0px
-    padding: 25px 0
+    padding: 8px 0 20px
     left: 0
     width: 100%
     text-align: center
     transition: background 0.15s, color 0.15s
+    font-size: 14px
     &, &:visited
       color: rgba(#fff, 0.3)
       text-decoration: none
@@ -32,9 +41,19 @@
       span.img
         position: relative
         top: 4px
-        font-size: 35px
+        font-size: 30px
         margin-right: 5px
 
     &:hover
       background: rgba(#000, 0.2)
       color: #fff
+
+  .passphrase-copy
+    font-size: 14.5px
+    line-height: 150%
+    color: rgba(#fff, 0.7)
+    text-align: center
+
+    strong
+      font-weight: 400
+      color: rgba(#fff, 0.85)

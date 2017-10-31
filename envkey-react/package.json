@@ -1,7 +1,7 @@
 {
   "name": "envkey-react",
-  "version": "1.0.0",
-  "description": "React/redux layer for EnvKey ui.",
+  "version": "1.1.0",
+  "description": "React/redux layer for EnvKey app.",
   "author": "Dane Schneider",
   "bin": {},
   "engines": {
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "axios": "^0.15.3",
+    "axios-retry": "^3.0.1",
     "babel-plugin-transform-function-bind": "^6.8.0",
     "babel-polyfill": "^6.16.0",
     "babel-preset-stage-2": "^6.18.0",
@@ -57,9 +58,11 @@
     "scroll-into-view": "^1.8.0",
     "sjcl": "^1.0.6",
     "traversty": "^1.0.5",
+    "underscore.string": "^3.3.4",
     "uuid": "^3.0.1",
     "workerpool": "^2.2.0",
-    "xcase": "^2.0.0"
+    "xcase": "^2.0.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "babel-core": "^6.14.0",

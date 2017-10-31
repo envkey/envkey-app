@@ -41,6 +41,7 @@ export default class OrgUserForm extends React.Component {
     if (this.props.orgRolesAssignable && this.props.orgRolesAssignable.length){
       return h(OrgRoleSelect, {
         value: this.state.role,
+        isSubmitting: this.props.isSubmitting,
         onChange: e => this.setState({role: e.target.value}),
         orgRolesAssignable: this.props.orgRolesAssignable
       })

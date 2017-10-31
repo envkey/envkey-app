@@ -28,6 +28,10 @@ export const
 
   getGeneratedEnvKeysById = db.path("generatedEnvKeys"),
 
+  getIsUpdatingEncryptedPrivkey = db.path("isUpdatingEncryptedPrivkey"),
+
+  getUpdateEncryptedPrivkeyErr = db.path("updateEncryptedPrivkeyErr"),
+
   getEnvsAreDecrypting = (id, state) => {
     if(!state)return R.partial(getEnvsAreDecrypting, [id])
     return getIsDecryptingPrivkey(state) ||

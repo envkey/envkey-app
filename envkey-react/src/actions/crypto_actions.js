@@ -8,7 +8,8 @@ import {
   VERIFY_TRUSTED_PUBKEYS,
   VERIFY_CURRENT_USER_PUBKEY,
   ADD_TRUSTED_PUBKEY,
-  DECRYPT_PRIVKEY
+  DECRYPT_PRIVKEY,
+  UPDATE_ENCRYPTED_PRIVKEY
 } from './action_types'
 import { TRUSTED_PUBKEY_PROPS } from 'constants'
 
@@ -27,6 +28,8 @@ export const
   verifyTrustedPubkeys = createAction(VERIFY_TRUSTED_PUBKEYS),
 
   verifyCurrentUserPubkey = createAction(VERIFY_CURRENT_USER_PUBKEY, R.always({}), R.pick(["background"])),
+
+  updateEncryptedPrivkey = createAction(UPDATE_ENCRYPTED_PRIVKEY),
 
   addTrustedPubkey = createAction(
     ADD_TRUSTED_PUBKEY,

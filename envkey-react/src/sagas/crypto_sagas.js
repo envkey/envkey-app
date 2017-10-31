@@ -25,8 +25,13 @@ import {
   VERIFY_CURRENT_USER_PUBKEY,
   VERIFY_CURRENT_USER_PUBKEY_SUCCESS,
   VERIFY_CURRENT_USER_PUBKEY_FAILED,
+  UPDATE_ENCRYPTED_PRIVKEY,
+  UPDATE_ENCRYPTED_PRIVKEY_REQUEST,
+  UPDATE_ENCRYPTED_PRIVKEY_SUCCESS,
+  UPDATE_ENCRYPTED_PRIVKEY_FAILED,
   addTrustedPubkey,
-  updateTrustedPubkeys
+  updateTrustedPubkeys,
+  decryptPrivkey
 } from 'actions'
 import {
   getPrivkey,
@@ -61,13 +66,20 @@ import * as crypto from 'lib/crypto'
 const
   devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
 
-  doLogging = devMode,
+  doLogging = false, //devMode,
 
   onUpdateTrustedPubkeysRequest = apiSaga({
     authenticated: true,
     method: "post",
     actionTypes: [UPDATE_TRUSTED_PUBKEYS_SUCCESS, UPDATE_TRUSTED_PUBKEYS_FAILED],
     urlFn: action => "/users/update_trusted_pubkeys.json"
+  }),
+
+  onUpdateEncryptedPrivkeyRequest = apiSaga({
+    authenticated: true,
+    method: "put",
+    actionTypes: [UPDATE_ENCRYPTED_PRIVKEY_SUCCESS, UPDATE_ENCRYPTED_PRIVKEY_FAILED],
+    urlFn: action => "/users/update_encrypted_privkey.json"
   })
 
 function *onVerifyOrgPubkeys(){
@@ -253,6 +265,25 @@ function *onUpdateTrustedPubkeys({meta}){
   yield put({type: UPDATE_TRUSTED_PUBKEYS_REQUEST, payload, meta})
 }
 
+function *onUpdateEncryptedPrivkey({payload: {oldPassword, newPassword}}){
+
+  yield put(decryptPrivkey({password: oldPassword}))
+
+  const res = yield take([DECRYPT_PRIVKEY_SUCCESS, DECRYPT_PRIVKEY_FAILED])
+
+  if (res.type == DECRYPT_PRIVKEY_FAILED){
+    yield put({type: UPDATE_ENCRYPTED_PRIVKEY_FAILED, error: true, payload: "Invalid passphrase"})
+  } else {
+
+    const privkey = yield select(getPrivkey),
+
+          encryptedPrivkey = crypto.encryptPrivateKey({privkey, passphrase: newPassword})
+
+
+    yield put({type: UPDATE_ENCRYPTED_PRIVKEY_REQUEST, payload: {encryptedPrivkey}})
+  }
+}
+
 function *onVerifyCurrentUserPubkey(){
   const
     {pubkey} = yield select(getCurrentUser),
@@ -394,6 +425,9 @@ export default function* cryptoSagas(){
 
     takeLatest(UPDATE_TRUSTED_PUBKEYS, onUpdateTrustedPubkeys),
     takeLatest(UPDATE_TRUSTED_PUBKEYS_REQUEST, onUpdateTrustedPubkeysRequest),
+
+    takeLatest(UPDATE_ENCRYPTED_PRIVKEY, onUpdateEncryptedPrivkey),
+    takeLatest(UPDATE_ENCRYPTED_PRIVKEY_REQUEST, onUpdateEncryptedPrivkeyRequest),
 
     takeEvery(DECRYPT_ENVS, onDecryptEnvs),
     takeEvery(DECRYPT_ENVS_SUCCESS, onDecryptEnvsSuccess)

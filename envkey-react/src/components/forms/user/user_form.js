@@ -31,8 +31,9 @@ export default class UserForm extends React.Component {
   }
 
   _userFields(){
-    const fields = ["firstName", "lastName", "orgRole"]
-    if (!this.props.readOnlyEmail){
+    const fields = ["firstName", "lastName"]
+    if (!this.props.isAccountForm){
+      fields.push("orgRole")
       fields.push("email")
     }
     return fields
@@ -57,6 +58,8 @@ export default class UserForm extends React.Component {
 
       h.fieldset([
         h.input('.first-name', {
+          type: "text",
+          disabled: this.props.isSubmitting,
           ref: "firstName",
           placeholder: "First Name",
           required: true,
@@ -67,6 +70,8 @@ export default class UserForm extends React.Component {
 
       h.fieldset([
         h.input('.last-name', {
+          type: "text",
+          disabled: this.props.isSubmitting,
           placeholder: "Last Name",
           required: true,
           value: this.state.lastName,
@@ -92,6 +97,7 @@ export default class UserForm extends React.Component {
         h.span(this.state.firstName ? ["Make ", h.em(this.state.firstName), " an org admin"] : "Make org admin"),
         h.input({
           type: "checkbox",
+          disabled: this.props.isSubmitting,
           checked: this.state.orgRole == "org_admin",
           onChange: ()=> this.setState({orgRole: (this.state.orgRole == "org_admin" ? "basic" : "org_admin")})
         }),
@@ -104,6 +110,7 @@ export default class UserForm extends React.Component {
     if (!this.props.addAssoc && this.props.orgRolesAssignable && this.props.orgRolesAssignable.length){
       return h(OrgRoleSelect, {
         value: this.state.orgRole,
+        isSubmitting: this.props.isSubmitting,
         onChange: e => this.setState({orgRole: e.target.value}),
         orgRolesAssignable: this.props.orgRolesAssignable
       })
@@ -115,7 +122,7 @@ export default class UserForm extends React.Component {
       h.input('.email', {
         type: "email",
         placeholder: "Email",
-        disabled: this.props.readOnlyEmail,
+        disabled: this.props.isAccountForm || this.props.isSubmitting,
         required: true,
         value: this.state.email,
         onChange: e => this.setState({email: e.target.value})

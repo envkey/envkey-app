@@ -20,13 +20,18 @@ export default function({
         return h.div(".danger-zone", [
           h.h3("Danger Zone"),
 
-          h(DeleteField, {
-            fullLabel: "Remove From Organization",
-            isRemoving,
-            onRemove,
-            confirmName: [user.firstName, user.lastName].join(" "),
-            confirmPrompt: "the user's full name"
-          })
+          h.div(".content", [
+            h.fieldset(".remove-user", [
+              h.label("Remove User From Organization"),
+              h(DeleteField, {
+                fullLabel: "Remove From Organization",
+                isRemoving,
+                onRemove,
+                confirmName: [user.firstName, user.lastName].join(" "),
+                confirmPrompt: "the user's full name"
+              })
+            ])
+          ])
         ])
 
       }

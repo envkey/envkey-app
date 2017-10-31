@@ -6,7 +6,7 @@ import EntryForm from './entry_form'
 
 export default function(props) {
   const renderAddVar = ()=>{
-    if (props.addVar){
+    if(!props.isReadOnly){
       return h(EntryForm, {
         ...props,
         onSubmit: props.createEntry
@@ -15,7 +15,7 @@ export default function(props) {
   }
 
   return h.div(".grid.env-grid", [
-    h(LabelRow, props),
+    (props.subEnvId ? null : h(LabelRow, props)),
     renderAddVar(),
     h(EnvGridContent, props)
   ])

@@ -19,7 +19,12 @@ const label = "Organization"
     h(BasicRenameForm, {label, isRenaming, onRename, name: currentOrg.name}),
     h.div(".danger-zone", [
       h.h3("Danger Zone"),
-      h(DeleteField, {label, isRemoving, onRemove, confirmName: currentOrg.name})
+      h.div(".content", [
+        h.fieldset(".delete-org", [
+          h.label("Delete Organization"),
+          h(DeleteField, {label, isRemoving, onRemove, confirmName: currentOrg.name})
+        ])
+      ])
     ])
   ])
 }

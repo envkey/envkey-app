@@ -8,13 +8,15 @@ import {
   updateEntry,
   removeEntry,
   updateEntryVal,
+  addSubEnv,
+  removeSubEnv,
+  renameSubEnv,
   addAssoc,
   removeAssoc,
   createAssoc,
   socketUpdateLocalStatus
 } from 'actions'
 import {
-  getEntries,
   getCurrentAppUserForApp,
   getCurrentUser,
   getCurrentOrg,
@@ -26,7 +28,6 @@ import {
   getIsCreating,
   getIsUpdatingEnv,
   getEnvsWithMetaWithPending,
-  getHasAnyVal,
   getIsOnboarding,
   getIsInvitee,
   getLastAddedEntry,
@@ -43,6 +44,7 @@ import {
   getDidOnboardImport,
   getCurrentUserEnvironmentsAssignableForApp
 } from 'selectors'
+import { allEntries } from 'lib/env/query'
 import EnvManager from 'components/env_manager'
 import {
   OrgOwnerAppEnvSlider,
@@ -67,12 +69,10 @@ const EnvManagerContainerFactory = ({parentType})=> {
       return {
         currentOrg: getCurrentOrg(state),
         envsWithMeta: envsWithMetaWithPending,
-        entries: getEntries(envsWithMetaWithPending),
         isUpdatingEnv: getIsUpdatingEnv(appId, state),
         isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({appId, entryKey, environment}, state),
         isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({appId, entryKey}, state),
         isCreatingEntry: getIsCreatingEnvEntry(appId, state),
-        hasAnyVal: getHasAnyVal(envsWithMetaWithPending),
         isOnboarding: getIsOnboarding(state),
         didOnboardImport: getDidOnboardImport(appId, state),
         isInvitee: getIsInvitee(state),
@@ -98,28 +98,31 @@ const EnvManagerContainerFactory = ({parentType})=> {
             baseProps = {parent, parentType, parentId: parent.id}
       return {
         dispatch,
-        createEntry: ({entryKey, vals})=> dispatch(createEntry({...baseProps, entryKey, vals, timestamp: moment().valueOf()})),
-        updateEntry: (entryKey, newKey)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, timestamp: moment().valueOf()})),
-        removeEntry: (entryKey)=> dispatch(removeEntry({...baseProps, entryKey})),
-        updateEntryVal: (entryKey, environment, update)=> dispatch(updateEntryVal({...baseProps,  entryKey, environment, update})),
-        editCell: (entryKey, environment)=>{
+        createEntry: ({entryKey, vals, subEnvId})=> dispatch(createEntry({...baseProps, entryKey, vals, subEnvId, timestamp: moment().valueOf()})),
+        updateEntry: (entryKey, newKey, subEnvId)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, subEnvId, timestamp: moment().valueOf()})),
+        removeEntry: (entryKey, subEnvId)=> dispatch(removeEntry({...baseProps, entryKey, subEnvId})),
+        updateEntryVal: (entryKey, environment, update, subEnvId)=> dispatch(updateEntryVal({...baseProps, entryKey, environment, update, subEnvId})),
+
+        addSubEnv: params => dispatch(addSubEnv({...baseProps, ...params})),
+        removeSubEnv: params => dispatch(removeSubEnv({...baseProps, ...params})),
+        renameSubEnv: params => dispatch(renameSubEnv({...baseProps, ...params})),
+
+        editCell: (entryKey, environment, subEnvId)=>{
           if (entryKey && environment){
             dispatch(socketUpdateLocalStatus({editingEntryVal: {[entryKey]: {[environment]: true}}}))
           } else if (entryKey){
-            dispatch(socketUpdateLocalStatus({editingEntry: {[entryKey]: true}}))
+            dispatch(socketUpdateLocalStatus({editingEntry: {[entryKey]: {[subEnvId || "@@__base__"]: true}}}))
           }
         },
 
         stoppedEditing: ()=> dispatch(socketUpdateLocalStatus({})),
-
-        addingEntry: ()=> dispatch(socketUpdateLocalStatus({addingEntry: true})),
-
+        addingEntry: (subEnvId)=> dispatch(socketUpdateLocalStatus({addingEntry: (subEnvId || "@@__base__")})),
         stoppedAddingEntry: ()=> dispatch(socketUpdateLocalStatus({}))
       }
     },
 
     startedOnboardingFn = (props, state)=> {
-      return ((props.parent.role == "org_owner" && props.entries.length == 0) ||
+      return ((props.parent.role == "org_owner" && allEntries(props.envsWithMeta).length == 0) ||
               (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry) ||
               props.didOnboardImport) &&
               props.numApps < 2 &&

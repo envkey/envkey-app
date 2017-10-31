@@ -7,8 +7,9 @@ import { imagePath } from 'lib/ui'
 
 const targetId = props => R.path(["relation", "id"], props.assoc) || props.assoc.id,
 
-      canRemove = ({assoc}) => assoc.relation ? Boolean(assoc.relation.permissions.delete) :
-                                                Boolean(assoc.permissions.delete),
+      canRemove = ({assoc}) => (!assoc.isDefault &&
+                                (assoc.relation ? Boolean(assoc.relation.permissions.delete) :
+                                                  Boolean(assoc.permissions.delete))),
 
       isRemoving = props => props.isRemovingById[targetId(props)] || false,
 

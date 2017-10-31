@@ -37,12 +37,16 @@ export const
   getIsRevokingAssocKey = (id, state)=> getIsRevokingAssocKeyById(state)[id] || false,
 
   getIsUpdatingEnv = (appId, state)=> {
-    return getIsCreatingEnvEntry(appId, state) || R.pipe(
-      db.path("isUpdatingEnv"),
-      R.propOr({}, appId),
-      flattenObj,
-      R.complement(R.isEmpty)
-    )(state)
+    const checkFns = ["isUpdatingEnv", "isAddingSubEnv", "isUpdatingSubEnv"].map(k => {
+      return R.pipe(
+        db.path(k),
+        R.propOr({}, appId),
+        flattenObj,
+        R.complement(R.isEmpty)
+      )
+    })
+
+    return getIsCreatingEnvEntry(appId, state) || R.anyPass(checkFns)(state)
   },
 
   getIsUpdatingEnvVal = ({appId, entryKey, environment}, state)=>{

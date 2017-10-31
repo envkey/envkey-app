@@ -37,7 +37,7 @@ export default class DeleteField extends React.Component {
       const confirmPrompt = this.props.confirmPrompt || `the ${this.props.label.toLowerCase()} name`
 
       return h.div(".delete-confirmation", [
-        h.input({ref: "confirm", placeholder: `To confirm, type ${confirmPrompt} here.`} )
+        h.input({type: "text", disabled: this.props.isRemoving, ref: "confirm", placeholder: `To confirm, type ${confirmPrompt} here.`} )
       ])
     }
   }

@@ -1,6 +1,8 @@
 import {
   APP_LOADED,
 
+  DISCONNECTED,
+
   VERIFY_EMAIL_REQUEST,
   VERIFY_EMAIL_SUCCESS,
   VERIFY_EMAIL_FAILED,
@@ -56,6 +58,14 @@ export const
     } else {
       return state
     }
+  },
+
+  disconnected = (state = false, action)=> {
+    // don't flip back to false on reconnect, just do a hard refresh
+    if (action.type === DISCONNECTED){
+      return true
+    }
+    return state
   },
 
   verifyingEmail = (state = null, action)=>{

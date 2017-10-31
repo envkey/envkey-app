@@ -5,32 +5,33 @@ import {
 } from 'lib/env/update_status'
 
 const entries = ["TEST_1", "TEST_2", "TEST_3", "TEST_4", "TEST_5", "TEST_6"],
-      environments = ["development", "staging", "production"]
+      environments = ["development", "staging", "production"],
+      subEnvs = ["subEnv1", "subEnv2"]
 
 test("deanonymizeEnvStatus", ()=>{
   expect(deanonymizeEnvStatus({
     "env-update-id": {
-      removingEntry: [0],
-      editingEntry: [1],
+      removingEntry: [[0, -1]],
+      editingEntry: [[1, 0]],
       editingEntryVal: [[2,1]],
     },
     "next-update-id": {
-      removingEntry: [3],
-      editingEntry: [4],
+      removingEntry: [[3, -1]],
+      editingEntry: [[4, 1]],
       editingEntryVal: [[5,2]],
-      addingEntry: true
+      addingEntry: [-1]
     }
-  }, entries, environments)).toEqual({
+  }, entries, environments, subEnvs)).toEqual({
     "env-update-id": {
-      removingEntry: ["TEST_1"],
-      editingEntry: ["TEST_2"],
+      removingEntry: [["TEST_1", "@@__base__"]],
+      editingEntry: [["TEST_2", "subEnv1"]],
       editingEntryVal: [["TEST_3","staging"]],
     },
     "next-update-id": {
-      removingEntry: ["TEST_4"],
-      editingEntry: ["TEST_5"],
+      removingEntry: [["TEST_4", "@@__base__"]],
+      editingEntry: [["TEST_5", "subEnv2"]],
       editingEntryVal: [["TEST_6","production"]],
-      addingEntry: true
+      addingEntry: ["@@__base__"]
     }
   })
 })
@@ -38,42 +39,42 @@ test("deanonymizeEnvStatus", ()=>{
 test("anonymizeEnvStatus", ()=>{
   expect(anonymizeEnvStatus({
     "env-update-id": {
-      removingEntry: ["TEST_1"],
-      editingEntry: ["TEST_2"],
+      removingEntry: [["TEST_1", "@@__base__"]],
+      editingEntry: [["TEST_2", "subEnv1"]],
       editingEntryVal: [["TEST_3","staging"]],
     },
     "next-update-id": {
-      removingEntry: ["TEST_4"],
-      editingEntry: ["TEST_5"],
+      removingEntry: [["TEST_4", "@@__base__"]],
+      editingEntry: [["TEST_5", "subEnv2"]],
       editingEntryVal: [["TEST_6","production"]],
-      addingEntry: true
+      addingEntry: ["@@__base__"]
     }
-  }, entries, environments)).toEqual({
+  }, entries, environments, subEnvs)).toEqual({
     "env-update-id": {
-      removingEntry: [0],
-      editingEntry: [1],
+      removingEntry: [[0, -1]],
+      editingEntry: [[1, 0]],
       editingEntryVal: [[2,1]],
     },
     "next-update-id": {
-      removingEntry: [3],
-      editingEntry: [4],
+      removingEntry: [[3, -1]],
+      editingEntry: [[4, 1]],
       editingEntryVal: [[5,2]],
-      addingEntry: true
+      addingEntry: [-1]
     }
   })
 })
 
 test("statusKeysToArrays", ()=>{
   expect(statusKeysToArrays({
-    removingEntry: {TEST_4: true},
-    editingEntry: {TEST_5: true},
+    removingEntry: {TEST_4: {["@@__base__"]: true}},
+    editingEntry: {TEST_5: {subEnv1: true}},
     editingEntryVal: {TEST_6: {production: true, staging: true}, TEST_7: {development: true}},
-    addingEntry: true
+    addingEntry: "subEnv2"
   })).toEqual({
-    removingEntry: ["TEST_4"],
-    editingEntry: ["TEST_5"],
+    removingEntry: [["TEST_4", "@@__base__"]],
+    editingEntry: [["TEST_5", "subEnv1"]],
     editingEntryVal: [["TEST_6", "production"], ["TEST_6", "staging"], ["TEST_7", "development"]],
-    addingEntry: true
+    addingEntry: ["subEnv2"]
   })
 })
 

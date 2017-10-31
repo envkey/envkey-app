@@ -39,8 +39,16 @@ module.exports = function createMenu(){
       role: 'help',
       submenu: [
         {
-          label: 'Learn More',
+          label: 'About EnvKey',
           click () { require('electron').shell.openExternal('https://www.envkey.com') }
+        },
+        {
+          label: 'Docs',
+          click () { require('electron').shell.openExternal('https://docs.envkey.com') }
+        },
+        {
+          label: 'Report A Bug',
+          click () { require('electron').shell.openExternal('https://github.com/envkey/envkey-app/issues') }
         }
       ]
     }

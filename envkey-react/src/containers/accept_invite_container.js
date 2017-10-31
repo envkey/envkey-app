@@ -18,6 +18,7 @@ import {
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
+import PasswordCopy from 'components/shared/password_copy'
 
 class AcceptInvite extends React.Component {
 
@@ -26,7 +27,10 @@ class AcceptInvite extends React.Component {
     this.state = {
       emailVerificationCode: "",
       encryptionCode: "",
-      password: ""
+      password: "",
+      passwordValid: false,
+      passwordScore: null,
+      passwordFeedback: null
     }
   }
 
@@ -86,7 +90,7 @@ class AcceptInvite extends React.Component {
   _renderLoadInviteForm(){
     return h.div(".load-invite-form", [
 
-      h.p(".copy", "To accept an invitation, you need two tokens."),
+      // h.p(".copy", "To accept an invitation, you need two tokens."),
 
       h.form({onSubmit: ::this._onLoadInvite}, [
 
@@ -94,13 +98,13 @@ class AcceptInvite extends React.Component {
           h.p([
             h.strong(".num", "1 "),
             h.span([
-            "An ",
             h.strong("Invite Token"),
-            ", which you receive in an email from EnvKey <support@envkey.com>:"
+            ", received in an email from EnvKey <support@envkey.com>"
             ])
           ]),
           h.input({
             type: "password",
+            disabled: this.props.isLoadingInvite,
             ref: "inviteToken",
             placeholder: "Invite Token",
             required: true,
@@ -113,15 +117,15 @@ class AcceptInvite extends React.Component {
           h.p([
             h.strong(".num", "2 "),
             h.span([
-              "An ",
               h.strong("Encryption Token"),
-              ", which you receive directly from the person who invited you:"
+              ", received directly from the person who invited you"
             ])
 
           ]),
           h.input({
             type: "password",
             placeholder: "Encryption Token",
+            disabled: this.props.isLoadingInvite,
             value: this.state.encryptionCode,
             required: true,
             onChange: e => this.setState({encryptionCode: e.target.value})
@@ -151,7 +155,7 @@ class AcceptInvite extends React.Component {
     }
   }
 
-  _passwordCopy(){
+  _passwordPrompt(){
     if (this._isNewUser()){
       return "Invite verified. To sign in, set a strong master encryption passphrase."
     } else {
@@ -160,17 +164,32 @@ class AcceptInvite extends React.Component {
   }
 
   _renderPasswordForm(){
-    return h.form(".password-form", {
-      onSubmit: ::this._onSubmitPassword,
-    }, [
-      h.p(".copy", this._passwordCopy()),
-      h.fieldset([
-        h(PasswordInput, {
-          value: this.state.password,
-          onChange: e => this.setState({password: e.target.value})
-        })
+    return h.div([
+      h.form(".password-form", {
+        onSubmit: ::this._onSubmitPassword,
+      }, [
+        h.p(".copy", this._passwordPrompt()),
+        h.fieldset([
+          h(PasswordInput, {
+            disabled: this.props.isAuthenticating || this.props.isInvitee,
+            value: this.state.password,
+            validateStrength: this._isNewUser(),
+            valid: this.state.passwordValid,
+            score: this.state.passwordScore,
+            feedback: this.state.passwordFeedback,
+            strengthUserInputs: R.values(R.pick(["email", "firstName", "lastName"], this.props.inviteParams.invitee)),
+            onChange: (val, valid, score, feedback) => this.setState({
+              password: val,
+              passwordValid: valid,
+              passwordScore: score,
+              passwordFeedback: feedback
+            })
+          })
+        ]),
+        h.fieldset([this._renderSubmitPassword()]),
       ]),
-      h.fieldset([this._renderSubmitPassword()])
+
+      (this._isNewUser() ? h(PasswordCopy) : null)
     ])
   }
 
@@ -178,7 +197,7 @@ class AcceptInvite extends React.Component {
     if(this.props.isAuthenticating || this.props.isInvitee){
       return h(Spinner)
     } else {
-      return <button>Sign In</button>
+      return <button disabled={!this.state.passwordValid}>Sign In</button>
     }
   }
 }

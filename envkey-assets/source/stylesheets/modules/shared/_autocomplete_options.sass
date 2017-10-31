@@ -11,6 +11,8 @@
     cursor: pointer
     height: 30px
     background: hsl(0,0,99)
+    overflow: hidden
+    text-overflow: ellipsis
 
     > span
       color: hsl(0,0,50)
@@ -31,3 +33,8 @@
       span
         color: #fff
 
+    &.entry-opt
+      transition: none
+      padding-left: 15px
+      > span
+        transition: none

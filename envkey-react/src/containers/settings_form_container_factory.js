@@ -59,7 +59,7 @@ const SettingsFormContainerFactory = ({objectType, targetObjectType, targetObjec
       return {
         onRename: params => dispatch(renameObject({...baseParams, params})),
         onRemove: ()=> dispatch(removeObject(baseParams)),
-        onUpdateSettings: params => dispatch(renameObject({...baseParams, params})),
+        onUpdateSettings: params => dispatch(updateObjectSettings({...baseParams, params})),
         onUpdateOrgRole: ({role}) => dispatch(updateOrgRole({role, userId: obj.id, orgUserId: targetId}))
       }
     }

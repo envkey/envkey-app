@@ -16,6 +16,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onSelect: (slug) => {
+      if(!document.body.className.includes("preloader-authenticate")){
+        document.body.className += " preloader-authenticate"
+      }
+      document.getElementById("preloader-overlay").className = "full-overlay"
       dispatch(selectOrg(slug))
     }
   }

@@ -120,18 +120,18 @@ export const
 
     switch(action.type){
       case CREATE_ENTRY:
-        return R.assocPath([action.meta.envUpdateId, "addingEntry"], true, state)
+        return R.assocPath([action.meta.envUpdateId, "addingEntry"], (action.payload.subEnvId || "@@__base__"), state)
 
       case UPDATE_ENTRY:
         return R.assocPath(
-          [action.meta.envUpdateId, "editingEntry", action.payload.entryKey],
+          [action.meta.envUpdateId, "editingEntry", action.payload.entryKey, action.payload.subEnvId || "@@__base__"],
           true,
           state
         )
 
       case REMOVE_ENTRY:
         return R.assocPath(
-          [action.meta.envUpdateId, "removingEntry", action.payload.entryKey],
+          [action.meta.envUpdateId, "removingEntry", action.payload.entryKey, action.payload.subEnvId || "@@__base__"],
           true,
           state
         )

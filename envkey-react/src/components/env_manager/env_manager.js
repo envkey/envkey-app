@@ -3,17 +3,17 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import EnvHeader from './env_header'
 import EnvGrid from './env_grid'
+import SubEnvs from './sub_envs'
 import {AddAssoc} from 'components/assoc_manager'
 import SmallLoader from 'components/shared/small_loader'
+import { allEntries, hasAnyVal } from 'lib/env/query'
 
 export default class EnvManager extends React.Component {
 
   constructor(props){
     super(props)
     this.state = {
-      addVar: true,
       hideValues: true,
-      filter: "",
       lastSocketUserUpdatingEnvs: null
     }
   }
@@ -25,20 +25,23 @@ export default class EnvManager extends React.Component {
     }
   }
 
+  _subEnvsOpen(){
+    return (this.props.envsWithMeta && this.props.params.sub) || false
+  }
+
   _isEmpty(arg=null){
     const props = arg || this.props
-    return props.entries.length == 0
+    return allEntries(props.envsWithMeta).length == 0
   }
 
   _classNames(){
     return [
       "environments",
       [this.props.parentType, "parent"].join("-"),
-      (this.state.addVar ? "add-var" : ""),
       (this.props.isUpdatingEnv ? "updating-env" : ""),
       (this._isEmpty() ? "empty" : ""),
       (this.state.hideValues ? "hide-values" : ""),
-      (this.props.hasAnyVal ? "" : "has-no-val"),
+      (hasAnyVal(this.props.envsWithMeta) ? "" : "has-no-val"),
       (this.props.socketUserUpdatingEnvs ? "receiving-socket-update" : ""),
       (this.props.didOnboardImport ? "did-onboard-import" : "")
     ]
@@ -51,7 +54,7 @@ export default class EnvManager extends React.Component {
   _renderContents(){
     return [
       this._renderHeader(),
-      this._renderGrid(),
+      (this._subEnvsOpen() ? this._renderSubEnvs() : this._renderGrid()),
       this._renderSocketUpdate()
     ]
   }
@@ -59,18 +62,24 @@ export default class EnvManager extends React.Component {
   _renderHeader(){
     return h(EnvHeader, {
       ...this.props,
-      ...R.pick(["addVar", "hideValues"], this.state),
+      ...R.pick(["hideValues"], this.state),
       isEmpty: this._isEmpty(),
-      onFilter: s => this.setState({filter: s.trim().toLowerCase()}),
       onToggleHideValues: ()=> this.setState(state => ({hideValues: !state.hideValues})),
-      onAddVar: ()=> this.setState(state => ({addVar: !state.addVar})),
     })
   }
 
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "filter", "addVar", "startedOnboarding"], this.state)
+      ...R.pick(["hideValues", "startedOnboarding"], this.state)
+    })
+  }
+
+  _renderSubEnvs(){
+    return h(SubEnvs, {
+      ...this.props,
+      ...R.pick(["hideValues"], this.state),
+      environment: this._subEnvsOpen()
     })
   }
 
@@ -79,8 +88,7 @@ export default class EnvManager extends React.Component {
     return h.div(".socket-update-envs", [
       h.label([
         h.span("Receiving update from "),
-        h.span(".name", [firstName, lastName].join(" ")),
-        // h.span(["..."])
+        h.span(".name", [firstName, lastName].join(" "))
       ]),
       h(SmallLoader)
     ])

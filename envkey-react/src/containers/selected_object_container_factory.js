@@ -14,7 +14,9 @@ import {
   getIsDecryptingAll,
   getDecryptedAll,
   getDecryptPrivkeyErr,
-  getDecryptAllErr
+  getDecryptAllErr,
+  getSelectedObjectType,
+  getSelectedObjectId
 } from "selectors"
 import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
@@ -29,7 +31,7 @@ const SelectedObjectContainerFactory = ({
   const idPathFn = R.path([objectType, "id"]),
 
         triggerSelectedObject = (props)=> {
-          if(props.envsAreDecrypted && props[objectType]){
+          if(props.decryptedAll && props[objectType]){
             props.selectedObject(props[objectType])
           }
         }
@@ -50,13 +52,9 @@ const SelectedObjectContainerFactory = ({
         this.setState({showTransitionOverlay: true})
         setTimeout(()=>{ this.setState({showTransitionOverlay: false}) }, 1)
         triggerSelectedObject(nextProps)
-      } else if (!this.props.envsAreDecrypted && nextProps.envsAreDecrypted){
+      } else if (!this.props.decryptedAll && nextProps.decryptedAll){
         triggerSelectedObject(nextProps)
       }
-    }
-
-    _classNames(){
-
     }
 
     render(){
@@ -92,7 +90,7 @@ const SelectedObjectContainerFactory = ({
     _renderContents(){
       const isAccountMenu = ["currentUser", "currentOrg"].includes(objectType)
 
-      if(isAccountMenu || this.props.envsAreDecrypted || this.props.isDecrypting){
+      if(isAccountMenu || this.props.decryptedAll || this.props.isDecrypting){
         return [
           this._renderChildren(),
           (isAccountMenu ? null : h(DecryptLoader, this.props))
@@ -129,9 +127,11 @@ const SelectedObjectContainerFactory = ({
         [objectType]: obj,
         permissions: getPermissions(state),
         isDecrypting: getIsDecryptingAll(state),
-        envsAreDecrypted: getDecryptedAll(state),
+        decryptedAll: getDecryptedAll(state),
         decryptPrivkeyErr: getDecryptPrivkeyErr(state),
-        decryptAllErr: getDecryptAllErr(state)
+        decryptAllErr: getDecryptAllErr(state),
+        selectedObjectType: getSelectedObjectType(state),
+        selectedObjectId: getSelectedObjectId(state)
       }
     },
 

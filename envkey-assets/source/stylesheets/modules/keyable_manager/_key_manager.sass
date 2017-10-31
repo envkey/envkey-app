@@ -1,5 +1,5 @@
 .key-manager
-  max-width: 435px
+  max-width: 460px
   position: relative
 
   .key-section-head
@@ -8,7 +8,7 @@
       margin-bottom: 7px
       font-size: 14px
       font-family: $condensed-font
-      color: hsl(0,0,60)
+      color: hsl(0,0,50)
       font-weight: 200
 
     h2
@@ -24,9 +24,9 @@
         color: $dark-blue
 
     p
-      font-size: 13px
+      font-size: 14px
       line-height: 150%
-      color: hsl(0,0,40)
+      color: hsl(0,0,35)
 
       a, a:visited
         color: $dark-blue
@@ -41,7 +41,7 @@
     +clearfix
     border: none
     height: 69px
-    background: hsl(0,0,96)
+    background: hsl(0,0,94)
     padding: 20px
 
     > .bottom-row, > div:not(.key-generated) > .bottom-row
@@ -99,15 +99,64 @@
             opacity: 0.5
 
   .server-keys-section, .development-keys-section
-    .single-item .association-row
-      &:first-of-type
-        margin-top: 10px
-      .name
+    .association-manager
+      .single-item-col, .single-item-section
+        .association-row
+          &:first-of-type
+            margin-top: 10px
+          .name
+            display: none
+        .column-header
+          margin-bottom: 25px
+
+  .server-keys-section .association-manager
+    .single-item-col, .single-item-section
+      .association-row:first-of-type
+        margin-top: 20px
+
+  .development-keys-section
+    .column-header
+      display: none
+
+    .single-item-col .association-row:first-of-type
+      margin-top: 0
+
+  .server-keys-section .section-title
+    margin-top: 22px
+    background: hsl(0,0,63)
+    padding-top: 10px
+    padding-bottom: 10px
+    position: relative
+    font-size: 14px
+    font-family: $condensed-font
+
+    .title
+      padding-left: 25px
+      font-weight: 500
+
+      > img
+        position: absolute
+        left: 11px
+        width: 14px
+        top: 50%
+        transform: translateY(-53%)
+        opacity: 0.8
+
+    .subtitle
+      float: right
+      font-weight: 400
+      color: rgba(#000, 0.45)
+
+
+  .server-keys-section
+    .base-env
+      .section-title
         display: none
 
-  .development-keys-section .single-item .association-row:first-of-type
-    margin-top: 0
-
+    .sub-env
+      .associations
+        padding: 0 0 0 20px
+        box-sizing: border-box
 
   .association-manager
     .column
@@ -120,7 +169,10 @@
 
       .column-header
         +clearfix
-        margin-bottom: 5px
+        padding-top: 23px
+        padding-bottom: 7px
+        border-top: 1px solid hsl(0,0,90)
+        border-bottom: 1px solid hsl(0,0,90)
 
       .column-body
         height: auto
@@ -140,10 +192,11 @@
 
       .head .title
         font-weight: 300
-        font-size: 15px
-        color: hsl(0,0,75)
+        font-size: 16px
+        color: hsl(0,0,60)
         em
           font-weight: 400
+          color: hsl(0,0,50)
 
       .head .parent-name
         display: none
@@ -156,8 +209,8 @@
         padding: 0
 
         li
-          color: hsl(0,0,65)
-          font-size: 11.5px
+          color: hsl(0,0,55)
+          font-size: 12px
 
         li::before
           content: ""
@@ -171,9 +224,10 @@
     position: relative
     width: 100%
     border-radius: 0
-    margin-top: 20px
+    margin-top: 25px
     background: hsl(0,0,96)
     outline: none
+    transition: background 0.1s
 
     > span
       font-family: $default-font
@@ -182,18 +236,20 @@
       font-weight: 300
       font-size: 13px
       position: relative
-      top: 0
+      top: -1px
       color: hsl(0,0,60)
 
     .img
       display: block
       position: absolute
       right: 0
+      top: 0
       height: calc(100% - 1px)
       width: 48px
       text-align: center
       background: rgba($dark-blue, 0.8)
       box-sizing: border-box
+      transition: background 0.1s
 
       > img
         width: 18px
@@ -206,6 +262,7 @@
 
     > span
       color: #fff
+      font-weight: 600
     .img
       background: $darker-blue
 
@@ -222,9 +279,10 @@
       padding-left: 10px
       padding-right: 10px
       padding-top: 8px
+      top: 2px
 
     .img
-      top: 0
+      top: -1px
 
     .img > span
       text-transform: uppercase
@@ -243,13 +301,11 @@
     .association-manager .column
       margin-bottom: 40px
     .association-row:first-of-type
-      margin-top: 34px
-
-
+      margin-top: 40px
 
   .onboard-slider
     position: absolute
-    left: 470px
+    left: 490px
     width: 325px
     top: 25px
 

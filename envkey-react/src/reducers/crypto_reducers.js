@@ -42,7 +42,11 @@ import {
   LOAD_INVITE_REQUEST,
   LOAD_INVITE_API_SUCCESS,
   ACCEPT_INVITE_REQUEST,
-  ACCEPT_INVITE_SUCCESS
+  ACCEPT_INVITE_SUCCESS,
+
+  UPDATE_ENCRYPTED_PRIVKEY,
+  UPDATE_ENCRYPTED_PRIVKEY_SUCCESS,
+  UPDATE_ENCRYPTED_PRIVKEY_FAILED
 } from 'actions'
 
 export const
@@ -145,11 +149,12 @@ export const
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
         return action.payload.encryptedPrivkey
+      case UPDATE_ENCRYPTED_PRIVKEY_SUCCESS:
+        return action.meta.requestPayload.encryptedPrivkey
       case LOGIN:
       case LOGIN_REQUEST:
       case LOGOUT:
       case REGISTER:
-      case DECRYPT_PRIVKEY_SUCCESS:
       case LOAD_INVITE_REQUEST:
         return null
       default:
@@ -187,6 +192,41 @@ export const
       case REGISTER:
       case LOAD_INVITE_REQUEST:
         return false
+      default:
+        return state
+    }
+  },
+
+  isUpdatingEncryptedPrivkey = (state = false, action)=>{
+    switch(action.type){
+      case UPDATE_ENCRYPTED_PRIVKEY:
+        return true
+      case UPDATE_ENCRYPTED_PRIVKEY_SUCCESS:
+      case UPDATE_ENCRYPTED_PRIVKEY_FAILED:
+      case LOGOUT:
+      case SELECT_ORG:
+      case LOGIN:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return false
+      default:
+        return state
+    }
+  },
+
+  updateEncryptedPrivkeyErr = (state = null, action)=>{
+    switch(action.type){
+      case UPDATE_ENCRYPTED_PRIVKEY_FAILED:
+        return action.payload
+
+      case UPDATE_ENCRYPTED_PRIVKEY:
+      case LOGOUT:
+      case SELECT_ORG:
+      case LOGIN:
+      case REGISTER:
+      case LOAD_INVITE_REQUEST:
+        return null
+
       default:
         return state
     }

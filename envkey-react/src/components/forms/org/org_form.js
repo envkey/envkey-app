@@ -18,7 +18,9 @@ export default class OrgForm extends React.Component {
             className="object-form org-form"
             onSubmit={this._onSubmit.bind(this)}>
 
-        <input className="org-name"
+        <input type="text"
+               className="org-name"
+               disabled={this.props.isSubmitting}
                ref="name"
                placeholder="Organization Name"
                required />

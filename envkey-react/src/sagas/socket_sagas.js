@@ -27,17 +27,16 @@ import {
   getCurrentOrg,
   getApp,
   getSelectedObject,
-  getEntries,
   getSelectedObjectType,
   getCurrentUser,
   getCurrentOrgUser,
   getCurrentAppUserForApp,
   getLocalSocketEnvsStatus,
-  getEnvironmentLabels,
+  getEnvironmentLabelsWithSubEnvs,
   getAnonSocketEnvsStatus,
-  getSelectedObjectId
+  getSelectedObjectId,
+  getSubEnvs
 } from 'selectors'
-import {alertBox} from 'lib/ui/alert_box'
 import {
   UPDATE_ENVS,
   UPDATE_ENVS_STATUS,
@@ -49,6 +48,7 @@ import {
   broadcastOrgChannel,
   broadcastObjectChannel
 } from 'lib/socket'
+import { allEntriesWithSubEnvs } from 'lib/env/query'
 import { deanonymizeEnvStatus } from 'lib/env/update_status'
 import {dispatchEnvUpdateRequestIfNeeded} from './helpers'
 
@@ -190,12 +190,19 @@ function *onSocketUpdateOrg(action){
 }
 
 function *onSocketUpdateEnvsStatus(action){
+  const currentUser = yield select(getCurrentUser)
+
+  // Don't receive updates from current user broadcasts
+  if (action.payload.userId == currentUser.id){
+    return
+  }
+
   const selectedObject = yield select(getSelectedObject),
-        entries = yield call(getEntries, selectedObject.envsWithMeta),
+        entries = yield call(allEntriesWithSubEnvs, selectedObject.envsWithMeta),
         selectedObjectType = yield select(getSelectedObjectType),
-        currentUser = yield select(getCurrentUser),
-        environments = yield select(getEnvironmentLabels(selectedObject.id)),
-        deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments)
+        environments = yield select(getEnvironmentLabelsWithSubEnvs(selectedObject.id)),
+        subEnvs = yield select(getSubEnvs(selectedObject.id)),
+        deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments, subEnvs)
 
   yield put(processedSocketUpdateEnvStatus({status: deanonStatus, userId: action.payload.userId}))
 }

@@ -23,15 +23,17 @@ const
     "isManyToMany",
     "role",
     "passphrase",
-    "createOnly"
+    "createOnly",
+    "subEnvId",
+    "skipKeygen"
   ])
 
 export const
   addAssoc = createAction(
     ADD_ASSOC_REQUEST,
-    ({joinType, assocType, assocId, role, name})=> {
+    ({joinType, assocType, assocId, role, name, subEnvId, undeletable})=> {
       const k = joinType || assocType,
-            obj =  {role, name, [`${assocType}Id`]: assocId}
+            obj =  {role, name, subEnvId, undeletable, [`${assocType}Id`]: assocId}
       return {[k]: obj}
     },
     pickMeta

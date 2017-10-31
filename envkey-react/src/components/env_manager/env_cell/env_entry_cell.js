@@ -14,7 +14,7 @@ const EditableRemovableCell = R.pipe(
 class EnvEntryCell extends EditableRemovableCell {
 
   _onRemove(){
-    this.props.removeEntry(this.props.entryKey)
+    this.props.removeEntry(this.props.entryKey, this.props.subEnvId)
   }
 
   _commit(){

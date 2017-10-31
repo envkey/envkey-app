@@ -5,13 +5,24 @@ import { SubscriptionWallContainer } from 'containers'
 
 export default class ServerForm extends React.Component {
 
+  constructor(props){
+    super(props)
+    this.state = {
+      selectedSubEnv: null
+    }
+  }
+
   componentDidMount(){
     if(this.refs.name)this.refs.name.focus()
   }
 
   _onSubmit(e){
     e.preventDefault()
-    this.props.onSubmit({name: this.refs.name.value})
+    this.props.onSubmit({name: this.refs.name.value, subEnvId: this.state.selectedSubEnv})
+  }
+
+  _onSelectSubEnv(e){
+    this.setState({selectedSubEnv: e.target.value})
   }
 
   _numKeys(){
@@ -34,15 +45,35 @@ export default class ServerForm extends React.Component {
             onSubmit={this._onSubmit.bind(this)}>
 
         <fieldset>
-          <input className="server-name"
+          <input type="text"
+                 disabled={this.props.isSubmitting}
+                 className="server-name"
                  ref="name"
                  placeholder="Server Name"
                  required />
         </fieldset>
 
+        {this._renderSubEnvSelect()}
+
         <fieldset>{this._renderSubmit()}</fieldset>
       </form>
     )
+  }
+
+  _renderSubEnvSelect(){
+    if (this.props.subEnvOpts.length){
+      return <fieldset className="full-select">
+        <select onChange={::this._onSelectSubEnv}>
+          {this._renderSubEnvOptions()}
+        </select>
+      </fieldset>
+    }
+  }
+
+  _renderSubEnvOptions(){
+    return [<option key={0} value="">No sub-environment</option>].concat(this.props.subEnvOpts.map(({id, name}, i)=>{
+      return <option key={i+1} value={id} >{name}</option>
+    }))
   }
 
   _renderSubmit(){

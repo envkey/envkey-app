@@ -119,7 +119,7 @@ function* onCreateAssoc(action){
 function* onAddAssocSuccess({meta, payload: {id: targetId}}){
   const {parentType, assocType} = meta
 
-  if(parentType == "app" && ["server", "localKey"].includes(assocType)){
+  if(parentType == "app" && ["server", "localKey"].includes(assocType) && !meta.skipKeygen){
     yield put(generateKey({
       ...meta, targetId
     }))
@@ -158,7 +158,7 @@ function* onGenerateKey(action){
 
     signedPubkey = yield signPublicKey({pubkey, privkey: currentUserPrivkey}),
 
-    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment})),
+    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment, subEnvId: target.subEnvId})),
 
     [
       encryptedRawEnv,

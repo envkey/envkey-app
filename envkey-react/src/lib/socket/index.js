@@ -39,7 +39,8 @@ const
         headers: R.pick(["access-token", "uid", "client"], auth),
         params: { org_id: orgSlug }
       },
-      encrypted: true
+      encrypted: true,
+      disableStats: true
     })
   },
 
@@ -67,10 +68,25 @@ const
     }
   }
 
+let reconnectInterval;
+
 export const
 
   ensureSocket = (auth, orgSlug)=>{
     socket = pusherClient(auth, orgSlug)
+
+    socket.connection.bind('disconnected', ()=>{
+      socket = null
+      ensureSocket(auth, orgSlug)
+    })
+
+    if(reconnectInterval)clearInterval(reconnectInterval)
+    reconnectInterval = setInterval(()=>{
+      if (!["connecting", "connected"].includes(socket.connection.state)){
+        socket = null
+        ensureSocket(auth, orgSlug)
+      }
+    }, 5000)
   },
 
   unsubscribeOrgChannels = ()=>{

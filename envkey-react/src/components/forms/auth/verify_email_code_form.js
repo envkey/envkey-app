@@ -22,6 +22,7 @@ export default class VerifyEmailCodeForm extends React.Component {
         h.fieldset([
           h.input({
             type: "password",
+            disabled: this.props.isVerifyingEmailCode || this.props.isAuthenticating,
             ref: "emailVerificationCode",
             placeholder: `Your ${this.props.codeName} Token`,
             required: true,

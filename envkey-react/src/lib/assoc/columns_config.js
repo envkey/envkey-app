@@ -14,6 +14,7 @@ import {
   LocalKeyForm
 } from 'components/forms'
 import { appRoleGroupLabel, imagePath } from 'lib/ui'
+import { findSubEnv } from 'lib/env/query'
 import {
   getUserGroupsByRoleForApp,
   getServerGroupsForApp,
@@ -29,6 +30,7 @@ import {
   getCurrentOrg,
   getOrgOwner,
   getUsers,
+  getServerSubEnvOptsByRole,
   dissocRelations
 } from 'selectors'
 
@@ -76,7 +78,7 @@ export default function({
             subtitle: "Access",
             role: "admin",
             groups: R.pick(["org_owner", "org_admin", "admin"], userGroups),
-            sectionLabelFn: appRoleGroupLabel,
+            sectionTitleFn: appRoleGroupLabel,
             permissionCopyLines: adminUserPermissions,
             keyLabel: "development",
             orgRolesInvitable: getOrgRolesInvitable(state),
@@ -112,7 +114,9 @@ export default function({
       }
 
     case "app-server":
-      const serverGroups = getServerGroupsForApp(parent.id, state)
+      const serverGroups = getServerGroupsForApp(parent.id, state),
+            subEnvOptsByRole = getServerSubEnvOptsByRole(parent.id, state)
+
       return {
         rowDisplayType: ServerRowDisplay,
         addFormType: ServerForm,
@@ -121,15 +125,28 @@ export default function({
         inlineAddForm: true,
         canAddFn: R.anyPass([
           R.pipe(R.path(["config", "groups"]), R.values, R.head, R.length, R.lt(1)),
-          R.pipe(R.path(["config", "groups"]), R.values, R.head, R.head, R.prop("keyGeneratedAt"), Boolean)
+          R.pipe(R.path(["config", "groups"]), R.values, R.any(R.any(R.prop("keyGeneratedAt"))))
         ]),
-
+        showSectionFn: (subEnvId, props)=> {
+          return Boolean(!subEnvId || subEnvId == "null" || !props.parent.envsWithMeta || findSubEnv(subEnvId, props.parent.envsWithMeta))
+        },
+        sectionTitleFn: (subEnvId, props) => {
+          if (!parent.envsWithMeta)return null
+          return subEnvId == "null" ?
+            `${props.config.role} Environment` :
+            [
+              h.img({src: imagePath("subenvs-white.svg")}),
+              h.span(`${findSubEnv(subEnvId, parent.envsWithMeta)["@@__name__"]}`)
+            ]
+        },
+        sectionSubtitleFn: (subEnvId, props) => `Sub-environment`,
         columns: [
           {
             title: "Test",
             subtitle: "Server Keys",
             role: "development",
-            groups: R.pick(["development"], serverGroups),
+            groups: serverGroups.development,
+            subEnvOpts: subEnvOptsByRole["development"],
             keyLabel: "development",
             permissionCopyLines: [h.span(["Connect to the ", h.strong("development"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "development"}, state),
@@ -139,7 +156,8 @@ export default function({
             title: "Staging",
             subtitle: "Server Keys",
             role: "staging",
-            groups: R.pick(["staging"], serverGroups),
+            groups: serverGroups.staging,
+            subEnvOpts: subEnvOptsByRole["staging"],
             keyLabel: "staging",
             permissionCopyLines: [h.span(["Connect to the ", h.strong("staging"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "staging"}, state),
@@ -149,7 +167,8 @@ export default function({
             title: "Production",
             subtitle: "Server Keys",
             role: "production",
-            groups: R.pick(["production"], serverGroups),
+            groups: serverGroups.production,
+            subEnvOpts: subEnvOptsByRole["production"],
             keyLabel: "production",
             permissionCopyLines: [h.span(["Connect to the ", h.strong("production"), " environment."])],
             isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "production"}, state),
@@ -201,7 +220,7 @@ export default function({
         subtitle: "Access",
         role: "admin",
         groups: R.pick(appAdminRoles, appGroups),
-        sectionLabelFn: appRoleGroupLabel,
+        sectionTitleFn: appRoleGroupLabel,
         permissionCopyLines: adminUserPermissions,
         keyLabel: "development",
         isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id, role: "admin"}, state),

@@ -1,18 +1,21 @@
 {
   "name": "EnvKey",
-  "version": "1.0.0",
-  "description": "EnvKey's cross-platform Electron app",
+  "version": "1.1.1",
+  "description": "EnvKey's cross-platform native app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
   "homepage": "https://www.envkey.com",
-  "repository": "https://github.com/envkey/envkey-ui",
+  "repository": "https://github.com/envkey/envkey-app",
   "license": "MIT",
   "main": "main.js",
+  "bin": {
+    "remove-releases": "bin/remove_releases.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder -mwl",
+    "dist": "electron-builder -mwl --x64 --ia32",
     "distmac": "electron-builder -m",
-    "publish": "publish",
+    "publish": "publish darwin-x64 && publish win32-x64 && publish win32-ia32 && publish linux-x64 && publish linux-ia32",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
@@ -25,11 +28,11 @@
       "target": "squirrel"
     },
     "squirrelWindows": {
-      "iconUrl": "https://raw.githubusercontent.com/envkey/envkey-ui/master/envkey-electron/build/icon.ico"
+      "iconUrl": "https://raw.githubusercontent.com/envkey/envkey-app/master/envkey-electron/build/icon.ico"
     }
   },
   "updater": {
-    "url": "https://raw.githubusercontent.com/envkey/envkey-ui/master/envkey-electron/updates.json"
+    "url": "https://raw.githubusercontent.com/envkey/envkey-app/master/envkey-electron/updates.json"
   },
   "dependencies": {
     "electron-is-dev": "^0.3.0",
@@ -37,9 +40,12 @@
     "electron-simple-updater": "^1.2.1"
   },
   "devDependencies": {
-    "electron-builder": "^19.27.7",
-    "electron-builder-squirrel-windows": "^19.28.3",
-    "electron-simple-publisher": "^0.4.7",
-    "envkey": "^0.3.0"
+    "ajv": "^5.0.0",
+    "electron": "1.7.9",
+    "electron-builder": "^19.29.0",
+    "electron-builder-squirrel-windows": "^19.29.0",
+    "electron-simple-publisher": "envkey/electron-simple-publisher",
+    "envkey": "^0.3.0",
+    "github-remove-all-releases": "^1.0.1"
   }
 }

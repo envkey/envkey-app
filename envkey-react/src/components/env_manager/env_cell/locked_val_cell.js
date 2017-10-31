@@ -13,11 +13,7 @@ export default class LockedValCell extends SocketEditable(ValCell) {
 
   _valDisplay(){
     const img = h.img(".img-locked", {src: imagePath("padlock.svg")})
-    if(this.props.locked && !this.props.envsWithMeta.productionMetaOnly){
-      return img
-    } else {
-      return [img, super._valDisplay()]
-    }
+    return [img, super._valDisplay()]
   }
 
 }
