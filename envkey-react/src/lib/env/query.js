@@ -59,6 +59,7 @@ export const
     R.values,
     R.map(R.values),
     R.flatten,
+    R.filter(R.identity),
     R.any(R.prop('val'))
   )),
 
