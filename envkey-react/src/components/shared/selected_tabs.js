@@ -15,7 +15,7 @@ const config = {
 
 const SelectedTabs = ({tabs, path, selectedTab, permissions, objectPermissions})=>{
   const renderTab = ([action, label, imgW, imgH, {permissionPath, objectPermissionPath}={}], i)=>{
-    const selected = action == selectedTab,
+    const selected = selectedTab.indexOf(action) == 0,
           className = [("tab-" + action), (selected ? "selected" : "")].join(" "),
           hasPermission =
             !((permissionPath && (!permissions || !R.path(permissionPath, permissions))) ||
