@@ -16,10 +16,6 @@ export WIN_CSC_LINK=~/envkey-digicert.p12
 export WIN_CSC_KEY_PASSWORD=$(cat .wincertpw)
 (cd envkey-electron && npm run dist && npm run publish)
 
-# echo "Building dmg only"
-# export CSC_IDENTITY_AUTO_DISCOVERY=false
-# (cd envkey-electron && npm run distmac)
-
 echo "Clearing middleman build and electron assets"
 rm -rf envkey-assets/build/*
 rm -rf envkey-electron/assets/*

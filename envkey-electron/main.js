@@ -6,6 +6,7 @@ const
   createMenu = require('./main-process/create_menu'),
   logger = require("electron-log"),
   updater = require('electron-simple-updater'),
+  jsonfile = require('jsonfile'),
   {app, BrowserWindow, ipcMain} = electron
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -35,11 +36,6 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
-
-  if (isDev){
-    // Open the DevTools.
-    win.webContents.openDevTools()
-  }
 
   // Emitted when the window is closed.
   win.on('closed', () => {

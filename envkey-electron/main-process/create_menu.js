@@ -20,6 +20,7 @@ module.exports = function createMenu(){
       label: 'View',
       submenu: [
         {role: 'reload'},
+        {role: 'toggledevtools'},
         {type: 'separator'},
         {role: 'resetzoom'},
         {role: 'zoomin'},

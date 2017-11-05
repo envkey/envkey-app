@@ -1,3 +1,4 @@
+import R from 'ramda'
 import { browserHistory, hashHistory } from 'react-router'
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly'
@@ -11,45 +12,67 @@ import rootReducer from './reducers/root_reducer'
 import rootSaga from './sagas/root_saga'
 import appMiddlewares from 'middleware'
 import isElectron from 'is-electron'
+import createLogger from 'redux-logger'
 
-const devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
-      historyType = isElectron() ? hashHistory : browserHistory,
-      sagaMiddleware = createSagaMiddleware(),
-      middlewares = [
-        ...appMiddlewares,
-        routerMiddleware(historyType),
-        sagaMiddleware
-      ]
+const
+  devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
 
-if (devMode) {
-  const createLogger = require("redux-logger"),
-        logger = createLogger()
-  middlewares.push(logger)
+  debugBuild = process.env.DEBUG_BUILD,
+
+  historyType = isElectron() ? hashHistory : browserHistory,
+
+  sagaMiddleware = createSagaMiddleware(),
+
+  loggerOpts = {
+    level: {
+      prevState: devMode ? "info" : false,
+      nextState: devMode ? "info" : false,
+      action: "info",
+      error: "info"
+    }
+  }
+
+if (!devMode){
+  loggerOpts.actionTransformer = action => {
+    const props = ["type", "error"]
+    if (action.error) props.push("payload")
+    return R.pick(props, action)
+  }
 }
 
-const [privkeyStorageAdapter, privkeyStorage] = isElectron() ?
-        [localStorageAdapter, window.localStorage] :
-        [sessionStorageAdapter, window.sessionStorage],
-      reducer = compose(mergePersistedState())(rootReducer),
+const
+  logger = createLogger(loggerOpts),
 
-      localPersistence = compose(filter([
-        "auth",
-        "currentOrgSlug"
-      ]))(localStorageAdapter(window.localStorage)),
+  middlewares = [
+    ...appMiddlewares,
+    routerMiddleware(historyType),
+    sagaMiddleware,
+    logger
+  ],
 
-      privkeyPersistence = compose(filter(["privkey"]))(privkeyStorageAdapter(privkeyStorage)),
+  [privkeyStorageAdapter, privkeyStorage] = isElectron() ?
+    [localStorageAdapter, window.localStorage] :
+    [sessionStorageAdapter, window.sessionStorage],
+  reducer = compose(mergePersistedState())(rootReducer),
 
-      enhancerCompose = devMode ? composeWithDevTools : compose,
+  localPersistence = compose(filter([
+    "auth",
+    "currentOrgSlug"
+  ]))(localStorageAdapter(window.localStorage)),
 
-      enhancer = enhancerCompose(
-        applyMiddleware(...middlewares),
-        persistState(localPersistence, 'session'),
-        persistState(privkeyPersistence, 'pgp')
-      ),
+  privkeyPersistence = compose(filter(["privkey"]))(privkeyStorageAdapter(privkeyStorage)),
 
-      store = createStore(reducer, enhancer),
+  enhancerCompose = devMode ? composeWithDevTools : compose,
 
-      history = syncHistoryWithStore(historyType, store)
+  enhancer = enhancerCompose(
+    applyMiddleware(...middlewares),
+    persistState(localPersistence, 'session'),
+    persistState(privkeyPersistence, 'pgp')
+  ),
+
+  store = createStore(reducer, enhancer),
+
+  history = syncHistoryWithStore(historyType, store)
 
 sagaMiddleware.run(rootSaga)
 

@@ -22,10 +22,14 @@ var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new EnvkeyWebpackPlugin({
     dotEnvFile: `.env.${buildEnv}`,
-    permitted: ["NODE_ENV", "HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"],
-    define: {BUILD_ENV: buildEnv, API_HOST: process.env.API_HOST, ASSET_HOST: process.env.ASSET_HOST || ""}
+    permitted: ["HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"],
+    define: {
+      NODE_ENV: "production",
+      BUILD_ENV: buildEnv,
+      API_HOST: process.env.API_HOST,
+      ASSET_HOST: process.env.ASSET_HOST || ""
+    }
   }),
-
   new webpack.optimize.UglifyJsPlugin({
     output: {comments: false},
     compress: {
@@ -40,8 +44,9 @@ var plugins = [
       drop_debugger: true,
       warnings: false
     }
- })
+  })
 ];
+
 
 var presets = ['es2015', 'react', 'stage-2'];
 
