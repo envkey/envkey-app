@@ -6,6 +6,7 @@ var webpack = require('webpack'),
 var isProd = process.env.PRODUCTION_BUILD == "true",
     isDemo = process.env.DEMO_BUILD == "true",
     isK8s = process.env.K8S_BUILD == "true",
+    debugBuild = process.env.DEBUG_BUILD == "true",
     buildEnv
 
 if (isProd){
@@ -27,10 +28,14 @@ var plugins = [
       NODE_ENV: "production",
       BUILD_ENV: buildEnv,
       API_HOST: process.env.API_HOST,
-      ASSET_HOST: process.env.ASSET_HOST || ""
+      ASSET_HOST: process.env.ASSET_HOST || "",
+      DEBUG_BUILD: debugBuild || undefined
     }
-  }),
-  new webpack.optimize.UglifyJsPlugin({
+  })
+];
+
+if (!debugBuild){
+  plugins.push(new webpack.optimize.UglifyJsPlugin({
     output: {comments: false},
     compress: {
       sequences: true,
@@ -44,8 +49,8 @@ var plugins = [
       drop_debugger: true,
       warnings: false
     }
-  })
-];
+  }))
+}
 
 
 var presets = ['es2015', 'react', 'stage-2'];

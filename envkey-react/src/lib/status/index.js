@@ -1,6 +1,5 @@
 import {store} from 'init_redux'
 import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
-import {promptRestartIfUpdateDownloaded} from 'lib/updates'
 
 let isCheckingConnection = false,
     isCheckingActive = false,
@@ -72,26 +71,6 @@ const
 
     lastActiveAt = time
     setTimeout(checkReactivated, 4000)
-  },
-
-  onUserAction = ()=> {
-    lastUserActionAt = Date.now()
-  },
-
-  onWindowFocus = ()=>{
-    // If it's been at least a minute since any user action and an update is available, prompt for restart
-    const time = Date.now(),
-          sinceUserAction = time - lastUserActionAt
-
-    console.log("Window focused")
-    console.log("Since user action: ", sinceUserAction)
-
-    if (sinceUserAction > (1000 * 60)){
-      console.log("prompting for restart if update downloaded")
-      promptRestartIfUpdateDownloaded()
-    }
-
-    lastUserActionAt = Date.now()
   }
 
 export const
@@ -104,16 +83,7 @@ export const
       lastActiveAt = Date.now()
       checkReactivated()
     }
-  },
-
-  startWindowFocusWatcher = ()=>{
-    document.body.addEventListener('click', onUserAction)
-    document.body.addEventListener('mousemove', onUserAction)
-    document.body.addEventListener('keydown', onUserAction)
-
-    window.addEventListener('focus', onWindowFocus)
   }
-
 
 
 

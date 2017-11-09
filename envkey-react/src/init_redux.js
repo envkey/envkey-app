@@ -25,14 +25,14 @@ const
 
   loggerOpts = {
     level: {
-      prevState: devMode ? "info" : false,
-      nextState: devMode ? "info" : false,
+      prevState: (devMode || debugBuild) ? "info" : false,
+      nextState: (devMode || debugBuild) ? "info" : false,
       action: "info",
       error: "info"
     }
   }
 
-if (!devMode){
+if (!devMode && !debugBuild){
   loggerOpts.actionTransformer = action => {
     const props = ["type", "error"]
     if (action.error) props.push("payload")

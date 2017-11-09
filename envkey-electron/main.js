@@ -4,17 +4,15 @@ const
   url = require('url'),
   isDev = require('electron-is-dev'),
   createMenu = require('./main-process/create_menu'),
-  logger = require("electron-log"),
-  updater = require('electron-simple-updater'),
-  jsonfile = require('jsonfile'),
+  {listenUpdater} = require('./main-process/updates'),
   {app, BrowserWindow, ipcMain} = electron
+
+// Start auto-update listener
+listenUpdater()
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win, stripeWin
-
-// Auto-update
-updater.init({logger, autoDownload: false})
 
 function createWindow () {
   // Create the browser window.

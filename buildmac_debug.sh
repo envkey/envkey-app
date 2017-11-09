@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Building middleman assets for production"
-(export ASSET_HOST=assets && ./build_prod.sh)
+(export ASSET_HOST=assets DEBUG_BUILD=true && ./build_prod.sh)
 
 echo "Clearing envkey-electron/assets and envkey-electron/dist"
 rm -rf envkey-electron/assets/*

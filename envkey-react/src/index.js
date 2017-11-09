@@ -5,7 +5,6 @@ import Routes from 'routes'
 import R from 'ramda'
 import * as crypto from 'lib/crypto'
 import {startConnectionWatcher, startReactivatedWatcher, startWindowFocusWatcher} from 'lib/status'
-import {listenUpdater} from 'lib/updates'
 
 ReactDOM.render(<Routes />, document.getElementById('wrap'))
 
@@ -15,5 +14,3 @@ document.body.className += " react-loaded"
 
 startConnectionWatcher()
 startReactivatedWatcher()
-listenUpdater()
-// startWindowFocusWatcher()

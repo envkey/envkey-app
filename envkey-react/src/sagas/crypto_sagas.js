@@ -368,20 +368,15 @@ function *onDecryptAll(action){
     const skipVerify = R.path(["meta", "skipVerifyCurrentUser"], action)
     if (!skipVerify) verifyRes = yield call(verifyCurrentUser, background)
 
-    let decryptErr
     if((skipVerify && !verifyRes) || !verifyRes.error){
-      try {
-        const hasEnvParents = yield call(decryptAllEnvParents, firstTarget, background)
-        if (!hasEnvParents){
-          yield put({type: DECRYPT_ALL_SUCCESS})
-        }
-      } catch (err){
-        decryptErr = err
+      const hasEnvParents = yield call(decryptAllEnvParents, firstTarget, background)
+      if (!hasEnvParents){
+        yield put({type: DECRYPT_ALL_SUCCESS})
       }
     }
 
-    if ((verifyRes && verifyRes.error) || decryptErr){
-      yield put({type: DECRYPT_ALL_FAILED, error: true, payload: (verifyRes ? verifyRes.payload : decryptErr)})
+    if (verifyRes && verifyRes.error){
+      yield put({type: DECRYPT_ALL_FAILED, error: true, payload: verifyRes.payload})
     }
   }
 }
@@ -397,7 +392,7 @@ function *onDecryptEnvs(action){
       yield put({type: DECRYPT_ENVS_SUCCESS, payload: decryptedParent, meta: action.meta})
     } catch (err){
       yield put({type: DECRYPT_ENVS_FAILED, error: true, payload: err, meta: action.meta})
-      throw(err)
+      yield put({type: DECRYPT_ALL_FAILED, error: true, payload: err})
     }
   }
 }
