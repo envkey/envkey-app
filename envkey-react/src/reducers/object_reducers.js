@@ -1,3 +1,4 @@
+import {isClearSessionAction, isFetchCurrentUserAction} from './helpers'
 import R from 'ramda'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
 import pluralize from 'pluralize'
@@ -6,12 +7,6 @@ import {
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
   DECRYPT_ENVS_SUCCESS,
-  LOGIN,
-  LOGIN_REQUEST,
-  REGISTER,
-  REGISTER_SUCCESS,
-  SELECT_ORG,
-  LOGOUT,
   UPDATE_ENV_SUCCESS,
   REMOVE_ASSOC_SUCCESS,
   ADD_ASSOC_SUCCESS,
@@ -25,10 +20,7 @@ import {
   REVOKE_ASSOC_KEY_SUCCESS,
   GRANT_ENV_ACCESS_SUCCESS,
   UPDATE_ORG_ROLE_SUCCESS,
-  SELECTED_OBJECT,
-  LOAD_INVITE_REQUEST,
-  LOAD_INVITE_API_SUCCESS,
-  ACCEPT_INVITE_SUCCESS
+  SELECTED_OBJECT
 } from 'actions'
 import { indexById } from './helpers'
 
@@ -204,13 +196,19 @@ const
 
 ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
   objectReducers[objectTypePlural] = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
+    if (action.type == FETCH_CURRENT_USER_UPDATES_SUCCESS){
+      return getFetchCurrentUserUpdatesReducer(objectTypePlural)(state, action)
+    } else if (isFetchCurrentUserAction(action)){
+      return getFetchCurrentUserReducer(objectTypePlural)(state, action)
+    }
+
     switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case REGISTER_SUCCESS:
       case GRANT_ENV_ACCESS_SUCCESS:
       case UPDATE_ORG_ROLE_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
         return getFetchCurrentUserReducer(objectTypePlural)(state, action)
 
       case FETCH_CURRENT_USER_UPDATES_SUCCESS:
@@ -250,14 +248,6 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case REVOKE_ASSOC_KEY_SUCCESS:
         return getRevokeKeyReducer(objectTypePlural)(state, action)
 
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOGOUT:
-      case SELECT_ORG:
-        return {}
-
       default:
         return state
     }
@@ -265,17 +255,13 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
 })
 
 objectReducers.selectedObjectType = (state=null, action)=>{
+  if (isClearSessionAction(action)){
+    return null
+  }
+
   switch(action.type){
     case SELECTED_OBJECT:
       return action.payload.objectType
-
-    case LOGOUT:
-    case SELECT_ORG:
-    case LOAD_INVITE_REQUEST:
-    case LOGIN:
-    case LOGIN_REQUEST:
-    case REGISTER:
-      return null
 
     default:
       return state
@@ -283,17 +269,13 @@ objectReducers.selectedObjectType = (state=null, action)=>{
 }
 
 objectReducers.selectedObjectId = (state=null, action)=>{
+  if (isClearSessionAction(action)){
+    return null
+  }
+
   switch(action.type){
     case SELECTED_OBJECT:
       return action.payload.id
-
-    case LOGOUT:
-    case SELECT_ORG:
-    case LOAD_INVITE_REQUEST:
-    case LOGIN:
-    case LOGIN_REQUEST:
-    case REGISTER:
-      return null
 
     default:
       return state
@@ -301,6 +283,10 @@ objectReducers.selectedObjectId = (state=null, action)=>{
 }
 
 objectReducers.onboardAppId = (state=null, action)=>{
+  if (isClearSessionAction(action)){
+    return null
+  }
+
   switch(action.type){
     case CREATE_OBJECT_SUCCESS:
     case REMOVE_OBJECT_SUCCESS:
@@ -315,14 +301,6 @@ objectReducers.onboardAppId = (state=null, action)=>{
       } else {
         return state
       }
-
-    case LOAD_INVITE_REQUEST:
-    case LOGIN:
-    case LOGIN_REQUEST:
-    case REGISTER:
-    case SELECT_ORG:
-    case LOGOUT:
-      return null
 
     default:
       return state

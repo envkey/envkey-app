@@ -1,4 +1,5 @@
 import R from 'ramda'
+import {isFetchCurrentUserAction, isClearSessionAction} from './helpers'
 
 import {
   LOGIN,
@@ -52,6 +53,10 @@ import {
 export const
 
   isDecryptingAll = (state = false, action)=>{
+    if (isClearSessionAction(action)){
+      return false
+    }
+
     switch(action.type){
       case DECRYPT_ALL:
       case VERIFY_CURRENT_USER_PUBKEY:
@@ -59,12 +64,6 @@ export const
 
       case DECRYPT_ALL_SUCCESS:
       case DECRYPT_ALL_FAILED:
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-      case ACCEPT_INVITE_REQUEST:
         return false
 
       default:
@@ -73,14 +72,12 @@ export const
   },
 
   decryptedAll = (state = false, action)=>{
+    if (isClearSessionAction(action)){
+      return false
+    }
+
     switch(action.type){
       case DECRYPT_ALL:
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
         return false
 
@@ -93,6 +90,10 @@ export const
   },
 
   envsAreDecrypting = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case DECRYPT_ENVS:
         return R.path(["meta", "background"], action) ? state : R.assoc(action.meta.targetId, true, state)
@@ -101,12 +102,6 @@ export const
       case DECRYPT_ENVS_FAILED:
         return R.path(["meta", "background"], action) ? state :  R.dissoc(action.meta.targetId, state)
 
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
         return {}
 
@@ -116,6 +111,10 @@ export const
   },
 
   envsAreDecrypted = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case DECRYPT_ENVS:
         return R.path(["meta", "background"], action) ? state : R.dissoc(action.meta.targetId, state)
@@ -123,12 +122,6 @@ export const
       case DECRYPT_ENVS_SUCCESS:
         return R.assoc(action.meta.targetId, true, state)
 
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
       case FETCH_CURRENT_USER_REQUEST:
         return {}
@@ -142,37 +135,32 @@ export const
   },
 
   encryptedPrivkey = (state = null, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    if (isFetchCurrentUserAction(action)){
+      return action.payload.encryptedPrivkey
+    }
+
     switch(action.type){
-      case LOGIN_SUCCESS:
-      case FETCH_CURRENT_USER_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.encryptedPrivkey
       case UPDATE_ENCRYPTED_PRIVKEY_SUCCESS:
         return action.meta.requestPayload.encryptedPrivkey
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return null
       default:
         return state
     }
   },
 
   privkey = (state = null, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
     switch(action.type){
       case DECRYPT_PRIVKEY_SUCCESS:
         return action.payload
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
       case DECRYPT_ENVS_FAILED:
       case DECRYPT_ALL_FAILED:
-      case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
         return null
       default:
@@ -181,16 +169,15 @@ export const
   },
 
   isDecryptingPrivkey = (state = false, action)=>{
+    if (isClearSessionAction(action)){
+      return false
+    }
+
     switch(action.type){
       case DECRYPT_PRIVKEY:
         return true
       case DECRYPT_PRIVKEY_SUCCESS:
       case DECRYPT_PRIVKEY_FAILED:
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
         return false
       default:
         return state
@@ -198,16 +185,15 @@ export const
   },
 
   isUpdatingEncryptedPrivkey = (state = false, action)=>{
+    if (isClearSessionAction(action)){
+      return false
+    }
+
     switch(action.type){
       case UPDATE_ENCRYPTED_PRIVKEY:
         return true
       case UPDATE_ENCRYPTED_PRIVKEY_SUCCESS:
       case UPDATE_ENCRYPTED_PRIVKEY_FAILED:
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
         return false
       default:
         return state
@@ -215,16 +201,15 @@ export const
   },
 
   updateEncryptedPrivkeyErr = (state = null, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
     switch(action.type){
       case UPDATE_ENCRYPTED_PRIVKEY_FAILED:
         return action.payload
 
       case UPDATE_ENCRYPTED_PRIVKEY:
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
         return null
 
       default:
@@ -270,18 +255,15 @@ export const
   },
 
   signedTrustedPubkeys = ( state = null, action)=>{
-    switch(action.type){
-      case LOGIN_SUCCESS:
-      case FETCH_CURRENT_USER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.signedTrustedPubkeys || null
+    if (isClearSessionAction(action)){
+      return null
+    }
 
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
+    if (isFetchCurrentUserAction(action)){
+      return action.payload.signedTrustedPubkeys || null
+    }
+
+    switch(action.type){
       case ACCEPT_INVITE_REQUEST:
       case VERIFY_TRUSTED_PUBKEYS_FAILED:
       case VERIFY_TRUSTED_PUBKEYS_SUCCESS:
@@ -293,6 +275,10 @@ export const
   },
 
   trustedPubkeys = ( state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
     switch(action.type){
       case VERIFY_TRUSTED_PUBKEYS_SUCCESS:
         return action.payload
@@ -300,11 +286,6 @@ export const
       case ADD_TRUSTED_PUBKEY:
         return R.assoc(action.meta.keyableId, action.payload, state)
 
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
       case ACCEPT_INVITE_REQUEST:
       case VERIFY_TRUSTED_PUBKEYS_FAILED:
         return {}
@@ -315,19 +296,16 @@ export const
   },
 
   generatedEnvKeys = ( state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
     switch(action.type){
       case GENERATE_ASSOC_KEY_SUCCESS:
         return R.assoc(action.meta.targetId, {envkey: action.payload.envkey, passphrase: action.meta.passphrase}, state)
 
       case CLEAR_GENERATED_ASSOC_KEY:
         return R.dissoc(action.payload, state)
-
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state

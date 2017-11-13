@@ -1,3 +1,5 @@
+import {isFetchCurrentUserAction, isClearSessionAction} from './helpers'
+
 import {
   APP_LOADED,
 
@@ -33,6 +35,8 @@ import {
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
+
+  CREATE_ORG_SUCCESS,
 
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
 
@@ -175,26 +179,18 @@ export const
   },
 
   auth = (state = null, action)=> {
-    switch(action.type){
-      case LOGIN_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return {
-          ...R.pick(["slug", "id"], action.payload),
-          ...R.pick(["access-token", "uid", "client"], action.meta.headers)
-        }
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case REGISTER:
-      case LOGOUT:
-      case TOKEN_INVALID:
-        return null
-
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return {
+        ...R.pick(["slug", "id"], action.payload),
+        ...R.pick(["access-token", "uid", "client"], action.meta.headers)
+      }
     }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
   },
 
   isAuthenticating = (state = false, action)=> {
@@ -284,131 +280,75 @@ export const
   },
 
   permissions = (state = {}, action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.permissions
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case TOKEN_INVALID:
-      case SELECT_ORG:
-        return {}
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return action.payload.permissions
     }
+
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
+    return state
   },
 
   orgRolesInvitable = (state = [], action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.orgRolesInvitable
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case TOKEN_INVALID:
-      case SELECT_ORG:
-        return []
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return action.payload.orgRolesInvitable
     }
+
+    if (isClearSessionAction(action)){
+      return []
+    }
+
+    return state
   },
 
   appEnvironmentsAccessible = (state = {}, action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAccessible)
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case TOKEN_INVALID:
-      case SELECT_ORG:
-        return {}
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAccessible)
     }
+
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
+    return state
   },
 
   appEnvironmentsAssignable = (state = {}, action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAssignable)
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case TOKEN_INVALID:
-      case SELECT_ORG:
-        return {}
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return R.mapObjIndexed(decamelizeKeys)(action.payload.appEnvironmentsAssignable)
     }
+
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
+    return state
   },
 
   hasSingleApp = (state = false, action)=>{
-    switch (action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.apps.length <= 1
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case TOKEN_INVALID:
-        return false
-
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return action.payload.apps.length <= 1
     }
+
+    if (isClearSessionAction(action)){
+      return false
+    }
+
+    return state
   },
 
   lastFetchAt = (state = null, action)=>{
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.lastFetchAt
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case TOKEN_INVALID:
-      case SELECT_ORG:
-        return null
-
-      default:
-        return state
+    if (isFetchCurrentUserAction(action)){
+      return action.payload.lastFetchAt
     }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
   },
 
   isDemo = (state = false, {type})=> type == START_DEMO ? true : state

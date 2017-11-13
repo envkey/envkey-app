@@ -1,3 +1,4 @@
+import {isClearSessionAction} from './helpers'
 import R from 'ramda'
 import {
   CREATE_ENTRY,
@@ -30,13 +31,6 @@ import {
   REMOVE_OBJECT_REQUEST,
   REMOVE_OBJECT_SUCCESS,
   REMOVE_OBJECT_FAILED,
-
-  LOGOUT,
-  SELECT_ORG,
-  LOAD_INVITE_REQUEST,
-  LOGIN,
-  LOGIN_REQUEST,
-  REGISTER,
 
   COMMIT_IMPORT_ACTIONS
 } from "actions"
@@ -73,6 +67,10 @@ const
 export const
 
   lastAddedEntry = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case CREATE_ENTRY:
       case UPDATE_ENTRY:
@@ -83,20 +81,16 @@ export const
 
         return R.assoc(parentId, res)(state)
 
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   envActionsPending = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case CREATE_ENTRY:
       case UPDATE_ENTRY:
@@ -119,14 +113,6 @@ export const
           R.dissocPath([action.meta.parentId, action.meta.envUpdateId]),
           R.reject(R.isEmpty)
         )(state)
-
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state
@@ -152,6 +138,10 @@ export const
   },
 
   isUpdatingOutdatedEnvs = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case UPDATE_ENV_FAILED:
         if (isOutdatedEnvsResponse(action)){
@@ -168,20 +158,16 @@ export const
           return state
         }
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isRebasingOutdatedEnvs = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case UPDATE_ENV_FAILED:
         if (isOutdatedEnvsResponse(action)){
@@ -197,20 +183,16 @@ export const
           return state
         }
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   envUpdateId = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case GENERATE_ENV_UPDATE_ID:
         return R.assoc(action.meta.parentId, action.payload, state)
@@ -219,14 +201,6 @@ export const
         return action.meta.forceEnvUpdateId ?
           state :
           R.assoc(action.meta.parentId, action.meta.nextEnvUpdateId, state)
-
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state
