@@ -1,3 +1,4 @@
+import {isClearSessionAction} from './helpers'
 import R from 'ramda'
 
 import {
@@ -22,11 +23,6 @@ import {
 
   RESET_ACCEPT_INVITE,
 
-  LOGIN,
-  LOGIN_REQUEST,
-  LOGOUT,
-  REGISTER,
-  SELECT_ORG,
   FETCH_CURRENT_USER_SUCCESS,
 
   INVITE_USER,
@@ -45,15 +41,13 @@ import {
 export const
 
   isInvitee = (state = false, action)=>{
+    if (isClearSessionAction(action)){
+      return false
+    }
+
     switch (action.type){
       case ACCEPT_INVITE_SUCCESS:
         return true
-
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-        return false
 
       default:
         return state
@@ -61,18 +55,15 @@ export const
   },
 
   invitedBy = (state = null, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
     switch(action.type){
       case FETCH_CURRENT_USER_SUCCESS:
       case LOAD_INVITE_API_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
         return action.payload.invitedBy
-
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case SELECT_ORG:
-        return null
 
       default:
         return state
@@ -80,16 +71,14 @@ export const
   },
 
   inviteParamsVerified = (state=false, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == RESET_ACCEPT_INVITE){
+      return null
+    }
+
     switch(action.type){
       case VERIFY_INVITE_PARAMS_SUCCESS:
         return true
-
-      case RESET_ACCEPT_INVITE:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return false
 
       default:
         return state
@@ -97,16 +86,14 @@ export const
   },
 
   inviteParamsInvalid = (state=false, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == RESET_ACCEPT_INVITE){
+      return false
+    }
+
     switch(action.type){
       case VERIFY_INVITE_PARAMS_FAILED:
         return true
-
-      case RESET_ACCEPT_INVITE:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return false
 
       default:
         return state
@@ -114,16 +101,14 @@ export const
   },
 
   acceptInviteError = (state=null, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == ACCEPT_INVITE){
+      return null
+    }
+
     switch(action.type){
       case ACCEPT_INVITE_FAILED:
         return {status: action.meta.status, error: action.payload}
-
-      case ACCEPT_INVITE:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return null
 
       default:
         return state
@@ -131,6 +116,10 @@ export const
   },
 
   isGeneratingInviteLink = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
 
       case GENERATE_INVITE_LINK:
@@ -140,19 +129,16 @@ export const
       case GENERATE_INVITE_LINK_FAILED:
         return R.dissoc(action.meta.parentId, state)
 
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case SELECT_ORG:
-        return {}
-
       default:
         return state
     }
   },
 
   generatedInviteLinks = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case GENERATE_INVITE_LINK_SUCCESS:
         return R.assoc(action.meta.parentId, R.pick(["identityHash", "passphrase", "user"], action.meta), state)
@@ -161,13 +147,6 @@ export const
       case CLOSE_GENERATED_INVITE_LINK:
       case INVITE_USER_FAILED:
         return R.dissoc(action.meta.parentId, state)
-
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case SELECT_ORG:
-        return {}
 
       default:
         return state
@@ -205,17 +184,14 @@ export const
   },
 
   loadInviteError = (state=null, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == RESET_ACCEPT_INVITE){
+      return null
+    }
+
     switch(action.type){
       case LOAD_INVITE_FAILED:
         return action.payload
-
-      case RESET_ACCEPT_INVITE:
-      case LOAD_INVITE_REQUEST:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return null
 
       default:
         return state
@@ -223,16 +199,14 @@ export const
   },
 
   inviteParams = (state=null, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == RESET_ACCEPT_INVITE){
+      return null
+    }
+
     switch(action.type){
       case LOAD_INVITE_API_SUCCESS:
         return action.payload
-
-      case RESET_ACCEPT_INVITE:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return null
 
       default:
         return state
@@ -240,17 +214,14 @@ export const
   },
 
   inviteIdentityHash = (state=null, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == RESET_ACCEPT_INVITE){
+      return null
+    }
+
     switch(action.type){
       case LOAD_INVITE_REQUEST:
         return action.meta.identityHash
-
-      case RESET_ACCEPT_INVITE:
-      case ACCEPT_INVITE_SUCCESS:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return null
 
       default:
         return state
@@ -258,16 +229,16 @@ export const
   },
 
   invitePassphrase = (state=null, action)=>{
+    if (isClearSessionAction(action)){
+      return null
+    }
+
     switch(action.type){
       case LOAD_INVITE_REQUEST:
         return action.meta.passphrase
 
       case RESET_ACCEPT_INVITE:
       case ACCEPT_INVITE_SUCCESS:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
         return null
 
       default:
@@ -304,6 +275,10 @@ export const
   },
 
   isRevokingInvite = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case REVOKE_INVITE:
         return {...state, [action.payload.userId]: true}
@@ -312,18 +287,16 @@ export const
       case REVOKE_INVITE_FAILED:
         return R.dissoc(action.meta.userId, state)
 
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return {}
-
       default:
         return state
     }
   },
 
   isRegeneratingInvite = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case REGEN_INVITE:
         return {...state, [action.payload.userId]: true}
@@ -331,12 +304,6 @@ export const
       case REGEN_INVITE_SUCCESS:
       case REGEN_INVITE_FAILED:
         return R.dissoc(action.meta.userId, state)
-
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-        return {}
 
       default:
         return state

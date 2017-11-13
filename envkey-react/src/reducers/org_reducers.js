@@ -6,6 +6,7 @@ import {
   LOGIN_SUCCESS,
   REGISTER,
   REGISTER_SUCCESS,
+  CREATE_ORG_SUCCESS,
   LOGOUT,
   ORG_INVALID,
   LOAD_INVITE_API_SUCCESS,
@@ -31,6 +32,7 @@ export const currentOrgSlug = (state = null, action)=>{
       return action.payload.org.slug
 
     case REGISTER_SUCCESS:
+    case CREATE_ORG_SUCCESS:
       return action.payload.orgs[0].slug
 
     case ACCEPT_INVITE_SUCCESS:
@@ -53,6 +55,7 @@ export const orgs = (state = {}, action)=>{
     case FETCH_CURRENT_USER_SUCCESS:
     case LOGIN_SUCCESS:
     case REGISTER_SUCCESS:
+    case CREATE_ORG_SUCCESS:
     case ACCEPT_INVITE_SUCCESS:
       return indexById(action.payload.orgs)
 

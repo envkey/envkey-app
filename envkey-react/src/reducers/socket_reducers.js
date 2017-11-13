@@ -1,3 +1,4 @@
+import {isClearSessionAction} from './helpers'
 import R from 'ramda'
 import {
   CREATE_ENTRY,
@@ -17,19 +18,16 @@ import {
   UPDATE_ENV_REQUEST,
   UPDATE_ENV_SUCCESS,
 
-  SOCKET_UPDATE_LOCAL_STATUS,
-
-  LOAD_INVITE_REQUEST,
-  LOGIN,
-  LOGIN_REQUEST,
-  REGISTER,
-  SELECT_ORG,
-  LOGOUT
+  SOCKET_UPDATE_LOCAL_STATUS
 } from "actions"
 
 export const
 
   socketIsUpdatingEnvs = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case FETCH_OBJECT_DETAILS_REQUEST:
         if (action.meta.socketUpdate){
@@ -46,20 +44,16 @@ export const
           return state
         }
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   socketEnvsStatus = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
 
       case PROCESSED_SOCKET_UPDATE_ENVS_STATUS:
@@ -80,12 +74,6 @@ export const
         }
 
       case SELECTED_OBJECT:
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -94,18 +82,16 @@ export const
   },
 
   localSocketEnvsStatus = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case SOCKET_UPDATE_LOCAL_STATUS:
         return action.payload
 
       case SELECTED_OBJECT:
       case UPDATE_ENV_REQUEST:
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
         return {}
 
       default:
@@ -114,6 +100,10 @@ export const
   },
 
   pendingLocalSocketEnvsStatus = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     if(action.meta && action.meta.importAction){
       return state
     }
@@ -147,12 +137,6 @@ export const
         return R.dissoc(action.meta.envUpdateId, state)
 
       case SELECTED_OBJECT:
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
         return {}
 
       default:

@@ -1,3 +1,4 @@
+import {isClearSessionAction} from './helpers'
 import R from 'ramda'
 import {
   ADD_ASSOC_REQUEST,
@@ -65,19 +66,16 @@ import {
 
   IMPORT_ALL_ENVIRONMENTS,
   IMPORT_ALL_ENVIRONMENTS_SUCCESS,
-  IMPORT_ALL_ENVIRONMENTS_FAILED,
-
-  LOAD_INVITE_REQUEST,
-  LOGIN,
-  LOGIN_REQUEST,
-  REGISTER,
-  LOGOUT,
-  SELECT_ORG
+  IMPORT_ALL_ENVIRONMENTS_FAILED
 } from "actions"
 import {isOutdatedEnvsResponse} from 'lib/actions'
 
 export const
   isCreating = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case CREATE_OBJECT_REQUEST:
         if(action.meta.createAssoc)return state
@@ -103,20 +101,16 @@ export const
           return R.dissoc(action.meta.objectType, state)
         }
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isAddingAssoc = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case ADD_ASSOC_REQUEST:
       case CREATE_ASSOC_REQUEST:
@@ -139,20 +133,16 @@ export const
                              (action.meta.assocId || "create")],
                             state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isRemoving = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case REMOVE_ASSOC_REQUEST:
       case REMOVE_OBJECT_REQUEST:
@@ -164,20 +154,16 @@ export const
       case REMOVE_OBJECT_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isGeneratingAssocKey = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case GENERATE_ASSOC_KEY:
         return R.assoc(action.meta.targetId, true, state)
@@ -186,20 +172,16 @@ export const
       case GENERATE_ASSOC_KEY_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isRevokingAssocKey = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case REVOKE_ASSOC_KEY_REQUEST:
         return R.assoc(action.meta.targetId, true, state)
@@ -208,20 +190,16 @@ export const
       case REVOKE_ASSOC_KEY_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isUpdatingSettings = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case UPDATE_OBJECT_SETTINGS_REQUEST:
         return R.assoc(action.meta.targetId, true, state)
@@ -230,20 +208,16 @@ export const
       case UPDATE_OBJECT_SETTINGS_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isUpdatingEnv = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     if(action.meta && action.meta.importAction){
       return state
     }
@@ -275,14 +249,6 @@ export const
 
           return dissocFns.length ? R.pipe(...dissocFns)(state) : state
         }
-
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state
@@ -338,6 +304,10 @@ export const
   },
 
   isCreatingEnvEntry = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     if(action.meta && action.meta.importAction){
       return state
     }
@@ -358,20 +328,16 @@ export const
           return dissocFns.length ? R.pipe(...dissocFns)(state) : state
         }
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isRenaming = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case RENAME_OBJECT_REQUEST:
         return R.assoc(action.meta.targetId, true, state)
@@ -380,20 +346,16 @@ export const
       case RENAME_OBJECT_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isGrantingEnvAccess = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case GRANT_ENV_ACCESS:
         const userIds = R.pluck('userId', action.payload)
@@ -406,20 +368,16 @@ export const
       case GRANT_ENV_ACCESS_FAILED:
         return R.dissoc(action.meta.userId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isUpdatingOrgRole = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case UPDATE_ORG_ROLE:
         return R.assoc(action.payload.userId, true, state)
@@ -428,20 +386,16 @@ export const
       case UPDATE_ORG_ROLE_FAILED:
         return R.dissoc(action.meta.userId, state)
 
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   isImportingConfig = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case IMPORT_ENVIRONMENT:
         return R.assocPath([action.meta.parentId, action.payload.environment], true, state)
@@ -459,14 +413,6 @@ export const
       case IMPORT_ALL_ENVIRONMENTS_SUCCESS:
       case IMPORT_ALL_ENVIRONMENTS_FAILED:
         return R.dissoc(action.meta.parentId, state)
-
-      case SELECT_ORG:
-      case LOGOUT:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state

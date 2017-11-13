@@ -1,3 +1,4 @@
+import {isClearSessionAction} from './helpers'
 import R from 'ramda'
 import {
   IMPORT_ALL_ENVIRONMENTS,
@@ -5,18 +6,16 @@ import {
   IMPORT_ENVIRONMENT_FAILED,
   COMMIT_IMPORT_ACTIONS,
   CREATE_ENTRY,
-  UPDATE_ENTRY_VAL,
-  LOGOUT,
-  SELECT_ORG,
-  LOAD_INVITE_REQUEST,
-  LOGIN,
-  LOGIN_REQUEST,
-  REGISTER
+  UPDATE_ENTRY_VAL
 } from "actions"
 
 export const
 
   importActionsPending = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
 
       case CREATE_ENTRY:
@@ -30,31 +29,19 @@ export const
       case COMMIT_IMPORT_ACTIONS:
         return R.dissoc(action.meta.parentId, state)
 
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
-
       default:
         return state
     }
   },
 
   didOnboardImport = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case IMPORT_ALL_ENVIRONMENTS:
         return R.assoc(action.meta.parentId, true, state)
-
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state
@@ -62,6 +49,10 @@ export const
   },
 
   importErrors = (state={}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
     switch(action.type){
       case IMPORT_ENVIRONMENT_FAILED:
         return R.assocPath([action.meta.parentId, action.meta.environment], action.payload, state)
@@ -74,14 +65,6 @@ export const
 
       case IMPORT_ALL_ENVIRONMENTS:
         return R.dissoc(action.meta.parentId, state)
-
-      case LOGOUT:
-      case SELECT_ORG:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case REGISTER:
-      case LOAD_INVITE_REQUEST:
-        return {}
 
       default:
         return state
