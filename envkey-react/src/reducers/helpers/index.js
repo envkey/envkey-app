@@ -13,6 +13,7 @@ import {
   LOGIN_REQUEST,
   LOGOUT,
   TOKEN_INVALID,
+  SELECT_ACCOUNT,
   SELECT_ORG,
   REGISTER
 } from "actions"
@@ -34,13 +35,19 @@ const
     LOGOUT,
     TOKEN_INVALID,
     SELECT_ORG,
-    REGISTER
-  ]
+    REGISTER,
+    SELECT_ACCOUNT
+  ],
+
+  isActionType = (base, action, opts={})=> {
+    const types = R.difference(base, opts.except || []).concat(opts.add || [])
+    return types.includes(action.type)
+  }
 
 export const
 
   indexById = objects => R.indexBy(R.prop("id"), objects),
 
-  isFetchCurrentUserAction = action => fetchCurrentUserActionTypes.includes(action.type),
+  isFetchCurrentUserAction = (action, opts) => isActionType(fetchCurrentUserActionTypes, action, opts),
 
-  isClearSessionAction = action => clearSessionActionTypes.includes(action.type)
+  isClearSessionAction = (action, opts) => isActionType(clearSessionActionTypes, action, opts)

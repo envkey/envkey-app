@@ -18,6 +18,8 @@ import {ORG_ROLES} from 'constants'
 import R from 'ramda'
 import {camelize} from 'xcase'
 
+db.init("accounts")
+
 export const
   getAppLoaded = db.path("appLoaded"),
 
@@ -64,6 +66,10 @@ export const
     if(!auth)return null
     return getUser(auth.id, state)
   },
+
+  getAccounts = db.accounts.list(),
+
+  getAccount = db.accounts.find(),
 
   getCurrentOrgUser = state => getOrgUserForUser(getAuth(state).id, state),
 

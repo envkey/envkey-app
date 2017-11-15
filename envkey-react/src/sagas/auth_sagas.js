@@ -30,6 +30,10 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILED,
+  SELECT_ACCOUNT,
+  SELECT_ACCOUNT_REQUEST,
+  SELECT_ACCOUNT_SUCCESS,
+  SELECT_ACCOUNT_FAILED,
   LOGOUT,
   REGISTER,
   REGISTER_REQUEST,
@@ -120,6 +124,13 @@ const
     method: "post",
     actionTypes: [REGISTER_SUCCESS, REGISTER_FAILED],
     urlFn: (action)=> "/auth.json"
+  }),
+
+  onSelectAccountRequest = apiSaga({
+    authenticated: true,
+    method: "get",
+    actionTypes: [SELECT_ACCOUNT_SUCCESS, SELECT_ACCOUNT_FAILED],
+    urlFn: (action)=> "/auth/session.json"
   })
 
 function *loginSelectOrg(){
@@ -266,6 +277,20 @@ function* onSelectOrg({payload: slug}){
   }
 }
 
+function* onSelectAccount(){
+  yield put({type: SELECT_ACCOUNT_REQUEST})
+}
+
+function* onSelectAccountSuccess(){
+  const orgs = yield select(getOrgs)
+
+  yield (
+    orgs.length == 1 && orgs[0].isActive ?
+      put(selectOrg(orgs[0].slug)) :
+      call(loginSelectOrg)
+  )
+}
+
 function *onFetchCurrentUserSuccess(action){
   yield put(appLoaded())
   yield [
@@ -311,6 +336,8 @@ export default function* authSagas(){
     takeLatest(REGISTER, onRegister),
     takeLatest(REGISTER_REQUEST, onRegisterRequest),
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
+    takeLatest(SELECT_ACCOUNT, onSelectAccount),
+    takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
     takeLatest(START_DEMO, onStartDemo),
     takeLatest(LOGOUT, onLogout)
