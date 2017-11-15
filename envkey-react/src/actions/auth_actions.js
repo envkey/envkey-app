@@ -11,6 +11,8 @@ import {
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_UPDATES_REQUEST,
   LOGOUT,
+  LOGOUT_ALL,
+  SELECT_ACCOUNT,
   GRANT_ENV_ACCESS_REQUEST,
   START_DEMO
 } from './action_types'
@@ -32,11 +34,15 @@ export const
 
   register = createAction(REGISTER),
 
+  selectAccount = createAction(SELECT_ACCOUNT, R.pick(["auth", "privkey"])),
+
   fetchCurrentUser = createAction(FETCH_CURRENT_USER_REQUEST),
 
   fetchCurrentUserUpdates = createAction(FETCH_CURRENT_USER_UPDATES_REQUEST, R.always({}), R.pick(["noMinUpdatedAt"])),
 
   logout = createAction(LOGOUT),
+
+  logoutAll = createAction(LOGOUT_ALL),
 
   grantEnvAccessRequest = createAction(
     GRANT_ENV_ACCESS_REQUEST,

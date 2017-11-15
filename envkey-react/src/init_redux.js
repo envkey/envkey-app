@@ -57,10 +57,11 @@ const
 
   localPersistence = compose(filter([
     "auth",
+    "accounts",
     "currentOrgSlug"
   ]))(localStorageAdapter(window.localStorage)),
 
-  privkeyPersistence = compose(filter(["privkey"]))(privkeyStorageAdapter(privkeyStorage)),
+  privkeyPersistence = compose(filter(["privkey", "accountPrivkeys"]))(privkeyStorageAdapter(privkeyStorage)),
 
   enhancerCompose = devMode ? composeWithDevTools : compose,
 

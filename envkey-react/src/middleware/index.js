@@ -2,9 +2,14 @@ import R from 'ramda'
 
 import * as env from './env_middleware'
 import * as fetchCurrentUser from './fetch_current_user_middleware'
+import * as auth from './auth_middleware'
 
-export default [
-  ...R.values(env),
-  ...R.values(fetchCurrentUser)
-]
+export default R.pipe(
+  R.map(R.values),
+  R.flatten
+)([
+  env,
+  fetchCurrentUser,
+  auth
+])
 

@@ -1,6 +1,7 @@
 export {default as MainContainer} from './main_container'
 export {default as AcceptInviteContainer} from './accept_invite_container'
 export {default as SelectOrgContainer} from './select_org_container'
+export {default as SelectAccountContainer} from './select_account_container'
 export {default as SelectedObjectContainerFactory} from './selected_object_container_factory'
 export {default as EnvManagerContainerFactory} from './env_manager_container_factory'
 export {default as AssocManagerContainerFactory } from './assoc_manager_container_factory'

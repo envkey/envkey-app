@@ -10,6 +10,9 @@ import {
   REGISTER_SUCCESS,
 
   LOGOUT,
+  LOGOUT_ALL,
+
+  SELECT_ACCOUNT,
   SELECT_ORG,
 
   FETCH_CURRENT_USER_REQUEST,
@@ -152,17 +155,35 @@ export const
   },
 
   privkey = (state = null, action)=>{
-    if (isClearSessionAction(action)){
+    if (isClearSessionAction(action, {except: [SELECT_ORG, SELECT_ACCOUNT]})){
       return null
     }
 
     switch(action.type){
+      case SELECT_ACCOUNT:
+        return action.payload.privkey
       case DECRYPT_PRIVKEY_SUCCESS:
         return action.payload
       case DECRYPT_ENVS_FAILED:
       case DECRYPT_ALL_FAILED:
       case ACCEPT_INVITE_REQUEST:
         return null
+      default:
+        return state
+    }
+  },
+
+  accountPrivkeys = (state = {}, action)=> {
+    switch (action.type){
+      case DECRYPT_PRIVKEY_SUCCESS:
+        return R.assoc(action.meta.currentUserId, action.payload, state)
+
+      case LOGOUT_ALL:
+        return {}
+
+      case LOGOUT:
+        return R.dissoc(action.meta.currentUserId, state)
+
       default:
         return state
     }

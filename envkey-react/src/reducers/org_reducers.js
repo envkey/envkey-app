@@ -1,5 +1,7 @@
 import {
   SELECT_ORG,
+  SELECT_ACCOUNT,
+  SELECT_ACCOUNT_SUCCESS,
   FETCH_CURRENT_USER_SUCCESS,
   LOGIN,
   LOGIN_REQUEST,
@@ -33,7 +35,8 @@ export const currentOrgSlug = (state = null, action)=>{
 
     case REGISTER_SUCCESS:
     case CREATE_ORG_SUCCESS:
-      return action.payload.orgs[0].slug
+      let orgs = action.payload.orgs
+      return orgs[orgs.length - 1].slug
 
     case ACCEPT_INVITE_SUCCESS:
       return action.meta.orgSlug
@@ -43,6 +46,7 @@ export const currentOrgSlug = (state = null, action)=>{
     case REGISTER:
     case LOGOUT:
     case ORG_INVALID:
+    case SELECT_ACCOUNT:
       return null
 
     default:
@@ -84,6 +88,7 @@ export const orgs = (state = {}, action)=>{
     case LOGIN_REQUEST:
     case REGISTER:
     case LOGOUT:
+    case SELECT_ACCOUNT:
       return {}
 
     default:

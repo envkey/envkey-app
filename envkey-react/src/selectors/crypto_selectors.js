@@ -3,12 +3,16 @@ import R from 'ramda'
 import { getApps, getUser } from './object_selectors'
 import { getCurrentUser } from './auth_selectors'
 
+db.init("accountPrivkeys")
+
 export const
   getIsGeneratingUserKey = db.path("isGeneratingUserKey"),
 
   getEncryptedPrivkey = db.path("encryptedPrivkey"),
 
   getPrivkey = db.path("privkey"),
+
+  getAccountPrivkey = db.accountPrivkeys.find(),
 
   getDecryptPrivkeyErr = db.path("decryptPrivkeyErr"),
 

@@ -1,3 +1,4 @@
+import R from 'ramda'
 import {isFetchCurrentUserAction, isClearSessionAction} from './helpers'
 
 import {
@@ -31,6 +32,7 @@ import {
   REGISTER_FAILED,
 
   LOGOUT,
+  LOGOUT_ALL,
 
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
@@ -47,12 +49,23 @@ import {
   ACCEPT_INVITE_SUCCESS,
   ACCEPT_INVITE_FAILED,
 
+  SELECT_ACCOUNT,
+  SELECT_ACCOUNT_SUCCESS,
+  SELECT_ACCOUNT_FAILED,
+
   SELECT_ORG,
 
   START_DEMO
 } from 'actions'
-import R from 'ramda'
 import {decamelizeKeys} from 'xcase'
+
+const
+  actionToAuth = ({payload, meta}) => {
+    return {
+      ...R.pick(["slug", "id"], payload),
+      ...R.pick(["access-token", "uid", "client"], meta.headers)
+    }
+  }
 
 export const
 
@@ -179,18 +192,43 @@ export const
   },
 
   auth = (state = null, action)=> {
-    if (isFetchCurrentUserAction(action)){
-      return {
-        ...R.pick(["slug", "id"], action.payload),
-        ...R.pick(["access-token", "uid", "client"], action.meta.headers)
-      }
-    }
-
-    if (isClearSessionAction(action)){
+    if (isClearSessionAction(action, {except: [SELECT_ORG, SELECT_ACCOUNT]})){
       return null
     }
 
+    switch (action.type){
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+        return actionToAuth(action)
+
+      case SELECT_ACCOUNT:
+        return action.payload.auth
+
+      default:
+        return state
+    }
+
     return state
+  },
+
+  accounts = (state = {}, action)=> {
+    switch (action.type){
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+        return R.assoc(action.payload.id, actionToAuth(action), state)
+
+      case LOGOUT_ALL:
+        return {}
+
+      case LOGOUT:
+        return R.dissoc(action.meta.currentUserId, state)
+
+      default:
+        return state
+    }
   },
 
   isAuthenticating = (state = false, action)=> {
@@ -198,12 +236,15 @@ export const
       case LOGIN:
       case ACCEPT_INVITE:
       case REGISTER:
+      case SELECT_ACCOUNT:
         return true
 
       case LOGIN_SUCCESS:
       case LOGIN_FAILED:
       case REGISTER_SUCCESS:
       case REGISTER_FAILED:
+      case SELECT_ACCOUNT_FAILED:
+      case SELECT_ACCOUNT_SUCCESS:
       case ACCEPT_INVITE_SUCCESS:
       case ACCEPT_INVITE_FAILED:
         return false
@@ -345,10 +386,32 @@ export const
     }
 
     if (isClearSessionAction(action)){
-      return null
+      return false
     }
 
     return state
+
+
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
+      case REGISTER_SUCCESS:
+      case LOAD_INVITE_API_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+        return action.payload.lastFetchAt
+
+      case LOAD_INVITE_REQUEST:
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case LOGOUT:
+      case REGISTER:
+      case TOKEN_INVALID:
+      case SELECT_ORG:
+        return null
+
+      default:
+        return state
+    }
   },
 
   isDemo = (state = false, {type})=> type == START_DEMO ? true : state
