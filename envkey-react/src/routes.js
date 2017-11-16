@@ -30,7 +30,8 @@ import {
   BillingContainer,
   HomeMenuContainer,
   RequiresConnection,
-  DemoLoginContainer
+  DemoLoginContainer,
+  SelectAccountContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -96,6 +97,8 @@ export default class Routes extends React.Component {
         <Route path="/accept_invite" component={RequiresConnection(AcceptInviteContainer)} />
 
         <Route path="/invite_failed" component={RequiresConnection(InviteFailedContainer)} />
+
+         <Route path="/select_account" component={RequiresConnection(SelectAccountContainer)} />
 
         <Route path="/select_org" component={RequiresConnection(OrgsLoaded(UserAuthenticated(SelectOrgContainer)))} />
 
