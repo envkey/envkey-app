@@ -3,35 +3,37 @@ import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
+import AccountSelect from 'components/pagedraw/account_select'
 import {selectAccount} from 'actions'
 import {getAccounts, getIsAuthenticating} from 'selectors'
+
 import R from 'ramda'
 
-const SelectAccount = ({accounts, isAuthenticating, onSelect})=>{
+const AccountSelectContainer = ({accounts, isAuthenticating, onSelect})=>{
 
-  const renderSelectButton = (auth)=>{
-    return <button onClick={e => onSelect({auth, privkey: accountPrivkeys[auth.id]})}> Select </button>
-  }
+  // const renderSelectButton = (auth)=>{
+  //   return <button onClick={e => onSelect({auth, privkey: accountPrivkeys[auth.id]})}> Select </button>
+  // }
 
-  const renderAccount = (account, i)=> {
-    return <div key={i || false} className={i % 2 == 0 ? "even" : "odd"}>
-      <label>{account.uid}</label>
-      {renderSelectButton(account)}
-    </div>
-  }
+  // const renderAccount = (account, i)=> {
+  //   return <div key={i || false} className={i % 2 == 0 ? "even" : "odd"}>
+  //     <label>{account.uid}</label>
+  //     {renderSelectButton(account)}
+  //   </div>
+  // }
 
-  const renderAccountSelect = ()=> {
-    if(isAuthenticating){
-      return <Spinner />
-    } else {
-      return <div className="account-candidates">{accounts.map(renderAccount)}</div>
-    }
-  }
+  // const renderAccountSelect = ()=> {
+  //   if(isAuthenticating){
+  //     return <Spinner />
+  //   } else {
+  //     return <div className="account-candidates">{accounts.map(renderAccount)}</div>
+  //   }
+  // }
 
   return <OnboardOverlay>
     <div className="onboard-auth-form select-account">
-      <h1><em>Select An Account</em></h1>
-      {renderAccountSelect()}
+      <h1>Select An <em>Account</em></h1>
+        <AccountSelect />
     </div>
   </OnboardOverlay>
 
@@ -56,4 +58,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SelectAccount)
+export default connect(mapStateToProps, mapDispatchToProps)(AccountSelectContainer)
