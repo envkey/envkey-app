@@ -109,4 +109,87 @@
     button.secondary
       border: 1px solid rgba(#fff, 0.3)
 
+  .select-candidates
+    width: 50%
+    margin: 40px auto 40px auto
+    background: #fff
+
+    > div
+      +clearfix
+      position: relative
+      box-sizing: border-box
+      padding: 15px
+
+      label
+        font-size: 18px
+        font-family: $condensed-font
+        position: absolute
+        display: inline-block
+        top: 50%
+        left: 15px
+        transform: translateY(-50%)
+
+      img.remove
+        opacity: 0.2
+        width: 25px
+        position: absolute
+        top: 50%
+        transform: translateY(-50%)
+        left: 17.5px
+        cursor: pointer
+        &:hover
+          opacity: 0.5
+
+
+      button
+        float: right
+
+      &:not(:last-of-type)
+        border-bottom: 1px solid hsl(0,0,90)
+
+      &.odd
+        background: hsl(0,0,97)
+
+    &.account-candidates
+      > div label
+        left: 60px
+
+  .secondary-button
+    display: block
+    margin: 0 auto 20px
+    border: 1px solid rgba(#fff, 0.25)
+    background: none
+    width: 250px
+    height: 55px
+    font-size: 18.5px
+    font-family: $condensed-font
+    font-weight: 100
+    text-transform: none
+    color: rgba(#fff, 0.9)
+
+    &:hover
+      border: 1px solid rgba(#fff, 0.7)
+
+    label, img
+      display: inline-block
+      position: relative
+      top: 50%
+      transform: translateY(-50%)
+
+    label
+      float: right
+
+    img
+      float: left
+      width: 30px
+
+    &.create-org, &.add-account
+      img
+        width: 24px
+        left: 2px
+
+
+
+
+
 

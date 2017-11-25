@@ -2,7 +2,7 @@ import React from 'react'
 import R from 'ramda'
 import { Router, Route, IndexRoute, IndexRedirect } from 'react-router'
 import { Provider } from 'react-redux'
-import { routerActions, replace } from 'react-router-redux'
+import { routerActions, replace, push } from 'react-router-redux'
 import { UserAuthWrapper } from 'redux-auth-wrapper'
 import {history, store} from 'init_redux'
 import {
@@ -11,7 +11,9 @@ import {
   getOrgs,
   getPermissions,
   getApps,
-  getDisconnected
+  getDisconnected,
+  getAccounts,
+  getLastFetchAt
 } from 'selectors'
 import {
   MainContainer,
@@ -30,8 +32,11 @@ import {
   BillingContainer,
   HomeMenuContainer,
   RequiresConnection,
+  BaseRoute,
   DemoLoginContainer,
-  SelectAccountContainer
+  SelectAccountContainer,
+  CreateOrgContainer,
+  NoAppsContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -43,17 +48,25 @@ const
     wrapperDisplayName: 'UserAuthenticated'
   }),
 
-  OrgsLoaded = UserAuthWrapper({
-    authSelector: getOrgs,
-    redirectAction: routerActions.replace,
-    wrapperDisplayName: 'OrgsLoaded'
-  }),
-
   OrgSelected = UserAuthWrapper({
     authSelector: getCurrentOrgSlug,
     failureRedirectPath: "/select_org",
     redirectAction: routerActions.replace,
     wrapperDisplayName: 'OrgSelected'
+  }),
+
+  OrgsLoaded = UserAuthWrapper({
+    authSelector: getOrgs,
+    failureRedirectPath: "/select_account",
+    redirectAction: routerActions.replace,
+    wrapperDisplayName: 'OrgsLoaded'
+  }),
+
+  HasAccount = UserAuthWrapper({
+    authSelector: getAccounts,
+    failureRedirectPath: "/login",
+    redirectAction: routerActions.push,
+    wrapperDisplayName: 'HasAccount'
   })
 
 export default class Routes extends React.Component {
@@ -69,15 +82,22 @@ export default class Routes extends React.Component {
 
   _redirectOrgIndex(){
     const state = store.getState(),
-          orgSlug = getCurrentOrgSlug(state),
+          lastFetchAt = getLastFetchAt(state)
+
+    // If no fetch yet, don't redirect
+    if(!lastFetchAt)return
+
+    const orgSlug = getCurrentOrgSlug(state),
           permissions = getPermissions(state),
           apps = getApps(state)
 
     if (apps.length){
       const {slug} = apps[0]
       store.dispatch(replace(`/${orgSlug}/apps/${slug}`))
-    } else if (permissions.create.app){
-      store.dispatch(replace(`/${orgSlug}/apps/new`))
+    } else if (R.path(["create", "app"], permissions)){
+      store.dispatch(replace(`/${orgSlug}/onboard`))
+    } else {
+      store.dispatch(replace(`/${orgSlug}/no_apps`))
     }
   }
 
@@ -88,23 +108,25 @@ export default class Routes extends React.Component {
 
         <Route path="/" onEnter={::this._redirectIndex} />
 
-        <Route path="/home" component={RequiresConnection(HomeMenuContainer)} />
+        <Route path="/home" component={RequiresConnection(BaseRoute(HomeMenuContainer))} />
 
-        <Route path="/login" component={RequiresConnection(LoginRegisterContainer)} />
+        <Route path="/login" component={RequiresConnection(BaseRoute(LoginRegisterContainer))} />
 
-        <Route path="/demo/:bs64props" component={RequiresConnection(DemoLoginContainer)} />
+        <Route path="/demo/:bs64props" component={RequiresConnection(BaseRoute(DemoLoginContainer))} />
 
-        <Route path="/accept_invite" component={RequiresConnection(AcceptInviteContainer)} />
+        <Route path="/accept_invite" component={RequiresConnection(BaseRoute(AcceptInviteContainer))} />
 
-        <Route path="/invite_failed" component={RequiresConnection(InviteFailedContainer)} />
+        <Route path="/invite_failed" component={RequiresConnection(BaseRoute(InviteFailedContainer))} />
 
-         <Route path="/select_account" component={RequiresConnection(SelectAccountContainer)} />
+        <Route path="/select_account" component={RequiresConnection(HasAccount(BaseRoute(SelectAccountContainer)))} />
 
-        <Route path="/select_org" component={RequiresConnection(OrgsLoaded(UserAuthenticated(SelectOrgContainer)))} />
+        <Route path="/select_org" component={RequiresConnection(UserAuthenticated(OrgsLoaded(BaseRoute(SelectOrgContainer))))} />
+
+        <Route path="/create_org" component={RequiresConnection(UserAuthenticated(BaseRoute(CreateOrgContainer)))} />
 
         <Route path="/:orgSlug" component={RequiresConnection(OrgSelected(UserAuthenticated(MainContainer)))}>
 
-          <IndexRoute />
+          <IndexRoute onEnter={this._redirectOrgIndex} />
 
           <Route path="onboard" component={OnboardOverlayContainer} >
 
@@ -115,6 +137,8 @@ export default class Routes extends React.Component {
             <Route path="2" component={OnboardAppImporter} />
 
           </Route>
+
+          <Route path="no_apps" component={NoAppsContainer} />
 
           <Route path="apps/new" component={ObjectFormContainerFactory({objectType: "app"})} />
 

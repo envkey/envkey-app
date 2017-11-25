@@ -4,13 +4,13 @@ import { Link } from 'react-router'
 import { imagePath } from 'lib/ui'
 import {OnboardOverlay} from 'components/onboard'
 
-export default function(){
+export default function({hasAccount}){
   return h(OnboardOverlay, [
     h.div([
       h.h1(".welcome", ["Welcome! ", h.em("Let's get started.")]),
 
       h.div(".home-menu", [
-        h(Link, {className: "sign-in", to: "/login"}, [
+        h(Link, {className: "sign-in", to: (hasAccount ? "/select_account" : "/login")}, [
           h.span(".img", [h.img({src: imagePath("signin-blue.svg")})]),
           h.label([
             "Sign In",

@@ -23,7 +23,7 @@ import {
   addTrustedPubkey,
   updateTrustedPubkeys
 } from 'actions'
-import { getCurrentOrg, getInviteePubkey, getPrivkey } from 'selectors'
+import { getCurrentOrg, getInviteePubkey, getPrivkey, getUserByEmail } from 'selectors'
 import { sha256 } from 'lib/crypto'
 
 function* generateInviteLink(action){
@@ -43,19 +43,30 @@ function* execGrantEnvAccess({payload, meta}){
 }
 
 export function* inviteUser(action){
-  yield put({...action, type: INVITE_USER})
-
   const {meta, payload} = action,
-        {id: orgId} = yield select(getCurrentOrg),
-        {error: generateInviteLinkError, payload: inviteLink} = yield call(generateInviteLink, action)
+        existingUser = yield select(getUserByEmail(payload.user.email)),
+        isReinvite = existingUser && existingUser.deleted
 
-  if(generateInviteLinkError){
-    yield put({meta, type: INVITE_USER_FAILED, error: generateInviteLinkError, payload: inviteLink})
-    return
+  yield put({
+    ...R.assocPath(["meta", "isReinvite"], isReinvite, action),
+    type: INVITE_USER
+  })
+
+  const {id: orgId} = yield select(getCurrentOrg)
+  let createPayload
+
+  if (!isReinvite){
+    const {error: generateInviteLinkError, payload: inviteLink} = yield call(generateInviteLink, action)
+    if(generateInviteLinkError){
+      yield put({meta, type: INVITE_USER_FAILED, error: generateInviteLinkError, payload: inviteLink})
+      return
+    }
+    createPayload = {...payload, inviteLink}
+  } else {
+    createPayload = payload
   }
 
-  const payloadWithInviteLink = {...payload, inviteLink},
-        createRes = yield call(execCreateObject, {...action, payload: payloadWithInviteLink})
+  const createRes = yield call(execCreateObject, {...action, payload: createPayload})
 
   if (createRes.error){
     yield call(dispatchCreateAssocFailed, {failAction: createRes, meta})
@@ -63,7 +74,9 @@ export function* inviteUser(action){
     return
   }
 
-  yield put(addTrustedPubkey({keyable: {type: "user", ...createRes.payload}, orgId}))
+  if (!isReinvite){
+    yield put(addTrustedPubkey({keyable: {type: "user", ...createRes.payload}, orgId}))
+  }
 
   const addRes = yield call(execAddAssoc, action, createRes.payload.id)
 
@@ -88,10 +101,10 @@ export function* inviteUser(action){
     return
   }
 
-  yield [
-    put(updateTrustedPubkeys()),
-    put({...action, type: INVITE_USER_SUCCESS})
-  ]
+  const toDispatch = [put({...action, type: INVITE_USER_SUCCESS})]
+  if (!isReinvite)toDispatch.unshift(put(updateTrustedPubkeys()),)
+
+  yield toDispatch
 }
 
 export function* checkInviteePubkeyIsValid(){

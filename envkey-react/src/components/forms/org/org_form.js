@@ -31,10 +31,6 @@ export default class OrgForm extends React.Component {
   }
 
   _renderSubmit(){
-    if(this.props.isSubmitting){
-      return <SmallLoader />
-    } else {
-      return <button> <span>Create Organization</span> </button>
-    }
+    return <button> <span>Create Organization</span> </button>
   }
 }

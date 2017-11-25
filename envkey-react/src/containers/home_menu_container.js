@@ -1,33 +1,23 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
-import { getAppLoaded } from 'selectors'
-import { appLoaded } from 'actions'
+import { getAccounts } from 'selectors'
 import HomeMenu from 'components/shared/home_menu'
 
 class Home extends React.Component {
 
-  componentDidMount(){
-    if(!this.props.appLoaded)this.props.onLoad()
-  }
-
   render(){
-    return h(HomeMenu)
+    return h(HomeMenu, this.props)
   }
 
 }
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    appLoaded: getAppLoaded(state)
+    hasAccount: getAccounts(state).length > 0
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-    onLoad: ()=> dispatch(appLoaded())
-  }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default connect(mapStateToProps)(Home)
 

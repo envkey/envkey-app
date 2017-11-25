@@ -14,12 +14,13 @@ import {
   SOCKET_UPDATE_LOCAL_STATUS,
   SOCKET_UNSUBSCRIBE_ALL,
   FETCH_OBJECT_DETAILS_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
   fetchObjectDetails,
   fetchCurrentUser,
   fetchCurrentUserUpdates,
   socketBroadcastEnvsStatus,
   processedSocketUpdateEnvStatus,
-  logout,
+  clearSession,
   selectOrg
 } from 'actions'
 import {
@@ -83,8 +84,12 @@ function *onSubscribeObjectChannel({payload: object}){
 
 function *onSocketUpdateOrg(action){
   const auth = yield select(getAuth),
-        currentOrg = yield select(getCurrentOrg),
-        currentOrgUser = yield select(getCurrentOrgUser),
+        currentOrg = yield select(getCurrentOrg)
+
+  // Cancel if not logged in / org selected
+  if(!auth || !currentOrg)return
+
+  const currentOrgUser = yield select(getCurrentOrgUser),
         selectedObjectId = yield select(getSelectedObjectId),
         {actorId, actionType, targetType, targetId, appId, meta} = action.payload
 
@@ -95,7 +100,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "Org" && targetId == currentOrg.id){
     alert("This organization has been deleted by the owner.")
     yield put(push("/home"))
-    yield put(logout())
+    yield put(clearSession())
     return
   }
 
@@ -103,7 +108,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "OrgUser" && targetId == currentOrgUser.id){
     alert("Your access to this organization has been removed by an org admin.")
     yield put(push("/home"))
-    yield put(logout())
+    yield put(clearSession())
     return
   }
 
@@ -118,6 +123,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "App" && targetId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This app has been deleted by an org admin.")
+    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -127,15 +133,16 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your access to this app has been removed by an app admin.")
+    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
   }
 
   // Current app access changed
-  if (actionType == "created" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
+  if (actionType == "created" && targetType == "AppUser" && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-    alert("Your app access level has been updated by an app admin.")
+    if(appId == selectedObjectId)alert("Your app access level has been updated by an app admin.")
     return
   }
 
@@ -143,6 +150,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "OrgUser" && meta && meta.userId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This user has been removed from the organization by an org admin.")
+    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -192,6 +200,8 @@ function *onSocketUpdateOrg(action){
 function *onSocketUpdateEnvsStatus(action){
   const currentUser = yield select(getCurrentUser)
 
+  if (!currentUser)return
+
   // Don't receive updates from current user broadcasts
   if (action.payload.userId == currentUser.id){
     return
@@ -219,6 +229,9 @@ function *onSocketUserSubscribedObjectChannel(action){
 }
 
 function *onSocketUpdateLocalStatus(action){
+  const currentUser = yield select(getCurrentUser)
+  if(!currentUser)return
+
   yield put(socketBroadcastEnvsStatus())
 }
 

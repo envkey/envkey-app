@@ -14,7 +14,8 @@ import {
   LOGOUT_ALL,
   SELECT_ACCOUNT,
   GRANT_ENV_ACCESS_REQUEST,
-  START_DEMO
+  START_DEMO,
+  RESET_SESSION
 } from './action_types'
 
 export const
@@ -40,7 +41,7 @@ export const
 
   fetchCurrentUserUpdates = createAction(FETCH_CURRENT_USER_UPDATES_REQUEST, R.always({}), R.pick(["noMinUpdatedAt"])),
 
-  logout = createAction(LOGOUT),
+  logout = createAction(LOGOUT, R.always({}), R.pick(["accountId"])),
 
   logoutAll = createAction(LOGOUT_ALL),
 
@@ -50,5 +51,7 @@ export const
     R.pick(['orgUserId', 'userId', 'isInvite', 'parentId'])
   ),
 
-  startDemo = createAction(START_DEMO)
+  startDemo = createAction(START_DEMO),
+
+  resetSession = createAction(RESET_SESSION)
 

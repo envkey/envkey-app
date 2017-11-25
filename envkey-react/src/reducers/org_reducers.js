@@ -8,7 +8,9 @@ import {
   LOGIN_SUCCESS,
   REGISTER,
   REGISTER_SUCCESS,
+  CREATE_ORG_REQUEST,
   CREATE_ORG_SUCCESS,
+  CREATE_ORG_FAILED,
   LOGOUT,
   ORG_INVALID,
   LOAD_INVITE_API_SUCCESS,
@@ -61,6 +63,7 @@ export const orgs = (state = {}, action)=>{
     case REGISTER_SUCCESS:
     case CREATE_ORG_SUCCESS:
     case ACCEPT_INVITE_SUCCESS:
+    case SELECT_ACCOUNT_SUCCESS:
       return indexById(action.payload.orgs)
 
     case LOAD_INVITE_API_SUCCESS:
@@ -90,6 +93,20 @@ export const orgs = (state = {}, action)=>{
     case LOGOUT:
     case SELECT_ACCOUNT:
       return {}
+
+    default:
+      return state
+  }
+}
+
+export const isCreatingOrg = (state=false, action)=>{
+  switch (action.type){
+    case CREATE_ORG_REQUEST:
+      return true
+
+    case CREATE_ORG_SUCCESS:
+    case CREATE_ORG_FAILED:
+      return false
 
     default:
       return state

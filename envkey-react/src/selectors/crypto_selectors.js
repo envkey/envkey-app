@@ -12,7 +12,7 @@ export const
 
   getPrivkey = db.path("privkey"),
 
-  getAccountPrivkey = db.accountPrivkeys.find(),
+  getAccountPrivkeysById = db.accountPrivkeys.index(),
 
   getDecryptPrivkeyErr = db.path("decryptPrivkeyErr"),
 
