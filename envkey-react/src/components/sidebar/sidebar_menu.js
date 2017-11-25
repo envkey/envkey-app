@@ -10,7 +10,7 @@ export default class SidebarMenu extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      open: this.props.selected || false
+      open: true //this.props.selected || false
     }
   }
 
@@ -30,11 +30,11 @@ export default class SidebarMenu extends React.Component {
   //   }
   // }
 
-  componentWillReceiveProps(nextProps) {
-    if(nextProps.selected != this.props.selected && nextProps.selected != this.state.open){
-      this.setState({open: nextProps.selected})
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if(nextProps.selected != this.props.selected && nextProps.selected != this.state.open){
+  //     this.setState({open: nextProps.selected})
+  //   }
+  // }
 
   _onClickLabel(){
     if(this._isOrgAdmin())this.setState({open: !this.state.open})

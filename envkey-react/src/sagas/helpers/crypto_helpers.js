@@ -147,7 +147,7 @@ export function* decryptEnvParent(parent){
 export function* decryptAllEnvParents(firstTarget, background=false){
   const apps = yield select(getApps)
 
-  if (apps.length === 0)return false
+  let didDecrypt = false
 
   if (firstTarget){
     yield put(decryptEnvs({...firstTarget, background, decryptAllAction: true}))
@@ -156,10 +156,11 @@ export function* decryptAllEnvParents(firstTarget, background=false){
   for (let {id: targetId, encryptedEnvsWithMeta} of apps){
     if (encryptedEnvsWithMeta){
       yield put(decryptEnvs({objectType: "app", targetId, background, decryptAllAction: true}))
+      didDecrypt = true
     }
   }
 
-  return true
+  return didDecrypt
 }
 
 export function *verifyCurrentUser(background=false){

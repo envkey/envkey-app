@@ -370,6 +370,7 @@ function *onDecryptAll(action){
 
     if((skipVerify && !verifyRes) || !verifyRes.error){
       const hasEnvParents = yield call(decryptAllEnvParents, firstTarget, background)
+
       if (!hasEnvParents){
         yield put({type: DECRYPT_ALL_SUCCESS})
       }

@@ -1,3 +1,4 @@
+import R from 'ramda'
 import { put, select } from 'redux-saga/effects'
 import { replace } from 'react-router-redux'
 import {
@@ -18,8 +19,10 @@ export function *redirectFromOrgIndexIfNeeded(){
 
     if (apps.length){
       yield put(replace(`/${orgSlug}/apps/${apps[0].slug}`))
-    } else if (permissions.create.app){
+    } else if (R.path(["create", "app"], permissions)){
       yield put(replace(`/${orgSlug}/onboard`))
+    } else {
+      yield put(replace(`/${orgSlug}/no_apps`))
     }
   }
 }

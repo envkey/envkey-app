@@ -4,7 +4,6 @@ import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
-  appLoaded,
   verifyEmailRequest,
   verifyEmailCodeRequest,
   resetVerifyEmail,
@@ -12,7 +11,6 @@ import {
   register
 } from 'actions'
 import {
-  getAppLoaded,
   getIsAuthenticating,
   getAuthError,
   getVerifyingEmail,
@@ -60,11 +58,6 @@ class LoginRegister extends React.Component {
       passwordScore: null,
       passwordFeedback: null
     }
-  }
-
-  componentDidMount(){
-    if(!this.props.appLoaded)this.props.onLoad()
-    this.refs.email.focus()
   }
 
   componentDidUpdate(prevProps, prevState){
@@ -290,7 +283,6 @@ class LoginRegister extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    appLoaded: getAppLoaded(state),
     isAuthenticating: getIsAuthenticating(state),
     currentUser: getCurrentUser(state),
     authError: getAuthError(state),
@@ -306,7 +298,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLoad: ()=> dispatch(appLoaded()),
     onVerifyEmail: p => dispatch(verifyEmailRequest(p)),
     onVerifyEmailCode: p => dispatch(verifyEmailCodeRequest(p)),
     onReset: ()=> dispatch(resetVerifyEmail()),

@@ -36,7 +36,7 @@ export default function (props){
       if (orgUser.permissions.delete &&
           relation &&
           relation.accessStatus &&
-          !["owner", "confirmed"].includes(relation.accessStatus.status)){
+          !["owner", "confirmed", "reconfirmed"].includes(relation.accessStatus.status)){
         return h(InviteActions, props)
       }
     }

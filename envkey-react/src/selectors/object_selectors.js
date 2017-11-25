@@ -24,6 +24,8 @@ export const
 
   getUserBySlug = db.users.findBy("slug"),
 
+  getUserByEmail = db.users.findBy("email"),
+
   getUserGroupsByRole = db.users.group("role", {
     sortBy: "lastName",
     where: {deleted: R.not}

@@ -80,6 +80,7 @@ import {
 } from "selectors"
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
+import {setAuthenticatingOverlay, clearAuthenticatingOverlay} from 'lib/ui'
 
 const
   onFetchCurrentUserRequest = apiSaga({
@@ -134,23 +135,12 @@ const
   })
 
 function *loginSelectOrg(){
-  var overlay = document.getElementById("preloader-overlay")
-  if(!overlay.className.includes("hide")){
-    overlay.className += " hide"
-  }
-  document.body.className = document.body.className.replace("no-scroll","")
-                                                   .replace("preloader-authenticate","")
-
-
+  clearAuthenticatingOverlay()
   yield put(push("/select_org"))
 }
 
 function *onAppLoaded(){
-  var overlay = document.getElementById("preloader-overlay")
-  if(!overlay.className.includes("hide")){
-    overlay.className += " hide"
-  }
-  document.body.className = document.body.className.replace("no-scroll","")
+  clearAuthenticatingOverlay()
 }
 
 function *onReactivatedBrief(){
@@ -178,8 +168,6 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
 }
 
 function *onLogin(action){
-  if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
-  document.getElementById("preloader-overlay").className = "full-overlay"
   yield call(delay, 50)
   yield put({
     ...action,
@@ -207,9 +195,6 @@ function* onLoginSuccess({meta: {password, orgSlug}}){
 }
 
 function *onRegister({payload}){
-  // if(!document.body.className.includes("preloader-authenticate"))document.body.className += " preloader-authenticate"
-  // document.getElementById("preloader-overlay").className = "full-overlay"
-
   yield call(delay, 500)
 
   yield put({type: GENERATE_USER_KEYPAIR, payload})
@@ -231,10 +216,7 @@ function *onRegister({payload}){
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
-  // var overlay = document.getElementById("preloader-overlay")
-  // if(!overlay.className.includes("hide")){
-  //   overlay.className += " hide"
-  // }
+
 
   const currentOrg = yield select(getCurrentOrg),
         currentUser = yield select(getCurrentUser),
@@ -337,6 +319,7 @@ export default function* authSagas(){
     takeLatest(REGISTER_REQUEST, onRegisterRequest),
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(SELECT_ACCOUNT, onSelectAccount),
+    takeLatest(SELECT_ACCOUNT_REQUEST, onSelectAccountRequest),
     takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
     takeLatest(START_DEMO, onStartDemo),

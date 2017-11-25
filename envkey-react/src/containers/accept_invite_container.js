@@ -3,9 +3,8 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import {appLoaded, loadInviteRequest, acceptInvite, resetAcceptInvite} from 'actions'
+import {loadInviteRequest, acceptInvite, resetAcceptInvite} from 'actions'
 import {
-  getAppLoaded,
   getIsAuthenticating,
   getInviteParams,
   getInviteParamsVerified,
@@ -35,7 +34,6 @@ class AcceptInvite extends React.Component {
   }
 
   componentDidMount() {
-    if(!this.props.appLoaded)this.props.onLoad()
     if(this.refs.inviteToken)this.refs.inviteToken.focus()
   }
 
@@ -204,7 +202,6 @@ class AcceptInvite extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    appLoaded: getAppLoaded(state),
     inviteParams: getInviteParams(state),
     inviteParamsVerified: getInviteParamsVerified(state),
     inviteParamsInvalid: getInviteParamsInvalid(state),
@@ -218,7 +215,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLoad: ()=> dispatch(appLoaded()),
     onLoadInvite: p => dispatch(loadInviteRequest(p)),
     onSubmitPassword: p => dispatch(acceptInvite(p)),
     onReset: ()=> dispatch(resetAcceptInvite())

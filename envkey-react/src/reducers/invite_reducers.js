@@ -156,7 +156,11 @@ export const
   invitingUser = (state={}, action)=>{
     switch(action.type){
       case INVITE_USER:
-        return R.assoc(action.meta.parentId, action.payload.user, state)
+        if (action.meta.isReinvite){
+          return state
+        } else {
+          return R.assoc(action.meta.parentId, action.payload.user, state)
+        }
 
       case INVITE_USER_FAILED:
         return R.dissoc(action.meta.parentId, state)
@@ -214,7 +218,7 @@ export const
   },
 
   inviteIdentityHash = (state=null, action)=>{
-    if (isClearSessionAction(action) ||
+    if (isClearSessionAction(action, {except: [LOAD_INVITE_REQUEST]}) ||
         action.type == RESET_ACCEPT_INVITE){
       return null
     }
@@ -229,7 +233,7 @@ export const
   },
 
   invitePassphrase = (state=null, action)=>{
-    if (isClearSessionAction(action)){
+    if (isClearSessionAction(action, {except: [LOAD_INVITE_REQUEST]})){
       return null
     }
 

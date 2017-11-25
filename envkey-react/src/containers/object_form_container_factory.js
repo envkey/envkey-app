@@ -2,10 +2,7 @@ import React from 'react'
 import R from 'ramda'
 import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
-import {
-  createObject,
-  billingUpgradeSubscription
-} from 'actions'
+import { createObject } from 'actions'
 import {
   getIsCreating,
   getOrgRolesAssignable,

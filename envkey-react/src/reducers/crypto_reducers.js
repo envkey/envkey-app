@@ -17,6 +17,7 @@ import {
 
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
 
   DECRYPT_PRIVKEY,
 
@@ -142,7 +143,7 @@ export const
       return null
     }
 
-    if (isFetchCurrentUserAction(action)){
+    if (isFetchCurrentUserAction(action, {except: [FETCH_CURRENT_USER_UPDATES_SUCCESS]})){
       return action.payload.encryptedPrivkey
     }
 
@@ -161,7 +162,7 @@ export const
 
     switch(action.type){
       case SELECT_ACCOUNT:
-        return action.payload.privkey
+        return action.payload.privkey || null
       case DECRYPT_PRIVKEY_SUCCESS:
         return action.payload
       case DECRYPT_ENVS_FAILED:
@@ -318,7 +319,7 @@ export const
 
   generatedEnvKeys = ( state = {}, action)=>{
     if (isClearSessionAction(action)){
-      return null
+      return {}
     }
 
     switch(action.type){

@@ -6,7 +6,9 @@ export const
   attachCurrentUserId = store => next => action => {
     if ([LOGOUT, DECRYPT_PRIVKEY_SUCCESS].includes(action.type)){
       const state = store.getState()
-      return next(R.assocPath(["meta", "currentUserId"], state.auth.id, action))
+      if (state.auth){
+        return next(R.assocPath(["meta", "currentUserId"], state.auth.id, action))
+      }
     }
 
     return next(action)

@@ -23,6 +23,12 @@ export default function ({status, timestamp}){
       h.em(".granted", "accepted "),
       ts
     ])
+  } else if (status == "reconfirmed"){
+    return h.span(classStr, [
+      "Access ",
+      h.em(".granted", "re-granted "),
+      ts
+    ])
   } else if (status == "expired"){
     return h.span(classStr, [
       "Invite ",

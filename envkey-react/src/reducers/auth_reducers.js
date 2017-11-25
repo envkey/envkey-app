@@ -224,7 +224,7 @@ export const
         return {}
 
       case LOGOUT:
-        return R.dissoc(action.meta.currentUserId, state)
+        return R.dissoc((action.meta.accountId || action.meta.currentUserId), state)
 
       default:
         return state
@@ -386,32 +386,10 @@ export const
     }
 
     if (isClearSessionAction(action)){
-      return false
+      return null
     }
 
     return state
-
-
-    switch(action.type){
-      case FETCH_CURRENT_USER_SUCCESS:
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      case REGISTER_SUCCESS:
-      case LOAD_INVITE_API_SUCCESS:
-      case ACCEPT_INVITE_SUCCESS:
-        return action.payload.lastFetchAt
-
-      case LOAD_INVITE_REQUEST:
-      case LOGIN:
-      case LOGIN_REQUEST:
-      case LOGOUT:
-      case REGISTER:
-      case TOKEN_INVALID:
-      case SELECT_ORG:
-        return null
-
-      default:
-        return state
-    }
   },
 
   isDemo = (state = false, {type})=> type == START_DEMO ? true : state

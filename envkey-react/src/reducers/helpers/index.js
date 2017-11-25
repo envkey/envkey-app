@@ -15,7 +15,8 @@ import {
   TOKEN_INVALID,
   SELECT_ACCOUNT,
   SELECT_ORG,
-  REGISTER
+  REGISTER,
+  RESET_SESSION
 } from "actions"
 
 const
@@ -36,7 +37,8 @@ const
     TOKEN_INVALID,
     SELECT_ORG,
     REGISTER,
-    SELECT_ACCOUNT
+    SELECT_ACCOUNT,
+    RESET_SESSION
   ],
 
   isActionType = (base, action, opts={})=> {

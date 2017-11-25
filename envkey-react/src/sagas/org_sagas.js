@@ -1,4 +1,5 @@
 import { takeLatest, take, put, select, call} from 'redux-saga/effects'
+import { push } from 'react-router-redux'
 import R from 'ramda'
 import {
   apiSaga,
@@ -19,7 +20,7 @@ import {
   updateOrgRoleRequest,
   addTrustedPubkey
 } from 'actions'
-import { currentOrg, currentUser } from 'selectors'
+import { getCurrentOrg, getCurrentUser } from 'selectors'
 
 const
   onUpdateOrgRoleRequest = apiSaga({
@@ -54,6 +55,13 @@ function *onCreateOrgSuccess(action){
     yield put(push(`/${currentOrg.slug}`))
     yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
     yield call(redirectFromOrgIndexIfNeeded)
+    var overlay = document.getElementById("preloader-overlay")
+    if(!overlay.className.includes("hide")){
+      overlay.className += " hide"
+    }
+    document.body.className = document.body.className.replace("no-scroll","")
+                                                     .replace("preloader-authenticate","")
+
   }
 }
 
