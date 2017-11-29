@@ -20,7 +20,7 @@ const SelectAccount = ({
 
   const
     renderSelectButton = (auth)=>{
-      return <button onClick={e => onSelect({auth, privkey: accountPrivkeys[auth.id]})}> Select </button>
+      return <button onClick={e => onSelect({auth, privkey: accountPrivkeys[auth.id]})}> Sign In </button>
     },
 
     renderAccount = (account, i)=> {

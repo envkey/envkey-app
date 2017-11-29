@@ -1,5 +1,6 @@
 .account-menu
   width: 100%
+  height: 100%
   color: #fff
   box-sizing: border-box
   transition: border 0.15s ease-out//, height 0.15s ease-out
@@ -94,9 +95,17 @@
     color: $lighter-blue
 
   .menu-body
+    height: 100%
+    background: rgba(#000, 0.15)
+
+    .spacer
+      width: 100%
+      height: 30px
+      border-bottom: 1px solid rgba(#fff, 0.2)
 
     > a, .account-menu-back
       display: block
+      background: rgba(#fff, 0.075)
       font-family: $default-font
       font-size: 11.5px
       font-weight: 300
@@ -106,6 +115,7 @@
       padding-left: 12px
       position: relative
       transition: background 0.15s ease-out
+      cursor: pointer
 
       +safari-only
         font-weight: 400
@@ -132,7 +142,7 @@
         text-decoration: none
 
       &:hover
-        background: rgba(#000, 0.15)
+        background: rgba(#fff, 0.175)
         > span
           color: #fff
 

@@ -17,25 +17,23 @@ const SubscriptionWall = function({
   deleteVerb="delete"
 }){
   const
-    renderFreeTrialInfo = ()=> {
-      const days = trialDaysRemaining(org.subscription.trialEndsAt)
+    // renderFreeTrialInfo = ()=> {
+    //   const days = trialDaysRemaining(org.subscription.trialEndsAt)
 
-      if (days > 0){
-        const dayStr = days < 1 ? "less than a day" : `${Math.floor(days) + 1} days`
+    //   if (days > 0){
+    //     const dayStr = days < 1 ? "less than a day" : `${Math.floor(days) + 1} days`
 
-        return <div className="trial-info">
-          <p> New organizations get <strong>30 days</strong> to try the Business Tier before being billed. Your free trial has <strong>{dayStr}</strong> remaining.</p>
-        </div>
-      }
-    },
+    //     return <div className="trial-info">
+    //       <p> New organizations get <strong>30 days</strong> to try the Business Tier before being billed. Your free trial has <strong>{dayStr}</strong> remaining.</p>
+    //     </div>
+    //   }
+    // },
 
     renderNeedsSubscriptionUpgradeForOwner = ()=>{
       return <div className="subscription-wall">
         <p>{subject || org.name} has <strong>{max} {type}{max == 1 ? '': 's'}</strong>, which is the maximum for the <em>Free Tier.</em></p>
 
         <p>To {createVerb} another, either {deleteVerb} an existing {type} or upgrade to the <em>Business Tier.</em></p>
-
-        {renderFreeTrialInfo(org)}
 
         <button className="button"
                 onClick={onUpgradeSubscription}>
