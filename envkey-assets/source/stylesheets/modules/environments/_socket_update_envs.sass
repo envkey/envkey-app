@@ -5,18 +5,19 @@
   bottom: 0
   background: $update-flash-bg
   transition: opacity 0.8s ease-out
-  padding: 10px 15px
+  padding: 10px 20px
   box-sizing: border-box
   opacity: 0
   pointer-events: none
+  z-index: 5
 
   label
     position: relative
-    top: 7px
+    top: 10px
 
     span
       +socket-update-text
-      font-size: 14px
+      font-size: 15px
 
   .small-loader
     float: right

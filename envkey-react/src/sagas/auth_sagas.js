@@ -169,6 +169,7 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
 
 function *onLogin(action){
   yield call(delay, 50)
+  setAuthenticatingOverlay()
   yield put({
     ...action,
     type: LOGIN_REQUEST
@@ -216,7 +217,6 @@ function *onRegister({payload}){
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
-
 
   const currentOrg = yield select(getCurrentOrg),
         currentUser = yield select(getCurrentUser),

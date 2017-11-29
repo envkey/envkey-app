@@ -18,6 +18,11 @@ export const
     R.filter(({role, inviteAcceptedAt})=> inviteAcceptedAt || role == "org_owner")
   ),
 
+  getPendingUsers = R.pipe(
+    getUsers,
+    R.filter(R.prop('inviteActive'))
+  ),
+
   getUsersWithDeleted = db.users.list(),
 
   getUsersById = db.users.index(),

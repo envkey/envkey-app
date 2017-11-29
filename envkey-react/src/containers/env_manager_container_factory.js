@@ -27,6 +27,7 @@ import {
   getIsAddingAssoc,
   getIsCreating,
   getIsUpdatingEnv,
+  getEnvsAreDecrypted,
   getEnvsWithMetaWithPending,
   getIsOnboarding,
   getIsInvitee,
@@ -68,6 +69,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
 
       return {
         currentOrg: getCurrentOrg(state),
+        envsAreDecrypted: getEnvsAreDecrypted(appId,state),
         envsWithMeta: envsWithMetaWithPending,
         isUpdatingEnv: getIsUpdatingEnv(appId, state),
         isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({appId, entryKey, environment}, state),

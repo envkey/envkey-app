@@ -54,6 +54,8 @@ const AccountMenu = ({
             <span>Back</span>
           </div>
 
+          <div className="spacer"/>
+
           {currentUser.role == "org_owner" ? renderMenuRow("My Organization",
                                                            `/${params.orgSlug}/my_org`,
                                                            "briefcase-black.png") :
@@ -62,6 +64,8 @@ const AccountMenu = ({
           {renderMenuRow("My Account",
                          `/${params.orgSlug}/my_account/settings`,
                          "keyhole-black.png")}
+
+          <div className="spacer"/>
 
           {renderMenuRow("Switch Organization",
                          "/select_org",
@@ -74,6 +78,8 @@ const AccountMenu = ({
           {renderMenuRow("Accept Invitation",
                          "/accept_invite",
                          "airplane-black.svg")}
+
+          <div className="spacer"/>
 
           {renderMenuRow("Sign Out",
                          "/sign_out",
