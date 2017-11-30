@@ -57,6 +57,10 @@ class Main extends React.Component {
     ensureCurrentUser(nextProps)
   }
 
+  _shouldShowTrialAlert(){
+
+  }
+
   _classNames(){
     return [
       ("role-" + this.props.currentUser.role),
@@ -78,6 +82,10 @@ class Main extends React.Component {
     } else {
       return <div></div>
     }
+  }
+
+  _renderTrialAlert(){
+
   }
 }
 

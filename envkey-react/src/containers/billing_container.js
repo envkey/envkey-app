@@ -222,15 +222,14 @@ class Billing extends React.Component {
         [
           [`$${parseInt(this.props.businessPlan.amount / 100)}.00 / user / month`,
             [
-              "Unlimited users",
               "Unlimited apps",
+              "Unlimited users",
               "Unlimited sub-environments",
-              "Unlimited EnvKeys per environment"
+              "Unlimited ENVKEYs per environment"
             ]
           ],
         ]
       ]}),
-      this._renderUpgradeTrialRemaining(),
       h.div(".actions", [
         h.button(".button", {onClick: this.props.upgradeSubscription}, "Upgrade To Business Tier")
       ])
@@ -240,15 +239,6 @@ class Billing extends React.Component {
       h.h2("Upgrade"),
       h.div(".content", contents)
     ])
-  }
-
-  _renderUpgradeTrialRemaining(){
-    const days = trialDaysRemaining(this.props.subscription.trialEndsAt)
-    if (days > 0){
-      const txt = `You have ${days} day${days == 1 ? "" : "s"} of free trial remaining for the Business Tier.`
-
-      return h.div(".trial-remaining", txt)
-    }
   }
 
   _renderCancel(){
