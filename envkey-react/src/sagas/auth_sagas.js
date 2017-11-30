@@ -177,10 +177,10 @@ function *onLogin(action){
 }
 
 function* onLoginSuccess({meta: {password, orgSlug}}){
-  if (password){
-    yield put(decryptPrivkey({password: password}))
-    yield take(DECRYPT_PRIVKEY_SUCCESS)
-  }
+  // if (password){
+  //   yield put(decryptPrivkey({password: password}))
+  //   yield take(DECRYPT_PRIVKEY_SUCCESS)
+  // }
 
   if (orgSlug){
     yield put(selectOrg(orgSlug))

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-(export DEMO_BUILD=true API_HOST=https://api.envkey.com/api/v1 && ./build.sh)
+(export DEMO_BUILD=true DEBUG_BUILD=true API_HOST=https://api.envkey.com/api/v1 && ./build.sh)

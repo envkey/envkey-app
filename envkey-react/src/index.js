@@ -14,3 +14,7 @@ document.body.className += " react-loaded"
 
 startConnectionWatcher()
 startReactivatedWatcher()
+
+if (process.env.NODE_ENV == "development" || process.env.DEBUG_BUILD){
+  require('debug_crypto')
+}
