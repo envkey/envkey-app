@@ -17,8 +17,10 @@ import {
   CREATE_ORG_SUCCESS,
   CREATE_ORG_FAILED,
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
   updateOrgRoleRequest,
-  addTrustedPubkey
+  addTrustedPubkey,
+  fetchCurrentUserUpdates
 } from 'actions'
 import { getCurrentOrg, getCurrentUser } from 'selectors'
 
@@ -38,6 +40,8 @@ const
   })
 
 function *onUpdateOrgRole({payload: {role, userId, orgUserId}}){
+  yield put(fetchCurrentUserUpdates())
+  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
   const envs = yield call(envParamsForUpdateOrgRole, {userId, role})
   yield put(updateOrgRoleRequest({envs, role, userId, orgUserId}))
 }

@@ -32,8 +32,8 @@ export function *execCreateObject({meta, payload}){
   return createResultAction
 }
 
-export function *execAddAssoc({meta, payload}, assocId){
-  yield put(addAssoc({...meta, assocId}))
+export function *execAddAssoc({meta, payload}, assocId, isCreatingAssoc){
+  yield put(addAssoc({...meta, assocId, isCreatingAssoc}))
   const addResultAction = yield take([ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED])
   return addResultAction
 }
@@ -46,7 +46,7 @@ export function* execCreateAssoc(action){
     if(meta.createOnly){
       yield call(dispatchCreateAssocSuccess, action)
     } else {
-      addResultAction = yield call(execAddAssoc, action, createResultAction.payload.id)
+      addResultAction = yield call(execAddAssoc, action, createResultAction.payload.id, true)
       if (addResultAction.type == ADD_ASSOC_SUCCESS){
         yield call(dispatchCreateAssocSuccess, action)
       } else {

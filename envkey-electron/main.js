@@ -3,9 +3,11 @@ const
   path = require('path'),
   url = require('url'),
   isDev = require('electron-is-dev'),
+  updater = require("electron-simple-updater"),
   createMenu = require('./main-process/create_menu'),
   {listenUpdater} = require('./main-process/updates'),
   {app, BrowserWindow, ipcMain} = electron
+
 
 // Start auto-update listener
 listenUpdater()
@@ -17,6 +19,7 @@ let win, stripeWin
 function createWindow () {
   // Create the browser window.
   const {width: screenW, height: screenH} = electron.screen.getPrimaryDisplay().workAreaSize
+
   win = new BrowserWindow({
     width: Math.min(1400, Math.floor(screenW)),
     height: Math.min(800, Math.floor(screenH)),
@@ -24,7 +27,7 @@ function createWindow () {
     minHeight: 640,
     center: true,
     backgroundColor: "#333333",
-    title: "EnvKey",
+    title: "EnvKey " + updater.version,
     icon: path.join(__dirname, 'assets/icons/png/64x64.png')
   })
 
@@ -34,6 +37,8 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+
+  win.on('page-title-updated', e => e.preventDefault())
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -50,7 +55,7 @@ function createStripeWindow(json){
         type = JSON.parse(decodeURIComponent(json)).type,
         qs = `?data=${json}`,
         h = type == "upgrade_subscription" ?
-          Math.min(800, Math.floor(screenH)) :
+          Math.min(850, Math.floor(screenH)) :
           365
 
   stripeWin = new BrowserWindow({
@@ -59,11 +64,13 @@ function createStripeWindow(json){
     parent: win,
     alwaysOnTop: true,
     center: true,
-    title: "EnvKey Billing",
+    title: "EnvKey " + updater.version + " Billing",
     webPreferences: {
       nodeIntegration: false
     }
   })
+
+  stripeWin.on('page-title-updated', e => e.preventDefault())
 
   stripeWin.loadURL(url.format({
     pathname: path.join(__dirname, (isDev ? 'stripe_card.dev.html' : 'stripe_card.production.html')),

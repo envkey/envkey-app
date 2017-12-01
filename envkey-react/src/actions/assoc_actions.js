@@ -24,6 +24,7 @@ const
     "role",
     "passphrase",
     "createOnly",
+    "isCreatingAssoc",
     "subEnvId",
     "skipKeygen"
   ])
