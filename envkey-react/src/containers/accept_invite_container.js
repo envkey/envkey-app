@@ -19,18 +19,20 @@ import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
 import PasswordCopy from 'components/shared/password_copy'
 
+const initialState = {
+  emailVerificationCode: "",
+  encryptionCode: "",
+  password: "",
+  passwordValid: false,
+  passwordScore: null,
+  passwordFeedback: null
+}
+
 class AcceptInvite extends React.Component {
 
   constructor(){
     super()
-    this.state = {
-      emailVerificationCode: "",
-      encryptionCode: "",
-      password: "",
-      passwordValid: false,
-      passwordScore: null,
-      passwordFeedback: null
-    }
+    this.state = initialState
   }
 
   componentDidMount() {
@@ -140,8 +142,8 @@ class AcceptInvite extends React.Component {
 
   _renderLoadError(){
     return h.div(".load-invite-error", [
-      h.div(".msg", "This invitation is invalid or expired. EnvKey invitations are valid for 24 hours, and can only be loaded once."),
-      h.button({onClick: this.props.resetAcceptInvite}, "Go Back")
+      h.p("This invitation is invalid or expired. EnvKey invitations are valid for 24 hours, and can only be loaded once."),
+      h.button({onClick: ()=> this.setState(initialState, this.props.onReset)}, "Go Back")
     ])
   }
 

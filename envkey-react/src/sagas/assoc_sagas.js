@@ -28,11 +28,14 @@ import {
   REVOKE_ASSOC_KEY_SUCCESS,
   REVOKE_ASSOC_KEY_FAILED,
   GRANT_ENV_ACCESS,
+  FETCH_OBJECT_DETAILS_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
   addAssoc,
   generateKeyRequest,
   generateKey,
   addTrustedPubkey,
-  updateTrustedPubkeys
+  updateTrustedPubkeys,
+  fetchCurrentUserUpdates
 } from "actions"
 import {
   generateKeys,
@@ -48,16 +51,17 @@ import {
   getServer,
   getLocalKey,
   getRawEnvWithPendingForApp,
-  getPrivkey
+  getPrivkey,
+  getApp
 } from 'selectors'
 import {getAssocUrl} from 'lib/assoc/helpers'
 
 const
   addRemoveAssocApiSaga = ({method, actionTypes})=> {
     return apiSaga({
+      method,
+      actionTypes,
       authenticated: true,
-      method: method,
-      actionTypes: actionTypes,
       urlFn: ({meta})=> {
         const {targetId} = meta,
               targetPath = targetId ? ('/' + targetId) : ''
@@ -83,13 +87,18 @@ const
 
 function* onAddAssoc(action){
   let apiAction
-  const {meta: {parentType, assocType}} = action,
+  const {meta: {parentType, assocType, isCreatingAssoc, parentId}} = action,
         apiSaga = addRemoveAssocApiSaga({
           method: "post",
           actionTypes: [ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED]
         })
 
   if(parentType == "app" && assocType == "user"){
+    if (!isCreatingAssoc){
+      yield put(fetchCurrentUserUpdates())
+      yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+    }
+
     apiAction = yield call(attachAssocEnvs, action)
   } else {
     apiAction = action

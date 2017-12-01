@@ -21,7 +21,8 @@ const pickMeta = R.pick([
                   "willImport",
                   "isOnboardAction",
                   "toImport",
-                  "noRedirect"
+                  "noRedirect",
+                  "revokeInvite"
                  ]),
       payloadFn = ({objectType, params})=> ({[decamelize(objectType)]: params})
 
@@ -31,7 +32,7 @@ export const
 
   renameObject = createAction(RENAME_OBJECT_REQUEST, payloadFn, pickMeta),
 
-  removeObject = createAction(REMOVE_OBJECT_REQUEST, R.always({}), pickMeta),
+  removeObject = createAction(REMOVE_OBJECT_REQUEST, R.pick(["revokeInvite"]), pickMeta),
 
   updateObjectSettings = createAction(UPDATE_OBJECT_SETTINGS_REQUEST, payloadFn, pickMeta),
 

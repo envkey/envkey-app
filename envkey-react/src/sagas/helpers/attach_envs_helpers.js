@@ -175,21 +175,19 @@ export function* attachAssocEnvs(action){
     type
   } = action
 
-  if (parentType == "app"){
-    const appId = parentId,
-          app = yield(select(getApp(parentId)))
+  const appId = parentId,
+        app = yield(select(getApp(parentId)))
 
-    if(type != ADD_ASSOC_REQUEST)return action
-    envParams = yield call(envParamsWithAppUser, {
-      appId: app.id,
-      userId: assocId,
-      role: R.values(payload)[0].role
-    })
-  }
+  if(type != ADD_ASSOC_REQUEST)return action
+  envParams = yield call(envParamsWithAppUser, {
+    appId: app.id,
+    userId: assocId,
+    role: R.values(payload)[0].role
+  })
 
   if(R.isEmpty(envParams)){
     return action
   } else {
-    return R.assocPath(["payload", "envs"], envParams, action)
+    return R.assocPath(["payload", "envs"], envParams)(action)
   }
 }

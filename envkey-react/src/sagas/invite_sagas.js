@@ -98,7 +98,8 @@ import {
   selectOrg,
   removeObject,
   createAssoc,
-  addAssoc
+  addAssoc,
+  fetchCurrentUserUpdates
 } from 'actions'
 
 const
@@ -319,12 +320,17 @@ function* onGenerateInviteLink(action){
 
 function *onRevokeInvite({payload: {userId}}){
   const orgUser = yield select(getOrgUserForUser(userId))
-  yield put(removeObject({objectType: "orgUser", targetId: orgUser.id, noRedirect: true}))
+  yield put(removeObject({objectType: "orgUser", targetId: orgUser.id, noRedirect: true, revokeInvite: true}))
 
   const res = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
 
   if (res.error){
     yield put({type: REVOKE_INVITE_FAILED, error: true, payload: res.payload, meta: {userId}})
+
+    if (R.pathEq(["payload", "response", "data", "error"], "invite_accepted")){
+      yield put(fetchCurrentUserUpdates())
+    }
+
     return
   }
 
