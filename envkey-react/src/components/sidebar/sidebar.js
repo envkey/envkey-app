@@ -62,8 +62,6 @@ export default class Sidebar extends React.Component {
 
           {this._renderMenuSections()}
 
-          {this._renderVersion()}
-
         </div>
       </div>
     )
@@ -108,10 +106,10 @@ export default class Sidebar extends React.Component {
     }
   }
 
-  _renderVersion(){
-    if (window.updater){
-      return <small className="version">v{window.updater.version}</small>
-    }
-  }
+  // _renderVersion(){
+  //   if (window.updater){
+  //     return <div className="version"><small>v{window.updater.version}</small></div>
+  //   }
+  // }
 
 }

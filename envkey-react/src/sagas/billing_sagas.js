@@ -22,8 +22,9 @@ import {
   BILLING_UPDATE_CARD_FAILED,
 
   billingUpdateSubscriptionRequest,
-  billingUpdateCardRequest
+  billingUpdateCardRequest,
 
+  fetchCurrentUserUpdates
 } from "actions"
 
 const
@@ -52,6 +53,8 @@ function *onBillingUpgradeSubscription(){
         numUsers = (yield select(getActiveUsers)).length,
         plan = currentOrg.businessPlan,
         subscription = currentOrg.subscription
+
+  yield put(fetchCurrentUserUpdates())
 
   openCardForm("upgrade_subscription", {
     numUsers,

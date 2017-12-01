@@ -20,8 +20,10 @@ import {
   INVITE_USER,
   INVITE_USER_SUCCESS,
   INVITE_USER_FAILED,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
   addTrustedPubkey,
-  updateTrustedPubkeys
+  updateTrustedPubkeys,
+  fetchCurrentUserUpdates
 } from 'actions'
 import { getCurrentOrg, getInviteePubkey, getPrivkey, getUserByEmail } from 'selectors'
 import { sha256 } from 'lib/crypto'
@@ -52,6 +54,9 @@ export function* inviteUser(action){
     type: INVITE_USER
   })
 
+  yield put(fetchCurrentUserUpdates())
+  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+
   const {id: orgId} = yield select(getCurrentOrg)
   let createPayload
 
@@ -78,7 +83,7 @@ export function* inviteUser(action){
     yield put(addTrustedPubkey({keyable: {type: "user", ...createRes.payload}, orgId}))
   }
 
-  const addRes = yield call(execAddAssoc, action, createRes.payload.id)
+  const addRes = yield call(execAddAssoc, action, createRes.payload.id, true)
 
   if (addRes.error){
     yield call(dispatchCreateAssocFailed, {failAction: addRes, meta})
