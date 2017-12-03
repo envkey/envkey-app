@@ -5,7 +5,7 @@ export default function({columns}){
   const
     renderBillingList = (header, items)=> h.div(".billing-list", [
       (header ? h.h4(header) : null),
-      h.div(".items", items.map((i)=> h.p(i)))
+      h.div(".items", items.map((i)=> h.p([i])))
     ])
 
   return h.div(".billing-columns",

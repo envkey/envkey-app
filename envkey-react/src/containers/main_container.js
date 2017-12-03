@@ -14,11 +14,21 @@ import {
   getCurrentUserErr,
   getPermissions,
   getCurrentOrg,
-  getCurrentOrgSlug
+  getCurrentOrgSlug,
+  getIsUpdatingSubscription,
+  getIsExceedingFreeTier
 } from 'selectors'
-import {appLoaded, fetchCurrentUser, selectOrg, logout} from 'actions'
+import {
+  appLoaded,
+  fetchCurrentUser,
+  selectOrg,
+  logout,
+  billingUpgradeSubscription
+} from 'actions'
+import { TrialOverdueContainer } from 'containers'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
+import {openLinkExternal} from 'lib/ui'
 
 const appStateLoaded = (props)=>{
   return !props.isLoadingAppState &&
@@ -58,40 +68,66 @@ class Main extends React.Component {
   }
 
   _shouldShowTrialAlert(){
+    return this.props.currentUser.role == "org_owner" &&
+           this.props.currentOrg.trialing &&
+           this.props.isExceedingFreeTier &&
+           this.props.currentOrg.trialDaysRemaining <= 7
+  }
 
+  _trialOverdue(){
+    return this.props.currentOrg.trialOverdue &&
+           this.props.isExceedingFreeTier
   }
 
   _classNames(){
     return [
       ("role-" + this.props.currentUser.role),
-      (orgRoleIsAdmin(this.props.currentUser.role) ? "is-org-admin" : "")
+      (orgRoleIsAdmin(this.props.currentUser.role) ? "is-org-admin" : ""),
+      (this._shouldShowTrialAlert() ? "show-trial-alert" : "")
     ]
   }
 
   render(){
     if (appStateLoaded(this.props)){
+      return <div className={this._classNames().join(" ")}>{this._renderContents()}</div>
+    } else {
+      return <div></div>
+    }
+  }
 
-      return <div className={this._classNames().join(" ")}>
+  _renderContents(){
+    if (this._trialOverdue() && !this.props.location.pathname.endsWith("/downgrade_removal")){
+      return <TrialOverdueContainer />
+    } else {
+      return <div>
         <Header />
 
         <Sidebar {...this.props} />
 
         {this.props.children}
 
+        {this._renderTrialAlert()}
       </div>
-    } else {
-      return <div></div>
     }
   }
 
   _renderTrialAlert(){
+    if (this._shouldShowTrialAlert()){
+      return <div className="trial-alert">
+        <div>
+          <span>Your Free Trial has <strong>{this.props.currentOrg.trialDaysRemaining} days</strong> remaining. </span>
+          <span>{this.props.currentOrg.name} currently exceeds the <a href="https://www.envkey.com/pricing" target="__blank" onClick={openLinkExternal}>Free Tier limits.</a></span>
+        </div>
 
+        <button onClick={this.props.upgradeSubscription}>Upgrade Now </button>
+      </div>
+    }
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    ...R.pick(["route", "params"], ownProps),
+    ...R.pick(["route", "params", "location"], ownProps),
     currentOrgSlug: getCurrentOrgSlug(state),
     currentUser: getCurrentUser(state),
     currentUserErr: getCurrentUserErr(state),
@@ -102,7 +138,9 @@ const mapStateToProps = (state, ownProps) => {
     appLoaded: getAppLoaded(state),
     isLoadingAppState: getIsLoadingAppState(state),
     permissions: getPermissions(state),
-    auth: getAuth(state)
+    auth: getAuth(state),
+    isUpdatingSubscription: getIsUpdatingSubscription(state),
+    isExceedingFreeTier: getIsExceedingFreeTier(state)
   }
 }
 
@@ -111,6 +149,7 @@ const mapDispatchToProps = dispatch => {
     onLoad: ()=> dispatch(appLoaded()),
     fetchCurrentUser: ()=> dispatch(fetchCurrentUser()),
     selectOrg: (slug)=> dispatch(selectOrg(slug)),
+    upgradeSubscription: ()=> dispatch(billingUpgradeSubscription()),
     logout: ()=> {
       dispatch(push("/home"))
       dispatch(logout())

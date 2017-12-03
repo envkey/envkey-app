@@ -1,7 +1,7 @@
 import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
-import {imagePath} from "lib/ui"
+import {imagePath, openLinkExternal} from "lib/ui"
 
 const
   OnboardSlider = props =>{
@@ -329,9 +329,9 @@ export const
       h.p([
         "Hopefully you now have a good understanding of how to use EnvKey to secure and simplify your team's config.",
         " If you have questions, feedback, or run into problems, please either email us -- ",
-        h.a(".blue",{href: "mailto:support@envkey.com"}, "support@envkey.com"),
+        h.a(".blue",{href: "mailto:support@envkey.com", onClick: openLinkExternal}, "support@envkey.com"),
         " -- or post an issue on ",
-        h.a(".blue",{href: "https://github.com/envkey/envkey-ui/issues"}, "Github"),
+        h.a(".blue",{href: "https://github.com/envkey/envkey-ui/issues", onClick: openLinkExternal}, "Github"),
         "."
       ])
     ])

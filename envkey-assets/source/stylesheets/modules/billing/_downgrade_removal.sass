@@ -1,0 +1,67 @@
+.downgrade-removal
+  .opt-lists
+    +clearfix
+    display: inline-block
+    margin: 40px 0
+    width: 75%
+
+  .opt-list
+    color: #fff
+    display: inline-block
+    width: 47%
+
+    header
+      +clearfix
+      background: $orange
+      padding: 10px 15px
+
+    h3
+      display: inline-block
+      font-size: 16px
+      text-transform: uppercase
+      font-family: $condensed-font
+      font-weight: 400
+      float: left
+
+    .num-selected
+      color: #fff
+      font-weight: 300
+      font-size: 14px
+      text-transform: uppercase
+      font-family: $condensed-font
+      float: right
+      position: relative
+      top: 1px
+
+    .opts
+      height: 200px
+      background: #fff
+
+    .opt
+      text-align: left
+      padding: 10px 15px
+      border-bottom: 1px solid rgba(#000, 0.15)
+      color: $dark-text
+      font-size: 14px
+      overflow: auto
+      cursor: pointer
+
+      input
+        margin-right: 10px
+
+      &.selected
+        background: rgba($lighter-blue, 0.2)
+
+    &.users
+      float: left
+
+      header
+        background: darken($darker-blue, 5%)
+
+    &.apps
+      float: right
+
+  .actions button
+    width: 150px
+    height: 40px
+

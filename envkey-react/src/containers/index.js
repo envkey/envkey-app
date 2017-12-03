@@ -22,3 +22,5 @@ export {default as UpdatePasswordFormContainer} from './update_password_form_con
 export {default as DemoLoginContainer} from './demo_login_container'
 export {default as CreateOrgContainer} from './create_org_container'
 export {default as NoAppsContainer} from './no_apps_container'
+export {default as TrialOverdueContainer} from './trial_overdue_container'
+export {default as DowngradeRemovalContainer} from './downgrade_removal_container'

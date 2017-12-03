@@ -166,6 +166,7 @@ export const
   getOrgUsers = db.orgUsers.list(),
 
   // Generic object selectors
+
   getSelectedObjectType = db.path("selectedObjectType"),
 
   getObject = R.curry((type, id, state)=>{

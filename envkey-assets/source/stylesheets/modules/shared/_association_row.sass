@@ -139,5 +139,19 @@
         width: 24px
         height: 24px
 
+.association-manager
+  &.user-app, &.app-user
+    .association-row.is-removing .remove
+      position: absolute
+      left: 15px
+      .small-loader
+        svg
+          width: 17px
+
+  &.user-app .association-row.is-removing .remove
+    top: 12px
+
+  &.app-user .association-row.is-removing .remove
+    top: 7px
 
 

@@ -60,27 +60,27 @@ class StripeCardForm extends React.Component {
     ])
   }
 
-  _renderTrial(){
-    const subscription = this._formData().subscription,
-          days = trialDaysRemaining(subscription.trialEndsAt)
-    if (days > 0){
-      const dayStr = days < 1 ? "less than a day" : `${Math.round(days)} days`,
-            invoiceDateStr = moment(subscription.trialEndsAt).calendar()
-
-      if (days > 0){
-        const txt = [
-          <p>You have <strong>{dayStr}</strong> remaining on your Business Tier free trial. The first charge will be processed on <strong>{invoiceDateStr}</strong> unless you cancel before that. You can cancel with a single click at any time.</p>
-        ]
-
-        return h.div(".trial-remaining", txt)
-      }
+  _userCols(){
+    const {numUsersActive, numUsersPending} = this._formData(),
+          cols = [<strong>{numUsersActive}</strong>]
+    if (numUsersPending){
+      cols.push(<small>+ {numUsersPending} pending invitation{numUsersPending == 1 ? "" : "s"}</small>)
     }
+    return cols
+  }
+
+  _chargeCols(){
+    const {plan, numUsersActive, numUsersPending} = this._formData(),
+          cols = [<strong>${parseInt(plan.amount * numUsersActive / 100)}.00</strong>]
+    if (numUsersPending){
+      cols.push(<small>+ ${parseInt(plan.amount * numUsersPending / 100)}.00 pending</small>)
+    }
+    return cols
   }
 
   _renderInfo(){
     if (this._formType() == "upgrade_subscription"){
-      const plan = this._formData().plan,
-            numUsers = this._formData().numUsers
+      const {plan} = this._formData()
 
       return h.section(".plan-info", [
         h.h2("Upgrade Plan"),
@@ -92,21 +92,20 @@ class StripeCardForm extends React.Component {
                 [
                   "Unlimited users",
                   "Unlimited apps",
-                  "Unlimited EnvKeys"
+                  "Unlimited ENVKEYs"
                 ]
               ],
             ]
           ]}),
           BillingColumns({columns: [
             [
-              ["Active users", [numUsers]],
+              ["Active users", this._userCols()],
             ],
             [
-              ["Total monthly charge", [`$${parseInt(plan.amount * numUsers / 100)}.00`]],
+              ["Total monthly charge", this._chargeCols()],
             ]
           ]})
-        ]),
-        this._renderTrial()
+        ])
       ])
     }
   }

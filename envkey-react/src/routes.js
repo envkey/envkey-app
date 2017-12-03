@@ -36,7 +36,8 @@ import {
   DemoLoginContainer,
   SelectAccountContainer,
   CreateOrgContainer,
-  NoAppsContainer
+  NoAppsContainer,
+  DowngradeRemovalContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -137,6 +138,8 @@ export default class Routes extends React.Component {
             <Route path="2" component={OnboardAppImporter} />
 
           </Route>
+
+          <Route path="downgrade_removal" component={DowngradeRemovalContainer} />
 
           <Route path="no_apps" component={NoAppsContainer} />
 

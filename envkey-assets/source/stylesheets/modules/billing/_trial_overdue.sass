@@ -1,0 +1,85 @@
+.trial-overdue
+  .exceeds-limits p
+    margin-bottom: 0
+
+  p.instructions
+    margin-top: 15px
+
+  .exceeds-limits
+    display: inline-block
+    margin: 0 auto
+
+  .limit-row
+    text-align: left
+    border: 1px solid rgba(#fff, 0.15)
+    padding: 20px
+
+    &:first-of-type
+      border-bottom: none
+
+    label
+      display: inline-block
+      text-transform: uppercase
+      font-family: $condensed-font
+      color: $lighter-blue
+      width: 40px
+      margin-right: 20px
+      font-size: 18px
+      font-weight: 400
+      text-align: right
+
+    span
+      color: #fff
+      em
+        font-weight: 400
+        color: $lighter-blue
+
+      &.num em
+        color: $light-orange
+
+      small
+        font-style: italic
+        font-size: 14px
+
+  .actions
+    display: inline-block
+
+    .button, button
+      color: #fff
+      width: 175px
+      height: 40px
+
+    .primary
+      float: right
+      margin-left: 15px
+
+    .secondary
+      padding-top: 12px
+      float: left
+      margin-right: 15px
+      border: 1px solid rgba(#fff, 0.5)
+      background: rgba(#fff, 0)
+      font-weight: 200
+
+      &:hover
+        border: 1px solid rgba(#fff, 0.8)
+        background: rgba(#fff, 0.05)
+
+  .price-link
+    margin-top: 35px
+    a, a:visited
+      color: rgba(#fff, 0.4)
+      padding-bottom: 5px
+      text-decoration: none
+      border-bottom: 1px solid rgba(#fff, 0.25)
+      font-size: 14px
+      &:hover
+        color: rgba(#fff, 0.8)
+        border-bottom: 1px solid rgba(#fff, 0.5)
+
+.role-org_owner .trial-overdue
+  .exceeds-limits p
+    margin-bottom: 20px
+
+  p.instructions
+    margin-top: 20px

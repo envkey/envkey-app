@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import {Link} from 'react-router'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import moment from "moment"
@@ -9,7 +10,7 @@ import {
   getActiveUsers,
   getIsUpdatingSubscription,
   getIsUpdatingStripeCard,
-  getMostEnvKeysPerEnvironment
+  getIsExceedingFreeTier
 } from "selectors"
 import {
   billingUpgradeSubscription,
@@ -32,6 +33,10 @@ class Billing extends React.Component {
     return this.props.subscription.planId == this.props.freePlan.id
   }
 
+  _isTrialing(){
+    return this.props.trialing
+  }
+
   _isBusinessTier(){
     return this.props.subscription.planId == this.props.businessPlan.id
   }
@@ -41,8 +46,7 @@ class Billing extends React.Component {
   }
 
   _subscriptionStatus(){
-    if (["past_due",
-    "unpaid"].includes(this.props.subscription.status)){
+    if (["past_due","unpaid"].includes(this.props.subscription.status)){
       return "overdue"
     } else if (this.props.subscription.status == "trialing"){
       `trial - ${0} days left`
@@ -79,6 +83,8 @@ class Billing extends React.Component {
     } else {
       if (this._isCustomPlan()){
         return this._renderCustomPlanContents()
+      } else if (this._isTrialing()){
+        return this._renderTrialContents()
       } else if (this._isFreeTier()){
         return this._renderFreeTierContents()
       } else if (this._isBusinessTier()) {
@@ -95,6 +101,13 @@ class Billing extends React.Component {
   }
 
   _renderFreeTierContents(){
+    return [
+      this._renderSubscription(),
+      this._renderUpgrade()
+    ]
+  }
+
+  _renderTrialContents(){
     return [
       this._renderSubscription(),
       this._renderUpgrade()
@@ -126,6 +139,11 @@ class Billing extends React.Component {
         h.h3("Custom Plan"),
         <p>Your organization is subscribed to a customized plan. Please email <strong>support@envkey.com</strong> to discuss any billing issues.</p>
       ]
+    } else if (this._isTrialing()){
+      contents = [
+        h.h3("Free Trial"),
+        h.p(`${this.props.trialDaysRemaining} days remaining`)
+      ]
     } else if (this._isFreeTier()){
       contents = [
         h.h3("Free Tier"),
@@ -133,10 +151,10 @@ class Billing extends React.Component {
           [
             [,
               [
-                "Unlimited users",
-                "Unlimited apps",
-                "Unilimited sub-environments",
-                "Unlimited EnvKeys per environment"
+                `${this.props.freePlan.maxUsers} users`,
+                `${this.props.freePlan.maxApps} apps`,
+                `${this.props.freePlan.maxKeysPerEnv - 1} sub-environments`,
+                `${this.props.freePlan.maxKeysPerEnv} EnvKeys per environment`
               ]
             ],
           ],
@@ -153,7 +171,7 @@ class Billing extends React.Component {
                 "Unlimited users",
                 "Unlimited apps",
                 "Unilimited sub-environments",
-                "Unlimited EnvKeys per environment"
+                "Unlimited ENVKEYs per environment"
               ]
             ],
           ],
@@ -162,7 +180,7 @@ class Billing extends React.Component {
               [this._subscriptionStatus()]
             ],
             ["Next invoice due",
-              [moment(this.props.subscription.currentPeriodEndsAt || this.props.subscription.trialEndsAt).calendar()]
+              [moment(this.props.subscription.currentPeriodEndsAt).calendar()]
             ],
           ],
 
@@ -244,6 +262,10 @@ class Billing extends React.Component {
   _renderCancel(){
     if (this.state.confirmCancel){
       return this._renderConfirmCancel()
+    } else if (this.props.isExceedingFreeTier) {
+      return <div className="actions">
+        <Link to={`/${this.props.currentOrg.slug}/downgrade_removal`} className="button"><span>Cancel Subscription</span></Link>
+      </div>
     } else {
       return h.div(".actions", [
         h.button(".button", {onClick: ()=> this.setState({confirmCancel: true})}, "Cancel Subscription")
@@ -253,28 +275,12 @@ class Billing extends React.Component {
 
   _renderConfirmCancel(){
     return h.div(".confirm-cancel", [
-      h.h5("Are you sure you want to cancel your subscription?"),
-      this._renderCancelWarning(),
+      h.h5(`Are you sure you want to cancel your ${this.props.subscription.plan.name} subscription?`),
       h.div(".actions", [
         h.button(".button.cancel", {onClick: ()=> this.setState({confirmCancel: false})}, "No, don't cancel"),
         h.button(".button.confirm", {onClick: ::this._onConfirmCancel}, "Yes, cancel subscription")
       ])
     ])
-  }
-
-  _renderCancelWarning(){
-    const {maxUsers, maxApps, maxKeysPerEnv} = this.props.freePlan
-
-    if (this.props.numUsers > maxUsers ||
-        this.props.numApps > maxApps ||
-        this.props.mostEnvKeys > maxKeysPerEnv ){
-      return h.div(".cancel-warning", [
-        h.strong("Warning"),
-        h.p(`Since your organization has more than the Free Tier maximum of ${maxUsers} users, ${maxApps} apps, and/or ${maxKeysPerEnv} EnvKeys per environment, canceling your subscription will cause all but the first ${maxUsers} users (by join date), first ${maxApps} apps (by creation date), and first ${maxKeysPerEnv} EnvKeys per environment (by creation date) to be removed from your organization. This cannot be undone.`),
-        h.p("If you want to have more control, you can delete apps or remove users until you are below the limits, then cancel.")
-      ])
-    }
-
   }
 
   _renderInvoices(){
@@ -287,12 +293,23 @@ const mapStateToProps = state => {
 
   return {
     ...R.pick(
-      ["subscription", "freePlan", "businessPlan", "customPlan", "stripeCard", "invoices"],
+      [
+        "subscription",
+        "trialPlan",
+        "freePlan",
+        "businessPlan",
+        "customPlan",
+        "trialing",
+        "trialOverdue",
+        "trialDaysRemaining",
+        "stripeCard",
+        "invoices"
+      ],
       currentOrg
     ),
     numApps: getApps(state).length,
     numUsers: getActiveUsers(state).length,
-    mostEnvKeys: getMostEnvKeysPerEnvironment(state),
+    isExceedingFreeTier: getIsExceedingFreeTier(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
     isUpdatingStripeCard: getIsUpdatingStripeCard(state),
 

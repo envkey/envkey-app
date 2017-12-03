@@ -1,0 +1,39 @@
+.trial-alert
+  position: fixed
+  bottom: 0px
+  left: $sidemenu-width
+  width: calc(100% - #{$sidemenu-width})
+  background: hsl(0,0,10)
+  box-sizing: border-box
+  padding: 15px 10px 14px 20px
+  color: #fff
+  text-align: center
+
+  > div
+    display: inline
+    margin-right: 30px
+
+  span
+
+
+    strong
+      font-weight: 600
+
+    a, a:visited
+      display: inline-block
+      padding-bottom: 3px
+      margin-left: 2px
+      color: $lighter-blue
+      border-bottom: 1px solid rgba($lighter-blue, 0.5)
+
+      &:hover
+        color: lighten($lighter-blue, 8%)
+        border-bottom: 1px solid rgba(lighten($lighter-blue, 8%), 0.8)
+
+  button
+    background: #fff
+    color: $darker-blue
+
+    &:hover
+      background: $light-blue
+      color: #fff
