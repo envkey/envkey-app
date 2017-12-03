@@ -1,6 +1,7 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import copy from 'lib/ui/copy'
+import {openLinkExternal} from 'lib/ui'
 
 export default class KeyGenerated extends React.Component {
 
@@ -21,13 +22,6 @@ export default class KeyGenerated extends React.Component {
     const res = copy(this._kvPair(), {message: "Copy the text below with #{key}"})
     if (res){
       this.setState({copied: true})
-    }
-  }
-
-  _onIntegrationQuickstart(e){
-    if(shell){
-      e.preventDefault()
-      shell.openExternal(e.target.href)
     }
   }
 
@@ -64,7 +58,7 @@ export default class KeyGenerated extends React.Component {
         h.a({
           href: "https://docs.envkey.com/integration-quickstart.html",
           target: "__blank",
-          onClick: ::this._onIntegrationQuickstart
+          onClick: openLinkExternal
         }, "Integration quickstart ‣")
       ])
     ])

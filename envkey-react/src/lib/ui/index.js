@@ -55,6 +55,13 @@ export const
                                                      .replace("preloader-authenticate","")
   },
 
+  openLinkExternal = e => {
+    if(window.shell){
+      e.preventDefault()
+      window.shell.openExternal(e.target.href)
+    }
+  },
+
   orgRoleLabel = role => orgRoleLabels[role],
 
   orgRoleGroupLabel = role => orgRoleGroupLabels[role],

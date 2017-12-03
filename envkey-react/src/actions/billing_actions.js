@@ -16,7 +16,7 @@ export const
 
   billingUpdateSubscriptionRequest = createAction(BILLING_UPDATE_SUBSCRIPTION_REQUEST, R.pick(["stripeToken", "planId"]), R.pick(["updateType"])),
 
-  billingCancelSubscription = createAction(BILLING_CANCEL_SUBSCRIPTION),
+  billingCancelSubscription = createAction(BILLING_CANCEL_SUBSCRIPTION, R.pick(["retainUserIds", "retainAppIds"])),
 
   billingUpdateCard = createAction(BILLING_UPDATE_CARD),
 

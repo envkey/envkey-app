@@ -2,9 +2,14 @@ import R from 'ramda'
 import { takeLatest, take, put, select, call} from 'redux-saga/effects'
 import {apiSaga} from './helpers'
 import {listenCardForm, openCardForm} from 'lib/billing'
-import {getCurrentOrg, getActiveUsers} from 'selectors'
+import {
+  getCurrentOrg,
+  getActiveUsers,
+  getPendingUsers
+} from 'selectors'
 import {
   APP_LOADED,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
 
   BILLING_UPGRADE_SUBSCRIPTION,
   BILLING_CANCEL_SUBSCRIPTION,
@@ -50,16 +55,18 @@ function *onAppLoaded(){
 
 function *onBillingUpgradeSubscription(){
   const currentOrg = yield select(getCurrentOrg),
-        numUsers = (yield select(getActiveUsers)).length,
+        numUsersActive = (yield select(getActiveUsers)).length,
+        numUsersPending = (yield select(getPendingUsers)).length,
         plan = currentOrg.businessPlan,
         subscription = currentOrg.subscription
 
   yield put(fetchCurrentUserUpdates())
+  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
 
   openCardForm("upgrade_subscription", {
-    numUsers,
-    plan: R.pick(["amount", "name"], plan),
-    subscription: R.pick(["status", "trialEndsAt", "currentPeriodEndsAt"], subscription)
+    numUsersActive,
+    numUsersPending,
+    plan: R.pick(["amount", "name"], plan)
   })
   const formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
   if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
