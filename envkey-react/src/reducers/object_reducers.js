@@ -261,7 +261,7 @@ objectReducers.selectedObjectType = (state=null, action)=>{
 
   switch(action.type){
     case SELECTED_OBJECT:
-      return action.payload.objectType
+      return action.payload.objectType || null
 
     default:
       return state
@@ -275,7 +275,7 @@ objectReducers.selectedObjectId = (state=null, action)=>{
 
   switch(action.type){
     case SELECTED_OBJECT:
-      return action.payload.id
+      return action.payload.id || null
 
     default:
       return state

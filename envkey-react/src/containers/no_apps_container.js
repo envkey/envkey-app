@@ -2,8 +2,13 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 import {getCurrentOrg, getApps} from 'selectors'
+import { selectedObject } from 'actions'
 
 class NoApps extends React.Component {
+
+  componentDidMount(){
+    this.props.onLoad()
+  }
 
   componentWillReceiveProps(nextProps){
     if (nextProps.hasApp){
@@ -30,6 +35,7 @@ const
   }),
 
   mapDispatchToProps = dispatch => ({
+    onLoad: ()=> dispatch(selectedObject({})),
     onHasApp: (currentOrgSlug)=> dispatch(push(`/${currentOrgSlug}`))
   })
 

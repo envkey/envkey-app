@@ -383,11 +383,11 @@ function *onDecryptAll(action){
 }
 
 function *onDecryptEnvs(action){
-  const {meta: {objectType, targetId, decryptAllAction}} = action,
+  const {meta: {objectType, targetId, decryptAllAction, background}} = action,
         parent = yield select(getApp(targetId)),
         envsAreDecrypted = yield select(getEnvsAreDecrypted(parent.id))
 
-  if(!(decryptAllAction && envsAreDecrypted)){
+  if(!(!background && decryptAllAction && envsAreDecrypted)){
     try {
       const decryptedParent = yield call(decryptEnvParent, parent)
       yield put({type: DECRYPT_ENVS_SUCCESS, payload: decryptedParent, meta: action.meta})
