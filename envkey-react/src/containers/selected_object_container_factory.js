@@ -63,6 +63,10 @@ const SelectedObjectContainerFactory = ({
             selectedTab = this.props.routes[2].path,
             obj = this.props[objectType]
 
+      if (!obj){
+        return <div></div>
+      }
+
       if (objectType == "currentOrg"){
         path = `/${this.props.params.orgSlug}/my_org`
       } else if (objectType == "currentUser"){

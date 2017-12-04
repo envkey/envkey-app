@@ -115,23 +115,36 @@ export const
       case ADD_ASSOC_REQUEST:
       case CREATE_ASSOC_REQUEST:
         if(action.meta.createAssoc)return state
-        return R.assocPath([action.meta.parentId,
-                            action.meta.assocType,
-                            (action.meta.role || "all"),
-                            (action.meta.assocId || "create")],
-                           true,
-                           state)
+        return R.pipe(
+          R.assocPath([action.meta.parentId,
+                       action.meta.assocType,
+                       (action.meta.role || "all"),
+                       (action.meta.assocId || "create")],
+                       true),
+          R.when(()=> action.meta.assocId,
+                 R.assocPath([action.meta.assocId,
+                             action.meta.parentType,
+                             (action.meta.role || "all"),
+                             (action.meta.parentId || "create")],
+                             true))
+        )(state)
 
       case ADD_ASSOC_SUCCESS:
       case ADD_ASSOC_FAILED:
       case CREATE_ASSOC_SUCCESS:
       case CREATE_ASSOC_FAILED:
         if(action.meta.createAssoc)return state
-        return R.dissocPath([action.meta.parentId,
-                             action.meta.assocType,
+        return R.pipe(
+          R.dissocPath([action.meta.parentId,
+                       action.meta.assocType,
+                       (action.meta.role || "all"),
+                       (action.meta.assocId || "create")]),
+          R.when(()=> action.meta.assocId,
+                 R.dissocPath([action.meta.assocId,
+                             action.meta.parentType,
                              (action.meta.role || "all"),
-                             (action.meta.assocId || "create")],
-                            state)
+                             (action.meta.parentId || "create")]))
+        )(state)
 
       default:
         return state

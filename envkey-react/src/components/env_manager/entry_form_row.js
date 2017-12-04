@@ -38,7 +38,8 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.subEnvId != nextProps.subEnvId){
+    if (this.props.subEnvId != nextProps.subEnvId ||
+       (this.props.app && nextProps.app && this.props.app.id != nextProps.app.id)){
       this.setState(defaultState(nextProps))
     }
   }

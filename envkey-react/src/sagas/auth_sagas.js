@@ -288,7 +288,10 @@ function *onFetchCurrentUserFailed(action){
 }
 
 function *onFetchCurrentUserUpdatesSuccess({payload}){
-  if ((payload.users && payload.users.length > 0) ||
+  if (payload.apps && payload.apps.length > 0){
+    yield call(delay, 200)
+    yield call(dispatchDecryptAllIfNeeded, true)
+  } else if ((payload.users && payload.users.length > 0) ||
       (payload.servers && payload.servers.length > 0) ||
       (payload.localKeys && payload.localKeys.length > 0)){
     yield put(verifyOrgPubkeys())

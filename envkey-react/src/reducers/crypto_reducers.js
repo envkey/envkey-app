@@ -82,6 +82,8 @@ export const
 
     switch(action.type){
       case DECRYPT_ALL:
+        return R.path(["meta", "background"], action) ? state : false
+
       case ACCEPT_INVITE_REQUEST:
         return false
 
