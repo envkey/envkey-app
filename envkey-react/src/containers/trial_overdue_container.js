@@ -31,21 +31,21 @@ const TrialOverdue = ({
     totalUsers = numActiveUsers + numPendingUsers,
 
     renderUserLimit = ()=> {
-      if (numActiveUsers + numPendingUsers < currentOrg.freePlan.maxUsers){
+      if (totalUsers > currentOrg.freePlan.maxUsers){
         return <div className="limit-row">
           <label>Users</label>
           <span className="limit">The Free Tier limit is <em>{currentOrg.freePlan.maxUsers}.</em> </span>
-          <span className="num">You have <em>{totalUsers}</em>—<small>{numActiveUsers} active, {numPendingUsers} pending.</small></span>
+          <span className="num">You have <em>{totalUsers}. </em> <small>  {numActiveUsers} active, {numPendingUsers} pending</small></span>
         </div>
       }
     },
 
     renderAppsLimit = ()=> {
-      if (numApps < currentOrg.freePlan.maxApps){
+      if (numApps > currentOrg.freePlan.maxApps){
         return <div className="limit-row">
           <label>Apps</label>
           <span className="limit">The Free Tier limit is <em>{currentOrg.freePlan.maxApps}. </em></span>
-          <span className="num">You have <em>{numActiveUsers}.</em></span>
+          <span className="num">You have <em>{numApps}.</em></span>
         </div>
       }
     },

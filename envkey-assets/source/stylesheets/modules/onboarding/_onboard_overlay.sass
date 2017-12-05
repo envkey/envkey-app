@@ -113,6 +113,8 @@
     width: 55%
     margin: 40px auto 40px auto
     background: #fff
+    max-height: 275px
+    overflow: auto
 
     > div
       +clearfix
@@ -166,6 +168,7 @@
     font-weight: 100
     text-transform: none
     color: rgba(#fff, 0.9)
+    padding-top: 17px
 
     &:hover
       border: 1px solid rgba(#fff, 0.7)
@@ -173,8 +176,6 @@
     label, img
       display: inline-block
       position: relative
-      top: 50%
-      transform: translateY(-50%)
 
     label
       float: right
@@ -182,6 +183,7 @@
     img
       float: left
       width: 30px
+      top: -3px
 
     &.create-org, &.add-account
       img

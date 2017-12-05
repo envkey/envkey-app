@@ -1,4 +1,9 @@
-import {billingStripeFormSubmitted, billingStripeFormClosed} from 'actions'
+import {
+  BILLING_OPEN_STRIPE_FORM,
+  billingStripeFormSubmitted,
+  billingOpenStripeForm,
+  billingStripeFormClosed
+} from 'actions'
 import isElectron from 'is-electron'
 import moment from 'moment'
 
@@ -17,6 +22,8 @@ export const
   },
 
   openCardForm = (type, data={})=>{
+    const store = require("init_redux").store
+    store.dispatch({type: BILLING_OPEN_STRIPE_FORM})
     const json = encodeURIComponent(JSON.stringify({type, ...data}))
     if (isElectron()){
       window.ipc.send("openStripeForm", json)

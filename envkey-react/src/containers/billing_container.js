@@ -149,12 +149,12 @@ class Billing extends React.Component {
         h.h3("Free Tier"),
         h(BillingColumns, {columns: [
           [
-            [,
+            ["Free",
               [
                 `${this.props.freePlan.maxUsers} users`,
                 `${this.props.freePlan.maxApps} apps`,
-                `${this.props.freePlan.maxKeysPerEnv - 1} sub-environments`,
-                `${this.props.freePlan.maxKeysPerEnv} EnvKeys per environment`
+                `Unlimited sub-environments`,
+                `Unlimited ENVKEYs per environment`
               ]
             ],
           ],
@@ -180,7 +180,9 @@ class Billing extends React.Component {
               [this._subscriptionStatus()]
             ],
             ["Next invoice due",
-              [moment(this.props.subscription.currentPeriodEndsAt).calendar()]
+              [
+                moment(this.props.subscription.currentPeriodEndsAt).calendar()
+              ]
             ],
           ],
 
@@ -240,8 +242,8 @@ class Billing extends React.Component {
         [
           [`$${parseInt(this.props.businessPlan.amount / 100)}.00 / user / month`,
             [
-              "Unlimited apps",
               "Unlimited users",
+              "Unlimited apps",
               "Unlimited sub-environments",
               "Unlimited ENVKEYs per environment"
             ]

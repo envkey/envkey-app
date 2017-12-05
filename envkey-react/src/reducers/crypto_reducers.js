@@ -17,7 +17,7 @@ import {
 
   FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
-  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
 
   DECRYPT_PRIVKEY,
 
@@ -145,7 +145,7 @@ export const
       return null
     }
 
-    if (isFetchCurrentUserAction(action, {except: [FETCH_CURRENT_USER_UPDATES_SUCCESS]})){
+    if (isFetchCurrentUserAction(action, {except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]})){
       return action.payload.encryptedPrivkey
     }
 

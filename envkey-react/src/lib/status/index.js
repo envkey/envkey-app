@@ -8,8 +8,8 @@ let isCheckingConnection = false,
 
 const
   isOnline = (retries)=>{
-    return fetch("https://ipv4.icanhazip.com/").then(response => {
-      return response.ok
+    return fetch("http://www.msftncsi.com/ncsi.txt", {mode: "no-cors"}).then(response => {
+      return true
     }).catch(error => {
       if (!retries || retries < 2){
         return isOnline((retries || 0) + 1)
