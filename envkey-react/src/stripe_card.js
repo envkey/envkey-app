@@ -6,7 +6,6 @@ import BillingColumns from 'components/billing/billing_columns'
 import queryString from 'query-string'
 import moment from 'moment'
 import {imagePath} from "lib/ui"
-import {trialDaysRemaining} from "lib/billing"
 
 class StripeCardForm extends React.Component {
 

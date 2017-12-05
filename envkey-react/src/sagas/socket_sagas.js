@@ -14,7 +14,7 @@ import {
   SOCKET_UPDATE_LOCAL_STATUS,
   SOCKET_UNSUBSCRIBE_ALL,
   FETCH_OBJECT_DETAILS_SUCCESS,
-  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   fetchObjectDetails,
   fetchCurrentUser,
   fetchCurrentUserUpdates,
@@ -123,7 +123,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "App" && targetId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This app has been deleted by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -133,7 +133,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your access to this app has been removed by an app admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -150,7 +150,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "OrgUser" && meta && meta.userId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This user has been removed from the organization by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -182,8 +182,9 @@ function *onSocketUpdateOrg(action){
     return
   }
 
-  // Subscription cancelled
-  if (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "cancel_subscription"){
+  // Subscription updated
+  const subscriptionUpdateTypes = ["upgrade_subscription", "cancel_subscription", "trial_ended", "trial_restarted"]
+  if (actionType == "updated" && targetType == "Org" && meta && subscriptionUpdateTypes.includes(meta.updateType)){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     return
   }

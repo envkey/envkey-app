@@ -18,6 +18,7 @@ import {
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
   FETCH_CURRENT_USER_UPDATES_REQUEST,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_FAILED,
   VERIFY_EMAIL_REQUEST,
@@ -50,6 +51,7 @@ import {
   DECRYPT_PRIVKEY_SUCCESS,
   VERIFY_ORG_PUBKEYS_SUCCESS,
   START_DEMO,
+  DECRYPT_ALL_SUCCESS,
   appLoaded,
   login,
   logout,
@@ -94,7 +96,7 @@ const
   onFetchCurrentUserUpdatesRequest = apiSaga({
     authenticated: true,
     method: "get",
-    actionTypes: [FETCH_CURRENT_USER_UPDATES_SUCCESS, FETCH_CURRENT_USER_UPDATES_FAILED],
+    actionTypes: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS, FETCH_CURRENT_USER_UPDATES_FAILED],
     urlSelector: getAuth,
     urlFn: (action, auth)=> `/users/${auth.id}.json`
   }),
@@ -287,15 +289,19 @@ function *onFetchCurrentUserFailed(action){
   yield put(push("/home"))
 }
 
-function *onFetchCurrentUserUpdatesSuccess({payload}){
+function *onFetchCurrentUserUpdatesApiSuccess({payload}){
   if (payload.apps && payload.apps.length > 0){
-    yield call(delay, 200)
+    yield call(delay, 100)
     yield call(dispatchDecryptAllIfNeeded, true)
+    yield take(DECRYPT_ALL_SUCCESS)
   } else if ((payload.users && payload.users.length > 0) ||
       (payload.servers && payload.servers.length > 0) ||
       (payload.localKeys && payload.localKeys.length > 0)){
     yield put(verifyOrgPubkeys())
+    yield take(VERIFY_ORG_PUBKEYS_SUCCESS)
   }
+
+  yield put({type: FETCH_CURRENT_USER_UPDATES_SUCCESS})
 }
 
 function *onLogout(action){
@@ -311,7 +317,7 @@ export default function* authSagas(){
     takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
     takeLatest(FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
-    takeLatest(FETCH_CURRENT_USER_UPDATES_SUCCESS, onFetchCurrentUserUpdatesSuccess),
+    takeLatest(FETCH_CURRENT_USER_UPDATES_API_SUCCESS, onFetchCurrentUserUpdatesApiSuccess),
     takeLatest(VERIFY_EMAIL_REQUEST, onVerifyEmailRequest),
     takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
     takeLatest(VERIFY_EMAIL_CODE_REQUEST, onVerifyEmailCodeRequest),

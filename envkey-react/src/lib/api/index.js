@@ -5,7 +5,7 @@ import axiosRetry from 'axios-retry'
 const
   opts =  {
     baseURL: process.env.API_HOST,
-    timeout: 15000
+    timeout: 30000
   },
 
   defaultClient = axios.create(opts)

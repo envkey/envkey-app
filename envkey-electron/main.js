@@ -55,7 +55,7 @@ function createStripeWindow(json){
         type = JSON.parse(decodeURIComponent(json)).type,
         qs = `?data=${json}`,
         h = type == "upgrade_subscription" ?
-          Math.min(850, Math.floor(screenH)) :
+          Math.min(825, Math.floor(screenH)) :
           365
 
   stripeWin = new BrowserWindow({

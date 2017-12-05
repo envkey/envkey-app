@@ -72,7 +72,9 @@ export default function({
           })
     return {
       addAssoc: ({ids, role}) => {
-        ids.forEach(assocId => dispatch(addAssoc({...getTrueAssocParams({assocId}), role})))
+        ids.forEach((assocId, i) => {
+          dispatch(addAssoc({...getTrueAssocParams({assocId}), role, shouldPrefetchUpdates: i == 0}))
+        })
       },
       removeAssoc: ({targetId, assocId}) => dispatch(removeAssoc({...getTrueAssocParams({assocId}), targetId})),
       createAssoc: (params, role) => {

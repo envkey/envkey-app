@@ -5,7 +5,7 @@ import pluralize from 'pluralize'
 import {camelize} from 'xcase'
 import {
   FETCH_CURRENT_USER_SUCCESS,
-  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   DECRYPT_ENVS_SUCCESS,
   UPDATE_ENV_SUCCESS,
   REMOVE_ASSOC_SUCCESS,
@@ -200,7 +200,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       return {}
     }
 
-    if (action.type == FETCH_CURRENT_USER_UPDATES_SUCCESS){
+    if (action.type == FETCH_CURRENT_USER_UPDATES_API_SUCCESS){
       return getFetchCurrentUserUpdatesReducer(objectTypePlural)(state, action)
     } else if (isFetchCurrentUserAction(action)){
       return getFetchCurrentUserReducer(objectTypePlural)(state, action)
@@ -211,7 +211,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case UPDATE_ORG_ROLE_SUCCESS:
         return getFetchCurrentUserReducer(objectTypePlural)(state, action)
 
-      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_API_SUCCESS:
         return getFetchCurrentUserUpdatesReducer(objectTypePlural)(state, action)
 
       case DECRYPT_ENVS_SUCCESS:

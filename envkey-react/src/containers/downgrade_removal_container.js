@@ -125,8 +125,8 @@ class DowngradeRemoval extends React.Component {
           userDiff = this.props.users.length - this.state.selectedUserIds.size,
           appDiff = this.props.apps.length - this.state.selectedAppIds.size
 
-    if (userDiff) msg.push(`${userDiff} users`)
-    if (appDiff) msg.push(`${appDiff} apps`)
+    if (userDiff) msgs.push(`${userDiff} user${userDiff == 1 ? '' : 's'}`)
+    if (appDiff) msgs.push(`${appDiff} app${appDiff == 1 ? '' : 's'}`)
 
     return <div>
       <p>Are you sure? {msgs.join(" and ")} will be removed.</p>

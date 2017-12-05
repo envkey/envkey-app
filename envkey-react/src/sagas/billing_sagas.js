@@ -9,7 +9,7 @@ import {
 } from 'selectors'
 import {
   APP_LOADED,
-  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
 
   BILLING_UPGRADE_SUBSCRIPTION,
   BILLING_CANCEL_SUBSCRIPTION,
@@ -61,13 +61,14 @@ function *onBillingUpgradeSubscription(){
         subscription = currentOrg.subscription
 
   yield put(fetchCurrentUserUpdates())
-  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+  yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
 
   openCardForm("upgrade_subscription", {
     numUsersActive,
     numUsersPending,
     plan: R.pick(["amount", "name"], plan)
   })
+
   const formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
   if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
 
@@ -75,9 +76,9 @@ function *onBillingUpgradeSubscription(){
   }
 }
 
-function* onBillingCancelSubscription(){
+function* onBillingCancelSubscription({payload}){
   const currentOrg = yield select(getCurrentOrg)
-  yield put(billingUpdateSubscriptionRequest({planId: currentOrg.freePlan.id, updateType: "cancel"}))
+  yield put(billingUpdateSubscriptionRequest({...payload, planId: currentOrg.freePlan.id, updateType: "cancel"}))
 
   const res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
 

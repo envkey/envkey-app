@@ -16,129 +16,148 @@ import {
   LOAD_INVITE_API_SUCCESS,
   ACCEPT_INVITE_SUCCESS,
   RENAME_OBJECT_SUCCESS,
+  BILLING_UPGRADE_SUBSCRIPTION,
+  BILLING_OPEN_STRIPE_FORM,
+  BILLING_STRIPE_FORM_SUBMITTED,
+  BILLING_STRIPE_FORM_CLOSED,
   BILLING_UPDATE_SUBSCRIPTION_REQUEST,
   BILLING_UPDATE_SUBSCRIPTION_SUCCESS,
   BILLING_UPDATE_SUBSCRIPTION_FAILED,
   BILLING_UPDATE_CARD_REQUEST,
   BILLING_UPDATE_CARD_SUCCESS,
   BILLING_UPDATE_CARD_FAILED,
-  FETCH_CURRENT_USER_UPDATES_SUCCESS
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
 
-export const currentOrgSlug = (state = null, action)=>{
-  switch(action.type){
-    case SELECT_ORG:
-      return action.payload
+export const
+  currentOrgSlug = (state = null, action)=>{
+    switch(action.type){
+      case SELECT_ORG:
+        return action.payload
 
-    case LOAD_INVITE_API_SUCCESS:
-      return action.payload.org.slug
+      case LOAD_INVITE_API_SUCCESS:
+        return action.payload.org.slug
 
-    case REGISTER_SUCCESS:
-    case CREATE_ORG_SUCCESS:
-      let orgs = action.payload.orgs
-      return orgs[orgs.length - 1].slug
+      case REGISTER_SUCCESS:
+      case CREATE_ORG_SUCCESS:
+        let orgs = action.payload.orgs
+        return orgs[orgs.length - 1].slug
 
-    case ACCEPT_INVITE_SUCCESS:
-      return action.meta.orgSlug
+      case ACCEPT_INVITE_SUCCESS:
+        return action.meta.orgSlug
 
-    case LOGIN:
-    case LOGIN_REQUEST:
-    case REGISTER:
-    case LOGOUT:
-    case ORG_INVALID:
-    case SELECT_ACCOUNT:
-      return null
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOGOUT:
+      case ORG_INVALID:
+      case SELECT_ACCOUNT:
+        return null
 
-    default:
-      return state
-  }
-}
-
-export const orgs = (state = {}, action)=>{
-  switch(action.type){
-    case FETCH_CURRENT_USER_SUCCESS:
-    case LOGIN_SUCCESS:
-    case REGISTER_SUCCESS:
-    case CREATE_ORG_SUCCESS:
-    case ACCEPT_INVITE_SUCCESS:
-    case SELECT_ACCOUNT_SUCCESS:
-      return indexById(action.payload.orgs)
-
-    case LOAD_INVITE_API_SUCCESS:
-      return indexById([action.payload.org])
-
-    case FETCH_CURRENT_USER_UPDATES_SUCCESS:
-      if (action.meta && action.meta.noMinUpdatedAt){
-        return action.payload.orgs ? indexById(action.payload.orgs) : state
-      } else {
-        return action.payload.orgs && action.payload.orgs.length ? {...state, ...indexById(action.payload.orgs)} : state
-      }
-
-    case BILLING_UPDATE_CARD_SUCCESS:
-    case BILLING_UPDATE_SUBSCRIPTION_SUCCESS:
-      return R.assoc(action.payload.id, action.payload, state)
-
-    case RENAME_OBJECT_SUCCESS:
-      if (action.meta.objectType == "org"){
-        return R.assoc(action.payload.id, action.payload, state)
-      } else {
+      default:
         return state
-      }
+    }
+  },
 
-    case LOGIN:
-    case LOGIN_REQUEST:
-    case REGISTER:
-    case LOGOUT:
-    case SELECT_ACCOUNT:
-      return {}
+  orgs = (state = {}, action)=>{
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case CREATE_ORG_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+      case SELECT_ACCOUNT_SUCCESS:
+        return indexById(action.payload.orgs)
 
-    default:
-      return state
+      case LOAD_INVITE_API_SUCCESS:
+        return indexById([action.payload.org])
+
+      case FETCH_CURRENT_USER_UPDATES_API_SUCCESS:
+        if (action.meta && action.meta.noMinUpdatedAt){
+          return action.payload.orgs ? indexById(action.payload.orgs) : state
+        } else {
+          return action.payload.orgs && action.payload.orgs.length ? {...state, ...indexById(action.payload.orgs)} : state
+        }
+
+      case BILLING_UPDATE_CARD_SUCCESS:
+      case BILLING_UPDATE_SUBSCRIPTION_SUCCESS:
+        return R.assoc(action.payload.id, action.payload, state)
+
+      case RENAME_OBJECT_SUCCESS:
+        if (action.meta.objectType == "org"){
+          return R.assoc(action.payload.id, action.payload, state)
+        } else {
+          return state
+        }
+
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOGOUT:
+      case SELECT_ACCOUNT:
+        return {}
+
+      default:
+        return state
+    }
+  },
+
+  isCreatingOrg = (state=false, action)=>{
+    switch (action.type){
+      case CREATE_ORG_REQUEST:
+        return true
+
+      case CREATE_ORG_SUCCESS:
+      case CREATE_ORG_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  stripeFormOpened = (state=false, action)=>{
+    switch(action.type){
+      case BILLING_OPEN_STRIPE_FORM:
+        return true
+
+      case BILLING_STRIPE_FORM_CLOSED:
+      case BILLING_STRIPE_FORM_SUBMITTED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isUpdatingSubscription = (state = false, action)=>{
+    switch(action.type){
+      case BILLING_UPDATE_SUBSCRIPTION_REQUEST:
+        return true
+
+      case BILLING_UPDATE_SUBSCRIPTION_FAILED:
+        return false
+
+      case BILLING_UPDATE_SUBSCRIPTION_SUCCESS:
+        return action.meta.updateType == "cancel" ? state : false
+
+      default:
+        return state
+    }
+  },
+
+  isUpdatingStripeCard = (state = false, action)=>{
+    switch(action.type){
+      case BILLING_UPDATE_CARD_REQUEST:
+        return true
+
+      case BILLING_UPDATE_CARD_SUCCESS:
+      case BILLING_UPDATE_CARD_FAILED:
+        return false
+
+      default:
+        return state
+    }
   }
-}
-
-export const isCreatingOrg = (state=false, action)=>{
-  switch (action.type){
-    case CREATE_ORG_REQUEST:
-      return true
-
-    case CREATE_ORG_SUCCESS:
-    case CREATE_ORG_FAILED:
-      return false
-
-    default:
-      return state
-  }
-}
-
-export const isUpdatingSubscription = (state = false, action)=>{
-  switch(action.type){
-    case BILLING_UPDATE_SUBSCRIPTION_REQUEST:
-      return true
-
-    case BILLING_UPDATE_SUBSCRIPTION_FAILED:
-      return false
-
-    case BILLING_UPDATE_SUBSCRIPTION_SUCCESS:
-      return action.meta.updateType == "cancel" ? state : false
-
-    default:
-      return state
-  }
-}
-
-export const isUpdatingStripeCard = (state = false, action)=>{
-  switch(action.type){
-    case BILLING_UPDATE_CARD_REQUEST:
-      return true
-
-    case BILLING_UPDATE_CARD_SUCCESS:
-    case BILLING_UPDATE_CARD_FAILED:
-      return false
-
-    default:
-      return state
-  }
-}

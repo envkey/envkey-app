@@ -26,7 +26,8 @@ const
     "createOnly",
     "isCreatingAssoc",
     "subEnvId",
-    "skipKeygen"
+    "skipKeygen",
+    "shouldPrefetchUpdates"
   ])
 
 export const

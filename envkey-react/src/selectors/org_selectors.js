@@ -33,6 +33,8 @@ export const
 
   getIsCreatingOrg = db.path("isCreatingOrg"),
 
+  getStripeFormOpened = db.path("stripeFormOpened"),
+
   getIsExceedingFreeTier = state => {
     const currentOrg = getCurrentOrg(state)
     if (!currentOrg || !currentOrg.freePlan)return false

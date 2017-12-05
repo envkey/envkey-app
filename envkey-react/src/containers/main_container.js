@@ -16,6 +16,7 @@ import {
   getCurrentOrg,
   getCurrentOrgSlug,
   getIsUpdatingSubscription,
+  getStripeFormOpened,
   getIsExceedingFreeTier
 } from 'selectors'
 import {
@@ -29,6 +30,7 @@ import { TrialOverdueContainer } from 'containers'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
 import {openLinkExternal} from 'lib/ui'
+import Spinner from 'components/shared/spinner'
 
 const appStateLoaded = (props)=>{
   return !props.isLoadingAppState &&
@@ -59,12 +61,29 @@ const ensureCurrentUser = (props)=>{
 
 class Main extends React.Component {
 
+  constructor(props){
+    super(props)
+
+    this.state = {
+      willShowUpgradeForm: false
+    }
+  }
+
   componentDidMount(){
     ensureCurrentUser(this.props)
   }
 
   componentWillReceiveProps(nextProps) {
     ensureCurrentUser(nextProps)
+
+    if (nextProps.stripeFormOpened && this.state.willShowUpgradeForm){
+      this.setState({willShowUpgradeForm: false})
+    }
+  }
+
+  _onUpgradeSubscription(){
+    this.setState({willShowUpgradeForm: true})
+    this.props.upgradeSubscription()
   }
 
   _shouldShowTrialAlert(){
@@ -75,6 +94,7 @@ class Main extends React.Component {
   }
 
   _trialOverdue(){
+    console.log(this.props)
     return this.props.currentOrg.trialOverdue &&
            this.props.isExceedingFreeTier
   }
@@ -113,13 +133,17 @@ class Main extends React.Component {
 
   _renderTrialAlert(){
     if (this._shouldShowTrialAlert()){
+      if (this.state.willShowUpgradeForm || this.props.isUpdatingSubscription){
+        return <div className="trial-alert"><Spinner /></div>
+      }
+
       return <div className="trial-alert">
         <div>
           <span>Your Free Trial has <strong>{this.props.currentOrg.trialDaysRemaining} days</strong> remaining. </span>
           <span>{this.props.currentOrg.name} currently exceeds the <a href="https://www.envkey.com/pricing" target="__blank" onClick={openLinkExternal}>Free Tier limits.</a></span>
         </div>
 
-        <button onClick={this.props.upgradeSubscription}>Upgrade Now </button>
+        <button onClick={::this._onUpgradeSubscription}>Upgrade Now </button>
       </div>
     }
   }
@@ -140,6 +164,7 @@ const mapStateToProps = (state, ownProps) => {
     permissions: getPermissions(state),
     auth: getAuth(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
+    stripeFormOpened: getStripeFormOpened(state),
     isExceedingFreeTier: getIsExceedingFreeTier(state)
   }
 }

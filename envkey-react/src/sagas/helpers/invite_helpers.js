@@ -25,7 +25,12 @@ import {
   updateTrustedPubkeys,
   fetchCurrentUserUpdates
 } from 'actions'
-import { getCurrentOrg, getInviteePubkey, getPrivkey, getUserByEmail } from 'selectors'
+import {
+  getCurrentOrg,
+  getInviteePubkey,
+  getPrivkey,
+  getUserByEmail
+} from 'selectors'
 import { sha256 } from 'lib/crypto'
 
 function* generateInviteLink(action){
@@ -54,8 +59,10 @@ export function* inviteUser(action){
     type: INVITE_USER
   })
 
-  yield put(fetchCurrentUserUpdates())
-  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+  if (meta.shouldPrefetchUpdates){
+    yield put(fetchCurrentUserUpdates())
+    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+  }
 
   const {id: orgId} = yield select(getCurrentOrg)
   let createPayload
