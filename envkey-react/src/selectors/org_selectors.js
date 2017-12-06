@@ -42,6 +42,6 @@ export const
     const {maxUsers, maxApps, maxKeysPerEnv} = currentOrg.freePlan
 
     return getApps(state).length > maxApps ||
-           getActiveUsers(state).length > maxUsers ||
-           getMostEnvKeysPerEnvironment(state) > maxKeysPerEnv
+           getActiveUsers(state).length > maxUsers // ||
+           // getMostEnvKeysPerEnvironment(state) > maxKeysPerEnv
   }

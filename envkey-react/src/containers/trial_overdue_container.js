@@ -60,22 +60,30 @@ const TrialOverdue = ({
     },
 
     renderLimits = ()=> {
-      return <div className="exceeds-limits">
-        <p><strong>{currentOrg.name}</strong> exceeds the Free Tier limits.</p>
-        {renderLimitDetails()}
-      </div>
+      if (currentOrg.pricingVersion == 1){
+        return <div className="exceeds-limits">
+          <p><strong>{currentOrg.name}</strong> exceeds the Free Tier limits.</p>
+          {renderLimitDetails()}
+        </div>
+      }
     },
 
     renderInstructions = ()=> {
       let instructions
 
       if (currentUser.role == "org_owner"){
-        instructions = `To regain access, upgrade to the Business Tier or downgrade to the Free Tier. `
+        instructions = `To regain access, upgrade to the Business Tier. `
       } else {
-        instructions = `To regain access, the org owner ${currentOrg.ownerName} should upgrade to the Business Tier or downgrade to the Free Tier. `
+        instructions = `To regain access, the org owner ${currentOrg.ownerName} should upgrade to the Business Tier. `
       }
 
       return <p className="instructions">{instructions}</p>
+    },
+
+    renderDowngradeAction = ()=> {
+      if (currentOrg.pricingVersion == 1){
+        return <Link to={`/${currentOrg.slug}/downgrade_removal`} className="button secondary"><span>Downgrade To Free Tier</span></Link>
+      }
     },
 
     renderActions = ()=>{
@@ -84,18 +92,10 @@ const TrialOverdue = ({
           return <Spinner />
         } else {
           return <div className="actions">
-            <Link to={`/${currentOrg.slug}/downgrade_removal`} className="button secondary"><span>Downgrade To Free Tier</span></Link>
+            {renderDowngradeAction()}
             <button className="primary" onClick={upgradeSubscription}>Upgrade To Business Tier</button>
           </div>
         }
-      }
-    },
-
-    renderPriceLink = ()=>{
-      if (currentUser.role == "org_owner"){
-        return <div className="price-link">
-          <a href="https://www.envkey.com/pricing" target="__blank" onClick={openLinkExternal}>Pricing Details</a>
-        </div>
       }
     },
 
@@ -113,7 +113,6 @@ const TrialOverdue = ({
         {renderLimits()}
         {renderInstructions()}
         {renderActions()}
-        {renderPriceLink()}
         {renderBackLink()}
       </div>
     </div>

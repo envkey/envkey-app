@@ -78,12 +78,20 @@ function *onBillingUpgradeSubscription(){
 
 function* onBillingCancelSubscription({payload}){
   const currentOrg = yield select(getCurrentOrg)
-  yield put(billingUpdateSubscriptionRequest({...payload, planId: currentOrg.freePlan.id, updateType: "cancel"}))
+  let planId
+
+  if (currentOrg.pricingVersion == 1 ){
+    planId = currentOrg.freePlan.id
+  } else if (currentOrg.pricingVersion == 2){
+    planId = currentOrg.trialStartedAt ? currentOrg.trialPlan.id : currentOrg.preTrialPlan.id
+  }
+
+  yield put(billingUpdateSubscriptionRequest({...payload, planId, updateType: "cancel"}))
 
   const res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
 
   if (!res.error){
-    window.location.reload()
+    window.location.href = `/${currentOrg.slug}/my_org/billing`
   }
 }
 

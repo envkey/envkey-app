@@ -1,14 +1,15 @@
 .trial-alert
   position: fixed
   bottom: 0px
-  left: $sidemenu-width
-  width: calc(100% - #{$sidemenu-width})
+  left: $sidebar-width + 7px
+  width: calc(100% - #{$sidebar-width + 7px})
   background: hsl(0,0,10)
   box-sizing: border-box
   height: 65px
   padding: 15px 10px 14px 20px
   color: #fff
   text-align: center
+  z-index: 4
 
   > div
     display: inline
@@ -17,6 +18,7 @@
   span
     strong
       font-weight: 600
+      color: $lighter-blue
 
     a, a:visited
       display: inline-block
