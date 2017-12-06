@@ -8,9 +8,11 @@ import {
   getCurrentOrg,
   getApps,
   getActiveUsers,
+  getPendingUsers,
   getIsUpdatingSubscription,
   getIsUpdatingStripeCard,
-  getIsExceedingFreeTier
+  getIsExceedingFreeTier,
+  getStripeFormOpened
 } from "selectors"
 import {
   billingUpgradeSubscription,
@@ -26,15 +28,33 @@ class Billing extends React.Component {
 
   constructor(props){
     super(props)
-    this.state = { confirmCancel: false }
+    this.state = {
+      confirmCancel: false,
+      willShowUpgradeForm: false
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.stripeFormOpened && this.state.willShowUpgradeForm){
+      this.setState({willShowUpgradeForm: false})
+    }
+  }
+
+  _onUpgrade(){
+    this.setState({willShowUpgradeForm: true})
+    this.props.upgradeSubscription()
   }
 
   _isFreeTier(){
     return this.props.subscription.planId == this.props.freePlan.id
   }
 
-  _isTrialing(){
-    return this.props.trialing
+  _isPreTrial(){
+    return this.props.subscription.planId == this.props.preTrialPlan.id
+  }
+
+  _isTrial(){
+    return this.props.subscription.planId == this.props.trialPlan.id
   }
 
   _isBusinessTier(){
@@ -43,6 +63,10 @@ class Billing extends React.Component {
 
   _isCustomPlan(){
     return this.props.subscription.planId == this.props.customPlan.id
+  }
+
+  _isTrialing(){
+    return this._isTrial() || this._isPreTrial()
   }
 
   _subscriptionStatus(){
@@ -139,10 +163,15 @@ class Billing extends React.Component {
         h.h3("Custom Plan"),
         <p>Your organization is subscribed to a customized plan. Please email <strong>support@envkey.com</strong> to discuss any billing issues.</p>
       ]
-    } else if (this._isTrialing()){
+    } else if (this._isTrial()){
       contents = [
         h.h3("Free Trial"),
         h.p(`${this.props.trialDaysRemaining} days remaining`)
+      ]
+    } else if (this._isPreTrial()){
+      contents = [
+        h.h3("Free Trial - Awaiting Integration"),
+        h.p(`Your ${this.props.currentOrg.trialNumDays} day free trial will begin after you integrate your first ENVKEY`)
       ]
     } else if (this._isFreeTier()){
       contents = [
@@ -151,10 +180,10 @@ class Billing extends React.Component {
           [
             ["Free",
               [
-                `${this.props.freePlan.maxUsers} users`,
-                `${this.props.freePlan.maxApps} apps`,
-                `Unlimited sub-environments`,
-                `Unlimited ENVKEYs per environment`
+                `Up to ${this.props.freePlan.maxUsers} users`,
+                `Up to ${this.props.freePlan.maxApps} apps`,
+                `Up to ${this.props.freePlan.maxKeysPerEnv - 1} sub-environment per environment`,
+                `Up to ${this.props.freePlan.maxKeysPerEnv} ENVKEYs per environment`
               ]
             ],
           ],
@@ -187,9 +216,9 @@ class Billing extends React.Component {
           ],
 
           [
-            ["Active users", [this.props.numUsers]],
+            ["Active users", [<span>{this.props.numActiveUsers} {this._renderPendingUsers()}</span>]],
 
-            ["Next invoice total charge", [`$${parseInt(this.props.subscription.amount * this.props.numUsers / 100)}.00`]],
+            ["Next invoice total charge", [<span>${parseInt(this.props.subscription.amount * this.props.numActiveUsers / 100)}.00 {this._renderPendingCharge()}</span>]],
           ],
         ]}),
 
@@ -201,6 +230,19 @@ class Billing extends React.Component {
       h.h2("Your Plan"),
       h.div(".content", contents)
     ])
+  }
+
+  _renderPendingUsers(){
+    const numPending = this.props.numPendingUsers
+    if (numPending > 0){
+      return <small>+ {numPending} pending invitation{numPending == 1 ? '' : 's'} </small>
+    }
+  }
+
+  _renderPendingCharge(){
+    if (this.props.numPendingUsers > 0){
+      return <small>+ ${parseInt(this.props.subscription.amount * this.props.numPendingUsers / 100)}.00 pending</small>
+    }
   }
 
   _renderStripeCard(){
@@ -251,7 +293,7 @@ class Billing extends React.Component {
         ]
       ]}),
       h.div(".actions", [
-        h.button(".button", {onClick: this.props.upgradeSubscription}, "Upgrade To Business Tier")
+        this._renderUpgradeButton()
       ])
     ]
 
@@ -261,10 +303,18 @@ class Billing extends React.Component {
     ])
   }
 
+  _renderUpgradeButton(){
+    if (this.state.willShowUpgradeForm){
+      return h(Spinner)
+    } else {
+      return h.button(".button", {onClick: ::this._onUpgrade}, "Upgrade To Business Tier")
+    }
+  }
+
   _renderCancel(){
     if (this.state.confirmCancel){
       return this._renderConfirmCancel()
-    } else if (this.props.isExceedingFreeTier) {
+    } else if (this.props.currentOrg.pricingVersion == 1 && this.props.isExceedingFreeTier) {
       return <div className="actions">
         <Link to={`/${this.props.currentOrg.slug}/downgrade_removal`} className="button"><span>Cancel Subscription</span></Link>
       </div>
@@ -277,7 +327,7 @@ class Billing extends React.Component {
 
   _renderConfirmCancel(){
     return h.div(".confirm-cancel", [
-      h.h5(`Are you sure you want to cancel your ${this.props.subscription.plan.name} subscription?`),
+      h.h5(`Are you sure you want to cancel your subscription?`),
       h.div(".actions", [
         h.button(".button.cancel", {onClick: ()=> this.setState({confirmCancel: false})}, "No, don't cancel"),
         h.button(".button.confirm", {onClick: ::this._onConfirmCancel}, "Yes, cancel subscription")
@@ -297,6 +347,7 @@ const mapStateToProps = state => {
     ...R.pick(
       [
         "subscription",
+        "preTrialPlan",
         "trialPlan",
         "freePlan",
         "businessPlan",
@@ -310,11 +361,12 @@ const mapStateToProps = state => {
       currentOrg
     ),
     numApps: getApps(state).length,
-    numUsers: getActiveUsers(state).length,
+    numActiveUsers: getActiveUsers(state).length,
+    numPendingUsers: getPendingUsers(state).length,
     isExceedingFreeTier: getIsExceedingFreeTier(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
     isUpdatingStripeCard: getIsUpdatingStripeCard(state),
-
+    stripeFormOpened: getStripeFormOpened(state)
   }
 }
 

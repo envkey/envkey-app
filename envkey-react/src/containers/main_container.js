@@ -17,7 +17,7 @@ import {
   getCurrentOrgSlug,
   getIsUpdatingSubscription,
   getStripeFormOpened,
-  getIsExceedingFreeTier
+  getDecryptedAll
 } from 'selectors'
 import {
   appLoaded,
@@ -87,16 +87,13 @@ class Main extends React.Component {
   }
 
   _shouldShowTrialAlert(){
-    return this.props.currentUser.role == "org_owner" &&
-           this.props.currentOrg.trialing &&
-           this.props.isExceedingFreeTier &&
-           this.props.currentOrg.trialDaysRemaining <= 7
+    return this.props.decryptedAll &&
+           this.props.currentUser.role == "org_owner" &&
+           this.props.currentOrg.trialing
   }
 
   _trialOverdue(){
-    console.log(this.props)
-    return this.props.currentOrg.trialOverdue &&
-           this.props.isExceedingFreeTier
+    return this.props.currentOrg.trialing && this.props.currentOrg.trialOverdue
   }
 
   _classNames(){
@@ -138,13 +135,18 @@ class Main extends React.Component {
       }
 
       return <div className="trial-alert">
-        <div>
-          <span>Your Free Trial has <strong>{this.props.currentOrg.trialDaysRemaining} days</strong> remaining. </span>
-          <span>{this.props.currentOrg.name} currently exceeds the <a href="https://www.envkey.com/pricing" target="__blank" onClick={openLinkExternal}>Free Tier limits.</a></span>
-        </div>
+        <div>{this._renderTrialAlertCopy()}</div>
 
         <button onClick={::this._onUpgradeSubscription}>Upgrade Now </button>
       </div>
+    }
+  }
+
+  _renderTrialAlertCopy(){
+    if (this.props.currentOrg.trialDaysRemaining > 28){
+      return <span> An ENVKEY was integrated, so {this.props.currentOrg.name}'s <strong>Free Trial</strong> has started. <strong>{this.props.currentOrg.trialDaysRemaining} days</strong> are left. </span>
+    } else {
+      return <span> {this.props.currentOrg.name}'s <strong>Free Trial</strong> has <strong>{this.props.currentOrg.trialDaysRemaining} days</strong> left. </span>
     }
   }
 }
@@ -156,6 +158,7 @@ const mapStateToProps = (state, ownProps) => {
     currentUser: getCurrentUser(state),
     currentUserErr: getCurrentUserErr(state),
     currentOrg: getCurrentOrg(state),
+    decryptedAll: getDecryptedAll(state),
     numOrgs: getOrgs(state).length,
     apps: getApps(state),
     users: getUserGroupsByRole(state),
@@ -164,8 +167,7 @@ const mapStateToProps = (state, ownProps) => {
     permissions: getPermissions(state),
     auth: getAuth(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
-    stripeFormOpened: getStripeFormOpened(state),
-    isExceedingFreeTier: getIsExceedingFreeTier(state)
+    stripeFormOpened: getStripeFormOpened(state)
   }
 }
 

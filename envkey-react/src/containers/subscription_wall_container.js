@@ -33,7 +33,7 @@ const SubscriptionWall = function({
       return <div className="subscription-wall">
         <p>{subject || org.name} has <strong>{max} {type}{max == 1 ? '': 's'}</strong>, which is the maximum for the <em>Free Tier.</em></p>
 
-        <p>To {createVerb} another, either {deleteVerb} an existing {type} or upgrade to the <em>Business Tier.</em></p>
+        <p>To {createVerb} another, either {deleteVerb} an existing {type} or upgrade to the <em>Business Tier</em> for $4/user/month.</p>
 
         <button className="button"
                 onClick={onUpgradeSubscription}>
