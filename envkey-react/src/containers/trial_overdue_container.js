@@ -72,7 +72,7 @@ const TrialOverdue = ({
       let instructions
 
       if (currentUser.role == "org_owner"){
-        instructions = `To regain access, upgrade to the Business Tier. `
+        instructions = `To regain access, upgrade to the Business Tier for $4/user/month. `
       } else {
         instructions = `To regain access, the org owner ${currentOrg.ownerName} should upgrade to the Business Tier. `
       }

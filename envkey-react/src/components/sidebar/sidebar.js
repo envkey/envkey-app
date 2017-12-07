@@ -87,7 +87,7 @@ export default class Sidebar extends React.Component {
                                    this.props.users,
                                    "menu-user-white.svg",
                                    {selected: selected == "users",
-                                    pathFn: (item => `/${this.props.currentOrg.slug}/users/${item.slug}/apps`),
+                                    pathFn: (item => `/${this.props.currentOrg.slug}/users/${item.slug}/settings`),
                                     labelFn: (item => [<span key="0">{item.firstName + " "}</span>,
                                                        <strong key="1">{item.lastName}</strong>]),
                                     // newBtnLabel: "Invite User",

@@ -15,16 +15,22 @@ export default function({
 }){
   const label = "App"
 
-  return h.div(".app-settings", [
-    h(BasicRenameForm, {label, isRenaming, onRename, name: app.name}),
-    h.div(".danger-zone", [
-      h.h3("Danger Zone"),
-      h.div(".content", [
-        h.fieldset(".delete-app", [
-          h.label("Delete App"),
-          h(DeleteField, {label, isRemoving, onRemove, confirmName: app.name})
+  const renderDangerZone = ()=> {
+    if (app.permissions.delete){
+      return h.div(".danger-zone", [
+        h.h3("Danger Zone"),
+        h.div(".content", [
+          h.fieldset(".delete-app", [
+            h.label("Delete App"),
+            h(DeleteField, {label, isRemoving, onRemove, confirmName: app.name})
+          ])
         ])
       ])
-    ])
+    }
+  }
+
+  return h.div(".app-settings", [
+    h(BasicRenameForm, {label, isRenaming, onRename, name: app.name}),
+    renderDangerZone()
   ])
 }

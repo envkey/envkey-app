@@ -165,11 +165,11 @@ export default class Routes extends React.Component {
 
           <Route path="users/:slug" component={SelectedObjectContainerFactory({objectType: "user", objectPermissionPath: ["orgUser", "permissions"]})} >
 
-            <IndexRedirect to="apps" />
-
-            <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", joinType: "appUser", isManyToMany: true})} />
+            <IndexRedirect to="settings" />
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "user", targetObjectType: "orgUser", targetObjectPath: ["orgUser"]})}/>
+
+            <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", joinType: "appUser", isManyToMany: true})} />
 
           </Route>
 

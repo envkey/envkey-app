@@ -3,13 +3,21 @@ import {twitterShortTs} from 'lib/utils/date'
 import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from "components/shared/small_loader"
 
-export default function ({status, timestamp}){
+export default function ({status, timestamp, isOrgAdmin}){
   const classStr = ".status.secondary",
         ts =  " ・ " + twitterShortTs(timestamp)
 
   if (status == "owner"){
-    return h.span(classStr, {className: "invite-pending"}, [
-      "Created org ", ts
+    return h.span(classStr, [
+      "Access ",
+      h.em(".granted", "auto-granted"),
+      ts
+    ])
+  } else if (status == "confirmed" && isOrgAdmin){
+    return h.span(classStr, [
+      "Access ",
+      h.em(".granted", "auto-granted"),
+      ts
     ])
   } else if (status == "invited"){
     return h.span(classStr, {className: "invite-pending"}, [
@@ -19,14 +27,8 @@ export default function ({status, timestamp}){
     ])
   } else if (status == "confirmed"){
     return h.span(classStr, [
-      "Invite ",
-      h.em(".granted", "accepted "),
-      ts
-    ])
-  } else if (status == "reconfirmed"){
-    return h.span(classStr, [
       "Access ",
-      h.em(".granted", "re-granted "),
+      h.em(".granted", "granted "),
       ts
     ])
   } else if (status == "expired"){

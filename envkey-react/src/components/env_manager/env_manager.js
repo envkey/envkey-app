@@ -48,6 +48,10 @@ export default class EnvManager extends React.Component {
   }
 
   render(){
+    if (!this.props.parent){
+      return <div></div>
+    }
+
     return h.div({className: this._classNames().join(" ")}, this._renderContents())
   }
 

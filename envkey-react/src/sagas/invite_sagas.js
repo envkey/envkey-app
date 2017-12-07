@@ -148,7 +148,9 @@ function* onLoadInviteApiSuccess(action){
           if (!verifyOrgPubkeysResult.error){
             yield put({type: DECRYPT_ALL, meta: {skipVerifyCurrentUser: true}})
             const decryptAllRes = yield take([DECRYPT_ALL_SUCCESS, DECRYPT_ALL_FAILED])
-            if (decryptAllRes.error) err = decryptAllRes.payload
+            if (decryptAllRes.error){
+              err = decryptAllRes.payload
+            }
           } else {
             err = verifyOrgPubkeysResult.payload
           }

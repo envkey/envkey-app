@@ -54,9 +54,21 @@ const
     })
   },
 
+  unbindChannel = (messageTypes, channel)=>{
+    messageTypes.plainEvents.forEach(type => {
+      channel.unbind(type)
+    })
+
+    messageTypes.clientEvents.forEach(type => {
+      channel.unbind(("client-" + type))
+    })
+  },
+
   bindPresenceChannel = (eventType, actionCreator, channel)=>{
     channel.bind(eventType, ({id: userId}) => store.dispatch(actionCreator({userId})))
   },
+
+  unbindPresenceChannel = (eventType, channel)=> channel.unbind(eventType),
 
   broadcastToChannel = (channel, userId, messageType, data={})=>{
     if(channel){
@@ -90,9 +102,18 @@ export const
   },
 
   unsubscribeOrgChannels = ()=>{
-    if(orgChannel)socket.unsubscribe(orgChannel.name)
+    if(orgChannel){
+      unbindChannel(ORG_MESSAGE_TYPES, orgChannel)
+      socket.unsubscribe(orgChannel.name)
+      orgChannel = null
+    }
     // if(orgUserChannel)socket.unsubscribe(orgUserChannel.name)
-    if(orgPresenceChannel)socket.unsubscribe(orgPresenceChannel.name)
+    if(orgPresenceChannel){
+      unbindPresenceChannel('pusher:member_removed', orgPresenceChannel)
+      unbindPresenceChannel('pusher:member_added', orgPresenceChannel)
+      socket.unsubscribe(orgPresenceChannel.name)
+      orgPresenceChannel = null
+    }
   },
 
   subscribeOrgChannels = (org, currentUser)=> {
@@ -109,8 +130,17 @@ export const
   },
 
   unsubscribeObjectChannel = ()=>{
-    if(objectChannel)socket.unsubscribe(objectChannel.name)
-    if(objectPresenceChannel)socket.unsubscribe(objectPresenceChannel.name)
+    if(objectChannel){
+      unbindChannel(OBJECT_MESSAGE_TYPES, objectChannel)
+      socket.unsubscribe(objectChannel.name)
+      objectChannel = null
+    }
+    if(objectPresenceChannel){
+      unbindPresenceChannel('pusher:member_removed', objectPresenceChannel)
+      unbindPresenceChannel('pusher:member_added', objectPresenceChannel)
+      socket.unsubscribe(objectPresenceChannel.name)
+      objectPresenceChannel = null
+    }
   },
 
   subscribeObjectChannel = object => {
