@@ -87,8 +87,7 @@ class Main extends React.Component {
   }
 
   _shouldShowTrialAlert(){
-    return this.props.decryptedAll &&
-           this.props.currentUser.role == "org_owner" &&
+    return this.props.currentUser.role == "org_owner" &&
            this.props.currentOrg.trialing
   }
 
