@@ -1,5 +1,6 @@
 import {store} from 'init_redux'
 import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
+import isElectron from 'is-electron'
 
 let isCheckingConnection = false,
     isCheckingActive = false,
@@ -8,7 +9,9 @@ let isCheckingConnection = false,
 
 const
   isOnline = (retries)=>{
-    return fetch("http://www.msftncsi.com/ncsi.txt", {mode: "no-cors"}).then(response => {
+    const url = isElectron() ? "http://www.msftconnecttest.com/connecttest.txt" : "https://ipv4.icanhazip.com/"
+
+    return fetch(url, {mode: "no-cors"}).then(response => {
       return true
     }).catch(error => {
       if (!retries || retries < 2){
