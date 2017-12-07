@@ -185,7 +185,7 @@ export const
         return {}
 
       case LOGOUT:
-        return R.dissoc(action.meta.currentUserId, state)
+        return R.dissoc((action.meta.accountId || action.meta.currentUserId), state)
 
       default:
         return state
