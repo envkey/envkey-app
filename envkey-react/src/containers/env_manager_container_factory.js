@@ -33,6 +33,7 @@ import {
   getIsInvitee,
   getLastAddedEntry,
   getApps,
+  getApp,
   getSocketUserUpdatingEnvs,
   getSocketRemovingEntry,
   getSocketEditingEntry,
@@ -62,7 +63,11 @@ const EnvManagerContainerFactory = ({parentType})=> {
     mapStateToProps = (state, ownProps) => {
       const parent = ownProps[parentType],
             appId = parent.id,
-            currentUser = getCurrentUser(state),
+            app = getApp(appId, state)
+
+      if(!app)return {}
+
+      const currentUser = getCurrentUser(state),
             environments = getEnvironmentLabels(appId, state),
             envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, appId, state)
 

@@ -16,7 +16,7 @@ export default function ({
   return h.div([
     h.div(".top-row", [
       h.span(".primary", [
-        h(Link, {to: `/${params.orgSlug}/apps/${slug}`}, name)
+        h(Link, {to: `/${params.orgSlug}/apps/${slug}/collaborators`}, name)
       ])
     ]),
 

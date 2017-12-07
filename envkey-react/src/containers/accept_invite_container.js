@@ -71,7 +71,7 @@ class AcceptInvite extends React.Component {
   }
 
   _renderContent(){
-    if (this.props.inviteParamsVerified && !this.props.isLoadingInvite){
+    if (this.props.inviteParamsVerified && !this.props.loadInviteError && !this.props.isLoadingInvite){
       return this._renderPasswordForm()
     } else if (this.props.loadInviteError) {
       return this._renderLoadError()

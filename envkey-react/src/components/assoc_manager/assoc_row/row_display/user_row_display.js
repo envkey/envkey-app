@@ -24,7 +24,7 @@ export default function (props){
       const name = [firstName, lastName].join(" ")
       if(canReadUser){
         return h.span(".primary", [
-          h(Link, {to: `/${params.orgSlug}/users/${slug}`}, name)
+          h(Link, {to: `/${params.orgSlug}/users/${slug}/settings`}, name)
         ])
       } else {
         return h.span(".primary", name)
@@ -36,7 +36,7 @@ export default function (props){
       if (orgUser.permissions.delete &&
           relation &&
           relation.accessStatus &&
-          !["owner", "confirmed", "reconfirmed"].includes(relation.accessStatus.status)){
+          !["owner", "confirmed"].includes(relation.accessStatus.status)){
         return h(InviteActions, props)
       }
     }
