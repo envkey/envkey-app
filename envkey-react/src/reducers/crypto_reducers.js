@@ -131,7 +131,7 @@ export const
         return R.assoc(action.meta.targetId, true, state)
 
       case CREATE_OBJECT_SUCCESS:
-        if (action.meta.objecType == "app"){
+        if (action.meta.objectType == "app"){
           return R.assoc(action.payload.id, true, state)
         } else {
           return state
