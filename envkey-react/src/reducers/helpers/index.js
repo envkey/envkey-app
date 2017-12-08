@@ -29,7 +29,7 @@ const
     CREATE_ORG_SUCCESS
   ],
 
-  clearSessionActionTypes = [
+  resetSessionActionTypes = [
     LOAD_INVITE_REQUEST,
     LOGIN,
     LOGIN_REQUEST,
@@ -52,4 +52,4 @@ export const
 
   isFetchCurrentUserAction = (action, opts) => isActionType(fetchCurrentUserActionTypes, action, opts),
 
-  isClearSessionAction = (action, opts) => isActionType(clearSessionActionTypes, action, opts)
+  isClearSessionAction = (action, opts) => isActionType(resetSessionActionTypes, action, opts)

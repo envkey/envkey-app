@@ -39,6 +39,12 @@ export default function({
           h.em(".granted", "accepted"),
           ts
         ])
+      } else if (status == "reconfirmed"){
+        return h.span(classStr, [
+          "Access ",
+          h.em(".granted", "re-granted"),
+          ts
+        ])
       } else if (status == "invited"){
         return h.span(classStr, {className: "invite-pending"}, [
           "Invite ",

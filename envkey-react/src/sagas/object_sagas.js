@@ -43,7 +43,7 @@ import {
   importAllEnvironments,
   decryptEnvs,
   verifyOrgPubkeys,
-  clearSession
+  resetSession
 } from "actions"
 import {
   getCurrentOrg,
@@ -124,7 +124,7 @@ const
         // If user just deleted their account or organization, log them out and return
         if (shouldClearSession){
           yield put(push("/home"))
-          yield put(clearSession())
+          yield put(resetSession())
           return
         }
 

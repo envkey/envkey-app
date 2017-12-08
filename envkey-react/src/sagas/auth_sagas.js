@@ -36,6 +36,7 @@ import {
   SELECT_ACCOUNT_SUCCESS,
   SELECT_ACCOUNT_FAILED,
   LOGOUT,
+  RESET_SESSION,
   REGISTER,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
@@ -304,7 +305,7 @@ function *onFetchCurrentUserUpdatesApiSuccess({payload}){
   yield put({type: FETCH_CURRENT_USER_UPDATES_SUCCESS})
 }
 
-function *onLogout(action){
+function *onResetSession(action){
   yield put(socketUnsubscribeAll())
 }
 
@@ -332,7 +333,7 @@ export default function* authSagas(){
     takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
     takeLatest(START_DEMO, onStartDemo),
-    takeLatest(LOGOUT, onLogout)
+    takeLatest([LOGOUT, RESET_SESSION], onResetSession)
   ]
 }
 
