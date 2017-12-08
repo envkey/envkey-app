@@ -1,4 +1,5 @@
 import { takeEvery, takeLatest, take, put, select, call, fork} from 'redux-saga/effects'
+import { delay } from 'redux-saga'
 import {push} from 'react-router-redux'
 import R from 'ramda'
 import merge from 'lodash/merge'
@@ -127,14 +128,11 @@ const
           yield put(resetSession())
           return
         }
-
-        if (!action.meta.noRedirect){
-          yield put(push(`/${currentOrg.slug}`))
-        }
       }
 
       const {type: resultType} = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
       if (resultType == REMOVE_OBJECT_SUCCESS && !action.meta.noRedirect){
+        yield put(push(`/${currentOrg.slug}`))
         yield call(redirectFromOrgIndexIfNeeded)
       }
     }

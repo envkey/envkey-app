@@ -9,15 +9,14 @@ const Onboardable = (Component, OnboardSlider, {
 
   constructor(props){
     super(props)
-
     this.state = this.state || {}
 
     this.state.startedOnboarding = props.isOnboarding &&
-                                   props.envsAreDecrypted &&
+                                   // props.envsAreDecrypted &&
                                    startedOnboardingFn(props, this.state)
 
     this.state.finishedOnboarding = props.isOnboarding &&
-                                    props.envsAreDecrypted &&
+                                    // props.envsAreDecrypted &&
                                     finishedOnboardingFn(props, this.state)
   }
 

@@ -19,6 +19,8 @@ import {
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
 
+  CREATE_OBJECT_SUCCESS,
+
   DECRYPT_PRIVKEY,
 
   DECRYPT_PRIVKEY_FAILED,
@@ -127,6 +129,13 @@ export const
 
       case DECRYPT_ENVS_SUCCESS:
         return R.assoc(action.meta.targetId, true, state)
+
+      case CREATE_OBJECT_SUCCESS:
+        if (action.meta.objecType == "app"){
+          return R.assoc(action.payload.id, true, state)
+        } else {
+          return state
+        }
 
       case ACCEPT_INVITE_REQUEST:
       case FETCH_CURRENT_USER_REQUEST:
