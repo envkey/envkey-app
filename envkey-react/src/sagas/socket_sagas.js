@@ -20,7 +20,7 @@ import {
   fetchCurrentUserUpdates,
   socketBroadcastEnvsStatus,
   processedSocketUpdateEnvStatus,
-  clearSession,
+  resetSession,
   selectOrg
 } from 'actions'
 import {
@@ -100,7 +100,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "Org" && targetId == currentOrg.id){
     alert("This organization has been deleted by the owner.")
     yield put(push("/home"))
-    yield put(clearSession())
+    yield put(resetSession())
     return
   }
 
@@ -108,7 +108,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "OrgUser" && targetId == currentOrgUser.id){
     alert("Your access to this organization has been removed by an org admin.")
     yield put(push("/home"))
-    yield put(clearSession())
+    yield put(resetSession())
     return
   }
 
