@@ -366,18 +366,6 @@ export const
     return state
   },
 
-  hasSingleApp = (state = false, action)=>{
-    if (isFetchCurrentUserAction(action)){
-      return action.payload.apps.length <= 1
-    }
-
-    if (isClearSessionAction(action)){
-      return false
-    }
-
-    return state
-  },
-
   lastFetchAt = (state = null, action)=>{
     if (isFetchCurrentUserAction(action)){
       return action.payload.lastFetchAt
