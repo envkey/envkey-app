@@ -24,7 +24,8 @@ import {
   fetchCurrentUser,
   selectOrg,
   logout,
-  billingUpgradeSubscription
+  billingUpgradeSubscription,
+  resetSession
 } from 'actions'
 import { TrialOverdueContainer } from 'containers'
 import {orgRoleIsAdmin} from 'lib/roles'
@@ -88,7 +89,8 @@ class Main extends React.Component {
 
   _shouldShowTrialAlert(){
     return this.props.currentUser.role == "org_owner" &&
-           this.props.currentOrg.trialing
+           this.props.currentOrg.trialing &&
+           this.props.currentOrg.trialDaysRemaining < 15
   }
 
   _trialOverdue(){
@@ -179,7 +181,8 @@ const mapDispatchToProps = dispatch => {
     logout: ()=> {
       dispatch(push("/home"))
       dispatch(logout())
-    }
+    },
+    resetSession: ()=> dispatch(resetSession())
   }
 }
 

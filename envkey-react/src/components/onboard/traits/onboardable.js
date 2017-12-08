@@ -12,8 +12,6 @@ const Onboardable = (Component, OnboardSlider, {
 
     this.state = this.state || {}
 
-    if (!props.parent)return
-
     this.state.startedOnboarding = props.isOnboarding &&
                                    props.envsAreDecrypted &&
                                    startedOnboardingFn(props, this.state)

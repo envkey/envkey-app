@@ -10,7 +10,8 @@ const AccountMenu = ({
   params,
   isOpen,
   onToggle,
-  logout
+  logout,
+  resetSession
 })=>{
 
   const
@@ -73,11 +74,13 @@ const AccountMenu = ({
 
           {renderMenuRow("Switch Account",
                          "/select_account",
-                         "refresh-black.png")}
+                         "refresh-black.png",
+                         e => resetSession())}
 
           {renderMenuRow("Accept Invitation",
                          "/accept_invite",
-                         "airplane-black.svg")}
+                         "airplane-black.svg",
+                         e => resetSession())}
 
           <div className="spacer"/>
 

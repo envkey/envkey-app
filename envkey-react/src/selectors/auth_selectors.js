@@ -1,6 +1,7 @@
 import db from 'lib/db'
 import {
   getUser,
+  getApps,
   getAppUserBy,
   getServer,
   getLocalKeysForAppUser,
@@ -43,7 +44,7 @@ export const
 
   getAuthError = db.path("authError"),
 
-  getIsOnboarding = (state)=> db.path("hasSingleApp")(state) || getIsInvitee(state),
+  getIsOnboarding = (state)=> getApps(state).length == 1 || getIsInvitee(state),
 
   getIsDemo = db.path("isDemo"),
 
