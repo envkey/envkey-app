@@ -29,7 +29,6 @@ import {
   generateEnvUpdateId
 } from "actions"
 import pluralize from 'pluralize'
-import { dotenv } from 'lib/parse'
 
 function* dispatchCommitImportActions(meta){
   let envUpdateId = yield select(getEnvUpdateId(meta.parentId))
@@ -43,30 +42,11 @@ function* dispatchCommitImportActions(meta){
   yield put(commitImportActions({...meta, importActionsPending, envUpdateId}))
 }
 
-function* parseText(text, format, {environment, meta}){
-  try {
-    if(format == "env"){
-      return dotenv(text)
-    }
-  } catch (e){
-    yield put({
-      type: IMPORT_ENVIRONMENT_FAILED,
-      error: true,
-      payload: e,
-      meta: {...meta, environment}
-    })
-    return null
-  }
-}
-
 function* onImportEnvironment({
-  payload: {text, environment, format},
+  payload: {parsed, environment, format},
   meta
 }){
-  if(!text || !text.trim())return
-
-  const parsed = yield call(parseText, text, format, {environment, meta})
-  if(!parsed || R.isEmpty(parsed))return
+  if(R.isEmpty(parsed))return
 
   const {parentType, parentId} = meta,
         envsWithMeta = yield select(getEnvsWithMetaWithPendingWithImports(parentType, parentId)),
@@ -100,10 +80,10 @@ function* onImportEnvironment({
   yield put({type: IMPORT_ENVIRONMENT_SUCCESS, meta})
 }
 
-function* onImportAllEnvironments({meta, payload: {textByEnvironment, format}}){
-  for (let environment in textByEnvironment){
-    let text = textByEnvironment[environment]
-    yield put(importEnvironment({...meta, text, environment, format, noCommit: true}))
+function* onImportAllEnvironments({meta, payload: {parsedByEnvironment}}){
+  for (let environment in parsedByEnvironment){
+    let parsed = parsedByEnvironment[environment]
+    yield put(importEnvironment({...meta, parsed, environment, noCommit: true}))
     yield take([IMPORT_ENVIRONMENT_SUCCESS, IMPORT_ENVIRONMENT_FAILED])
   }
 

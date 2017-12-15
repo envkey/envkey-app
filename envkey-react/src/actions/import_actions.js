@@ -10,8 +10,8 @@ const pickMeta = R.pick(["parentType", "parentId", "noCommit", "envUpdateId", "i
 
 export const
 
-  importEnvironment = createAction(IMPORT_ENVIRONMENT, R.pick(["environment", "text", "format"]), pickMeta),
+  importEnvironment = createAction(IMPORT_ENVIRONMENT, R.pick(["environment", "parsed"]), pickMeta),
 
-  importAllEnvironments = createAction(IMPORT_ALL_ENVIRONMENTS, R.pick(["textByEnvironment", "format"]), pickMeta),
+  importAllEnvironments = createAction(IMPORT_ALL_ENVIRONMENTS, R.pick(["parsedByEnvironment"]), pickMeta),
 
   commitImportActions = createAction(COMMIT_IMPORT_ACTIONS, R.prop("importActionsPending"), pickMeta)

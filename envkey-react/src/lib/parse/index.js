@@ -1,5 +1,7 @@
+import R from 'ramda'
+import yaml from 'js-yaml'
 
-export const
+const
   dotenv = src => {
     var obj = {}
 
@@ -28,4 +30,48 @@ export const
     })
 
     return obj
+  },
+
+  stringifyValues = obj => R.map(v => (v && typeof(v) != "string") ? JSON.stringify(v) : v, obj)
+
+
+export const
+
+  parseMultiFormat = txt => {
+    // Try json
+    if (txt.startsWith("{") && txt.endsWith("}")){
+      let parsedJson = null
+      try {
+        parsedJson = JSON.parse(txt)
+      } catch (e){}
+      if (parsedJson)return stringifyValues(parsedJson)
+    }
+
+    // Try yaml
+    let parsedYaml = null
+    try {
+      parsedYaml = yaml.safeLoad(txt, {schema: yaml.FAILSAFE_SCHEMA})
+    } catch (e){}
+    if (parsedYaml && typeof(parsedYaml) == "object" && !R.isEmpty(parsedYaml)){
+      return stringifyValues(parsedYaml)
+    }
+
+    // Try dotenv
+    let parsedDotenv
+    try {
+      parsedDotenv = dotenv(txt)
+    } catch (e){}
+    if(parsedDotenv && !R.isEmpty(parsedDotenv))return parsedDotenv
+
+    return null
   }
+
+
+
+
+
+
+
+
+
+

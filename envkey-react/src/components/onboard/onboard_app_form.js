@@ -13,7 +13,10 @@ export default class OnboardAppForm extends React.Component {
       h.p([
         "You're in! Go ahead and create an application. ",
         "To import config from an existing project in ",
-        h.strong("KEY=VAL"),
+        h.strong("KEY=VAL, "),
+        h.strong("YAML,"),
+        " or ",
+        h.strong("JSON"),
         " format",
         ", select ",
         h.strong("Import Config"),

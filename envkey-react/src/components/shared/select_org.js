@@ -8,8 +8,6 @@ import {imagePath} from 'lib/ui'
 
 export default function ({orgs, currentOrg, isFetchingOrg, onSelect}){
 
-  console.log(orgs)
-
   const
     renderSelectButton = (org)=>{
       return <button onClick={e => onSelect(org.slug)}> Select </button>

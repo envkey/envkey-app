@@ -8,7 +8,10 @@ export default class AppForm extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { importOption: "noImport" }
+    this.state = {
+      importOption: "noImport",
+      importValid: false
+    }
   }
 
   componentDidMount(){
@@ -82,7 +85,8 @@ export default class AppForm extends React.Component {
     if(this._willImport()){
       return <AppImporter ref="appImporter"
                           environments={this.props.environments}
-                          embeddedInAppForm={true} />
+                          embeddedInAppForm={true}
+                          onChange={importValid => this.setState({importValid})}/>
     }
   }
 
@@ -90,7 +94,12 @@ export default class AppForm extends React.Component {
     if(this.props.isSubmitting){
       return <button disabled={true}> Creating App... </button>
     } else {
-      return <button> {!this.props.renderImporter && this.state.importOption == "import" ? 'Next' : 'Create App'} </button>
+      if (!this.props.renderImporter && this.state.importOption == "import"){
+        return <button>Next</button>
+      } else {
+        const disabled = this.state.importOption == "import" && !this.state.importValid
+        return <button disabled={disabled}>Create App</button>
+      }
     }
   }
 }

@@ -3,8 +3,9 @@ import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
 import {secureRandomAlphanumeric} from 'lib/crypto'
+import { parseMultiFormat } from 'lib/parse'
 
-const EXAMPLE_KEY = secureRandomAlphanumeric(40)
+const EXAMPLE_KEY = secureRandomAlphanumeric(30)
 
 export default class AppImporter extends React.Component {
 
@@ -13,21 +14,67 @@ export default class AppImporter extends React.Component {
     this.state = {
       tab: props.environments[0],
       textByEnvironment: {},
+      parsedByEnvironment: {},
+      validByEnvironment: {},
       format: "env"
     }
   }
 
-  _onSubmit(){
+  _onSubmit(e){
+    e.preventDefault()
     this.props.onSubmit(this.toImport())
   }
 
+  _onSkip(e){
+    e.preventDefault()
+    this.props.skip()
+  }
+
+  _onChange(e){
+    const txt = e.target.value
+    let val, valid
+
+    if(txt){
+      val = parseMultiFormat(txt.trim())
+      valid = val != null
+    } else {
+      val = null
+      valid = false
+    }
+
+    const updated = R.pipe(
+      R.assocPath(["textByEnvironment", this.state.tab], txt),
+      R.assocPath(["parsedByEnvironment", this.state.tab], val),
+      R.assocPath(["validByEnvironment", this.state.tab], valid)
+    )
+
+    this.setState(updated, ()=> {
+      if (this.props.onChange){
+        this.props.onChange(this._environmentsValid() && this._hasAnyValue())
+      }
+    })
+  }
+
+  _environmentsValid(){
+    for (let environment of this.props.environments){
+      if(this.state.textByEnvironment[environment] && !this.state.validByEnvironment[environment]){
+        return false
+      }
+    }
+    return true
+  }
+
+  _hasAnyValue(){
+    return R.any(R.identity, R.values(this.state.textByEnvironment))
+  }
+
   toImport(){
-    return R.pick(["textByEnvironment", "format"], this.state)
+    return R.pick(["parsedByEnvironment"], this.state)
   }
 
   render(){
     return h.form(".object-form.app-importer", [
-      h.p("Paste in your development, staging, and production config in .env (KEY=VAL) format. If you aren’t ready to import an environment, just leave it blank."),
+      <p>Paste in your development, staging, and production config in <strong>KEY=VAL</strong>, <strong>YAML</strong>, or <strong>JSON</strong> format. If you aren’t ready to import an environment, just leave it blank.</p>,
       h.div(".tabs", [
         this._renderTabBar(),
         this._renderSelectedTab()
@@ -39,11 +86,23 @@ export default class AppImporter extends React.Component {
   _renderTabBar(){
     return h.div(".tab-bar",
       this.props.environments.map(environment => {
+        const valid = this.state.validByEnvironment[environment],
+              empty = !this.state.textByEnvironment[environment]
+
+        let checkLbl
+        if (valid && !empty){
+          checkLbl = "✓ "
+        } else if (!empty){
+          checkLbl = "✕"
+        } else {
+          checkLbl = ""
+        }
+
         return h.span({
           onClick: ()=> this.setState({tab: environment}),
           className: (this.state.tab == environment ? "selected" : "")
         },[
-          h.small(".check",(this.state.textByEnvironment[environment] ? "✓ " : "")),
+          h.small(".check", checkLbl),
           h.span(environment)
         ])
       })
@@ -55,10 +114,8 @@ export default class AppImporter extends React.Component {
       h.textarea({
         disabled: this.props.isSubmitting,
         value: this.state.textByEnvironment[this.state.tab] || "",
-        placeholder: `# Paste your app's ${this.state.tab} variables here\n\nSOME_API_KEY=${EXAMPLE_KEY}\nEMPTY_STRING=\n\n# A comment - ignored by parser\n\nWITH_QUOTES='some ${this.state.tab} value'`,
-        onChange: e => {
-          this.setState(R.assocPath(["textByEnvironment", this.state.tab], e.target.value))
-        }
+        placeholder: `# Paste your app's ${this.state.tab} variables here.\n\n# In KEY=VAL format\nSOME_API_KEY=${EXAMPLE_KEY}\n\n# In YAML format\nSOME_API_KEY: ${EXAMPLE_KEY}\n\n# Or in JSON format\n{\n  "SOME_API_KEY":"${EXAMPLE_KEY}"\n}`,
+        onChange: ::this._onChange
       })
     ])
   }
@@ -72,10 +129,10 @@ export default class AppImporter extends React.Component {
         ])
       } else {
         return h.div(".actions", [
-          h.button(".secondary",{onClick: this.props.skip}, "Skip"),
+          h.button(".secondary",{onClick: ::this._onSkip}, "Skip"),
           h.button({
             onClick: ::this._onSubmit,
-            disabled: !R.pipe(R.values, R.any(R.identity))(this.state.textByEnvironment)
+            disabled: !this._environmentsValid() || !this._hasAnyValue()
           }, "Import")
         ])
       }

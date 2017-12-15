@@ -31,6 +31,7 @@
     "hyperscript-helpers": "^3.0.2",
     "is-electron": "^2.1.0",
     "js-base64": "^2.1.9",
+    "js-yaml": "^3.10.0",
     "lodash": "^4.17.4",
     "moment": "^2.17.1",
     "moment-twitter": "^0.2.0",
