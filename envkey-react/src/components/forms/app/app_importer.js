@@ -4,8 +4,7 @@ import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
 import {secureRandomAlphanumeric} from 'lib/crypto'
 import { parseMultiFormat } from 'lib/parse'
-
-const EXAMPLE_KEY = secureRandomAlphanumeric(30)
+import { importerPlaceholder } from 'lib/ui'
 
 export default class AppImporter extends React.Component {
 
@@ -114,7 +113,7 @@ export default class AppImporter extends React.Component {
       h.textarea({
         disabled: this.props.isSubmitting,
         value: this.state.textByEnvironment[this.state.tab] || "",
-        placeholder: `# Paste your app's ${this.state.tab} variables here.\n\n# In KEY=VAL format\nSOME_API_KEY=${EXAMPLE_KEY}\n\n# In YAML format\nSOME_API_KEY: ${EXAMPLE_KEY}\n\n# Or in JSON format\n{\n  "SOME_API_KEY":"${EXAMPLE_KEY}"\n}`,
+        placeholder: importerPlaceholder(this.state.tab),
         onChange: ::this._onChange
       })
     ])
