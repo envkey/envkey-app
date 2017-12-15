@@ -35,12 +35,10 @@ export default function ({orgs, currentOrg, isFetchingOrg, onSelect}){
     },
 
     renderCreateOrg = ()=> {
-      if (!R.find(R.whereEq({role: "org_owner"}), orgs)){
-        return <Link to="/create_org" className="button secondary-button create-org">
-          <img src={imagePath("plus-sign-blue.svg")} />
-          <label>Create New Organization</label>
-        </Link>
-      }
+      return <Link to="/create_org" className="button secondary-button create-org">
+        <img src={imagePath("plus-sign-blue.svg")} />
+        <label>Create New Organization</label>
+      </Link>
     },
 
     // renderAcceptInvite = ()=> {
