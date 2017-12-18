@@ -1,4 +1,5 @@
 import { takeLatest, take, put, select, call} from 'redux-saga/effects'
+import {delay} from 'redux-saga'
 import { push } from 'react-router-redux'
 import R from 'ramda'
 import {
@@ -13,16 +14,32 @@ import {
   UPDATE_ORG_ROLE_REQUEST,
   UPDATE_ORG_ROLE_SUCCESS,
   UPDATE_ORG_ROLE_FAILED,
+
+  UPDATE_ORG_OWNER_REQUEST,
+  UPDATE_ORG_OWNER_SUCCESS,
+  UPDATE_ORG_OWNER_FAILED,
+
+  REMOVE_SELF_FROM_ORG,
+  REMOVE_SELF_FROM_ORG_FAILED,
+  REMOVE_SELF_FROM_ORG_SUCCESS,
+
   CREATE_ORG_REQUEST,
   CREATE_ORG_SUCCESS,
   CREATE_ORG_FAILED,
+
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
+
+  REMOVE_OBJECT_SUCCESS,
+  REMOVE_OBJECT_FAILED,
+
   updateOrgRoleRequest,
+  updateOrgOwner,
   addTrustedPubkey,
+  removeObject,
   fetchCurrentUserUpdates
 } from 'actions'
-import { getCurrentOrg, getCurrentUser } from 'selectors'
+import { getCurrentOrg, getCurrentUser, getOrgUserForUser } from 'selectors'
 
 const
   onUpdateOrgRoleRequest = apiSaga({
@@ -37,6 +54,14 @@ const
     method: "post",
     actionTypes: [CREATE_ORG_SUCCESS, CREATE_ORG_FAILED],
     urlFn: (action)=> `/orgs.json`
+  }),
+
+  onUpdateOrgOwnerRequest = apiSaga({
+    authenticated: true,
+    method: "patch",
+    urlSelector: getCurrentOrg,
+    actionTypes: [UPDATE_ORG_OWNER_SUCCESS, UPDATE_ORG_OWNER_FAILED],
+    urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/update_owner.json`
   })
 
 function *onUpdateOrgRole({payload: {role, userId, orgUserId}}){
@@ -69,12 +94,53 @@ function *onCreateOrgSuccess(action){
   }
 }
 
+function *onRemoveSelfFromOrg(action){
+  const currentUser = yield select(getCurrentUser),
+        orgUser = yield select(getOrgUserForUser(currentUser.id))
+
+  let err
+
+  if (currentUser.role == "org_owner"){
+    const {newOwnerId} = action.meta
+    yield put(updateOrgOwner({newOwnerId}))
+    const updateOwnerRes = yield take([UPDATE_ORG_OWNER_SUCCESS, UPDATE_ORG_OWNER_FAILED])
+
+    if (updateOwnerRes.error){
+      err = updateOwnerRes.payload
+    }
+  }
+
+  if (!err){
+    yield put(removeObject({objectType: "orgUser", targetId: orgUser.id}))
+    const removeRes = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
+    if (removeRes.error){
+      err = removeRes.payload
+    }
+  }
+
+  if (err){
+    yield put({type: REMOVE_SELF_FROM_ORG_FAILED, payload: err, error: true})
+  } else {
+    yield put({type: REMOVE_SELF_FROM_ORG_SUCCESS})
+  }
+}
+
+function *onUpdateOrgOwnerSuccess(action){
+  const currentOrg = yield select(getCurrentOrg)
+  yield put(push(`/${currentOrg.slug}`))
+  yield take("@@router/LOCATION_CHANGE")
+  window.location.reload()
+}
+
 export default function* orgSagas(){
   yield [
     takeLatest(UPDATE_ORG_ROLE, onUpdateOrgRole),
     takeLatest(UPDATE_ORG_ROLE_REQUEST, onUpdateOrgRoleRequest),
     takeLatest(CREATE_ORG_REQUEST, onCreateOrgRequest),
-    takeLatest(CREATE_ORG_SUCCESS, onCreateOrgSuccess)
+    takeLatest(CREATE_ORG_SUCCESS, onCreateOrgSuccess),
+    takeLatest(UPDATE_ORG_OWNER_REQUEST, onUpdateOrgOwnerRequest),
+    takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
+    takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
   ]
 }
 

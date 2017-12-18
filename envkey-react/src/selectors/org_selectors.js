@@ -33,6 +33,10 @@ export const
 
   getIsCreatingOrg = db.path("isCreatingOrg"),
 
+  getIsUpdatingOrgOwner = db.path("isUpdatingOrgOwner"),
+
+  getIsRemovingSelfFromOrg = db.path("isRemovingSelfFromOrg"),
+
   getStripeFormOpened = db.path("stripeFormOpened"),
 
   getIsExceedingFreeTier = state => {

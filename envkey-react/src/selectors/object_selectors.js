@@ -53,6 +53,8 @@ export const
     where: {deleted: R.not}
   }),
 
+  getOrgAdmins = state => getUserGroupsByRole(state)["org_admin"],
+
   getUsersForApp = db.apps.hasAndBelongsToMany("users", {where: {deleted: R.not}}),
 
   getUserWithOrgUserBySlug = (slug, state)=> {

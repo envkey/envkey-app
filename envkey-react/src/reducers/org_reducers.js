@@ -26,7 +26,13 @@ import {
   BILLING_UPDATE_CARD_REQUEST,
   BILLING_UPDATE_CARD_SUCCESS,
   BILLING_UPDATE_CARD_FAILED,
-  FETCH_CURRENT_USER_UPDATES_API_SUCCESS
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
+  UPDATE_ORG_OWNER_REQUEST,
+  UPDATE_ORG_OWNER_SUCCESS,
+  UPDATE_ORG_OWNER_FAILED,
+  REMOVE_SELF_FROM_ORG,
+  REMOVE_SELF_FROM_ORG_SUCCESS,
+  REMOVE_SELF_FROM_ORG_FAILED
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
@@ -155,6 +161,34 @@ export const
 
       case BILLING_UPDATE_CARD_SUCCESS:
       case BILLING_UPDATE_CARD_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isUpdatingOrgOwner = (state = false, action)=>{
+    switch(action.type){
+      case UPDATE_ORG_OWNER_REQUEST:
+        return true
+
+      case UPDATE_ORG_OWNER_SUCCESS:
+      case UPDATE_ORG_OWNER_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isRemovingSelfFromOrg = (state = false, action)=>{
+    switch(action.type){
+      case REMOVE_SELF_FROM_ORG:
+        return true
+
+      case REMOVE_SELF_FROM_ORG_SUCCESS:
+      case REMOVE_SELF_FROM_ORG_FAILED:
         return false
 
       default:
