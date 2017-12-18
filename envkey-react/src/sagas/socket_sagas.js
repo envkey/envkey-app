@@ -115,8 +115,11 @@ function *onSocketUpdateOrg(action){
   // Handle org access change
   if ((actionType == "created" && targetType == "OrgUser" && meta && meta.userId == auth.id) ||
       (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "update_owner" && meta.userId == auth.id) ){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your organization access level has been updated by an org admin.")
-    window.location.reload()
+    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+    yield put(push(`/${currentOrg.slug}`))
+    yield call(redirectFromOrgIndexIfNeeded)
     return
   }
 

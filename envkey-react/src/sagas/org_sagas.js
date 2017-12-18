@@ -28,6 +28,7 @@ import {
   CREATE_ORG_FAILED,
 
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
 
   REMOVE_OBJECT_SUCCESS,
@@ -127,9 +128,10 @@ function *onRemoveSelfFromOrg(action){
 
 function *onUpdateOrgOwnerSuccess(action){
   const currentOrg = yield select(getCurrentOrg)
+  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+  yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
   yield put(push(`/${currentOrg.slug}`))
-  yield take("@@router/LOCATION_CHANGE")
-  window.location.reload()
+  yield call(redirectFromOrgIndexIfNeeded)
 }
 
 export default function* orgSagas(){
