@@ -126,14 +126,10 @@ const
         if (shouldClearSession){
           yield put(push("/home"))
           yield put(resetSession())
-          return
+        } else {
+          yield put(push(`/${currentOrg.slug}`))
+          yield call(redirectFromOrgIndexIfNeeded)
         }
-      }
-
-      const {type: resultType} = yield take([REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED])
-      if (resultType == REMOVE_OBJECT_SUCCESS && !action.meta.noRedirect){
-        yield put(push(`/${currentOrg.slug}`))
-        yield call(redirectFromOrgIndexIfNeeded)
       }
     }
   },
