@@ -19,9 +19,9 @@ import {
   UPDATE_ORG_OWNER_SUCCESS,
   UPDATE_ORG_OWNER_FAILED,
 
-  REMOVE_SELF_FROM_ORG,
-  REMOVE_SELF_FROM_ORG_FAILED,
-  REMOVE_SELF_FROM_ORG_SUCCESS,
+  // REMOVE_SELF_FROM_ORG,
+  // REMOVE_SELF_FROM_ORG_FAILED,
+  // REMOVE_SELF_FROM_ORG_SUCCESS,
 
   CREATE_ORG_REQUEST,
   CREATE_ORG_SUCCESS,
@@ -140,7 +140,7 @@ export default function* orgSagas(){
     takeLatest(CREATE_ORG_SUCCESS, onCreateOrgSuccess),
     takeLatest(UPDATE_ORG_OWNER_REQUEST, onUpdateOrgOwnerRequest),
     takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
-    takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
+    // takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
   ]
 }
 

@@ -35,7 +35,7 @@ export const
 
   getIsUpdatingOrgOwner = db.path("isUpdatingOrgOwner"),
 
-  getIsRemovingSelfFromOrg = db.path("isRemovingSelfFromOrg"),
+  // getIsRemovingSelfFromOrg = db.path("isRemovingSelfFromOrg"),
 
   getStripeFormOpened = db.path("stripeFormOpened"),
 
