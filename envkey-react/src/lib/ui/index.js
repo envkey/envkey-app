@@ -1,9 +1,6 @@
 import React from 'react'
 import R from 'ramda'
 import pluralize from 'pluralize'
-import {secureRandomAlphanumeric} from 'lib/crypto'
-
-
 
 const
   orgRoleLabels = {
@@ -20,9 +17,8 @@ const
     development: "App Development"
   },
 
-  appRoleGroupLabels = R.map(pluralize, appRoleLabels),
+  appRoleGroupLabels = R.map(pluralize, appRoleLabels)
 
-  exampleKey = secureRandomAlphanumeric(30)
 
 export const
 
@@ -79,6 +75,4 @@ export const
 
   appRoleGroupLabel = role => appRoleGroupLabels[role] || orgRoleGroupLabels[role],
 
-  appRoleIndex = role => R.keys(appRoleLabels).indexOf(role),
-
-  importerPlaceholder = environment => `# Paste your app's ${environment} variables here.\n\n# In KEY=VAL format\nSOME_API_KEY=${exampleKey}\n\n# In YAML format\nSOME_API_KEY: ${exampleKey}\n\n# Or in JSON format\n{\n  "SOME_API_KEY":"${exampleKey}"\n}`
+  appRoleIndex = role => R.keys(appRoleLabels).indexOf(role)

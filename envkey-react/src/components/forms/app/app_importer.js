@@ -2,9 +2,8 @@ import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
-import {secureRandomAlphanumeric} from 'lib/crypto'
 import { parseMultiFormat } from 'lib/parse'
-import { importerPlaceholder } from 'lib/ui'
+import { importerPlaceholder } from 'lib/env/imports'
 
 export default class AppImporter extends React.Component {
 
