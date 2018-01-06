@@ -107,6 +107,28 @@ export const
     }
   },
 
+  orgsLoaded = (state = false, action)=>{
+    switch(action.type){
+      case FETCH_CURRENT_USER_SUCCESS:
+      case LOGIN_SUCCESS:
+      case REGISTER_SUCCESS:
+      case CREATE_ORG_SUCCESS:
+      case ACCEPT_INVITE_SUCCESS:
+      case SELECT_ACCOUNT_SUCCESS:
+        return true
+
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOGOUT:
+      case SELECT_ACCOUNT:
+        return false
+
+      default:
+        return state
+    }
+  },
+
   isCreatingOrg = (state=false, action)=>{
     switch (action.type){
       case CREATE_ORG_REQUEST:

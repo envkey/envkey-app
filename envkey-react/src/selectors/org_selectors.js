@@ -21,6 +21,8 @@ export const
     sortBy: o => [o.role == "org_owner" ? 0 : 1, Date.parse(o.accessStatus.timestamp)].join("-")
   }),
 
+  getOrgsLoaded = db.path("orgsLoaded"),
+
   getActiveOrgs = db.orgs.where({isActive: true}, {
     sortBy: o => [o.role == "org_owner" ? 0 : 1, Date.parse(o.accessStatus.timestamp)].join("-")
   }),

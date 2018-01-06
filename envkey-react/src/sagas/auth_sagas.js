@@ -262,8 +262,8 @@ function* onSelectOrg({payload: slug}){
   }
 }
 
-function* onSelectAccount(){
-  yield put({type: SELECT_ACCOUNT_REQUEST})
+function* onSelectAccount({meta}){
+  yield put({meta, type: SELECT_ACCOUNT_REQUEST})
 }
 
 function* onSelectAccountSuccess(){
@@ -309,6 +309,15 @@ function *onResetSession(action){
   yield put(socketUnsubscribeAll())
 }
 
+function *onSelectAccountFailed(action){
+  yield put(push("login"))
+}
+
+function *onAuthFailed(action){
+  clearAuthenticatingOverlay()
+}
+
+
 export default function* authSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
@@ -333,7 +342,9 @@ export default function* authSagas(){
     takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
     takeLatest(START_DEMO, onStartDemo),
-    takeLatest([LOGOUT, RESET_SESSION], onResetSession)
+    takeLatest(SELECT_ACCOUNT_FAILED, onSelectAccountFailed),
+    takeLatest([LOGOUT, RESET_SESSION], onResetSession),
+    takeLatest([SELECT_ACCOUNT_FAILED, LOGIN_FAILED, REGISTER_FAILED], onAuthFailed)
   ]
 }
 

@@ -35,7 +35,11 @@ export const
 
   register = createAction(REGISTER),
 
-  selectAccount = createAction(SELECT_ACCOUNT, R.pick(["auth", "privkey"])),
+  selectAccount = createAction(
+    SELECT_ACCOUNT,
+    R.pick(["auth", "privkey"]),
+    ({auth})=> ({accountId: auth.id})
+  ),
 
   fetchCurrentUser = createAction(FETCH_CURRENT_USER_REQUEST),
 

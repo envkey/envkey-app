@@ -222,6 +222,7 @@ export const
         return {}
 
       case LOGOUT:
+      case SELECT_ACCOUNT_FAILED:
         return R.dissoc((action.meta.accountId || action.meta.currentUserId), state)
 
       default:

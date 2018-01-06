@@ -8,7 +8,7 @@ import {history, store} from 'init_redux'
 import {
   getAuth,
   getCurrentOrgSlug,
-  getOrgs,
+  getOrgsLoaded,
   getPermissions,
   getApps,
   getDisconnected,
@@ -57,10 +57,11 @@ const
   }),
 
   OrgsLoaded = UserAuthWrapper({
-    authSelector: getOrgs,
+    authSelector: getOrgsLoaded,
     failureRedirectPath: "/select_account",
     redirectAction: routerActions.replace,
-    wrapperDisplayName: 'OrgsLoaded'
+    wrapperDisplayName: 'OrgsLoaded',
+    predicate: R.identity
   }),
 
   HasAccount = UserAuthWrapper({
