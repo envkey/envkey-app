@@ -8,7 +8,7 @@ echo "Running webpack..."
 echo "Copying js output into middleman source"
 cp envkey-react/build/* envkey-assets/source/javascripts/
 echo "Running middleman build..."
-(cd envkey-assets && middleman build)
+(cd envkey-assets && bundle exec middleman build)
 echo "Copying _redirects into build dir"
 cp envkey-assets/source/_redirects envkey-assets/build/
 echo "Build complete"
