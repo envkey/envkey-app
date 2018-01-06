@@ -10,18 +10,18 @@
     "version": "1.2.6"
   },
   "win32-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.2.5",
-    "install": "https://github.com/envkey/<envkey-a></envkey-a>pp/releases/download/win32-x64-prod-v1.2.5/EnvKey Setup 1.2.5.exe",
-    "version": "1.2.5"
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.2.6",
+    "install": "https://github.com/envkey/<envkey-a></envkey-a>pp/releases/download/win32-x64-prod-v1.2.6/EnvKey Setup 1.2.6.exe",
+    "version": "1.2.6"
   },
   "win32-ia32-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.2.5",
-    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.2.5/EnvKey Setup 1.2.5.exe",
-    "version": "1.2.5"
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.2.6",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.2.6/EnvKey Setup 1.2.6.exe",
+    "version": "1.2.6"
   },
   "darwin-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.2.5/release.json",
-    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.2.5/EnvKey-1.2.5.dmg",
-    "version": "1.2.5"
+    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.2.6/release.json",
+    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.2.6/EnvKey-1.2.6.dmg",
+    "version": "1.2.6"
   }
 }
