@@ -15,6 +15,13 @@ listenUpdater()
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win, stripeWin
+let appReady = false
+
+function onAppReady(){
+  appReady = true
+  createWindow()
+  createMenu()
+}
 
 function createWindow () {
   // Create the browser window.
@@ -93,9 +100,7 @@ function createStripeWindow(json){
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
-
-app.on('ready', createMenu)
+app.on('ready', onAppReady)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -111,7 +116,7 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (win) {
 
-  } else {
+  } else if (appReady) {
     createWindow()
   }
 })
