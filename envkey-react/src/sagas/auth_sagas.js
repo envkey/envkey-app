@@ -180,11 +180,6 @@ function *onLogin(action){
 }
 
 function* onLoginSuccess({meta: {password, orgSlug}}){
-  if (password){
-    yield put(decryptPrivkey({password: password}))
-    yield take(DECRYPT_PRIVKEY_SUCCESS)
-  }
-
   if (orgSlug){
     yield put(selectOrg(orgSlug))
   } else {
@@ -195,6 +190,13 @@ function* onLoginSuccess({meta: {password, orgSlug}}){
         put(selectOrg(orgs[0].slug)) :
         call(loginSelectOrg)
     )
+  }
+
+  if (password){
+    yield take(FETCH_CURRENT_USER_SUCCESS)
+    yield put(decryptPrivkey({password: password}))
+    yield take(DECRYPT_PRIVKEY_SUCCESS)
+    yield call(dispatchDecryptAllIfNeeded)
   }
 }
 
