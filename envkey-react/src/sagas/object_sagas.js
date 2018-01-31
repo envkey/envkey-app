@@ -126,7 +126,7 @@ const
         if (shouldClearSession){
           yield put(push("/home"))
           yield put(resetSession())
-        } else {
+        } else if (!action.meta.noRedirect){
           yield put(push(`/${currentOrg.slug}`))
           yield call(redirectFromOrgIndexIfNeeded)
         }
