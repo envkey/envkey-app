@@ -99,9 +99,6 @@ function* onAddSubEnv({payload: {environment, id}}){
   const path = isElectron() ? window.location.hash.replace("#", "") : window.location.href,
         newPath = path.replace(new RegExp(`/${environment}/add$`), `/${environment}/${id}`)
 
-  console.log("\n\npath: ", path)
-  console.log("newPath: ", newPath)
-
   yield put(push(newPath))
 }
 
