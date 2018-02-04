@@ -59,10 +59,8 @@ export function* inviteUser(action){
     type: INVITE_USER
   })
 
-  if (meta.shouldPrefetchUpdates){
-    yield put(fetchCurrentUserUpdates())
-    yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
-  }
+  yield put(fetchCurrentUserUpdates())
+  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
 
   const {id: orgId} = yield select(getCurrentOrg)
   let createPayload

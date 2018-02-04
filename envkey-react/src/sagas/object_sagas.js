@@ -127,6 +127,7 @@ const
           yield put(push("/home"))
           yield put(resetSession())
         } else if (!action.meta.noRedirect){
+          yield take(REMOVE_OBJECT_SUCCESS)
           yield put(push(`/${currentOrg.slug}`))
           yield call(redirectFromOrgIndexIfNeeded)
         }

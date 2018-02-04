@@ -379,9 +379,6 @@ function *onRegenInvite(action){
 
 function *onGrantEnvAccess({payload: invitees, meta}){
   for (let invitee of invitees){
-
-    console.log("invitee: ", invitee)
-
     let inviteeEnvParams = yield call(envParamsForInvitee, invitee)
 
     yield put(grantEnvAccessRequest({
