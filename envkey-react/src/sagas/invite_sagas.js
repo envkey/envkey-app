@@ -27,7 +27,8 @@ import {
   getInviteeEncryptedPrivkey,
   getOrgUserForUser,
   getUser,
-  getAppUserBy
+  getAppUserBy,
+  getAppsForUser
 } from 'selectors'
 import {
   decryptPrivateKey,
@@ -343,7 +344,8 @@ function *onRegenInvite(action){
   let res
   const {payload: {userId}, meta: {appId}} = action,
         user = yield select(getUser(userId)),
-        appUser = yield select(getAppUserBy({appId, userId}))
+        appUser = yield select(getAppUserBy({appId, userId})),
+        userApps = yield select(getAppsForUser(userId))
 
   yield put({...action, type: REVOKE_INVITE})
 
@@ -372,6 +374,21 @@ function *onRegenInvite(action){
 
   if (res.error){
     yield put({type: REVOKE_INVITE_FAILED, error: true, payload: res.payload, meta: {userId}})
+  }
+
+  for (let app of userApps){
+    if (app.id == appId) continue
+
+    let role = app.relation.role
+    yield put(addAssoc({
+      role,
+      parentType: "app",
+      assocType: "user",
+      joinType: "appUser",
+      isManyToMany: true,
+      parentId: app.id,
+      assocId: userId
+    }))
   }
 
   yield put({type: REGEN_INVITE_SUCCESS, meta: {userId}})
