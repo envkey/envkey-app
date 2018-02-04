@@ -350,7 +350,6 @@ function *onDecryptAll(action){
   let privkey = yield select(getPrivkey)
 
   const encryptedPrivkey = yield select(getEncryptedPrivkey),
-        firstTarget = R.path(["meta", "firstTarget"], action),
         background = R.path(["meta", "background"], action)
 
   if(!privkey && encryptedPrivkey){
@@ -369,7 +368,7 @@ function *onDecryptAll(action){
     if (!skipVerify) verifyRes = yield call(verifyCurrentUser, background)
 
     if((skipVerify && !verifyRes) || !verifyRes.error){
-      const hasEnvParents = yield call(decryptAllEnvParents, firstTarget, background)
+      const hasEnvParents = yield call(decryptAllEnvParents, background)
 
       if (!hasEnvParents){
         yield put({type: DECRYPT_ALL_SUCCESS})

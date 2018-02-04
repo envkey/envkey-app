@@ -20,9 +20,13 @@ export const
 
   getIsDecryptingPrivkey = db.path("isDecryptingPrivkey"),
 
-  getIsDecryptingAll = db.path("isDecryptingAll"),
+  getIsDecryptingAllForeground = db.path("isDecryptingAllForeground"),
 
-  getIsDecrypting = R.anyPass([getIsDecryptingPrivkey, getIsDecryptingAll]),
+  getIsDecryptingAllBackground = db.path("isDecryptingAllBackground"),
+
+  getIsDecryptingAll = R.anyPass([getIsDecryptingAllForeground, getIsDecryptingAllBackground]),
+
+  getIsDecrypting = R.anyPass([getIsDecryptingPrivkey, getIsDecryptingAllForeground]),
 
   getDecryptedAll = db.path("decryptedAll"),
 

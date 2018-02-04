@@ -1,5 +1,6 @@
 import R from 'ramda'
 import { takeEvery, put, call, take, select } from 'redux-saga/effects'
+import { delay } from 'redux-saga'
 import {
   apiSaga,
   signTrustedPubkeyChain,
@@ -85,18 +86,26 @@ const
     urlFn: ({meta})=> getAssocUrl(meta, `/${meta.targetId}/revoke_key`)
   })
 
+
+let isPrefetchingUpdatesForAddAssoc = false
 function* onAddAssoc(action){
   let apiAction
-  const {meta: {parentType, assocType, isCreatingAssoc, parentId}} = action,
+  const {meta: {parentType, assocType, isCreatingAssoc, shouldPrefetchUpdates, parentId}} = action,
         apiSaga = addRemoveAssocApiSaga({
           method: "post",
           actionTypes: [ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED]
         })
 
   if(parentType == "app" && assocType == "user"){
-    if (!isCreatingAssoc){
+    if (shouldPrefetchUpdates){
+      isPrefetchingUpdatesForAddAssoc = true
       yield put(fetchCurrentUserUpdates())
       yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+      isPrefetchingUpdatesForAddAssoc = false
+    }
+
+    while (isPrefetchingUpdatesForAddAssoc){
+      yield call(delay, 50)
     }
 
     apiAction = yield call(attachAssocEnvs, action)

@@ -15,7 +15,7 @@ import { TRUSTED_PUBKEY_PROPS } from 'constants'
 
 export const
 
-  decryptAll = createAction(DECRYPT_ALL, R.pick(["password"]), R.pick(["firstTarget", "background"])),
+  decryptAll = createAction(DECRYPT_ALL, R.pick(["password"]), R.pick(["background"])),
 
   decryptPrivkey = createAction(DECRYPT_PRIVKEY, R.pick(["password"])),
 

@@ -58,15 +58,32 @@ import {
 
 export const
 
-  isDecryptingAll = (state = false, action)=>{
+  isDecryptingAllForeground = (state = false, action)=>{
     if (isClearSessionAction(action)){
       return false
     }
 
     switch(action.type){
       case DECRYPT_ALL:
-      case VERIFY_CURRENT_USER_PUBKEY:
         return !R.path(["meta", "background"], action)
+
+      case DECRYPT_ALL_SUCCESS:
+      case DECRYPT_ALL_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isDecryptingAllBackground = (state = false, action)=>{
+    if (isClearSessionAction(action)){
+      return false
+    }
+
+    switch(action.type){
+      case DECRYPT_ALL:
+        return R.path(["meta", "background"], action) || false
 
       case DECRYPT_ALL_SUCCESS:
       case DECRYPT_ALL_FAILED:

@@ -11,7 +11,7 @@ import {
   getAppBySlug,
   getUserWithOrgUserBySlug,
   getPermissions,
-  getIsDecryptingAll,
+  getIsDecryptingAllForeground,
   getDecryptedAll,
   getDecryptPrivkeyErr,
   getDecryptAllErr,
@@ -130,7 +130,7 @@ const SelectedObjectContainerFactory = ({
       return {
         [objectType]: obj,
         permissions: getPermissions(state),
-        isDecrypting: getIsDecryptingAll(state),
+        isDecrypting: getIsDecryptingAllForeground(state),
         decryptedAll: getDecryptedAll(state),
         decryptPrivkeyErr: getDecryptPrivkeyErr(state),
         decryptAllErr: getDecryptAllErr(state),

@@ -35,11 +35,11 @@ const
   getFetchCurrentUserUpdatesReducer = objectTypePlural => (state, action)=>{
     let objects = action.payload[objectTypePlural]
 
-    // For apps being overwritten, don't overwrite encryptedEnvsWithMeta -- env update logic takes care of this
+    // For apps being overwritten, don't overwrite encryptedEnvsWithMeta unless updated
     if (objectTypePlural == "apps"){
       objects = R.map(newApp => {
         let stateApp = state[newApp.id]
-        if (stateApp){
+        if (stateApp && stateApp.envsUpdatedAt == newApp.envsUpdatedAt){
           return R.pipe(
             R.omit(["encryptedEnvsWithMeta"]),
             R.assoc("envsWithMeta", stateApp.envsWithMeta)

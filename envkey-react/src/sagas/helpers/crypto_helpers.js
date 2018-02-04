@@ -144,14 +144,9 @@ export function* decryptEnvParent(parent){
   }
 }
 
-export function* decryptAllEnvParents(firstTarget, background=false){
+export function* decryptAllEnvParents(background=false){
   const apps = yield select(getApps)
-
   let didDecrypt = false
-
-  if (firstTarget){
-    yield put(decryptEnvs({...firstTarget, background, decryptAllAction: true}))
-  }
 
   for (let {id: targetId, encryptedEnvsWithMeta} of apps){
     if (encryptedEnvsWithMeta){
