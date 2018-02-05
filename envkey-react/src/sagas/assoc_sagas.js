@@ -145,6 +145,9 @@ function* onAddAssocSuccess({meta, payload: {id: targetId}}){
 }
 
 function* onGenerateKey(action){
+  yield put(fetchCurrentUserUpdates())
+  yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
+
   const
     currentOrg = yield select(getCurrentOrg),
 
