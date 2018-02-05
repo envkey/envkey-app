@@ -44,6 +44,7 @@ class StripeCardForm extends React.Component {
       this._renderInfo(),
       h.form({onSubmit: ::this._onSubmit}, [
         h.h2("Payment Method"),
+        this._renderError(),
         h(CardElement),
         h.button(this._submitCopy())
       ]),
@@ -104,6 +105,21 @@ class StripeCardForm extends React.Component {
               ["Total monthly charge", this._chargeCols()],
             ]
           ]})
+        ])
+      ])
+    }
+  }
+
+  _renderError(){
+    const {error} = this._formData()
+
+    if (error){
+      return h.section(".error", [
+        h.div(".top", [
+          h.span(".error-message", error)
+        ]),
+        h.div(".bottom", [
+          h.span("Please re-enter your card details.")
         ])
       ])
     }

@@ -63,16 +63,28 @@ function *onBillingUpgradeSubscription(){
   yield put(fetchCurrentUserUpdates())
   yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
 
-  openCardForm("upgrade_subscription", {
-    numUsersActive,
-    numUsersPending,
-    plan: R.pick(["amount", "name"], plan)
-  })
+  let error
 
-  const formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
-  if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
+  while (true){
+    openCardForm("upgrade_subscription", {
+      error,
+      numUsersActive,
+      numUsersPending,
+      plan: R.pick(["amount", "name"], plan)
+    })
 
-    yield put(billingUpdateSubscriptionRequest({...formResult.payload, planId: currentOrg.businessPlan.id, updateType: "upgrade"}))
+    let formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
+    if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
+      yield put(billingUpdateSubscriptionRequest({...formResult.payload, planId: currentOrg.businessPlan.id, updateType: "upgrade"}))
+    }
+
+    let res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
+
+    if (res.error){
+      error = R.path(["payload", "response", "data", "message"], res)
+    } else {
+      break
+    }
   }
 }
 
@@ -96,11 +108,24 @@ function* onBillingCancelSubscription({payload}){
 }
 
 function* onBillingUpdateCard(){
-  openCardForm("update_payment")
-  const formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
-  if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
-    const currentOrg = yield select(getCurrentOrg)
-    yield put(billingUpdateCardRequest(formResult.payload))
+  let error
+
+  while (true){
+    openCardForm("update_payment", {error})
+
+    let formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
+    if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
+      let currentOrg = yield select(getCurrentOrg)
+      yield put(billingUpdateCardRequest(formResult.payload))
+    }
+
+    let res = yield take([BILLING_UPDATE_CARD_SUCCESS, BILLING_UPDATE_CARD_FAILED])
+
+    if (res.error){
+      error = R.path(["payload", "response", "data", "message"], res)
+    } else {
+      break
+    }
   }
 }
 
