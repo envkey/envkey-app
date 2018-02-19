@@ -11,7 +11,10 @@ const
   isOnline = (retries)=>{
     const url = isElectron() ? "http://www.msftconnecttest.com/connecttest.txt" : "https://ipv4.icanhazip.com/"
 
-    return fetch(url, {mode: "no-cors"}).then(response => {
+    return fetch((url + "?" + Date.now().toString()), {
+      mode: "no-cors",
+      cache: 'no-store'
+    }).then(response => {
       return true
     }).catch(error => {
       if (!retries || retries < 2){
@@ -26,9 +29,12 @@ const
     const disconnected = store.getState().disconnected == true
 
     // if navigator.onLine is off, don't need to do full isOnline check
-    if(!navigator.onLine && !disconnected){
-      console.log("dispatch DISCONNECTED - navigator")
-      store.dispatch({type: DISCONNECTED})
+    if(!navigator.onLine){
+      if (!disconnected){
+        console.log("dispatch DISCONNECTED - navigator")
+        store.dispatch({type: DISCONNECTED})
+      }
+
       setTimeout(checkConnection, 5000)
       return
     }
@@ -36,6 +42,7 @@ const
     isOnline().then(online => {
       if (online){
         if (disconnected){
+          console.log("status check connection reload")
           window.location.reload()
         }
       } else if (!disconnected) {
