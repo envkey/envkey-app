@@ -60,6 +60,7 @@ class UpdatePassword extends React.Component {
         }),
 
         h(PasswordInput, {
+          confirm: true,
           disabled: this.props.isUpdatingEncryptedPrivkey,
           value: this.state.newPassword,
           placeholder: "NEW passphrase (10-256 characters)",
@@ -68,12 +69,14 @@ class UpdatePassword extends React.Component {
           score: this.state.passwordScore,
           feedback: this.state.passwordFeedback,
           strengthUserInputs: R.values(R.pick(["email", "firstName", "lastName"], this.props.currentUser)),
-          onChange: (val, valid, score, feedback) => this.setState({
-            newPassword: val,
-            passwordValid: valid,
-            passwordScore: score,
-            passwordFeedback: feedback
-          })
+          onChange: (val, valid, score, feedback) => {
+            this.setState({
+              newPassword: val,
+              passwordValid: valid,
+              passwordScore: score,
+              passwordFeedback: feedback
+            })
+          }
         }),
 
         this._renderSubmitPassword()

@@ -56,7 +56,8 @@ class LoginRegister extends React.Component {
       password: "",
       passwordValid: false,
       passwordScore: null,
-      passwordFeedback: null
+      passwordFeedback: null,
+      heardAbout: ""
     }
   }
 
@@ -84,7 +85,7 @@ class LoginRegister extends React.Component {
     e.preventDefault()
     this.props.onRegister({
       ...R.pick(["firstName", "lastName", "email", "emailVerificationCode", "password"], this.state),
-      org: {name: this.state.orgName},
+      org: {name: this.state.orgName, heardAbout: this.state.heardAbout},
     })
   }
 
@@ -237,9 +238,27 @@ class LoginRegister extends React.Component {
           })
         ]),
 
+        h.fieldset(".heard-about", [
+          h.select({
+            onChange: (e)=> this.setState({heardAbout: e.target.value})
+          },[
+            h.option({disabled: true, selected: true}, ["How did you find out about EnvKey?"]),
+            h.option("Friend or colleague"),
+            h.option("Google search"),
+            h.option("HackerNews"),
+            h.option("Reddit"),
+            h.option("Another website"),
+            h.option("Facebook Ad"),
+            h.option("Google Ad"),
+            h.option("Reddit Ad"),
+            h.option("Other")
+          ])
+        ]),
+
         h.fieldset(".passphrase",[
           h(PasswordInput, {
             type: "text",
+            confirm: true,
             disabled: this.props.isAuthenticating || this.props.currentUser,
             value: this.state.password,
             validateStrength: true,

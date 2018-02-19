@@ -59,27 +59,32 @@ export const
     )(state)
   },
 
-  // Gets list of trusted pubkeys back to the org owner -- allows
+  // Gets list of trusted pubkeys back to the org owner
   getTrustedPubkeyChain = state => {
     const currentUser = getCurrentUser(state),
           trustedPubkeys = getTrustedPubkeys(state),
-          trustChain = {}
+          trustChain = {},
+          checked = {}
 
     let currentId = currentUser.id
 
     while (true){
+      if (checked[currentId])throw new Error("Trusted pubkey chain couldn't find org creator root.")
+      checked[currentId] = true
+
       let trusted = trustedPubkeys[currentId]
       if (!trusted)throw new Error("Trusted pubkey chain broken.")
 
       let trustedInviter = getUser(currentId, state)
       if (!trustedInviter)throw new Error("Trusted user not found. Chain broken.")
+
       trustChain[currentId] = R.pick(["invitePubkey", "pubkey", "invitedById"], trustedInviter)
 
       if (trustedInviter.invitedById){
         // Continue checking chain of invites
         currentId = trustedInviter.invitedById
-      } else {
-        // Found owner, return chain
+      } else if (trustedInviter.isOrgCreator) {
+        // Found org creator, return chain
         return trustChain
       }
     }
