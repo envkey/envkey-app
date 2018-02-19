@@ -171,6 +171,7 @@ class AcceptInvite extends React.Component {
         h.p(".copy", this._passwordPrompt()),
         h.fieldset([
           h(PasswordInput, {
+            confirm: this._isNewUser(),
             disabled: this.props.isAuthenticating || this.props.isInvitee,
             value: this.state.password,
             validateStrength: this._isNewUser(),

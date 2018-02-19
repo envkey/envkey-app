@@ -240,6 +240,7 @@ class LoginRegister extends React.Component {
         h.fieldset(".passphrase",[
           h(PasswordInput, {
             type: "text",
+            confirm: true,
             disabled: this.props.isAuthenticating || this.props.currentUser,
             value: this.state.password,
             validateStrength: true,
