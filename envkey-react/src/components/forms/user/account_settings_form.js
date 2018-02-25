@@ -11,25 +11,38 @@ export default function({
   onRemove
 }){
 
+  const
+    renderDangerZone = ()=> {
+      if (!currentUser.demo){
+        return h.div(".danger-zone", [
+          h.h3("Danger Zone"),
+          h.div(".content", [
+            h.fieldset(".delete-account", [
+              h.label("Delete Account"),
+              h(DeleteField, {
+                label: "Your Account",
+                isRemoving,
+                onRemove,
+                confirmName: [currentUser.firstName, currentUser.lastName].join(" "),
+                confirmPrompt: "your full name"
+              })
+            ])
+          ])
+        ])
+      }
+    },
+
+    renderUpdatePassword = ()=> {
+      if (!currentUser.demo){
+        return h(UpdatePasswordFormContainer)
+      }
+    }
+
   return h.div(".user-settings.my-account-settings", [
     h(UserDetails, currentUser),
 
-    h(UpdatePasswordFormContainer),
+    renderUpdatePassword(),
 
-    h.div(".danger-zone", [
-      h.h3("Danger Zone"),
-      h.div(".content", [
-        h.fieldset(".delete-account", [
-          h.label("Delete Account"),
-          h(DeleteField, {
-            label: "Your Account",
-            isRemoving,
-            onRemove,
-            confirmName: [currentUser.firstName, currentUser.lastName].join(" "),
-            confirmPrompt: "your full name"
-          })
-        ])
-      ])
-    ])
+    renderDangerZone()
   ])
 }

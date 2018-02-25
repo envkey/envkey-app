@@ -14,21 +14,27 @@ export default function({
   onRemove,
   onUpdateSettings
 }){
-const label = "Organization"
+const label = "Organization",
+
+      renderDangerZone = ()=> {
+        if (!currentOrg.demo){
+          return h.div(".danger-zone", [
+            h.h3("Danger Zone"),
+            h.div(".content", [
+              h.fieldset(".delete-org", [
+                h.label("Delete Organization"),
+                h(DeleteField, {label, isRemoving, onRemove, confirmName: currentOrg.name})
+              ])
+            ])
+          ])
+        }
+      }
 
   return h.div(".org-settings", [
     h(BasicRenameForm, {label, isRenaming, onRename, name: currentOrg.name}),
 
     h(UpdateOwnerContainer),
 
-    h.div(".danger-zone", [
-      h.h3("Danger Zone"),
-      h.div(".content", [
-        h.fieldset(".delete-org", [
-          h.label("Delete Organization"),
-          h(DeleteField, {label, isRemoving, onRemove, confirmName: currentOrg.name})
-        ])
-      ])
-    ])
+    renderDangerZone()
   ])
 }

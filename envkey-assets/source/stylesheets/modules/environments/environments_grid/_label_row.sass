@@ -3,12 +3,16 @@
 
 .label-row
   position: fixed
-  left: calc(#{$sidemenu-width} + (25% - #{$sidemenu-width / 4}))
   top: 0
   width: calc(100% - (#{$sidemenu-width} + (25% - #{$sidemenu-width / 4})))
+  min-width: 561px
   z-index: 4
   background: none
   white-space: nowrap
+  left: calc(#{$sidemenu-width} + (25% - #{$sidemenu-width / 4}))
+
+  @media screen and (max-width: $min-width)
+    left: 500px
 
   .cols
     width: 100%

@@ -34,6 +34,10 @@ import {
   REMOVE_OBJECT_SUCCESS,
   REMOVE_OBJECT_FAILED,
 
+  GENERATE_DEMO_ORG_REQUEST,
+  GENERATE_DEMO_ORG_SUCCESS,
+  GENERATE_DEMO_ORG_FAILED,
+
   updateOrgRoleRequest,
   updateOrgOwner,
   addTrustedPubkey,
@@ -63,6 +67,13 @@ const
     urlSelector: getCurrentOrg,
     actionTypes: [UPDATE_ORG_OWNER_SUCCESS, UPDATE_ORG_OWNER_FAILED],
     urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/update_owner.json`
+  }),
+
+  onGenerateDemoOrgRequest = apiSaga({
+    authenticated: false,
+    method: "post",
+    actionTypes: [GENERATE_DEMO_ORG_SUCCESS, GENERATE_DEMO_ORG_FAILED],
+    urlFn: (action)=> "/orgs/generate_demo_org.json"
   })
 
 function *onUpdateOrgRole({payload: {role, userId, orgUserId}}){
@@ -134,6 +145,10 @@ function *onUpdateOrgOwnerSuccess(action){
   yield call(redirectFromOrgIndexIfNeeded)
 }
 
+function *onGenerateDemoOrgSuccess({payload: {path}}){
+  yield put(push(path))
+}
+
 export default function* orgSagas(){
   yield [
     takeLatest(UPDATE_ORG_ROLE, onUpdateOrgRole),
@@ -142,6 +157,8 @@ export default function* orgSagas(){
     takeLatest(CREATE_ORG_SUCCESS, onCreateOrgSuccess),
     takeLatest(UPDATE_ORG_OWNER_REQUEST, onUpdateOrgOwnerRequest),
     takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
+    takeLatest(GENERATE_DEMO_ORG_REQUEST, onGenerateDemoOrgRequest),
+    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess)
     // takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
   ]
 }
