@@ -90,8 +90,8 @@ class StripeCardForm extends React.Component {
             [
               [`$${parseInt(plan.amount / 100)}.00 / user / month`,
                 [
-                  "Unlimited users",
                   "Unlimited apps",
+                  "Unlimited environments",
                   "Unlimited ENVKEYs"
                 ]
               ],
