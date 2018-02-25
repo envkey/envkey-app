@@ -75,7 +75,7 @@ export default class InviteUserOverlay extends React.Component {
       h.p(".invited-user", `${firstName} ${lastName} <${email}>`),
       this._renderInvitedCopy(firstName),
       h.div(".encryption-token", [
-        h.span(encryptionToken),
+        h.span(encryptionToken.slice(0,40) + "…"),
         (this.state.copied ? h.small("Copied.") : null),
         h.button(".copy-btn", {onClick: ::this._onCopy}, "Copy")
       ]),
