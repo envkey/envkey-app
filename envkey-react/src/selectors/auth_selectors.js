@@ -8,6 +8,9 @@ import {
   getOrgUserForUser
 } from './object_selectors'
 import {
+  getCurrentOrg
+} from './org_selectors'
+import {
   getEnvironmentsAccessibleForAppUser,
   getEnvironmentsAssignableForAppUser,
   getAppEnvironmentsAccessible,
@@ -45,8 +48,6 @@ export const
   getAuthError = db.path("authError"),
 
   getIsOnboarding = (state)=> getApps(state).length == 1 || getIsInvitee(state),
-
-  getIsDemo = db.path("isDemo"),
 
   getCurrentUserErr = db.path("currentUserErr"),
 
@@ -152,7 +153,15 @@ export const
     const {id: userId} = getCurrentUser(state),
           {id: appUserId} = getAppUserBy({userId, appId}, state)
     return getLocalKeysForAppUser(appUserId, state)
-  })
+  }),
+
+  getIsDemo = R.anyPass([
+    db.path("isDemo"),
+    R.pipe(getCurrentUser, R.path(['demo'])),
+    R.pipe(getCurrentOrg, R.path(['demo']))
+  ]),
+
+  getDemoDownloadUrl = db.path("demoDownloadUrl")
 
 
 

@@ -4,7 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import moment from 'moment'
 import { getColumnsFlattened } from "lib/assoc/helpers"
-import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink } from 'selectors'
+import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink, getIsDemo } from 'selectors'
 import { closeGeneratedInviteLink } from 'actions'
 import { AssocManagerContainerFactory } from 'containers'
 import {Onboardable} from 'components/onboard'
@@ -73,7 +73,8 @@ const
     isOnboarding: getIsOnboarding(state),
     envsAreDecrypted: getDecryptedAll(state),
     invitingUser: getInvitingUser(ownProps.app.id, state),
-    generatedInviteLink: getGeneratedInviteLink(ownProps.app.id, state)
+    generatedInviteLink: getGeneratedInviteLink(ownProps.app.id, state),
+    isDemo: getIsDemo(state)
   }),
 
   mapDispatchToProps = (dispatch, ownProps) => ({

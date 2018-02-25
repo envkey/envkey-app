@@ -44,6 +44,28 @@ export default class InviteUserOverlay extends React.Component {
     ])
   }
 
+  _renderInvitedCopy(firstName){
+    if (this.props.isDemo){
+      return h.div(".copy", [
+        h.p([h.strong("If this weren't a demo, "), `an EnvKey invitation would be sent to ${firstName} by email.`]),
+        h.p([
+          `You'd also need to send ${firstName} the following `,
+          h.strong(".token", "Encryption Token"),
+          " by any reasonably private channel: "
+        ])
+      ])
+    } else {
+      return h.div(".copy", [
+        h.p(`An EnvKey invitation has been sent to ${firstName} by email.`),
+        h.p([
+          `You also need to send ${firstName} the following `,
+          h.strong(".token", "Encryption Token"),
+          " by any reasonably private channel: "
+        ])
+      ])
+    }
+  }
+
   _renderGeneratedInviteLink(){
     const {identityHash, passphrase, user: {email, firstName, lastName}} = this.props.generatedInviteLink,
           encryptionToken = [identityHash, passphrase].join("_")
@@ -51,15 +73,7 @@ export default class InviteUserOverlay extends React.Component {
     return h.div([
       h.h2("Invitation Generated"),
       h.p(".invited-user", `${firstName} ${lastName} <${email}>`),
-      h.div(".copy", [
-        h.p(`An EnvKey invitation has been sent to ${firstName} by email.`),
-        h.p([
-          `You also need to send ${firstName} the following `,
-          h.strong(".token", "Encryption Token"),
-          " by any reasonably private channel: "
-        ])
-      ]),
-
+      this._renderInvitedCopy(firstName),
       h.div(".encryption-token", [
         h.span(encryptionToken),
         (this.state.copied ? h.small("Copied.") : null),
@@ -75,8 +89,8 @@ export default class InviteUserOverlay extends React.Component {
             "Encryption Token",
             " over a ",
             h.strong("non-email channel"),
-            " (like Slack) is ideal since it provides multi-factor security, ",
-            " but email is ok in a pinch."
+            " (like Slack) is ideal since it provides multi-factor security. ",
+            " Using a separate email address also works."
           ]),
 
           h.li([

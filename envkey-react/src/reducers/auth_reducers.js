@@ -53,7 +53,8 @@ import {
 
   SELECT_ORG,
 
-  START_DEMO
+  START_DEMO,
+  SET_DEMO_DOWNLOAD_URL
 } from 'actions'
 import {decamelizeKeys} from 'xcase'
 
@@ -379,7 +380,11 @@ export const
     return state
   },
 
-  isDemo = (state = false, {type})=> type == START_DEMO ? true : state
+  isDemo = (state = false, {type})=> type == START_DEMO ? true : state,
+
+  demoDownloadUrl = (state = null, {type, payload})=> {
+    return type == SET_DEMO_DOWNLOAD_URL ? payload : state
+  }
 
 
 

@@ -15,6 +15,7 @@ import {
   SELECT_ACCOUNT,
   GRANT_ENV_ACCESS_REQUEST,
   START_DEMO,
+  SET_DEMO_DOWNLOAD_URL,
   RESET_SESSION
 } from './action_types'
 
@@ -56,6 +57,8 @@ export const
   ),
 
   startDemo = createAction(START_DEMO),
+
+  setDemoDownloadUrl = createAction(SET_DEMO_DOWNLOAD_URL),
 
   resetSession = createAction(RESET_SESSION)
 

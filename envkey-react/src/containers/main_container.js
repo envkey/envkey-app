@@ -17,7 +17,9 @@ import {
   getCurrentOrgSlug,
   getIsUpdatingSubscription,
   getStripeFormOpened,
-  getDecryptedAll
+  getDecryptedAll,
+  getIsDemo,
+  getDemoDownloadUrl
 } from 'selectors'
 import {
   appLoaded,
@@ -88,7 +90,8 @@ class Main extends React.Component {
   }
 
   _shouldShowTrialAlert(){
-    return this.props.currentUser.role == "org_owner" &&
+    return !this.props.isDemo &&
+           this.props.currentUser.role == "org_owner" &&
            this.props.currentOrg.trialing &&
            this.props.currentOrg.trialDaysRemaining < 15
   }
@@ -101,7 +104,7 @@ class Main extends React.Component {
     return [
       ("role-" + this.props.currentUser.role),
       (orgRoleIsAdmin(this.props.currentUser.role) ? "is-org-admin" : ""),
-      (this._shouldShowTrialAlert() ? "show-trial-alert" : "")
+      ((this._shouldShowTrialAlert() || this.props.isDemo) ? "show-bottom-alert" : "")
     ]
   }
 
@@ -125,6 +128,18 @@ class Main extends React.Component {
         {this.props.children}
 
         {this._renderTrialAlert()}
+
+        {this._renderDemoCTA()}
+      </div>
+    }
+  }
+
+  _renderDemoCTA(){
+    if (this.props.isDemo){
+      return <div className="bottom-alert demo-cta">
+        <div><span><strong>This is a live demo.</strong> You shouldn't enter any real secrets. To start a free trial, download the EnvKey App.</span></div>
+
+        <a className="button" href={this.props.demoDownloadUrl} target="_blank" >Download </a>
       </div>
     }
   }
@@ -132,10 +147,10 @@ class Main extends React.Component {
   _renderTrialAlert(){
     if (this._shouldShowTrialAlert()){
       if (this.state.willShowUpgradeForm || this.props.isUpdatingSubscription){
-        return <div className="trial-alert"><Spinner /></div>
+        return <div className="bottom-alert trial-alert"><Spinner /></div>
       }
 
-      return <div className="trial-alert">
+      return <div className="bottom-alert trial-alert">
         <div>{this._renderTrialAlertCopy()}</div>
 
         <button onClick={::this._onUpgradeSubscription}>Upgrade Now </button>
@@ -168,7 +183,9 @@ const mapStateToProps = (state, ownProps) => {
     permissions: getPermissions(state),
     auth: getAuth(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
-    stripeFormOpened: getStripeFormOpened(state)
+    stripeFormOpened: getStripeFormOpened(state),
+    isDemo: getIsDemo(state),
+    demoDownloadUrl: getDemoDownloadUrl(state)
   }
 }
 
