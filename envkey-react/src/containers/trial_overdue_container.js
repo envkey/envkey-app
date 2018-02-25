@@ -72,9 +72,9 @@ const TrialOverdue = ({
       let instructions
 
       if (currentUser.role == "org_owner"){
-        instructions = `To regain access, upgrade to the Business Tier for $4/user/month. `
+        instructions = `To regain access, upgrade to the ${currentOrg.businessPlan.name} for $${currentOrg.businessPlan.amount / 100}.00/user/month. `
       } else {
-        instructions = `To regain access, the org owner ${currentOrg.ownerName} should upgrade to the Business Tier. `
+        instructions = `To regain access, the org owner ${currentOrg.ownerName} should upgrade to the ${currentOrg.businessPlan.name}. `
       }
 
       return <p className="instructions">{instructions}</p>
@@ -93,7 +93,7 @@ const TrialOverdue = ({
         } else {
           return <div className="actions">
             {renderDowngradeAction()}
-            <button className="primary" onClick={upgradeSubscription}>Upgrade To Business Tier</button>
+            <button className="primary" onClick={upgradeSubscription}>Upgrade To {currentOrg.businessPlan.name}</button>
           </div>
         }
       }

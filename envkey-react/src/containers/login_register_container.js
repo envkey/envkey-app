@@ -197,11 +197,7 @@ class LoginRegister extends React.Component {
   _renderRegister(){
     return h.div(".register-form", [
 
-      h.div(".msg", [
-        h.p("A few more details are needed to create your organization."),
-      ]),
-
-      this._renderRegisterError(),
+      this._renderRegisterCopy(),
 
       h.form({onSubmit: ::this._onRegister}, [
         h.fieldset(".org-name", [
@@ -247,6 +243,7 @@ class LoginRegister extends React.Component {
             h.option("Google search"),
             h.option("HackerNews"),
             h.option("Reddit"),
+            h.option("Twitter"),
             h.option("Another website"),
             h.option("Facebook Ad"),
             h.option("Google Ad"),
@@ -292,9 +289,13 @@ class LoginRegister extends React.Component {
     }
   }
 
-  _renderRegisterError(){
+  _renderRegisterCopy(){
     if (this.props.authError){
-      return h.p(".error", [`Oops! We couldn't create your organization. Check your internet connection and try again. If it's still not working, contact support: support@envkey.com`])
+      return h.p(".error", [`Oops! That didn't work. Check your connection and try again. If it's still not working, contact support@envkey.com`])
+    } else {
+      return h.div(".msg", [
+        h.p("A few more details are needed to create your organization."),
+      ])
     }
   }
 

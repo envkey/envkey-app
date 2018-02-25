@@ -192,15 +192,14 @@ class Billing extends React.Component {
       ]
     } else if (this._isBusinessTier()){
       contents = [
-        h.h3("Business Tier"),
+        h.h3(this.props.businessPlan.name),
         h(BillingColumns, {columns: [
           [
             [`$${parseInt(this.props.subscription.amount / 100)}.00 USD / user / month`,
               [
-                "Unlimited users",
                 "Unlimited apps",
-                "Unilimited sub-environments",
-                "Unlimited ENVKEYs per environment"
+                "Unilimited environments",
+                "Unlimited ENVKEYs"
               ]
             ],
           ],
@@ -279,15 +278,14 @@ class Billing extends React.Component {
 
   _renderUpgrade(){
     const contents = [
-      h.h3("Business Tier"),
+      h.h3(),
       h(BillingColumns, {columns: [
         [
           [`$${parseInt(this.props.businessPlan.amount / 100)}.00 / user / month`,
             [
-              "Unlimited users",
               "Unlimited apps",
-              "Unlimited sub-environments",
-              "Unlimited ENVKEYs per environment"
+              "Unlimited environments",
+              "Unlimited ENVKEYs"
             ]
           ],
         ]
@@ -307,7 +305,7 @@ class Billing extends React.Component {
     if (this.state.willShowUpgradeForm){
       return h(Spinner)
     } else {
-      return h.button(".button", {onClick: ::this._onUpgrade}, "Upgrade To Business Tier")
+      return h.button(".button", {onClick: ::this._onUpgrade}, `Upgrade To ${this.props.businessPlan.name}`)
     }
   }
 
