@@ -89,8 +89,7 @@ export default class InviteUserOverlay extends React.Component {
             "Encryption Token",
             " over a ",
             h.strong("non-email channel"),
-            " (like Slack) is ideal since it provides multi-factor security. ",
-            " Using a separate email address also works."
+            " (like Slack, Twitter, Skype, or Facebook) is ideal since it provides multi-factor security."
           ]),
 
           h.li([
