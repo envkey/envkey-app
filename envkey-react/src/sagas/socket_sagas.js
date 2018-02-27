@@ -187,7 +187,7 @@ function *onSocketUpdateOrg(action){
   }
 
   // Subscription updated
-  const subscriptionUpdateTypes = ["upgrade_subscription", "cancel_subscription", "trial_ended", "trial_started"]
+  const subscriptionUpdateTypes = ["upgrade_subscription", "update_subscription", "cancel_subscription", "trial_ended", "trial_started"]
   if (actionType == "updated" && targetType == "Org" && meta && subscriptionUpdateTypes.includes(meta.updateType)){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     return

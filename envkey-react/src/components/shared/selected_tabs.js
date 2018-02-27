@@ -10,16 +10,20 @@ const config = {
   integration: ["integration", "Integrate", 52, 25],
   settings: ["settings", "Settings", 33, 33, {objectPermissionPath: ["updateSettings"]}],
   apps: ["apps", "Apps", 36, 32],
-  billing: ["billing", "Billing", 34, 23]
+  billing: ["billing", "Billing", 34, 23, {permissionFn: R.complement(R.prop('isDemo'))}]
 }
 
-const SelectedTabs = ({tabs, path, selectedTab, permissions, objectPermissions})=>{
-  const renderTab = ([action, label, imgW, imgH, {permissionPath, objectPermissionPath}={}], i)=>{
+const SelectedTabs = (props)=>{
+  const {tabs, path, selectedTab, permissions, objectPermissions, isDemo} = props
+
+  const renderTab = ([action, label, imgW, imgH, {permissionPath, objectPermissionPath, permissionFn}={}], i)=>{
     const selected = selectedTab.indexOf(action) == 0,
           className = [("tab-" + action), (selected ? "selected" : "")].join(" "),
-          hasPermission =
-            !((permissionPath && (!permissions || !R.path(permissionPath, permissions))) ||
-              (objectPermissionPath && (!objectPermissions || !R.path(objectPermissionPath, objectPermissions))))
+          hasPermission = !(
+            (permissionPath && (!permissions || !R.path(permissionPath, permissions))) ||
+            (objectPermissionPath && (!objectPermissions || !R.path(objectPermissionPath, objectPermissions))) ||
+            (permissionFn && !permissionFn(props))
+          )
 
     if (hasPermission){
       return <Link key={i}

@@ -116,7 +116,11 @@ export default class Routes extends React.Component {
 
         <Route path="/demo/:bs64props" component={RequiresConnection(BaseRoute(DemoLoginContainer))} />
 
+        <Route path="/demo" component={RequiresConnection(BaseRoute(DemoLoginContainer))} />
+
         <Route path="/accept_invite" component={RequiresConnection(BaseRoute(AcceptInviteContainer))} />
+
+        <Route path="/accept_invite/:inviteToken" component={RequiresConnection(BaseRoute(AcceptInviteContainer))} />
 
         <Route path="/invite_failed" component={RequiresConnection(BaseRoute(InviteFailedContainer))} />
 

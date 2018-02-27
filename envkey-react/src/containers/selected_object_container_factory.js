@@ -16,7 +16,8 @@ import {
   getDecryptPrivkeyErr,
   getDecryptAllErr,
   getSelectedObjectType,
-  getSelectedObjectId
+  getSelectedObjectId,
+  getIsDemo
 } from "selectors"
 import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
@@ -80,7 +81,7 @@ const SelectedObjectContainerFactory = ({
       }, [
         h.div(".transition-overlay", {className: (this.state.showTransitionOverlay ? "" : "hide")}),
         h(SelectedTabs, {
-          ...R.pick(["permissions"], this.props),
+          ...R.pick(["permissions", "isDemo"], this.props),
           objectPermissions: R.path(objectPermissionPath, obj),
           tabs,
           path,
@@ -94,12 +95,16 @@ const SelectedObjectContainerFactory = ({
     _renderContents(){
       const isAccountMenu = ["currentUser", "currentOrg"].includes(objectType)
 
+      if (this.props.isDemo && !this.props.decryptedAll){
+        return [h(DecryptLoader, {isDecrypting: true})]
+      }
+
       if(isAccountMenu || this.props.decryptedAll || this.props.isDecrypting){
         return [
           this._renderChildren(),
           (isAccountMenu ? null : h(DecryptLoader, this.props))
         ]
-      }  else {
+      } else {
         return [h(DecryptForm, {...this.props, onSubmit: this.props.decrypt})]
       }
     }
@@ -131,6 +136,7 @@ const SelectedObjectContainerFactory = ({
         [objectType]: obj,
         permissions: getPermissions(state),
         isDecrypting: getIsDecryptingAllForeground(state),
+        isDemo: getIsDemo(state),
         decryptedAll: getDecryptedAll(state),
         decryptPrivkeyErr: getDecryptPrivkeyErr(state),
         decryptAllErr: getDecryptAllErr(state),

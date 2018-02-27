@@ -93,8 +93,8 @@ function* onBillingCancelSubscription({payload}){
   let planId
 
   if (currentOrg.pricingVersion == 1 ){
-    planId = currentOrg.freePlan.id
-  } else if (currentOrg.pricingVersion == 2){
+    planId = currentOrug.freePlan.id
+  } else {
     planId = currentOrg.trialStartedAt ? currentOrg.trialPlan.id : currentOrg.preTrialPlan.id
   }
 

@@ -5,7 +5,8 @@ import {
   UPDATE_ORG_ROLE_REQUEST,
   UPDATE_ORG_OWNER_REQUEST,
   // REMOVE_SELF_FROM_ORG,
-  CREATE_ORG_REQUEST
+  CREATE_ORG_REQUEST,
+  GENERATE_DEMO_ORG_REQUEST,
 } from './action_types'
 import { createAction } from 'redux-actions'
 
@@ -25,4 +26,6 @@ export const
 
   // removeSelfFromOrg = createAction(REMOVE_SELF_FROM_ORG, R.always({}), R.pick(["newOwnerId"])),
 
-  createOrg = createAction(CREATE_ORG_REQUEST, (params)=> ({org: params}) )
+  createOrg = createAction(CREATE_ORG_REQUEST, (params)=> ({org: params}) ),
+
+  generateDemoOrg = createAction(GENERATE_DEMO_ORG_REQUEST)

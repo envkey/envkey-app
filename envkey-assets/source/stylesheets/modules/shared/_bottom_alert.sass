@@ -1,8 +1,9 @@
-.trial-alert
+.bottom-alert
   position: fixed
   bottom: 0px
-  left: 0 //$sidebar-width + 7px
-  width: 100% //calc(100% - #{$sidebar-width + 7px})
+  left: 0
+  width: 100%
+  min-width: $min-width
   background: hsl(0,0,10)
   box-sizing: border-box
   height: 65px
@@ -31,7 +32,7 @@
         color: lighten($lighter-blue, 8%)
         border-bottom: 1px solid rgba(lighten($lighter-blue, 8%), 0.8)
 
-  button
+  button, a.button
     background: #fff
     color: $darker-blue
 

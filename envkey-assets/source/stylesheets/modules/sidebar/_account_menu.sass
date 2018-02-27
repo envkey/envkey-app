@@ -117,6 +117,10 @@
       transition: background 0.15s ease-out
       cursor: pointer
 
+      &[disabled]
+        pointer-events: none
+        opacity: 0.5
+
       +safari-only
         font-weight: 400
 

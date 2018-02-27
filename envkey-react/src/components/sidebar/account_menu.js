@@ -6,6 +6,7 @@ const AccountMenu = ({
   currentUser,
   currentOrg,
   numOrgs,
+  isDemo,
   router,
   params,
   isOpen,
@@ -15,9 +16,10 @@ const AccountMenu = ({
 })=>{
 
   const
-    renderMenuRow = (label, path, img, onClick)=>{
-      return <Link to={path}
-                   onClick={onClick}
+    renderMenuRow = (label, path, img, opts={})=>{
+      return <Link to={opts.disabled ? "" : path}
+                   onClick={opts.disabled ? "" : opts.onClick}
+                   disabled={opts.disabled || false}
                    className={label.split(" ").join("-").toLowerCase() +
                              (router.location.pathname.includes(path) ? " selected" : "")}>
               <img src={imagePath(img)} />
@@ -70,27 +72,28 @@ const AccountMenu = ({
 
           {renderMenuRow("Switch Organization",
                          "/select_org",
-                         "refresh-black.png")}
+                         "refresh-black.png",
+                         {disabled: isDemo})}
 
           {renderMenuRow("Switch Account",
                          "/select_account",
                          "refresh-black.png",
-                         e => resetSession())}
+                         {onClick: e => resetSession(), disabled: isDemo})}
 
           {renderMenuRow("Accept Invitation",
                          "/accept_invite",
                          "airplane-black.svg",
-                         e => resetSession())}
+                         {onClick: e => resetSession(), disabled: isDemo})}
 
           <div className="spacer"/>
 
           {renderMenuRow("Sign Out",
                          "/sign_out",
                          "signout-black.png",
-                         e => {
+                         {onClick: e => {
                           e.preventDefault()
                           logout()
-                         })}
+                         }, disabled: isDemo})}
         </section>
       }
     }

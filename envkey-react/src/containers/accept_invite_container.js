@@ -19,24 +19,32 @@ import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
 import PasswordCopy from 'components/shared/password_copy'
 
-const initialState = {
+const initialState = ()=> ({
   emailVerificationCode: "",
   encryptionCode: "",
   password: "",
   passwordValid: false,
   passwordScore: null,
   passwordFeedback: null
-}
+})
 
 class AcceptInvite extends React.Component {
 
-  constructor(){
+  constructor(props){
     super()
-    this.state = initialState
+    this.state = initialState()
+
+    if (props.params.inviteToken){
+      this.state.emailVerificationCode = props.params.inviteToken
+    }
   }
 
   componentDidMount() {
-    if(this.refs.inviteToken)this.refs.inviteToken.focus()
+    if(this.refs.inviteToken && !this.state.emailVerificationCode){
+      this.refs.inviteToken.focus()
+    } else if (this.refs.encryptionToken){
+      this.refs.encryptionToken.focus()
+    }
   }
 
   _onSubmitPassword(e){
@@ -124,6 +132,7 @@ class AcceptInvite extends React.Component {
           ]),
           h.input({
             type: "password",
+            ref: "encryptionToken",
             placeholder: "Encryption Token",
             disabled: this.props.isLoadingInvite,
             value: this.state.encryptionCode,
@@ -143,7 +152,7 @@ class AcceptInvite extends React.Component {
   _renderLoadError(){
     return h.div(".load-invite-error", [
       h.p("This invitation is invalid or expired. EnvKey invitations are valid for 24 hours, and can only be loaded once."),
-      h.button({onClick: ()=> this.setState(initialState, this.props.onReset)}, "Go Back")
+      h.button({onClick: ()=> this.setState(initialState(), this.props.onReset)}, "Go Back")
     ])
   }
 
@@ -203,8 +212,9 @@ class AcceptInvite extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   return {
+    params: ownProps.params,
     inviteParams: getInviteParams(state),
     inviteParamsVerified: getInviteParamsVerified(state),
     inviteParamsInvalid: getInviteParamsInvalid(state),
