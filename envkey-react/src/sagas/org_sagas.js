@@ -72,6 +72,7 @@ const
   onGenerateDemoOrgRequest = apiSaga({
     authenticated: false,
     method: "post",
+    minDelay: 800,
     actionTypes: [GENERATE_DEMO_ORG_SUCCESS, GENERATE_DEMO_ORG_FAILED],
     urlFn: (action)=> "/orgs/generate_demo_org.json"
   })
