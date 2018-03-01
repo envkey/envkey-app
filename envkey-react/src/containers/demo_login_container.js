@@ -32,7 +32,7 @@ class DemoLoginContainer extends React.Component {
     return <OnboardOverlay className="demo-overlay">
       <div>
         <div className="onboard-auth-form">
-          <h1>Generating <em>Demo</em></h1>
+          <h1>Generating <em>Demo Org</em></h1>
           <form> <Spinner /> </form>
         </div>
       </div>
