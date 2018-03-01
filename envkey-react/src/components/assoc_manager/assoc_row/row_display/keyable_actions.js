@@ -17,6 +17,7 @@ export default function ({
   keyGeneratedAt,
   keyGeneratedById,
   envkey,
+  envkeyShort,
   passphrase,
   permissions,
   isCurrentUser=false,
@@ -68,9 +69,10 @@ export default function ({
         ]
       } else if (keyGeneratedAt){
         const user = isCurrentUser ? currentUser : getUserFn(keyGeneratedById),
-              fullName = user ? [user.firstName, user.lastName].join(" ") : "[deleted]"
+              name = user ? [user.firstName[0] + ".", user.lastName].join(" ") : "[deleted]"
         contents = [
-          h.span(".secondary", `${fullName} `),
+          h.span(".envkey-short", [h.strong(envkeyShort + "…")]),
+          h.span(".secondary", `・ ${name} `),
           h.span(".key-date", "・ " + twitterShortTs(keyGeneratedAt))
         ]
       } else {
