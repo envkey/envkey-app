@@ -12,18 +12,41 @@
     color: hsl(0,0,60)
     cursor: not-allowed
 
+  label
+    text-transform: uppercase
+    font-family: $condensed-font
+    font-weight: 500
+    font-size: 14px
+    color: hsl(0,0,70)
+
+
   fieldset
     > label
-      text-transform: uppercase
-      font-family: $condensed-font
-      font-weight: 500
-      font-size: 14px
       display: block
       margin-bottom: 15px
-      color: hsl(0,0,70)
 
     > span
       font-size: 14px
+
+    &.checkbox
+      border: 1px solid hsl(0,0,90)
+      box-sizing: border-box
+      padding: 10px
+
+      input
+        width: auto
+        float: right
+        display: inline-block
+        margin: 0
+        font-size: 20px
+        cursor: pointer
+
+      label
+        display: inline-block
+        width: 100%
+        cursor: pointer
+        margin: 0
+        line-height: 1
 
   .msg
     color: $dark-text
@@ -62,6 +85,11 @@
 
       &:not([disabled]):hover
         background: darken($darker-blue, 5%)
+
+    &.auto-submit
+      .small-loader
+        display: block
+        margin-top: 10px
 
   .update-password-form
     padding-bottom: 25px

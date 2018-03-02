@@ -1,6 +1,6 @@
 {
   "1.2.11": [
-    "A new changelog. Will soon be incorporated into the update process so you can see what's changed on every update.",
+    "A new changelog. Will soon be incorporated into the update process so you can see what's new on every update.",
     "First few characters of ENVKEY are shown for generated ENVKEYs to make it easier to keep track of them",
     "A per-app flag to enable/disable auto-capitalization",
     "Updates for new pricing structure (accounts created before 2018-02-21 unaffected)",

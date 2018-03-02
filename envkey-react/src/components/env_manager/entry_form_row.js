@@ -165,14 +165,14 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
           onEditCell: ()=> this.setState({editing: entryEditing}),
           onAddingEntry: ::this._addingEntry,
           onCommit: ({val})=> {
-            this.setState({entryKey: val.trim().toUpperCase()})
+            this.setState({entryKey: val})
             this._clearEditing()
           },
           onChange: (val)=> {
             let state = this.state
-            this.setState({entryKey: val.trim().toUpperCase()}, this._onChangeFn(state))
+            this.setState({entryKey: val}, this._onChangeFn(state))
           },
-          val: this.state.entryKey.toUpperCase(),
+          val: this.state.entryKey,
           isEditing: this._isEditingEntry(),
         })
       ]),

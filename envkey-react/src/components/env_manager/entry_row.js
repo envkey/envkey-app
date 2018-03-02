@@ -58,7 +58,7 @@ export default class EntryRow extends React.Component {
         h(entryCellClass, {
           ...this.props,
           environment: null,
-          val: entryKey.toUpperCase(),
+          val: entryKey,
           isUpdating: this.props.isUpdatingEntryFn(entryKey),
           isEditing: editing.entryKey === entryKey && editing.subEnvId == subEnvId && !editing.environment
         })
