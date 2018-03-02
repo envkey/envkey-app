@@ -169,7 +169,7 @@ const
     }
   },
 
-  onRenameObjectSuccess = function*({meta}){
+  onUpdateObjectSuccess = function*({meta}){
     if (meta.objectType == "app"){
       yield(put(decryptEnvs(meta)))
     }
@@ -183,7 +183,7 @@ export default function* objectSagas(){
     takeEvery(CREATE_OBJECT_REQUEST, onCreateObject),
     takeEvery(UPDATE_OBJECT_SETTINGS_REQUEST, onUpdateObjectSettings),
     takeEvery(RENAME_OBJECT_REQUEST, onRenameObject),
-    takeEvery(RENAME_OBJECT_SUCCESS, onRenameObjectSuccess),
+    takeEvery([RENAME_OBJECT_SUCCESS, UPDATE_OBJECT_SETTINGS_SUCCESS], onUpdateObjectSuccess),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
     takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
   ]

@@ -5,6 +5,7 @@ import {dispatchEnvUpdateRequest} from './helpers'
 import {
   getImportErrors,
   getImportActionsPending,
+  getEnvsWithMetaWithPending,
   getEnvsWithMetaWithPendingWithImports,
   getEnvUpdateId,
   getCurrentOrg,
@@ -26,9 +27,21 @@ import {
   updateEntryVal,
   importEnvironment,
   commitImportActions,
-  generateEnvUpdateId
+  generateEnvUpdateId,
+  updateObjectSettings
 } from "actions"
 import pluralize from 'pluralize'
+
+function* resolveAutoCaps(meta){
+  const {parentType, parentId} = meta,
+        envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
+        entries = allEntries(envsWithMeta),
+        allCaps = R.all(s => s.toUpperCase() == s)(entries)
+
+  if (!allCaps){
+    yield put(updateObjectSettings({objectType: parentType, targetId: parentId, params: {autoCaps: false}}))
+  }
+}
 
 function* dispatchCommitImportActions(meta){
   let envUpdateId = yield select(getEnvUpdateId(meta.parentId))
@@ -110,7 +123,9 @@ function* onCommitImportActions({meta}){
           currentOrg = yield select(getCurrentOrg),
           object = yield select(getObject(parentType, parentId))
 
+
     yield put({type: IMPORT_ALL_ENVIRONMENTS_SUCCESS, meta})
+    yield call(resolveAutoCaps, meta)
     yield put(push(`/${currentOrg.slug}/${pluralize(parentType)}/${object.slug}`))
   } else {
     yield put({type: IMPORT_ALL_ENVIRONMENTS_FAILED, meta, error:true, payload: resAction.payload})

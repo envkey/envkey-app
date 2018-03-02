@@ -19,7 +19,7 @@ export const
 
   getIsRenaming = (id, state)=> db.path("isRenaming", id)(state),
 
-  getIsUpdatingSettings = (id, state)=> db.path("isUpdatingSetings", id)(state),
+  getIsUpdatingSettings = (id, state)=> db.path("isUpdatingSettings", id)(state),
 
   getIsUpdatingOrgRole = (userId, state)=> db.path("isUpdatingOrgRole", userId)(state),
 
