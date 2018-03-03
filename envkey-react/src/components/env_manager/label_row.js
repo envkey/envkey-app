@@ -3,51 +3,100 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import {Link} from "react-router"
 import {imagePath} from "lib/ui"
+import {ImportEnvContainer} from 'containers'
 
-export default function({
-  parent,
-  envsWithMeta,
-  environments,
-  isSubEnvsLabel,
-  onOpenSubEnvs,
-  onCloseSubEnvs,
-  location,
-  params
-}) {
+export default class LabelRow extends React.Component {
 
-  const
-    locked = environment => parent.role == "development" && environment == "production",
+  constructor(props){
+    super(props)
+    this.state = { menuOpen: null, importOpen: null }
+  }
 
-    hasSubEnvs = environment => !R.isEmpty(R.pathOr({}, [environment, "@@__sub__"], envsWithMeta)),
+  _locked(environment){
+    return this.props.parent.role == "development" && environment == "production"
+  }
 
-    renderSubEnvsAction = (environment)=>{
-      if (!(parent.role == "development" && !hasSubEnvs(environment))){
-        if (isSubEnvsLabel){
-          return h(Link, {className: "close-subenvs", to: location.pathname.replace(new RegExp(`/${params.sub}/.*$`), "")}, [
-            h.i("←")
-          ])
-        } else {
-          return h(Link, {className: "open-subenvs", to: location.pathname + `/${environment}/first`}, [
-            h.img({src: imagePath("subenvs-zoom-white.svg")})
-          ])
-        }
-      }
-    },
+  _hasSubEnvs(environment){
+    return !R.isEmpty(R.pathOr({}, [environment, "@@__sub__"], this.props.envsWithMeta))
+  }
 
-    renderEnvLabel = (environment, i)=> {
-      return h.div(".label-cell", {
-        key: i,
-        className: `env-${environment} ${locked(environment) ? 'locked' : ''}`
-      }, [
-        renderSubEnvsAction(environment),
-        h.label([
-          locked(environment) ? h.img(".img-locked", {src: imagePath("padlock.svg")}) : "",
-          h.strong(environment)
+  _onToggleMenuFn(environment){
+    return ()=> {
+      this.setState({
+        menuOpen: (environment == this.state.menuOpen ? null : environment)
+      })
+    }
+  }
+
+  render(){
+    return h.div(".row.label-row", [
+      h.div(".cols", this.props.environments.map(::this._renderEnvLabel))
+    ])
+  }
+
+  _renderEnvLabel(environment, i){
+    return h.div(".label-cell", {
+      key: i,
+      className: `env-${environment} ${this._locked(environment) ? 'locked' : ''} ${environment == this.state.menuOpen ? 'menu-open' : ''}`
+    }, [
+      this._renderSubEnvsAction(environment),
+      h.label([
+        this._locked(environment) ? h.img(".img-locked", {src: imagePath("padlock.svg")}) : "",
+        h.strong(environment)
+      ]),
+      this._renderActionsToggle(environment),
+      this._renderActionsMenu(environment),
+
+      this._renderImporterModal(environment)
+    ])
+  }
+
+  _renderSubEnvsAction(environment){
+    const {parent, location, params, isSubEnvsLabel} = this.props
+
+    if (!(parent.role == "development" && !this._hasSubEnvs(environment))){
+      if (isSubEnvsLabel){
+        return h(Link, {className: "close-subenvs", to: location.pathname.replace(new RegExp(`/${params.sub}/.*$`), "")}, [
+          h.i("←")
         ])
+      } else {
+        return h(Link, {className: "open-subenvs", to: location.pathname + `/${environment}/first`}, [
+          h.img({src: imagePath("subenvs-zoom-white.svg")})
+        ])
+      }
+    }
+  }
+
+  _renderActionsToggle(environment){
+    if (!this._locked(environment) && !this.props.isSubEnvsLabel){
+      return h.span(".toggle-menu", {onClick: this._onToggleMenuFn(environment)}, [
+        h.i(["..."])
       ])
     }
+  }
 
-  return h.div(".row.label-row",
-    [h.div(".cols", environments.map(renderEnvLabel))]
-  )
+  _renderActionsMenu(environment){
+
+    return h.ul(".actions-menu", [
+
+      // h.li([h.span("Versions")]),
+
+      h.li({
+        onClick: e => this.setState({importOpen: environment, menuOpen: null})
+      },[h.span("Import")]),
+
+      h.li([h.span("Export")])
+
+    ])
+  }
+
+  _renderImporterModal(environment){
+    if (this.state.importOpen == environment){
+      return h(ImportEnvContainer, {
+        environment,
+        app: this.props.parent,
+        onClose: ()=> this.setState({importOpen: null})
+      })
+    }
+  }
 }

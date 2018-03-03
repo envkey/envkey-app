@@ -6,7 +6,7 @@
   top: 0
   width: calc(100% - (#{$sidemenu-width} + (25% - #{$sidemenu-width / 4})))
   min-width: 561px
-  z-index: 4
+  z-index: 5
   background: none
   white-space: nowrap
   left: calc(#{$sidemenu-width} + (25% - #{$sidemenu-width / 4}))
@@ -70,13 +70,17 @@
       position: absolute
 
     &.env-development
-      background: darken($darker-blue, 3.5%)
+      &, .actions-menu
+        background: darken($darker-blue, 3.5%)
 
     &.env-staging
-      background: lighten($darker-blue, 3.5%)
+      &, .actions-menu
+        background: lighten($darker-blue, 3.5%)
 
     &.env-production
-      background: $dark-blue
+      &, .actions-menu
+        background: $dark-blue
+
       label > strong
         margin-left: 20px
 
@@ -114,6 +118,72 @@
         img, i
           opacity: 1
 
+    .toggle-menu
+      display: block
+      position: absolute
+      z-index: 2
+      width: 45px
+      border-left: 1px solid rgba(#000, 0.1)
+      height: 100%
+      text-align: center
+      top: 0
+      right: 0
+      background: rgba(#fff, 0.0)
+      transition: background 0.1s
+      cursor: pointer
+
+      i
+        cursor: pointer
+        color: #fff
+        font-size: 25px
+        opacity: 0.85
+        transition: opacity 0.1s
+
+      &:hover
+        background: rgba(#fff, 0.1)
+        img, i
+          opacity: 1
+
+    &.menu-open .toggle-menu
+      background: $light-blue
+      i
+        opacity: 1
+
+    .actions-menu
+      opacity: 0
+      transition: opacity 0.1s
+      pointer-events: none
+      position: absolute
+      top: 100%
+      width: calc(100% - 1px)
+
+      border-bottom: 1px solid hsl(0,0,95)
+      border-left: 1px solid hsl(0,0,95)
+      border-right: 1px solid hsl(0,0,95)
+
+      box-shadow: 0 0 1px rgba(#000,0.25)
+
+      li
+        background: rgba(#000, 0.25)
+        padding: 12px
+        color: rgba(#fff, 0.9)
+        font-family: $condensed-font
+        font-size: 14px
+        font-weight: 300
+        cursor: pointer
+        text-transform: uppercase
+
+        &:not(:last-of-type)
+          border-bottom: 1px solid rgba(#fff, 0.5)
+
+        &:hover
+          background: rgba(#000, 0.35)
+          color: rgba(#fff, 1)
+
+
+    &.menu-open .actions-menu
+      opacity: 1
+      pointer-events: all
 
 
 // .app-role-development .label-row

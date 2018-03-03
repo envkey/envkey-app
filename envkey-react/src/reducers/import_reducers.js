@@ -2,8 +2,9 @@ import {isClearSessionAction} from './helpers'
 import R from 'ramda'
 import {
   IMPORT_ALL_ENVIRONMENTS,
-  IMPORT_ENVIRONMENT,
-  IMPORT_ENVIRONMENT_FAILED,
+  IMPORT_SINGLE_ENVIRONMENT,
+  QUEUE_ENVIRONMENT_IMPORT,
+  QUEUE_ENVIRONMENT_IMPORT_FAILED,
   COMMIT_IMPORT_ACTIONS,
   CREATE_ENTRY,
   UPDATE_ENTRY_VAL
@@ -54,10 +55,11 @@ export const
     }
 
     switch(action.type){
-      case IMPORT_ENVIRONMENT_FAILED:
+      case QUEUE_ENVIRONMENT_IMPORT_FAILED:
         return R.assocPath([action.meta.parentId, action.meta.environment], action.payload, state)
 
-      case IMPORT_ENVIRONMENT:
+      case QUEUE_ENVIRONMENT_IMPORT:
+      case IMPORT_SINGLE_ENVIRONMENT:
         return R.pipe(
           R.dissocPath([action.meta.parentId, action.payload.environment]),
           R.reject(R.isEmpty)

@@ -14,18 +14,21 @@ import {
 } from 'selectors'
 import { allEntries } from 'lib/env/query'
 import {
-  IMPORT_ENVIRONMENT,
-  IMPORT_ENVIRONMENT_SUCCESS,
-  IMPORT_ENVIRONMENT_FAILED,
+  QUEUE_ENVIRONMENT_IMPORT,
+  QUEUE_ENVIRONMENT_IMPORT_SUCCESS,
+  QUEUE_ENVIRONMENT_IMPORT_FAILED,
   IMPORT_ALL_ENVIRONMENTS,
   IMPORT_ALL_ENVIRONMENTS_SUCCESS,
   IMPORT_ALL_ENVIRONMENTS_FAILED,
+  IMPORT_SINGLE_ENVIRONMENT,
+  IMPORT_SINGLE_ENVIRONMENT_SUCCESS,
+  IMPORT_SINGLE_ENVIRONMENT_FAILED,
   COMMIT_IMPORT_ACTIONS,
   UPDATE_ENV_SUCCESS,
   UPDATE_ENV_FAILED,
   createEntry,
   updateEntryVal,
-  importEnvironment,
+  queueEnvironmentImport,
   commitImportActions,
   generateEnvUpdateId,
   updateObjectSettings
@@ -34,7 +37,13 @@ import pluralize from 'pluralize'
 
 function* resolveAutoCaps(meta){
   const {parentType, parentId} = meta,
-        envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
+        object = yield select(getObject(parentType, parentId))
+
+  if (object.autoCaps == false){
+    return
+  }
+
+  const envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
         entries = allEntries(envsWithMeta),
         allCaps = R.all(s => s.toUpperCase() == s)(entries)
 
@@ -53,6 +62,10 @@ function* dispatchCommitImportActions(meta){
   const importActionsPending = yield select(getImportActionsPending(meta.parentId))
 
   yield put(commitImportActions({...meta, importActionsPending, envUpdateId}))
+
+  const resAction = yield take([UPDATE_ENV_SUCCESS, UPDATE_ENV_FAILED])
+
+  return resAction
 }
 
 function* onImportEnvironment({
@@ -90,52 +103,82 @@ function* onImportEnvironment({
     }
   }
 
-  yield put({type: IMPORT_ENVIRONMENT_SUCCESS, meta})
+  yield put({type: QUEUE_ENVIRONMENT_IMPORT_SUCCESS, meta})
 }
 
 function* onImportAllEnvironments({meta, payload: {parsedByEnvironment}}){
   for (let environment in parsedByEnvironment){
     let parsed = parsedByEnvironment[environment]
-    yield put(importEnvironment({...meta, parsed, environment, noCommit: true}))
-    yield take([IMPORT_ENVIRONMENT_SUCCESS, IMPORT_ENVIRONMENT_FAILED])
+    yield put(queueEnvironmentImport({...meta, parsed, environment }))
+    yield take([QUEUE_ENVIRONMENT_IMPORT_SUCCESS, QUEUE_ENVIRONMENT_IMPORT_FAILED])
   }
 
   const importErrors = yield select(getImportErrors(meta.parentId))
 
   if (!importErrors || R.isEmpty(importErrors)){
-    yield call(dispatchCommitImportActions, meta)
+    const commitRes = yield call(dispatchCommitImportActions, meta)
+
+    if (commitRes.error){
+      yield put({type: IMPORT_ALL_ENVIRONMENTS_FAILED, meta, error: true, payload: resAction.payload})
+    } else {
+      const {parentType, parentId} = meta,
+            currentOrg = yield select(getCurrentOrg),
+            object = yield select(getObject(parentType, parentId))
+
+      yield put({type: IMPORT_ALL_ENVIRONMENTS_SUCCESS, meta})
+      yield call(resolveAutoCaps, meta)
+      yield put(push(`/${currentOrg.slug}/${pluralize(parentType)}/${object.slug}`))
+    }
+
   } else {
     yield put({
       meta,
       type: IMPORT_ALL_ENVIRONMENTS_FAILED,
-      error: true
+      error: true,
+      payload: importErrors
+    })
+  }
+}
+
+function* onImportSingleEnvironment({meta, payload: {parsed, environment}}){
+  yield put(queueEnvironmentImport({...meta, parsed, environment }))
+  yield take([QUEUE_ENVIRONMENT_IMPORT_SUCCESS, QUEUE_ENVIRONMENT_IMPORT_FAILED])
+
+  const importErrors = yield select(getImportErrors(meta.parentId))
+
+  if (!importErrors || R.isEmpty(importErrors)){
+    const commitRes = yield call(dispatchCommitImportActions, meta)
+
+    if (commitRes.error){
+      yield put({type: IMPORT_SINGLE_ENVIRONMENT_FAILED, meta, error: true, payload: resAction.payload})
+    } else {
+      const {parentType, parentId} = meta,
+            currentOrg = yield select(getCurrentOrg),
+            object = yield select(getObject(parentType, parentId))
+
+      yield put({type: IMPORT_SINGLE_ENVIRONMENT_SUCCESS, meta})
+      yield call(resolveAutoCaps, meta)
+    }
+
+  } else {
+    yield put({
+      meta,
+      type: IMPORT_SINGLE_ENVIRONMENT_FAILED,
+      error: true,
+      payload: importErrors
     })
   }
 }
 
 function* onCommitImportActions({meta}){
   yield call(dispatchEnvUpdateRequest, {...meta, skipDelay: true})
-
-  const resAction = yield take([UPDATE_ENV_SUCCESS, UPDATE_ENV_FAILED])
-
-  if(resAction.type == UPDATE_ENV_SUCCESS){
-    const {parentType, parentId} = meta,
-          currentOrg = yield select(getCurrentOrg),
-          object = yield select(getObject(parentType, parentId))
-
-
-    yield put({type: IMPORT_ALL_ENVIRONMENTS_SUCCESS, meta})
-    yield call(resolveAutoCaps, meta)
-    yield put(push(`/${currentOrg.slug}/${pluralize(parentType)}/${object.slug}`))
-  } else {
-    yield put({type: IMPORT_ALL_ENVIRONMENTS_FAILED, meta, error:true, payload: resAction.payload})
-  }
 }
 
 export default function* importSagas(){
   yield [
     takeEvery(IMPORT_ALL_ENVIRONMENTS, onImportAllEnvironments),
-    takeEvery(IMPORT_ENVIRONMENT, onImportEnvironment),
+    takeEvery(IMPORT_SINGLE_ENVIRONMENT, onImportSingleEnvironment),
+    takeEvery(QUEUE_ENVIRONMENT_IMPORT, onImportEnvironment),
     takeEvery(COMMIT_IMPORT_ACTIONS, onCommitImportActions)
   ]
 }

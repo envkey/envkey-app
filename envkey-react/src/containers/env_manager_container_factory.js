@@ -44,7 +44,8 @@ import {
   getIsUpdatingOutdatedEnvs,
   getIsRebasingOutdatedEnvs,
   getDidOnboardImport,
-  getCurrentUserEnvironmentsAssignableForApp
+  getCurrentUserEnvironmentsAssignableForApp,
+  getIsImportingAnyEnvironment
 } from 'selectors'
 import { allEntries } from 'lib/env/query'
 import EnvManager from 'components/env_manager'
@@ -93,6 +94,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
         isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(appId, state),
         isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(appId, state),
         environmentsAssignable: getCurrentUserEnvironmentsAssignableForApp(appId, state),
+        isImportingAnyEnvironment: getIsImportingAnyEnvironment(appId, state),
         environments,
         parent,
         parentType
