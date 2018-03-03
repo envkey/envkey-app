@@ -1,6 +1,8 @@
 const electron = require("electron"),
       {clipboard, remote, ipcRenderer, shell} = electron,
-      updater = remote.require("electron-simple-updater")
+      {dialog} = electron.remote,
+      updater = remote.require("electron-simple-updater"),
+      fs = require('fs')
 
 window.copy = s => {
   clipboard.writeText(s)
@@ -10,3 +12,5 @@ window.copy = s => {
 window.ipc = ipcRenderer
 window.updater = updater
 window.shell = shell
+window.dialog = dialog
+window.fs = fs

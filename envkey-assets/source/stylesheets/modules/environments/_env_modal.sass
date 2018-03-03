@@ -1,0 +1,56 @@
+.environments .env-modal
+  .bg
+    +overlay
+    background: rgba(#000, 0.9)
+    cursor: pointer
+
+  form
+    z-index: 6
+    border-radius: 2px
+    padding: 25px
+    background: $dark-bg-gradient
+    width: 50%
+    position: fixed
+    top: 50%
+    left: 50%
+    transform: translate(-50%,-50%)
+    box-sizing: border-box
+
+    .close
+      position: absolute
+      top: 25px
+      left: 25px
+      color: rgba(#fff, 0.7)
+      font-size: 22px
+      padding-right: 25px
+      cursor: pointer
+
+      &:hover
+        color: rgba(#fff, 1)
+
+    h3
+      color: #fff
+      font-family: $condensed-font
+      font-size: 20px
+      text-transform: uppercase
+      margin-bottom: 25px
+      width: 100%
+      text-align: center
+
+      em
+        color: $light-orange
+
+    fieldset
+      padding: 10px 0
+      margin-bottom: 20px
+
+      select
+        float: right
+
+    label
+      width: auto
+      position: static
+      font-size: 16px
+      color: rgba(#fff, 0.9)
+
+

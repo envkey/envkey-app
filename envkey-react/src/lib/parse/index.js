@@ -64,6 +64,26 @@ export const
     if(parsedDotenv && !R.isEmpty(parsedDotenv))return parsedDotenv
 
     return null
+  },
+
+  toYaml = obj => yaml.safeDump(JSON.parse(JSON.stringify(obj)), {schema: yaml.FAILSAFE_SCHEMA}),
+
+  toDotEnv = obj => {
+    let s = ""
+    for (let k in obj){
+      if (!obj[k] && obj[k] != "") continue
+
+      if (s){
+        s += "\n"
+      }
+      s += `${k}=`
+      if (obj[k] === ""){
+        s += ''
+      } else {
+        s += `'${obj[k].replace("'", "\\'")}'`
+      }
+    }
+    return s
   }
 
 

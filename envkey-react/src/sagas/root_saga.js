@@ -10,7 +10,8 @@ const sagaFiles = [
   "crypto",
   "import",
   "invite",
-  "billing"
+  "billing",
+  "export"
 ]
 
 export default function* rootSaga(){

@@ -3,13 +3,15 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import {Link} from "react-router"
 import {imagePath} from "lib/ui"
-import {ImportEnvContainer} from 'containers'
+import {ImportEnvContainer, ExportEnvContainer} from 'containers'
+import {appRoleIsAdmin} from 'lib/roles'
+import isElectron from 'is-electron'
 
 export default class LabelRow extends React.Component {
 
   constructor(props){
     super(props)
-    this.state = { menuOpen: null, importOpen: null }
+    this.state = { menuOpen: null, importOpen: null, exportOpen: null }
   }
 
   _locked(environment){
@@ -47,7 +49,8 @@ export default class LabelRow extends React.Component {
       this._renderActionsToggle(environment),
       this._renderActionsMenu(environment),
 
-      this._renderImporterModal(environment)
+      this._renderImporterModal(environment),
+      this._renderExporterModal(environment)
     ])
   }
 
@@ -85,9 +88,17 @@ export default class LabelRow extends React.Component {
         onClick: e => this.setState({importOpen: environment, menuOpen: null})
       },[h.span("Import")]),
 
-      h.li([h.span("Export")])
+      this._renderExportAction(environment)
 
     ])
+  }
+
+  _renderExportAction(environment){
+    if (isElectron() && appRoleIsAdmin(this.props.parent.role)){
+      return h.li({
+        onClick: e => this.setState({exportOpen: environment, menuOpen: null})
+      },[h.span("Export")])
+    }
   }
 
   _renderImporterModal(environment){
@@ -96,6 +107,16 @@ export default class LabelRow extends React.Component {
         environment,
         app: this.props.parent,
         onClose: ()=> this.setState({importOpen: null})
+      })
+    }
+  }
+
+  _renderExporterModal(environment){
+    if (this.state.exportOpen == environment){
+      return h(ExportEnvContainer, {
+        environment,
+        app: this.props.parent,
+        onClose: ()=> this.setState({exportOpen: null})
       })
     }
   }
