@@ -56,7 +56,7 @@ class ImportEnv extends React.Component {
   }
 
   render(){
-    return h.div(".import-env", [
+    return h.div(".env-modal.import-env", [
       h.div(".bg", {onClick: this.props.onClose}),
       h.form([
         this._renderClose(),
