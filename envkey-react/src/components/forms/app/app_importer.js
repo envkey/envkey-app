@@ -13,8 +13,7 @@ export default class AppImporter extends React.Component {
       tab: props.environments[0],
       textByEnvironment: {},
       parsedByEnvironment: {},
-      validByEnvironment: {},
-      format: "env"
+      validByEnvironment: {}
     }
   }
 

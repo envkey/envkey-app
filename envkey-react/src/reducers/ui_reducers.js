@@ -60,9 +60,9 @@ import {
 
   SOCKET_UPDATE_ENVS,
 
-  IMPORT_ENVIRONMENT,
-  IMPORT_ENVIRONMENT_SUCCESS,
-  IMPORT_ENVIRONMENT_FAILED,
+  IMPORT_SINGLE_ENVIRONMENT,
+  IMPORT_SINGLE_ENVIRONMENT_SUCCESS,
+  IMPORT_SINGLE_ENVIRONMENT_FAILED,
 
   IMPORT_ALL_ENVIRONMENTS,
   IMPORT_ALL_ENVIRONMENTS_SUCCESS,
@@ -410,11 +410,11 @@ export const
     }
 
     switch(action.type){
-      case IMPORT_ENVIRONMENT:
+      case IMPORT_SINGLE_ENVIRONMENT:
         return R.assocPath([action.meta.parentId, action.payload.environment], true, state)
 
-      case IMPORT_ENVIRONMENT_SUCCESS:
-      case IMPORT_ENVIRONMENT_FAILED:
+      case IMPORT_SINGLE_ENVIRONMENT_SUCCESS:
+      case IMPORT_SINGLE_ENVIRONMENT_FAILED:
         return R.pipe(
           R.dissocPath([action.meta.parentId, action.meta.environment]),
           R.reject(R.isEmpty)
