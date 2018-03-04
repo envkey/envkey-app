@@ -3,6 +3,7 @@
 echo "Cleaning build dirs"
 rm -rf envkey-react/build/*
 rm -rf envkey-assets/build/*
+rm -rf envkey-assets/source/javascripts/*
 echo "Running webpack..."
 (cd envkey-react && webpack --config webpack.config.build.js --progress)
 echo "Copying js output into middleman source"
