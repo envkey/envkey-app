@@ -1,9 +1,14 @@
 const updater = require('electron-simple-updater'),
-      {dialog, BrowserWindow} = require('electron'),
-      logger = require('electron-log')
+      {dialog, BrowserWindow, ipcMain} = require('electron'),
+      logger = require('electron-log'),
+      url = require('url'),
+      path = require('path'),
+      isDev = require('electron-is-dev')
 
 let versionAvailable,
     versionDownloaded,
+    mainWin,
+    updaterWin,
     checkingUpdates = false
 
 logger.transports.file.level = 'info'
@@ -26,21 +31,71 @@ const
   },
 
   promptRestart = ()=> {
-    let choice = dialog.showMessageBox({
-      type: 'question',
-      buttons: ['Yes', 'No'],
-      title: 'Confirm',
-      message: `EnvKey has auto-updated to v${versionDownloaded}. Do you want to restart with the latest version?`
+    openMainUpdater()
+  },
+
+  openMainUpdater = ()=> {
+    updaterWin = new BrowserWindow({
+      width: 500,
+      height: 500,
+      parent: mainWin,
+      center: true,
+      title: "EnvKey Auto-Update",
+      backgroundColor: "#222",
+      // modal: true,
+      show: false,
+      webPreferences: {
+        preload: path.join(__dirname, "..", 'preload.js')
+      }
     })
 
-    if(choice === 0){
-      updater.quitAndInstall()
+    updaterWin.params = {versionDownloaded}
+
+    updaterWin.on('page-title-updated', e => e.preventDefault())
+
+    updaterWin.loadURL(url.format({
+      pathname: path.join(__dirname, "..", (isDev ? 'main_updater.dev.html' : 'main_updater.production.html')),
+      protocol: 'file:',
+      slashes: true,
+    }))
+
+    if (isDev){
+      // Open the DevTools.
+      updaterWin.webContents.openDevTools()
     }
+
+    updaterWin.webContents.on('did-finish-load', ()=> {
+      updaterWin.webContents.send('version-downloaded', versionAvailable)
+    })
+
+    ipcMain.on("main-updater-version-received", ()=>{
+      updaterWin.show()
+    })
+
+    ipcMain.on('main-updater-closed', ()=> {
+      updaterWin.close()
+    })
+
+    ipcMain.on('main-updater-restart', ()=> {
+      updaterWin.close()
+      updater.quitAndInstall()
+    })
+
+    updaterWin.on('close', ()=> {
+      updaterWin = null
+    })
+
+    mainWin.on('closed', () => {
+      mainWin = null
+      if(updaterWin)updaterWin.close()
+    })
   }
 
 module.exports = {
 
-  listenUpdater: ()=>{
+  listenUpdater: (win)=>{
+    mainWin = win
+
     if(checkingUpdates)return
 
     updater.on('update-available', onUpdateAvailable)
@@ -55,3 +110,5 @@ module.exports = {
     checkingUpdates = true
   }
 }
+
+

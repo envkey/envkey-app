@@ -8,7 +8,6 @@ var plugins = [
   new EnvkeyWebpackPlugin({
     dotEnvFile: '.env.development',
     permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"],
-
   })
 ];
 
@@ -19,6 +18,10 @@ module.exports =  {
   output: { filename: '[name].js', publicPath: "http://localhost:8080/"},
   module: {
     loaders: [
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -34,7 +37,8 @@ module.exports =  {
       'webpack/hot/only-dev-server',
       "./src/index.js"
     ],
-    "stripe_card": "./src/stripe_card.js"
+    "stripe_card": "./src/stripe_card.js",
+    "main_updater": "./src/main_updater.js"
   },
   resolve: { root: path.join(projectRoot, "src"), modulesDirectories: [path.join(projectRoot,"node_modules")] },
   plugins: plugins,

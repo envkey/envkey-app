@@ -60,6 +60,10 @@ module.exports =  {
   module: {
     loaders: [
       {
+        test: /\.json$/,
+        loader: 'json-loader'
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         loaders: [
@@ -70,7 +74,8 @@ module.exports =  {
   },
   entry: {
     "index": "./src/index.js",
-    "stripe_card": "./src/stripe_card.js"
+    "stripe_card": "./src/stripe_card.js",
+    "main_updater": "./src/main_updater.js"
   },
   resolve: { root: path.resolve("./src"), modulesDirectories: [path.resolve("./node_modules")] },
   plugins: plugins

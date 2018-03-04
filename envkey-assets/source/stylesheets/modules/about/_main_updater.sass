@@ -1,0 +1,81 @@
+.main-updater-window
+  background: $dark-bg
+  &, #root
+    height: 100%
+    width: 100%
+
+.main-updater
+  height: 100%
+  width: 100%
+  text-align: center
+
+  header
+    border-bottom: 1px solid rgba(#000, 0.4)
+    height: 80px
+
+    .logo
+      height: 100%
+      width: 100%
+
+      img
+        width: 140px
+
+  h1
+    width: 100%
+    font-family: $condensed-font
+    font-size: 26px
+    font-weight: 100
+    color: #fff
+    font-weight: 200
+    padding: 25px 0 20px
+    border-top: 1px solid rgba(#fff, 0.1)
+
+    em
+      color: $light-orange
+
+  p
+    color: rgba(#fff, 0.9)
+    margin-bottom: 10px
+    font-size: 14px
+
+    strong
+      font-weight: 600
+      color: $lighter-blue
+
+  .changelog-container
+    margin: 25px 0
+    padding: 20px 0
+    width: 100%
+    box-sizing: border-box
+    background: rgba(#000, 0.2)
+
+  .changelog
+    height: 160px
+    overflow-y: auto
+    text-align: left
+    padding-left: 30px
+    padding-right: 30px
+
+    ul
+      list-style: disc
+      width: 100%
+
+    li
+      color: #fff
+      margin-bottom: 8px
+      line-height: 140%
+      font-size: 13px
+
+  .actions
+    button
+      background: rgba(#000, 0.0)
+      border: 1px solid rgba(#fff, 0.7)
+      color: #fff
+      width: 175px
+
+      &:hover
+        background: rgba(#000, 0.7)
+
+      &.close
+        margin-right: 25px
+

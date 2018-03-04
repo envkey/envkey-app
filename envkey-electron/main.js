@@ -8,10 +8,6 @@ const
   {listenUpdater} = require('./main-process/updates'),
   {app, BrowserWindow, ipcMain} = electron
 
-
-// Start auto-update listener
-listenUpdater()
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win, stripeWin
@@ -55,6 +51,8 @@ function createWindow () {
     win = null
     if(stripeWin)stripeWin.close()
   })
+
+  listenUpdater(win)
 }
 
 function createStripeWindow(json){
@@ -88,13 +86,15 @@ function createStripeWindow(json){
 
   if (isDev){
     // Open the DevTools.
-    stripeWin.webContents.openDevTools()
+    // stripeWin.webContents.openDevTools()
   }
 
   stripeWin.on('closed', () => {
     if(win)win.webContents.send("stripeFormClosed")
     stripeWin = null
   })
+
+
 }
 
 // This method will be called when Electron has finished

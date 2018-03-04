@@ -1,11 +1,14 @@
 {
-  "1.2.11": [
-    "A new changelog. Will soon be incorporated into the update process so you can see what's new on every update.",
+  "1.3.0": [
+    "A new changelog",
+    "A new updater that shows changes for latest version when prompting for restart",
+    "Import config into an existing app",
+    "App admins can export an environment to a .env, .yaml, or .json file",
     "First few characters of ENVKEY are shown for generated ENVKEYs to make it easier to keep track of them",
-    "A per-app flag to enable/disable auto-capitalization",
+    "A per-app flag to enable/disable auto-capitalization (disabled on import if var names aren't all caps)",
+    "Truncate Encryption Token when inviting collaborators so the whole thing isn't visible",
     "Updates for new pricing structure (accounts created before 2018-02-21 unaffected)",
     "Web demo mode for new live demo (linked from landing page)",
-    "Truncate Encryption Token when inviting collaborators so the whole thing isn't visible",
     "Some styling and copy tweaks"
   ]
 }
