@@ -3,10 +3,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import R from 'ramda'
 import { exportEnvironment } from 'actions'
-import {
-
-} from 'selectors'
-
+import isElectron from 'is-electron'
 
 class ExportEnv extends React.Component {
 
@@ -53,11 +50,15 @@ class ExportEnv extends React.Component {
   }
 
   _renderSubmit(){
-    return h.div(".actions", [
-      h.button({
-        onClick: ::this._onSubmit
-      }, 'Export')
-    ])
+    if (isElectron()){
+      return h.div(".actions", [
+        h.button({
+          onClick: ::this._onSubmit
+        }, 'Export')
+      ])
+    } else {
+      return h.p(".desktop-only", "Exports are only available in the EnvKey App.")
+    }
   }
 
   _renderClose(){

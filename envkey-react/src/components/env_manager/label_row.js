@@ -5,13 +5,34 @@ import {Link} from "react-router"
 import {imagePath} from "lib/ui"
 import {ImportEnvContainer, ExportEnvContainer} from 'containers'
 import {appRoleIsAdmin} from 'lib/roles'
-import isElectron from 'is-electron'
+import traversty from 'traversty'
 
 export default class LabelRow extends React.Component {
 
   constructor(props){
     super(props)
     this.state = { menuOpen: null, importOpen: null, exportOpen: null }
+  }
+
+  componentDidMount() {
+    if(super.componentDidMount)super.componentDidMount()
+    document.body.addEventListener("click", ::this._onBodyClick)
+  }
+
+  componentWillUnmount() {
+    if(super.componentWillUnmount)super.componentWillUnmount()
+    document.body.removeEventListener("click", ::this._onBodyClick)
+  }
+
+  _onBodyClick(e){
+    const tg = traversty(e.target),
+          shouldClose = this.state.menuOpen &&
+                        !tg.closest(".actions-menu").length &&
+                        !tg.closest(".toggle-menu").length
+
+    if (shouldClose){
+      this.setState({menuOpen: null})
+    }
   }
 
   _locked(environment){
@@ -94,7 +115,7 @@ export default class LabelRow extends React.Component {
   }
 
   _renderExportAction(environment){
-    if (isElectron() && appRoleIsAdmin(this.props.parent.role)){
+    if (appRoleIsAdmin(this.props.parent.role)){
       return h.li({
         onClick: e => this.setState({exportOpen: environment, menuOpen: null})
       },[h.span("Export")])
