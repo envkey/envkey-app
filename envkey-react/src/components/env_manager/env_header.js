@@ -45,7 +45,12 @@ export default function({parentType,
         onFilter,
         onToggleFilter,
         value: filter,
-        placeholder: "Filter by variable name…"
+        placeholder: "Filter by variable name…",
+        onKeyDown: (e)=> {
+          if (e.keyCode == 27){
+            onToggleFilter()
+          }
+        }
       })
     }
 
