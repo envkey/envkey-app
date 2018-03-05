@@ -6,7 +6,8 @@ export default function({
   placeholder,
   value,
   onFilter,
-  onToggleFilter
+  onToggleFilter,
+  onKeyDown
 }){
   return h.div(".prefixed-input.filter", [
     h.span({
@@ -15,7 +16,12 @@ export default function({
     h.input({
       value,
       placeholder: (placeholder || "Type here to filter…"),
-      onChange: (e)=> onFilter(e.target.value)
+      onChange: (e)=> onFilter(e.target.value),
+      onKeyDown: (e)=> {
+        if (onKeyDown){
+          onKeyDown(e)
+        }
+      }
     })
   ])
 }
