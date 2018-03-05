@@ -42,7 +42,7 @@ const
       center: true,
       title: "EnvKey Auto-Update",
       backgroundColor: "#222",
-      // modal: true,
+      modal: true,
       show: false,
       webPreferences: {
         preload: path.join(__dirname, "..", 'preload.js')
@@ -73,12 +73,16 @@ const
     })
 
     ipcMain.on('main-updater-closed', ()=> {
-      updaterWin.close()
+      updaterWin.hide()
     })
 
     ipcMain.on('main-updater-restart', ()=> {
       updaterWin.close()
       updater.quitAndInstall()
+    })
+
+    updaterWin.on('hide', ()=> {
+      updaterWin = null
     })
 
     updaterWin.on('close', ()=> {
@@ -87,7 +91,7 @@ const
 
     mainWin.on('closed', () => {
       mainWin = null
-      if(updaterWin)updaterWin.close()
+      udpaterWin = null
     })
   }
 
