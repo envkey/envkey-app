@@ -5,13 +5,16 @@ import { imagePath } from "lib/ui"
 export default function({
   placeholder,
   value,
-  onFilter
+  onFilter,
+  onToggleFilter
 }){
   return h.div(".prefixed-input.filter", [
-    h.span([h.img({src: imagePath("search.png")})]),
+    h.span({
+      onClick: ()=> { if(onToggleFilter) onToggleFilter() },
+    }, [h.img({src: imagePath("search.png")})]),
     h.input({
       value,
-      placeholder: (placeholder || "Type here to filter..."),
+      placeholder: (placeholder || "Type here to filter…"),
       onChange: (e)=> onFilter(e.target.value)
     })
   ])

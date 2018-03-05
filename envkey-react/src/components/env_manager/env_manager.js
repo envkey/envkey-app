@@ -7,6 +7,7 @@ import SubEnvs from './sub_envs'
 import {AddAssoc} from 'components/assoc_manager'
 import SmallLoader from 'components/shared/small_loader'
 import { allEntries, hasAnyVal } from 'lib/env/query'
+import traversty from 'traversty'
 
 export default class EnvManager extends React.Component {
 
@@ -14,6 +15,8 @@ export default class EnvManager extends React.Component {
     super(props)
     this.state = {
       hideValues: true,
+      filter: "",
+      showFilter: false,
       lastSocketUserUpdatingEnvs: null
     }
   }
@@ -22,6 +25,10 @@ export default class EnvManager extends React.Component {
     if(nextProps.socketUserUpdatingEnvs &&
        nextProps.socketUserUpdatingEnvs != this.state.lastSocketUserUpdatingEnvs){
       this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
+    }
+
+    if (R.path(["parent", "id"], this.props) != R.path(["parent", "id"], nextProps)){
+      this.setState({showFilter: false, filter: ""})
     }
   }
 
@@ -66,8 +73,19 @@ export default class EnvManager extends React.Component {
   _renderHeader(){
     return h(EnvHeader, {
       ...this.props,
-      ...R.pick(["hideValues"], this.state),
+      ...R.pick(["hideValues", "filter", "showFilter"], this.state),
       isEmpty: this._isEmpty(),
+      onFilter: filter => this.setState({filter}),
+      onToggleFilter: () => {
+        this.setState({filter: "", showFilter: !this.state.showFilter}, ()=>{
+          const input = traversty(".env-header .filter input")[0]
+          if(this.state.showFilter){
+            input.focus()
+          } else {
+            input.blur()
+          }
+        })
+      },
       onToggleHideValues: ()=> this.setState(state => ({hideValues: !state.hideValues})),
     })
   }
@@ -75,7 +93,7 @@ export default class EnvManager extends React.Component {
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "startedOnboarding"], this.state)
+      ...R.pick(["hideValues", "startedOnboarding", "filter"], this.state)
     })
   }
 

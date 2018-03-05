@@ -11,6 +11,10 @@ export default function({parentType,
                          isEmpty,
                          isUpdatingEnv,
                          entries,
+                         filter,
+                         showFilter,
+                         onFilter,
+                         onToggleFilter,
                          onToggleHideValues}) {
 
   const
@@ -34,12 +38,24 @@ export default function({parentType,
         h(BroadcastLoader),
         h.span("Encrypting and syncing")
       ])
+    },
+
+    renderFilter = ()=>{
+      return h(Filter, {
+        onFilter,
+        onToggleFilter,
+        value: filter,
+        placeholder: "Filter by variable name…"
+      })
     }
 
 
-  return h.header(".env-header", [
+  return h.header(".env-header", {
+    className: (showFilter ? "show-filter" : "")
+  }, [
     renderTitleCell(),
     renderShowHide(),
-    renderUpdatingEnv()
+    renderUpdatingEnv(),
+    renderFilter()
   ])
 }
