@@ -91,7 +91,7 @@ const
 
     mainWin.on('closed', () => {
       mainWin = null
-      udpaterWin = null
+      updaterWin = null
     })
   }
 
