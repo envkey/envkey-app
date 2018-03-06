@@ -1,7 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import {imagePath} from 'lib/ui'
-import axios from "axios"
 import Changelog from 'components/about/changelog'
 
 class MainUpdater extends React.Component {
