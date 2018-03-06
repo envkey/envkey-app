@@ -1,4 +1,5 @@
 .sidebar
+  $filter-height: 35px
   user-select: none
   overflow: hidden
   position: fixed
@@ -7,6 +8,35 @@
   width: $sidebar-width
   z-index: 4
   background: $dark-bg-gradient
+
+  .filter-row
+    transition: opacity 0.15s ease-out
+    opacity: 1
+    &.hide
+      opacity: 0
+
+  .filter
+    position: absolute
+    height: $filter-height
+    width: 100%
+    top: $sidebar-account-menu-height
+    background: rgba(#000, 0.1)
+    border-bottom: 1px solid rgba(#000, 0.35)
+
+    input
+      background: none
+      color: #fff
+      width: calc(100% - 35px)
+
+    span
+      background: none
+      border-right: 1px solid rgba(#000, 0.35)
+
+      img
+        filter: invert(75%)
+        max-width: 15px
+        max-height: 15px
+
 
   .menu-sections
     box-sizing: border-box
@@ -59,5 +89,10 @@
     background: rgba(#383838, 0.8)
     z-index: 5
 
+  &.show-filter .menu-sections
+    height: calc(100% - #{$sidebar-account-menu-height + $filter-height})
+
 .show-bottom-alert .sidebar
   height: calc(100% - (#{$header-height} + 65px))
+
+
