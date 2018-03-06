@@ -6,6 +6,8 @@
     "App admins can export an environment to a .env, .yaml, or .json file",
     "First few characters of ENVKEY are shown for generated ENVKEYs to make it easier to keep track of them",
     "A per-app flag to enable/disable auto-capitalization (disabled on import if var names aren't all caps)",
+    "Filter variables by name",
+    "Filter apps/users by name in sidebar for teams with more than 8 apps + users",
     "Truncate Encryption Token when inviting collaborators so the whole thing isn't visible",
     "Updates for new pricing structure (accounts created before 2018-02-21 unaffected)",
     "Web demo mode for new live demo (linked from landing page)",

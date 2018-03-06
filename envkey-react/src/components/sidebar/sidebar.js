@@ -5,6 +5,7 @@ import SidebarMenu from './sidebar_menu'
 import AccountMenu from './account_menu'
 import {ORG_ROLES} from 'constants'
 import {orgRoleGroupLabel} from 'lib/ui'
+import Filter from 'components/shared/filter'
 
 const defaultAccountMenuExpanded = props => props.location.pathname.includes("/my_org/") || props.location.pathname.includes("/my_account/")
 
@@ -19,7 +20,8 @@ const menuSelected = props => {
 
 const defaultState = props => {
   return {
-    accountMenuOpen: defaultAccountMenuExpanded(props)
+    accountMenuOpen: defaultAccountMenuExpanded(props),
+    filter: ""
   }
 }
 
@@ -50,21 +52,53 @@ export default class Sidebar extends React.Component {
     }
   }
 
+  _numApps(){
+    return this.props.apps.length
+  }
+
+  _numUsers(){
+    return R.pipe(R.values, R.flatten)(this.props.users).length
+  }
+
+  _numChildren(){
+    return this._numApps() + this._numUsers()
+  }
+
+  _showFilter(){
+    return this._numChildren() > 8
+  }
+
+
   render(){
     return (
       <div>
         <div className={"sidebar"  +
-                       (this.state.accountMenuOpen ? " account-menu-open" : "")}>
+                       (this.state.accountMenuOpen ? " account-menu-open" : "") +
+                       (this._showFilter() ? " show-filter" : "")}>
 
           <AccountMenu {...this.props}
                        isOpen={this.state.accountMenuOpen}
                        onToggle={()=> this.setState(state => ({accountMenuOpen: !state.accountMenuOpen}))} />
+
+          {this._renderFilter()}
 
           {this._renderMenuSections()}
 
         </div>
       </div>
     )
+  }
+
+  _renderFilter(){
+    if (this._showFilter()){
+
+      return <div className={'filter-row ' + (this.state.accountMenuOpen ? ' hide' : '')}>
+        <Filter
+          value={this.state.filter}
+          onFilter={ filter => this.setState({filter}) }
+        />
+      </div>
+    }
   }
 
   _renderMenuSections(){
@@ -102,7 +136,8 @@ export default class Sidebar extends React.Component {
     if (this.props.permissions.read[pluralize.singular(type)]){
       return <SidebarMenu {...this.props}
                           {...componentParams}
-                          {...{type, items, label, icon}} />
+                          {...{type, items, label, icon}}
+                          filter={this.state.filter} />
     }
   }
 

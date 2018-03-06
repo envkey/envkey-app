@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {Link} from 'react-router'
 import { imagePath } from 'lib/ui'
 import pluralize from 'pluralize'
@@ -48,23 +49,52 @@ export default class SidebarMenu extends React.Component {
     return orgRoleIsAdmin(this.props.currentUser.role)
   }
 
+  _filteredItems(items){
+    if (items && this.props.filter.trim()){
+      return items.filter((item)=> {
+        const lbl = this._label(item)
+        let txt
+
+        if (typeof lbl == "string"){
+          txt = lbl
+        } else if (typeof lbl == "object") {
+          txt = lbl.map(el => el.props.children ).join("")
+        }
+
+        return txt.toLowerCase().includes(this.props.filter.toLowerCase().trim())
+      })
+    } else {
+      return items
+    }
+  }
+
   render(){
+    const filtered = this.props.groups ?
+      R.map(::this._filteredItems, this.props.items) :
+      this._filteredItems(this.props.items)
+
+    const numItems = this.props.groups ?
+      R.pipe(R.values, R.flatten)(filtered).length :
+      filtered.length
+
     return (
       <div className={"side-menu " + this.props.type + (this.state.open ? " open" : "")}>
-        {this._renderMenuLabel()}
-        {this._renderMenuContent()}
+        {this._renderMenuLabel(filtered, numItems)}
+        {this._renderMenuContent(filtered, numItems)}
       </div>
     )
   }
 
-  _renderMenuLabel(){
-    return <div className="menu-label"
-                onClick={::this._onClickLabel}>
-      {this._renderToggleIcon()}
-      <img className="type-icon" src={imagePath(this.props.icon)} />
-      <label>{this.props.label}</label>
-      <span className="line" />
-    </div>
+  _renderMenuLabel(filtered, numItems){
+    if (numItems > 0){
+      return <div className="menu-label"
+                  onClick={::this._onClickLabel}>
+        {this._renderToggleIcon()}
+        <img className="type-icon" src={imagePath(this.props.icon)} />
+        <label>{this.props.label}</label>
+        <span className="line" />
+      </div>
+    }
   }
 
   _renderToggleIcon(){
@@ -73,21 +103,21 @@ export default class SidebarMenu extends React.Component {
     }
   }
 
-  _renderMenuContent(){
-    if (this.state.open){
+  _renderMenuContent(filtered, numItems){
+    if (this.state.open && numItems > 0){
       return <div className="menu-content">
         {this._renderNewButton()}
         <div className="menu-list">
-          {this.props.groups ? this._renderGroups() :
-                               this._renderList(this.props.items)}
+          {this.props.groups ? this._renderGroups(filtered) :
+                               this._renderList(filtered)}
         </div>
       </div>
     }
   }
 
-  _renderGroups(){
+  _renderGroups(filtered){
     return this.props.groups.map((group, i) => {
-      let items = this.props.items[group]
+      let items =  filtered[group]
       if (items && items.length){
         return (
           <div key={i} className="menu-group">
@@ -132,7 +162,8 @@ export default class SidebarMenu extends React.Component {
   _renderNewButton(){
     if (
       this.props.permissions.create[pluralize.singular(this.props.type)] &&
-      this.props.newBtnLabel
+      this.props.newBtnLabel &&
+      !this.props.filter
     ){
       const newSelected = this.props.location.pathname.endsWith(`/${this.props.type}/new`)
       return <Link to={`/${this.props.params.orgSlug}/${this.props.type}/new`}
