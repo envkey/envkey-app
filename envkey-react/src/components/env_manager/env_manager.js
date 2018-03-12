@@ -27,13 +27,17 @@ export default class EnvManager extends React.Component {
       this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
     }
 
-    if (R.path(["parent", "id"], this.props) != R.path(["parent", "id"], nextProps)){
+
+    if (R.path(["parent", "id"], this.props) != R.path(["parent", "id"], nextProps) ||
+        this._subEnvsOpen(this.props) != this._subEnvsOpen(nextProps) ||
+        (this._subEnvsOpen() && this.props.params.sel != nextProps.params.sel)){
       this.setState({showFilter: false, filter: ""})
     }
   }
 
-  _subEnvsOpen(){
-    return (this.props.envsWithMeta && this.props.params.sub) || false
+  _subEnvsOpen(props){
+    if(!props)props = this.props
+    return (props.envsWithMeta && props.params.sub) || false
   }
 
   _isEmpty(arg=null){
@@ -74,6 +78,7 @@ export default class EnvManager extends React.Component {
     return h(EnvHeader, {
       ...this.props,
       ...R.pick(["hideValues", "filter", "showFilter"], this.state),
+      subEnvsOpen: this._subEnvsOpen(),
       isEmpty: this._isEmpty(),
       onFilter: filter => this.setState({filter}),
       onToggleFilter: () => {
@@ -100,7 +105,7 @@ export default class EnvManager extends React.Component {
   _renderSubEnvs(){
     return h(SubEnvs, {
       ...this.props,
-      ...R.pick(["hideValues"], this.state),
+      ...R.pick(["hideValues", "filter"], this.state),
       environment: this._subEnvsOpen()
     })
   }

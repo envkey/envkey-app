@@ -49,8 +49,6 @@ const
       }
     })
 
-    updaterWin.params = {versionDownloaded}
-
     updaterWin.on('page-title-updated', e => e.preventDefault())
 
     updaterWin.loadURL(url.format({
