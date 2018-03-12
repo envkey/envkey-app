@@ -10,7 +10,9 @@ import {
   getHasEnvActionsPending,
   getObject,
   getSocketUserUpdatingEnvs,
-  getServersForSubEnv
+  getServersForSubEnv,
+  getCurrentOrg,
+  getAppUserBy
 } from 'selectors'
 import {
   ADD_SUB_ENV,
@@ -19,6 +21,8 @@ import {
   removeAssoc,
   addAssoc
 } from "actions"
+import { s3Client } from 'lib/s3'
+import { secureRandomAlphanumeric } from 'lib/crypto'
 
 let dispatchingEnvUpdateId
 
@@ -41,6 +45,57 @@ export function* dispatchEnvUpdateRequest(params){
     yield call(dispatchEnvUpdateRequest, {...params, updatePending: true})
     return
   }
+
+  const currentOrg = yield select(getCurrentOrg),
+        client = s3Client()
+
+  if (currentOrg.storageStrategy == "s3"){
+    const requestQueue = [],
+          envParamUrls = {}
+
+    if (envParams.users){
+      for (let userId in envParams.users){
+        let apps = envParams.users[userId].apps
+        for (let appId in apps){
+          let appEnvsWithMeta  = apps[appId].envsWithMeta,
+              appUser = yield select(getAppUserBy({userId, appId}))
+
+          for (let env in appEnvsWithMeta){
+            let s3Info = appUser.s3UploadInfo[env]
+
+            if (s3Info){
+              let fields = JSON.parse(s3Info.fields),
+                  data = new FormData()
+
+              for (let k in fields){
+                data.append(k, fields[k])
+              }
+
+              let secret = secureRandomAlphanumeric(20)
+              data.append('key', s3Info.path + secret)
+              data.append('file', new Blob([JSON.stringify({env: appEnvsWithMeta[env]})]),{type:'application/json', filename: secret + ".json"})
+              data.append('Content-Type', 'application/json')
+
+              requestQueue.push(client.post(s3Info.url + "/", data))
+            }
+          }
+        }
+      }
+    }
+
+    if (envParams.localKeys){
+
+    }
+
+    if (envParams.servers){
+
+    }
+
+    const results = yield requestQueue
+  }
+
+
+
 
   yield put(updateEnvRequest({
     ...meta,

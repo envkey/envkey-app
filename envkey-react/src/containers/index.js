@@ -27,3 +27,4 @@ export {default as DowngradeRemovalContainer} from './downgrade_removal_containe
 export {default as UpdateOwnerContainer} from './update_owner_container'
 export {default as ImportEnvContainer} from './import_env_container'
 export {default as ExportEnvContainer} from './export_env_container'
+export {default as UpdateOrgStorageStrategyContainer} from './update_org_storage_strategy_container'

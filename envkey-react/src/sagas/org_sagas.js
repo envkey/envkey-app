@@ -19,10 +19,6 @@ import {
   UPDATE_ORG_OWNER_SUCCESS,
   UPDATE_ORG_OWNER_FAILED,
 
-  // REMOVE_SELF_FROM_ORG,
-  // REMOVE_SELF_FROM_ORG_FAILED,
-  // REMOVE_SELF_FROM_ORG_SUCCESS,
-
   CREATE_ORG_REQUEST,
   CREATE_ORG_SUCCESS,
   CREATE_ORG_FAILED,
@@ -33,6 +29,10 @@ import {
 
   REMOVE_OBJECT_SUCCESS,
   REMOVE_OBJECT_FAILED,
+
+  UPDATE_ORG_STORAGE_STRATEGY_REQUEST,
+  UPDATE_ORG_STORAGE_STRATEGY_SUCCESS,
+  UPDATE_ORG_STORAGE_STRATEGY_FAILED,
 
   GENERATE_DEMO_ORG_REQUEST,
   GENERATE_DEMO_ORG_SUCCESS,
@@ -67,6 +67,14 @@ const
     urlSelector: getCurrentOrg,
     actionTypes: [UPDATE_ORG_OWNER_SUCCESS, UPDATE_ORG_OWNER_FAILED],
     urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/update_owner.json`
+  }),
+
+  onUpdateOrgStorageStrategyRequest = apiSaga({
+    authenticated: true,
+    method: "patch",
+    urlSelector: getCurrentOrg,
+    actionTypes: [UPDATE_ORG_STORAGE_STRATEGY_SUCCESS, UPDATE_ORG_STORAGE_STRATEGY_FAILED],
+    urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/update_storage_strategy.json`
   }),
 
   onGenerateDemoOrgRequest = apiSaga({
@@ -146,6 +154,11 @@ function *onUpdateOrgOwnerSuccess(action){
   yield call(redirectFromOrgIndexIfNeeded)
 }
 
+function *onUpdateOrgStorageStrategySuccess(action){
+  const currentOrg = yield select(getCurrentOrg)
+  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+}
+
 function *onGenerateDemoOrgSuccess({payload: {path}}){
   yield put(push(path))
 }
@@ -159,8 +172,9 @@ export default function* orgSagas(){
     takeLatest(UPDATE_ORG_OWNER_REQUEST, onUpdateOrgOwnerRequest),
     takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
     takeLatest(GENERATE_DEMO_ORG_REQUEST, onGenerateDemoOrgRequest),
-    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess)
-    // takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
+    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess),
+    takeLatest(UPDATE_ORG_STORAGE_STRATEGY_REQUEST, onUpdateOrgStorageStrategyRequest),
+    takeLatest(UPDATE_ORG_STORAGE_STRATEGY_SUCCESS, onUpdateOrgStorageStrategySuccess)
   ]
 }
 

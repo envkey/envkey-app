@@ -27,9 +27,14 @@ import {
   BILLING_UPDATE_CARD_SUCCESS,
   BILLING_UPDATE_CARD_FAILED,
   FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_SUCCESS,
+  FETCH_CURRENT_USER_UPDATES_FAILED,
   UPDATE_ORG_OWNER_REQUEST,
   UPDATE_ORG_OWNER_SUCCESS,
-  UPDATE_ORG_OWNER_FAILED
+  UPDATE_ORG_OWNER_FAILED,
+  UPDATE_ORG_STORAGE_STRATEGY_REQUEST,
+  UPDATE_ORG_STORAGE_STRATEGY_SUCCESS,
+  UPDATE_ORG_STORAGE_STRATEGY_FAILED
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
@@ -194,6 +199,21 @@ export const
 
       case UPDATE_ORG_OWNER_SUCCESS:
       case UPDATE_ORG_OWNER_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isUpdatingOrgStorageStrategy = (state = false, action)=>{
+    switch(action.type){
+      case UPDATE_ORG_STORAGE_STRATEGY_REQUEST:
+        return true
+
+      case UPDATE_ORG_STORAGE_STRATEGY_FAILED:
+      case FETCH_CURRENT_USER_UPDATES_SUCCESS:
+      case FETCH_CURRENT_USER_UPDATES_FAILED:
         return false
 
       default:
