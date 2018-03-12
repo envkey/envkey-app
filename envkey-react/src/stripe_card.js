@@ -6,6 +6,7 @@ import BillingColumns from 'components/billing/billing_columns'
 import queryString from 'query-string'
 import moment from 'moment'
 import {imagePath} from "lib/ui"
+import {shortNum} from 'lib/utils/string'
 
 class StripeCardForm extends React.Component {
 
@@ -70,11 +71,19 @@ class StripeCardForm extends React.Component {
   }
 
   _chargeCols(){
-    const {plan, numUsersActive, numUsersPending} = this._formData(),
-          cols = [<strong>${parseInt(plan.amount * numUsersActive / 100)}.00</strong>]
-    if (numUsersPending){
+    const {plan, numUsersActive, numUsersPending} = this._formData()
+    let cols
+
+    if (plan.pricingVersion >= 4){
+      cols = [<strong>${parseInt(plan.amount / 100)}.00</strong>]
+    } else {
+      cols = [<strong>${parseInt(plan.amount * numUsersActive / 100)}.00</strong>]
+    }
+
+    if (numUsersPending && plan.pricingVersion < 4){
       cols.push(<small>+ ${parseInt(plan.amount * numUsersPending / 100)}.00 pending</small>)
     }
+
     return cols
   }
 
@@ -87,27 +96,53 @@ class StripeCardForm extends React.Component {
         h.h3(plan.name),
         h.div(".billing-info", [
           BillingColumns({columns: [
-            [
-              [`$${parseInt(plan.amount / 100)}.00 / user / month`,
-                [
-                  "Unlimited apps",
-                  "Unlimited environments",
-                  "Unlimited ENVKEYs"
-                ]
-              ],
-            ]
+            [this._renderPricing(),]
           ]}),
-          BillingColumns({columns: [
-            [
-              ["Active users", this._userCols()],
-            ],
-            [
-              ["Total monthly charge", this._chargeCols()],
-            ]
-          ]})
+          this._renderUserChargeInfo()
         ])
       ])
     }
+  }
+
+  _renderUserChargeInfo(){
+    const {plan} = this._formData()
+    if (plan.pricingVersion < 4){
+      return BillingColumns({columns: [
+        [
+          ["Active users", this._userCols()],
+        ],
+        [
+          ["Total monthly charge", this._chargeCols()],
+        ]
+      ]})
+    }
+  }
+
+  _renderPricing(){
+    const {plan} = this._formData()
+    return plan.pricingVersion >= 4 ? this._renderPricingPostV4() : this._renderPricingPreV4()
+  }
+
+  _renderPricingPreV4(){
+    const {plan} = this._formData()
+    return [`$${parseInt(plan.amount / 100)}.00 / user / month`,
+      [
+        "Unlimited apps",
+        "Unlimited environments",
+        "Unlimited ENVKEYs"
+      ]
+    ]
+  }
+
+  _renderPricingPostV4(){
+    const {plan} = this._formData()
+    return [`$${parseInt(plan.amount / 100)}.00 per month`,
+      [
+        `Up to ${plan.endsAtNumUsers} users`,
+        `Up to ${plan.endsAtNumConnectedServers} connected servers`,
+        `Up to ${shortNum(plan.endsAtNumConfigRequests)} config requests`
+      ]
+    ]
   }
 
   _renderError(){
