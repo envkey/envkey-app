@@ -23,5 +23,8 @@
     "Pricing structure update (accounts created before 2018-03-12 unaffected)",
     "Add https://raw.githubusercontent.com to CSP connect-src - fixes updater CHANGELOG bug",
     "Fix sidebar back button issue"
+  ],
+  "1.3.4": [
+    "Fix for updater window deallocation bug"
   ]
 }
