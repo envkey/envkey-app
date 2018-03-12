@@ -23,6 +23,7 @@ import {imagePath} from 'lib/ui'
 import BillingColumns from 'components/billing/billing_columns'
 import Spinner from 'components/shared/spinner'
 import {trialDaysRemaining} from "lib/billing"
+import {shortNum} from "lib/utils/string"
 
 class Billing extends React.Component {
 
@@ -191,44 +192,75 @@ class Billing extends React.Component {
 
       ]
     } else if (this._isBusinessTier()){
-      contents = [
-        h.h3(this.props.businessPlan.name),
-        h(BillingColumns, {columns: [
-          [
-            [`$${parseInt(this.props.subscription.amount / 100)}.00 USD / user / month`,
-              [
-                "Unlimited apps",
-                "Unilimited environments",
-                "Unlimited ENVKEYs"
-              ]
-            ],
-          ],
-          [
-            ["Subscription status",
-              [this._subscriptionStatus()]
-            ],
-            ["Next invoice due",
-              [
-                moment(this.props.subscription.currentPeriodEndsAt).calendar()
-              ]
-            ],
-          ],
-
-          [
-            ["Active users", [<span>{this.props.numActiveUsers} {this._renderPendingUsers()}</span>]],
-
-            ["Next invoice total charge", [<span>${parseInt(this.props.subscription.amount * this.props.numActiveUsers / 100)}.00 {this._renderPendingCharge()}</span>]],
-          ],
-        ]}),
-
-        this._renderCancel()
-      ]
+      contents = this.props.currentOrg.pricingVersion >= 4 ?
+        this._renderBusinessTierPostV4() :
+        this._renderBusinessTierPreV4()
     }
 
     return h.section(".plan", [
       h.h2("Your Plan"),
       h.div(".content", contents)
     ])
+  }
+
+  _renderBusinessTierPreV4(){
+    return [
+      h.h3(this.props.businessPlan.name),
+      h(BillingColumns, {columns: [
+        [
+          [`$${parseInt(this.props.subscription.amount / 100)}.00 USD / user / month`,
+            [
+              "Unlimited apps",
+              "Unilimited environments",
+              "Unlimited ENVKEYs"
+            ]
+          ],
+        ],
+        [
+          ["Subscription status",
+            [this._subscriptionStatus()]
+          ],
+          ["Next invoice due",
+            [
+              moment(this.props.subscription.currentPeriodEndsAt).calendar()
+            ]
+          ],
+        ],
+
+        [
+          ["Active users", [<span>{this.props.numActiveUsers} {this._renderPendingUsers()}</span>]],
+
+          ["Next invoice total charge", [<span>${parseInt(this.props.subscription.amount * this.props.numActiveUsers / 100)}.00 {this._renderPendingCharge()}</span>]],
+        ],
+      ]}),
+
+      this._renderCancel()
+    ]
+  }
+
+  _renderBusinessTierPostV4(){
+    return [
+      h.h3(this.props.businessPlan.name),
+      h(BillingColumns, {columns: [
+        [
+          [`$${parseInt(this.props.subscription.amount / 100)}.00 USD per month`,
+            this._renderBusinessPlanLimitsPostV4()
+          ],
+        ],
+        [
+          ["Subscription status",
+            [this._subscriptionStatus()]
+          ],
+          ["Next invoice due",
+            [
+              moment(this.props.subscription.currentPeriodEndsAt).calendar()
+            ]
+          ],
+        ]
+      ]}),
+
+      this._renderCancel()
+    ]
   }
 
   _renderPendingUsers(){
@@ -245,8 +277,6 @@ class Billing extends React.Component {
   }
 
   _renderStripeCard(){
-
-
     let cardDetails, cardActions
 
     if (this.props.stripeCard){
@@ -277,7 +307,18 @@ class Billing extends React.Component {
   }
 
   _renderUpgrade(){
-    const contents = [
+    const contents = this.props.currentOrg.pricingVersion >= 4 ?
+      this._renderUpgradePostV4() :
+      this._renderUpgradePreV4()
+
+    return h.section(".upgrade", [
+      h.h2("Upgrade"),
+      h.div(".content", contents)
+    ])
+  }
+
+  _renderUpgradePreV4(){
+    return [
       h.h3(),
       h(BillingColumns, {columns: [
         [
@@ -294,11 +335,22 @@ class Billing extends React.Component {
         this._renderUpgradeButton()
       ])
     ]
+  }
 
-    return h.section(".upgrade", [
-      h.h2("Upgrade"),
-      h.div(".content", contents)
-    ])
+  _renderUpgradePostV4(){
+    return [
+      h.h3(),
+      h(BillingColumns, {columns: [
+        [
+          [`$${parseInt(this.props.businessPlan.amount / 100)}.00 per month`,
+            this._renderBusinessPlanLimitsPostV4()
+          ],
+        ]
+      ]}),
+      h.div(".actions", [
+        this._renderUpgradeButton()
+      ])
+    ]
   }
 
   _renderUpgradeButton(){
@@ -331,6 +383,14 @@ class Billing extends React.Component {
         h.button(".button.confirm", {onClick: ::this._onConfirmCancel}, "Yes, cancel subscription")
       ])
     ])
+  }
+
+  _renderBusinessPlanLimitsPostV4(){
+    return [
+      `Up to ${this.props.businessPlan.endsAtNumUsers} users`,
+      `Up to ${this.props.businessPlan.endsAtNumConnectedServers} connected servers`,
+      `Up to ${shortNum(this.props.businessPlan.endsAtNumConfigRequests)} config requests`
+    ]
   }
 
   _renderInvoices(){

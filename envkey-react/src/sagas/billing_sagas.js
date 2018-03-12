@@ -70,7 +70,7 @@ function *onBillingUpgradeSubscription(){
       error,
       numUsersActive,
       numUsersPending,
-      plan: R.pick(["amount", "name"], plan)
+      plan
     })
 
     let formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
