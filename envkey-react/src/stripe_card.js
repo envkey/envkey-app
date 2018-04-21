@@ -139,8 +139,10 @@ class StripeCardForm extends React.Component {
     return [`$${parseInt(plan.amount / 100)}.00 per month`,
       [
         `Up to ${plan.endsAtNumUsers} users`,
-        `Up to ${plan.endsAtNumConnectedServers} connected servers`,
-        `Up to ${shortNum(plan.endsAtNumConfigRequests)} config requests`
+        `Unlimited apps`,
+        `Unlimited ENVKEYs`
+        // `Up to ${plan.endsAtNumConnectedServers} connected servers`,
+        // `Up to ${shortNum(plan.endsAtNumConfigRequests)} config requests`
       ]
     ]
   }

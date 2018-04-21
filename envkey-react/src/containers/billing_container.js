@@ -388,8 +388,10 @@ class Billing extends React.Component {
   _renderBusinessPlanLimitsPostV4(){
     return [
       `Up to ${this.props.businessPlan.endsAtNumUsers} users`,
-      `Up to ${this.props.businessPlan.endsAtNumConnectedServers} connected servers`,
-      `Up to ${shortNum(this.props.businessPlan.endsAtNumConfigRequests)} config requests`
+      "Unlimited apps",
+      "Unlimited ENVKEYs"
+      // `Up to ${this.props.businessPlan.endsAtNumConnectedServers} connected servers`,
+      // `Up to ${shortNum(this.props.businessPlan.endsAtNumConfigRequests)} config requests`
     ]
   }
 
