@@ -27,6 +27,7 @@ export default class EnvManager extends React.Component {
       this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
     }
 
+
     if (R.path(["parent", "id"], this.props) != R.path(["parent", "id"], nextProps) ||
         this._subEnvsOpen(this.props) != this._subEnvsOpen(nextProps) ||
         (this._subEnvsOpen() && this.props.params.sel != nextProps.params.sel)){

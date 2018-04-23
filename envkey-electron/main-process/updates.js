@@ -8,7 +8,6 @@ const updater = require('electron-simple-updater'),
 let versionAvailable,
     versionDownloaded,
     mainWin,
-    updaterWin,
     checkingUpdates = false
 
 logger.transports.file.level = 'info'
@@ -35,7 +34,7 @@ const
   },
 
   openMainUpdater = ()=> {
-    updaterWin = new BrowserWindow({
+    global.updaterWin = new BrowserWindow({
       width: 500,
       height: 500,
       parent: mainWin,
@@ -80,16 +79,16 @@ const
     })
 
     updaterWin.on('hide', ()=> {
-      updaterWin = null
+      global.updaterWin = null
     })
 
     updaterWin.on('close', ()=> {
-      updaterWin = null
+      global.updaterWin = null
     })
 
     mainWin.on('closed', () => {
       mainWin = null
-      updaterWin = null
+      global.updaterWin = null
     })
   }
 

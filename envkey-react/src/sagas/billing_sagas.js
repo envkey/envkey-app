@@ -1,5 +1,7 @@
 import R from 'ramda'
 import { takeLatest, take, put, select, call} from 'redux-saga/effects'
+import { delay } from 'redux-saga'
+import { push } from 'react-router-redux'
 import {apiSaga} from './helpers'
 import {listenCardForm, openCardForm} from 'lib/billing'
 import {
@@ -70,7 +72,7 @@ function *onBillingUpgradeSubscription(){
       error,
       numUsersActive,
       numUsersPending,
-      plan: R.pick(["amount", "name"], plan)
+      plan
     })
 
     let formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
@@ -103,7 +105,9 @@ function* onBillingCancelSubscription({payload}){
   const res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
 
   if (!res.error){
-    window.location.href = `/${currentOrg.slug}/my_org/billing`
+    yield put(push(`/${currentOrg.slug}/my_org/billing`))
+    yield call(delay, 500)
+    window.location.reload()
   }
 }
 

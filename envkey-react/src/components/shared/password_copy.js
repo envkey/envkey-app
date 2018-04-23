@@ -5,6 +5,6 @@ export default function(){
   return h.p(".copy.passphrase-copy", [
     h.strong("Your passphrase can't be recovered or reset if you forget it."),
     h.br(),
-    "We suggest a password manager."
+    "We suggest using a password manager."
   ])
 }

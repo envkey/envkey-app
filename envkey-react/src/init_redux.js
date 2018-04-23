@@ -13,6 +13,8 @@ import rootSaga from './sagas/root_saga'
 import appMiddlewares from 'middleware'
 import isElectron from 'is-electron'
 import createLogger from 'redux-logger'
+import {AUTH_KEYS, LOCAL_PERSISTENCE_AUTH_KEYS, SESSION_PERSISTENCE_AUTH_KEYS} from 'constants'
+import {electronStorageAdapter} from 'lib/storage'
 
 const
   devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
@@ -50,30 +52,28 @@ const
     logger
   ],
 
-  [privkeyStorageAdapter, privkeyStorage] = isElectron() ?
-    [localStorageAdapter, window.localStorage] :
-    [sessionStorageAdapter, window.sessionStorage],
   reducer = compose(mergePersistedState())(rootReducer),
 
-  localPersistence = compose(filter([
-    "auth",
-    "accounts",
-    "currentOrgSlug"
-  ]))(localStorageAdapter(window.localStorage)),
+  sessionAdapter = isElectron() ? electronStorageAdapter : localStorageAdapter(window.localStorage),
 
-  privkeyPersistence = compose(filter(["privkey", "accountPrivkeys"]))(privkeyStorageAdapter(privkeyStorage)),
+  privkeyAdapter = isElectron() ? electronStorageAdapter : sessionStorageAdapter(window.sessionStorage),
+
+  sessionPersistence = compose(filter(LOCAL_PERSISTENCE_AUTH_KEYS))(sessionAdapter),
+
+  privkeyPersistence = compose(filter(SESSION_PERSISTENCE_AUTH_KEYS))(privkeyAdapter),
 
   enhancerCompose = devMode ? composeWithDevTools : compose,
 
-  enhancer = enhancerCompose(
+  enhancer =  enhancerCompose(
     applyMiddleware(...middlewares),
-    persistState(localPersistence, 'session'),
+    persistState(sessionPersistence, 'session'),
     persistState(privkeyPersistence, 'pgp')
   ),
 
   store = createStore(reducer, enhancer),
 
   history = syncHistoryWithStore(historyType, store)
+
 
 sagaMiddleware.run(rootSaga)
 
