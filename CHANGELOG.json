@@ -26,5 +26,12 @@
   ],
   "1.3.4": [
     "Fix for updater window deallocation bug"
+  ],
+  "1.3.5": [
+    "Fix for users often getting logged out after auto-updates",
+    "Fix for CSP connect-src blocking some endpoints required by Pusher for realtime updates",
+    "Fix blank screen for non-org owners after free trial expires",
+    "Remove usage-based limits from billing screens",
+    "Update electron"
   ]
 }
