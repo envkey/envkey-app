@@ -3,6 +3,7 @@ import { select, call } from 'redux-saga/effects'
 import {encryptJson, signPublicKey} from 'lib/crypto'
 import {orgRoleIsAdmin} from 'lib/roles'
 import {keyableIsTrusted} from './crypto_helpers'
+import pluralize from 'pluralize'
 import {
   getUser,
   getApp,
@@ -165,6 +166,36 @@ export function *envParamsForUpdateOrgRole({userId, role: newRole}){
 
   return merged
 }
+
+function *encryptUrlSecrets({urlPointer, privkey, pubkey}){
+  const toEncrypt = [encryptJson({data: urlPointer.urlSecret, privkey, pubkey})]
+  if (urlPointer.inheritanceOverridesUrlSecret){
+    toEncrypt.push(encryptJson({data: urlPointer.inheritanceOverridesUrlSecret, privkey, pubkey}))
+  }
+
+  const [encryptedUrlSecret, encryptedInheritanceOverridesUrlSecret] = yield toEncrypt
+
+  return {encryptedUrlSecret, encryptedInheritanceOverridesUrlSecret}
+}
+
+export function *urlPointersForKeyable({appId, keyableType, keyableId, urlPointer}){
+  const users = yield select(getUsersForApp(appId)),
+        privkey = yield select(getPrivkey),
+        encryptQueue = [],
+        appUserIds = []
+
+  for (let user of users){
+    encryptQueue.push(call(encryptUrlSecrets, {urlPointer, privkey, pubkey: user.pubkey}))
+    appUserIds.push(user.relation.id)
+  }
+
+  const allEncrypted = yield encryptQueue
+
+  return allEncrypted.reduce((agg, enc, i) => {
+    return R.assocPath([pluralize(keyableType), keyableId, appUserIds[i]], enc, agg)
+  }, {})
+}
+
 
 export function* attachAssocEnvs(action){
   let envParams

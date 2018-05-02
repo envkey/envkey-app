@@ -12,7 +12,11 @@ import {
   getSocketUserUpdatingEnvs,
   getServersForSubEnv,
   getCurrentOrg,
-  getAppUserBy
+  getAppUserBy,
+  getLocalKey,
+  getServer,
+  getUser,
+  getPrivkey
 } from 'selectors'
 import {
   ADD_SUB_ENV,
@@ -22,7 +26,7 @@ import {
   addAssoc
 } from "actions"
 import { s3Client } from 'lib/s3'
-import { secureRandomAlphanumeric } from 'lib/crypto'
+import { secureRandomAlphanumeric, encryptJson } from 'lib/crypto'
 
 let dispatchingEnvUpdateId
 
@@ -37,9 +41,11 @@ export function* dispatchEnvUpdateRequest(params){
     parent = yield select(getObject(parentType, parentId)),
     envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
     envActionsPendingBefore = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
-    envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta}),
     signedByTrustedPubkeys = yield call(signTrustedPubkeyChain),
-    envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId))
+    envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
+    privkey = yield select(getPrivkey)
+
+  let envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta})
 
   if (envActionsPendingBefore.length != envActionsPending.length){
     yield call(dispatchEnvUpdateRequest, {...params, updatePending: true})
@@ -50,33 +56,40 @@ export function* dispatchEnvUpdateRequest(params){
         client = s3Client()
 
   if (currentOrg.storageStrategy == "s3"){
-    const requestQueue = [],
-          envParamUrls = {}
+    const updatePaths = [],
+          encryptUrlQueue = [],
+          requestQueue = []
 
     if (envParams.users){
       for (let userId in envParams.users){
         let apps = envParams.users[userId].apps
         for (let appId in apps){
           let appEnvsWithMeta  = apps[appId].envsWithMeta,
-              appUser = yield select(getAppUserBy({userId, appId}))
+              appUser = yield select(getAppUserBy({userId, appId})),
+              user = yield select(getUser(userId))
 
-          for (let env in appEnvsWithMeta){
-            let s3Info = appUser.s3UploadInfo[env]
+          for (let environment in appEnvsWithMeta){
+            let s3Info = appUser.s3UploadInfo[environment]
 
             if (s3Info){
-              let fields = JSON.parse(s3Info.fields),
-                  data = new FormData()
+              let env = appEnvsWithMeta[environment],
+                  secret = secureRandomAlphanumeric(20),
+                  fields = JSON.parse(s3Info.fields),
+                  data = new FormData(),
+                  key = s3Info.path + secret,
+                  url = s3Info.url + "/" + key
 
-              for (let k in fields){
-                data.append(k, fields[k])
+              for (let field in fields){
+                data.append(field, fields[field])
               }
 
-              let secret = secureRandomAlphanumeric(20)
-              data.append('key', s3Info.path + secret)
-              data.append('file', new Blob([JSON.stringify({env: appEnvsWithMeta[env]})]),{type:'application/json', filename: secret + ".json"})
-              data.append('Content-Type', 'application/json')
+              data.append('key', key)
+              data.append('file', new Blob([env]),{type:'text/plain', filename: secret})
+              data.append('Content-Type', 'text/plain')
 
               requestQueue.push(client.post(s3Info.url + "/", data))
+              updatePaths.push(["users", userId, "apps", appId, "envsWithMeta", env])
+              encryptUrlQueue.push(call(encryptJson, {data: url, pubkey: user.pubkey, privkey}))
             }
           }
         }
@@ -84,18 +97,76 @@ export function* dispatchEnvUpdateRequest(params){
     }
 
     if (envParams.localKeys){
+      for (let id in envParams.localKeys){
+        let env = envParams.localKeys[id].env,
+            localKey = yield select(getLocalKey(id)),
+            s3Info = localKey.s3UploadInfo.env
 
+        if (s3Info){
+          let secret = secureRandomAlphanumeric(20),
+              fields = JSON.parse(s3Info.fields),
+              data = new FormData(),
+              key = s3Info.path + secret,
+              url = s3Info.url + "/" + key
+
+          for (let field in fields){
+            data.append(field, fields[field])
+          }
+
+          data.append('key', key)
+          data.append('file', new Blob([env]),{type:'text/plain', filename: secret})
+          data.append('Content-Type', 'text/plain')
+
+          requestQueue.push(client.post(s3Info.url + "/", data))
+          updatePaths.push(["localKeys", id, "env"])
+          encryptUrlQueue.push(call(encryptJson, {data: url, pubkey: localKey.pubkey, privkey}))
+
+        }
+      }
     }
 
     if (envParams.servers){
+      for (let id in envParams.servers){
+        let server = yield select(getServer(id))
 
+        for (let k of ["env", "inheritanceOverrides"]){
+          let val = envParams.servers[id][k],
+              s3Info = server.s3UploadInfo[k]
+
+          if (val && s3Info){
+            let secret = secureRandomAlphanumeric(20),
+                fields = JSON.parse(s3Info.fields),
+                data = new FormData(),
+                key = s3Info.path + secret,
+                url = s3Info.url + "/" + key
+
+            for (let field in fields){
+              data.append(field, fields[field])
+            }
+
+            data.append('key', key)
+            data.append('file', new Blob([val]),{type:'text/plain', filename: secret})
+            data.append('Content-Type', 'text/plain')
+
+            requestQueue.push(client.post(s3Info.url + "/", data))
+            updatePaths.push(["servers", id, k])
+            encryptUrlQueue.push(call(encryptJson, {data: url, pubkey: server.pubkey, privkey}))
+          }
+        }
+      }
     }
 
-    const results = yield requestQueue
+    const results = yield requestQueue,
+          encryptedUrls = yield encryptUrlQueue
+
+    for (let i = 0; i < encryptedUrls.length; i++){
+      let encryptedUrl = encryptedUrls[i],
+          updatePath = updatePaths[i]
+
+      envParams = R.assocPath(updatePath, encryptedUrl, envParams)
+    }
+
   }
-
-
-
 
   yield put(updateEnvRequest({
     ...meta,
@@ -110,6 +181,7 @@ export function* dispatchEnvUpdateRequest(params){
     envsUpdatedAt: parent.envsUpdatedAt,
     keyablesUpdatedAt: parent.keyablesUpdatedAt
   }))
+
   dispatchingEnvUpdateId = null
 }
 

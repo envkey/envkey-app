@@ -6,7 +6,8 @@ import {
   signTrustedPubkeyChain,
   inviteUser,
   execCreateAssoc,
-  attachAssocEnvs
+  attachAssocEnvs,
+  urlPointersForKeyable
 } from './helpers'
 import {
   ADD_ASSOC_REQUEST,
@@ -56,6 +57,7 @@ import {
   getApp
 } from 'selectors'
 import {getAssocUrl} from 'lib/assoc/helpers'
+import { s3Client } from 'lib/s3'
 
 const
   addRemoveAssocApiSaga = ({method, actionTypes})=> {
@@ -195,17 +197,62 @@ function* onGenerateKey(action){
      call(signTrustedPubkeyChain)
     ]
 
-  yield put(generateKeyRequest({
+  // s3 upload if necessary
+  let encryptedUrl, urlPointer
+  if (target.s3UploadInfo){
+    urlPointer = {
+      urlSecret: secureRandomAlphanumeric(20),
+      inheritanceOverridesUrlSecret: ((assocType == "server" && target.role == "production") ? secureRandomAlphanumeric(20) : undefined)
+    }
+
+    const client = s3Client(),
+          s3Info = target.s3UploadInfo.env,
+          fields = JSON.parse(s3Info.fields),
+          data = new FormData(),
+          key = s3Info.path + urlPointer.urlSecret,
+          url = s3Info.url + "/" + key
+
+    for (let field in fields){
+      data.append(field, fields[field])
+    }
+
+    data.append('key', key)
+    data.append('file', new Blob([encryptedRawEnv]),{type:'text/plain', filename: urlPointer.urlSecret})
+    data.append('Content-Type', 'text/plain')
+
+    yield client.post(s3Info.url + "/", data)
+
+    encryptedUrl = yield encryptJson({
+      pubkey: signedPubkey,
+      privkey: currentUserPrivkey,
+      data: url
+    })
+  }
+
+  let keyRequestAction = generateKeyRequest({
     ...action.meta,
     assocId,
     encryptedPrivkey,
-    encryptedRawEnv,
     passphrase,
     signedTrustedPubkeys,
     signedByTrustedPubkeys,
+    encryptedRawEnv: (encryptedUrl || encryptedRawEnv),
     pubkey: signedPubkey,
     pubkeyFingerprint: getPubkeyFingerprint(signedPubkey)
-  }))
+  })
+
+  if (target.s3UploadInfo){
+    const urlPointerParams = yield call(urlPointersForKeyable, {
+      urlPointer,
+      keyableType: assocType,
+      keyableId: targetId,
+      appId: app.id
+    })
+
+    keyRequestAction = R.assocPath(["payload", "urlPointers"], urlPointerParams, keyRequestAction)
+  }
+
+  yield put(keyRequestAction)
 }
 
 function *onGenerateKeySuccess({meta: {assocType, targetId}}){

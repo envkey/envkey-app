@@ -1,6 +1,7 @@
 import { put, select, call, take } from 'redux-saga/effects'
 import R from 'ramda'
 import * as crypto from 'lib/crypto'
+import axios from 'axios'
 import {
   VERIFY_TRUSTED_PUBKEYS_SUCCESS,
   VERIFY_TRUSTED_PUBKEYS_FAILED,
@@ -110,38 +111,89 @@ export function* keyableIsTrusted(keyable){
   return true
 }
 
-export function* decryptEnvParent(parent){
-  const privkey = yield select(getPrivkey),
-        {id: orgId} = yield select(getCurrentOrg)
+function* decryptEnvironment(environment, opts){
+  let decrypted = yield crypto.decryptJson(opts)
 
-  if (parent.encryptedEnvsWithMeta){
-    const decrypted = {}
-    for (let environment in parent.encryptedEnvsWithMeta){
-      let encrypted = parent.encryptedEnvsWithMeta[environment]
+  if (typeof decrypted === "string"){
+    let url = decrypted,
+        res = yield axios.get(url)
 
-      if(!encrypted || R.isEmpty(encrypted)){
-        decrypted[environment] = {}
-      } else {
-        let signedById = R.path(["envsSignedBy", environment], parent)
+    decrypted = yield crypto.decryptJson({...opts, encrypted: res.data})
+    decrypted["@@__urlPointer__"] = url
+  }
 
-        if(!signedById) throw new Error(`Parent ${parent.id} ${environment} environment not signed.`)
+  return {[environment]: decrypted}
+}
 
-        let signedByUser = yield select(getUser(signedById)),
-
-            trusted = yield call(keyableIsTrusted, signedByUser)
-
-        if (!trusted) throw new Error(`Signing user ${signedById} not trusted.`)
-
-        decrypted[environment] = yield crypto.decryptJson({encrypted, privkey, pubkey: signedByUser.pubkey})
-      }
-    }
-    return R.pipe(
-      R.assoc("envsWithMeta", normalizeEnvsWithMeta(decrypted)),
-      R.dissoc("encryptedEnvsWithMeta")
-    )(parent)
-  } else {
+function* execDecryptEnvs(parent){
+  if(!parent.encryptedEnvsWithMeta){
     return parent
   }
+
+  const privkey = yield select(getPrivkey),
+        decryptQueue = []
+
+  let decryptedEnvs = {}
+
+  for (let environment in parent.encryptedEnvsWithMeta){
+    let encrypted = parent.encryptedEnvsWithMeta[environment]
+
+    if(!encrypted || R.isEmpty(encrypted)){
+      decryptedEnvs[environment] = {}
+    } else {
+      let signedById = R.path(["envsSignedBy", environment], parent)
+
+      if(!signedById) throw new Error(`Parent ${parent.id} ${environment} environment not signed.`)
+
+      let signedByUser = yield select(getUser(signedById)),
+
+          trusted = yield call(keyableIsTrusted, signedByUser)
+
+      if (!trusted) throw new Error(`Signing user ${signedById} not trusted.`)
+
+      decryptQueue.push(call(decryptEnvironment, environment, {encrypted, privkey, pubkey: signedByUser.pubkey}))
+    }
+  }
+
+  decryptedEnvs = R.merge(decryptedEnvs, R.mergeAll(yield decryptQueue))
+
+  return R.pipe(
+    R.assoc("envsWithMeta", normalizeEnvsWithMeta(decryptedEnvs)),
+    R.dissoc("encryptedEnvsWithMeta"),
+  )(parent)
+}
+
+function* decryptServerUrlPointers(parent){
+  if (!parent.encryptedServerUrlPointers){
+    return parent
+  }
+
+  const privkey = yield select(getPrivkey),
+        signedById = parent.serverUrlPointersSignedById
+
+  if(!signedById) throw new Error(`Parent ${parent.id} serverUrlPointers not signed.`)
+
+  const signedByUser = yield select(getUser(signedById)),
+        trusted = yield call(keyableIsTrusted, signedByUser)
+
+  if (!trusted) throw new Error(`serverUrlPointers signing user ${signedById} not trusted.`)
+
+  const serverUrlPointers = yield crypto.decryptJson({
+    privkey,
+    pubkey: signedByUser.pubkey,
+    encrypted: parent.encryptedServerUrlPointers
+  })
+
+  return R.pipe(
+    R.assoc("serverUrlPointers", serverUrlPointers),
+    R.dissoc("encryptedServerUrlPointers")
+  )(parent)
+}
+
+export function* decryptEnvParent(parent){
+  let envsDecrypted = yield call(execDecryptEnvs, parent),
+      serverUrlPointersDecrypted = yield call(decryptServerUrlPointers, envsDecrypted)
+  return serverUrlPointersDecrypted
 }
 
 export function* decryptAllEnvParents(background=false){
