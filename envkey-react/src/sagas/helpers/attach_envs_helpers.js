@@ -167,35 +167,21 @@ export function *envParamsForUpdateOrgRole({userId, role: newRole}){
   return merged
 }
 
-function *encryptUrlSecrets({urlPointer, privkey, pubkey}){
-  const toEncrypt = [encryptJson({data: urlPointer.urlSecret, privkey, pubkey})]
-  if (urlPointer.inheritanceOverridesUrlSecret){
-    toEncrypt.push(encryptJson({data: urlPointer.inheritanceOverridesUrlSecret, privkey, pubkey}))
+export function *envParamsForOrgStorageUpdate(){
+  const generators = [],
+        apps = yield select(getApps)
+
+  for (let {appId: id} of apps){
+    let users = yield select(getUsersForApp(appId))
+
+    for (let {userId: id} of users){
+      generators.push(call(envParamsWithAppUser, {userId, appId}))
+    }
   }
 
-  const [encryptedUrlSecret, encryptedInheritanceOverridesUrlSecret] = yield toEncrypt
-
-  return {encryptedUrlSecret, encryptedInheritanceOverridesUrlSecret}
+  const allParams = yield generators
+  return allParams.reduce(R.mergeDeepRight)
 }
-
-export function *urlPointersForKeyable({appId, keyableType, keyableId, urlPointer}){
-  const users = yield select(getUsersForApp(appId)),
-        privkey = yield select(getPrivkey),
-        encryptQueue = [],
-        appUserIds = []
-
-  for (let user of users){
-    encryptQueue.push(call(encryptUrlSecrets, {urlPointer, privkey, pubkey: user.pubkey}))
-    appUserIds.push(user.relation.id)
-  }
-
-  const allEncrypted = yield encryptQueue
-
-  return allEncrypted.reduce((agg, enc, i) => {
-    return R.assocPath([pluralize(keyableType), keyableId, appUserIds[i]], enc, agg)
-  }, {})
-}
-
 
 export function* attachAssocEnvs(action){
   let envParams

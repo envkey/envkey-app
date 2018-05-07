@@ -5,9 +5,12 @@ import R from 'ramda'
 import {
   apiSaga,
   envParamsForUpdateOrgRole,
+  envParamsForOrgStorageUpdate,
   dispatchDecryptAllIfNeeded,
   redirectFromOrgIndexIfNeeded,
-  execUpdateTrustedPubkeys
+  execUpdateTrustedPubkeys,
+  urlPointersForUpdateOrgRole,
+  urlPointersForOrgStorageUpdate
 } from './helpers'
 import {
   UPDATE_ORG_ROLE,
@@ -86,10 +89,36 @@ const
   })
 
 function *onUpdateOrgRole({payload: {role, userId, orgUserId}}){
+  const currentOrg = yield select(getCurrentOrg)
+
   yield put(fetchCurrentUserUpdates())
   yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
   const envs = yield call(envParamsForUpdateOrgRole, {userId, role})
-  yield put(updateOrgRoleRequest({envs, role, userId, orgUserId}))
+  let action = updateOrgRoleRequest({envs, role, userId, orgUserId})
+
+  if (currentOrg.s3Storage){
+    const urlPointers = yield call(urlPointersForUpdateOrgRole, {userId, role})
+    action = R.assocPath(["payload", urlPointers], urlPointers, action)
+  }
+
+  yield put(action)
+}
+
+function* onUpdateOrgStorageStrategy(action){
+  const {payload: {org: {storageStrategy}}},
+        currentOrg = yield select(getCurrentOrg),
+        envParams = yield call(envParamsForOrgStorageUpdate)
+
+  action = R.assocPath(["payload", "envs"], envParams)
+
+  if (storageStrategy == "s3"){
+    const urlPointers = yield call(urlPointersForOrgStorageUpdate)
+    action = R.assocPath(["payload", "urlPointers"], urlPointers)
+  } else if (storageStrategy == "envkey_cloud"){
+
+  }
+
+  yield call(onUpdateOrgStorageStrategyRequest, action)
 }
 
 function *onCreateOrgSuccess(action){
@@ -155,7 +184,6 @@ function *onUpdateOrgOwnerSuccess(action){
 }
 
 function *onUpdateOrgStorageStrategySuccess(action){
-  const currentOrg = yield select(getCurrentOrg)
   yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
 }
 
@@ -173,7 +201,7 @@ export default function* orgSagas(){
     takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
     takeLatest(GENERATE_DEMO_ORG_REQUEST, onGenerateDemoOrgRequest),
     takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess),
-    takeLatest(UPDATE_ORG_STORAGE_STRATEGY_REQUEST, onUpdateOrgStorageStrategyRequest),
+    takeLatest(UPDATE_ORG_STORAGE_STRATEGY_REQUEST, onUpdateOrgStorageStrategy),
     takeLatest(UPDATE_ORG_STORAGE_STRATEGY_SUCCESS, onUpdateOrgStorageStrategySuccess)
   ]
 }

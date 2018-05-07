@@ -116,10 +116,12 @@ function* decryptEnvironment(environment, opts){
 
   if (typeof decrypted === "string"){
     let url = decrypted,
-        res = yield axios.get(url)
+        res = yield axios.get(url),
+        urlSplit = url.split("/"),
+        urlSecret = urlSplit[urlSplit.length - 1]
 
     decrypted = yield crypto.decryptJson({...opts, encrypted: res.data})
-    decrypted["@@__urlPointer__"] = url
+    decrypted["@@__url_secret__"] = urlSecret
   }
 
   return {[environment]: decrypted}
@@ -163,37 +165,36 @@ function* execDecryptEnvs(parent){
   )(parent)
 }
 
-function* decryptServerUrlPointers(parent){
-  if (!parent.encryptedServerUrlPointers){
-    return parent
-  }
+// function* decryptServerUrlPointers(parent){
+//   if (!parent.encryptedServerUrlPointers){
+//     return parent
+//   }
 
-  const privkey = yield select(getPrivkey),
-        signedById = parent.serverUrlPointersSignedById
+//   const privkey = yield select(getPrivkey),
+//         signedById = parent.serverUrlPointersSignedById
 
-  if(!signedById) throw new Error(`Parent ${parent.id} serverUrlPointers not signed.`)
+//   if(!signedById) throw new Error(`Parent ${parent.id} serverUrlPointers not signed.`)
 
-  const signedByUser = yield select(getUser(signedById)),
-        trusted = yield call(keyableIsTrusted, signedByUser)
+//   const signedByUser = yield select(getUser(signedById)),
+//         trusted = yield call(keyableIsTrusted, signedByUser)
 
-  if (!trusted) throw new Error(`serverUrlPointers signing user ${signedById} not trusted.`)
+//   if (!trusted) throw new Error(`serverUrlPointers signing user ${signedById} not trusted.`)
 
-  const serverUrlPointers = yield crypto.decryptJson({
-    privkey,
-    pubkey: signedByUser.pubkey,
-    encrypted: parent.encryptedServerUrlPointers
-  })
+//   const serverUrlPointers = yield crypto.decryptJson({
+//     privkey,
+//     pubkey: signedByUser.pubkey,
+//     encrypted: parent.encryptedServerUrlPointers
+//   })
 
-  return R.pipe(
-    R.assoc("serverUrlPointers", serverUrlPointers),
-    R.dissoc("encryptedServerUrlPointers")
-  )(parent)
-}
+//   return R.pipe(
+//     R.assoc("serverUrlPointers", serverUrlPointers),
+//     R.dissoc("encryptedServerUrlPointers")
+//   )(parent)
+// }
 
 export function* decryptEnvParent(parent){
-  let envsDecrypted = yield call(execDecryptEnvs, parent),
-      serverUrlPointersDecrypted = yield call(decryptServerUrlPointers, envsDecrypted)
-  return serverUrlPointersDecrypted
+  let envsDecrypted = yield call(execDecryptEnvs, parent)
+  return envsDecrypted
 }
 
 export function* decryptAllEnvParents(background=false){

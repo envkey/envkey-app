@@ -1,15 +1,8 @@
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 
-const
-  baseOpts =  {
-    timeout: 10000
-  }
+const client = axios.create({timeout: 5000})
 
-export const
+axiosRetry(client, {retries: 3})
 
-  s3Client = (opts={})=> {
-    const client = axios.create({...baseOpts, ...opts})
-    axiosRetry(client, {retries: 3})
-    return client
-  }
+export const s3Client = client

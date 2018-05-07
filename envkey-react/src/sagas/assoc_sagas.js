@@ -7,7 +7,11 @@ import {
   inviteUser,
   execCreateAssoc,
   attachAssocEnvs,
-  urlPointersForKeyable
+  execRawEnvKeyableS3Post,
+  urlPointersForRawEnvKeyable,
+  urlPointersForAppUser,
+  createUrlPointer,
+  processS3Uploads
 } from './helpers'
 import {
   ADD_ASSOC_REQUEST,
@@ -91,6 +95,8 @@ const
 
 let isPrefetchingUpdatesForAddAssoc = false
 function* onAddAssoc(action){
+  const currentOrg = yield select(getCurrentOrg)
+
   let apiAction
   const {meta: {parentType, assocType, isCreatingAssoc, shouldPrefetchUpdates, parentId}} = action,
         apiSaga = addRemoveAssocApiSaga({
@@ -111,6 +117,16 @@ function* onAddAssoc(action){
     }
 
     apiAction = yield call(attachAssocEnvs, action)
+
+    if (currentOrg.s3Storage){
+      const envParams = yield call(processS3Uploads, apiAction.payload.envs),
+            urlPointerParams = yield call(urlPointersForAppUser({appId: parentId, userId: assocId})),
+
+      apiAction = R.pipe(
+        R.assocPath(["payload", "urlPointers"], urlPointerParams),
+        R.assocPath(["payload", "envs"], envParams)
+      )(apiAction)
+    }
   } else {
     apiAction = action
   }
@@ -140,9 +156,7 @@ function* onAddAssocSuccess({meta, payload: {id: targetId}}){
   const {parentType, assocType} = meta
 
   if(parentType == "app" && ["server", "localKey"].includes(assocType) && !meta.skipKeygen){
-    yield put(generateKey({
-      ...meta, targetId
-    }))
+    yield put(generateKey({...meta, targetId}))
   }
 }
 
@@ -181,51 +195,31 @@ function* onGenerateKey(action){
 
     signedPubkey = yield signPublicKey({pubkey, privkey: currentUserPrivkey}),
 
-    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment, subEnvId: target.subEnvId})),
+    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment, subEnvId: target.subEnvId}))
 
-    [
-      encryptedRawEnv,
-      signedTrustedPubkeys,
-      signedByTrustedPubkeys
-    ] = yield [
-     encryptJson({
-       pubkey: signedPubkey,
-       privkey: currentUserPrivkey,
-       data: rawEnv
-     }),
-     call(signTrustedPubkeyChain, decryptedPrivkey),
-     call(signTrustedPubkeyChain)
-    ]
+  let [
+    encryptedRawEnv,
+    signedTrustedPubkeys,
+    signedByTrustedPubkeys
+  ] = yield [
+   encryptJson({
+     pubkey: signedPubkey,
+     privkey: currentUserPrivkey,
+     data: rawEnv
+   }),
+   call(signTrustedPubkeyChain, decryptedPrivkey),
+   call(signTrustedPubkeyChain)
+  ]
 
-  // s3 upload if necessary
-  let encryptedUrl, urlPointer
+  let urlPointer
   if (target.s3UploadInfo){
-    urlPointer = {
-      urlSecret: secureRandomAlphanumeric(20),
-      inheritanceOverridesUrlSecret: ((assocType == "server" && target.role == "production") ? secureRandomAlphanumeric(20) : undefined)
-    }
-
-    const client = s3Client(),
-          s3Info = target.s3UploadInfo.env,
-          fields = JSON.parse(s3Info.fields),
-          data = new FormData(),
-          key = s3Info.path + urlPointer.urlSecret,
-          url = s3Info.url + "/" + key
-
-    for (let field in fields){
-      data.append(field, fields[field])
-    }
-
-    data.append('key', key)
-    data.append('file', new Blob([encryptedRawEnv]),{type:'text/plain', filename: urlPointer.urlSecret})
-    data.append('Content-Type', 'text/plain')
-
-    yield client.post(s3Info.url + "/", data)
-
-    encryptedUrl = yield encryptJson({
+    urlPointer = createUrlPointer({target, keyableType: assocType})
+    encryptedRawEnv = yield call(execRawEnvKeyableS3Post, {
+      s3Info: target.s3Info,
+      env: encryptedRawEnv,
       pubkey: signedPubkey,
       privkey: currentUserPrivkey,
-      data: url
+      secret: urlPointer.urlSecret
     })
   }
 
@@ -242,7 +236,7 @@ function* onGenerateKey(action){
   })
 
   if (target.s3UploadInfo){
-    const urlPointerParams = yield call(urlPointersForKeyable, {
+    const urlPointerParams = yield call(urlPointersForRawEnvKeyable, {
       urlPointer,
       keyableType: assocType,
       keyableId: targetId,

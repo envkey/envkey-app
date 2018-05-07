@@ -2,6 +2,7 @@ import { put, select, call } from 'redux-saga/effects'
 import R from 'ramda'
 import {envParamsForApp} from './attach_envs_helpers'
 import {signTrustedPubkeyChain} from './crypto_helpers'
+import {processS3Uploads} from './s3_storage_helpers'
 import {
   getEnvsWithMetaWithPending,
   getEnvActionsPendingByEnvUpdateId,
@@ -12,8 +13,6 @@ import {
   getSocketUserUpdatingEnvs,
   getServersForSubEnv,
   getCurrentOrg,
-  getAppUserBy,
-  getLocalKey,
   getServer,
   getUser,
   getPrivkey
@@ -25,8 +24,6 @@ import {
   removeAssoc,
   addAssoc
 } from "actions"
-import { s3Client } from 'lib/s3'
-import { secureRandomAlphanumeric, encryptJson } from 'lib/crypto'
 
 let dispatchingEnvUpdateId
 
@@ -38,6 +35,7 @@ export function* dispatchEnvUpdateRequest(params){
   dispatchingEnvUpdateId = envUpdateId
 
   const
+    currentOrg = yield select(getCurrentOrg),
     parent = yield select(getObject(parentType, parentId)),
     envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
     envActionsPendingBefore = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
@@ -52,120 +50,8 @@ export function* dispatchEnvUpdateRequest(params){
     return
   }
 
-  const currentOrg = yield select(getCurrentOrg),
-        client = s3Client()
-
-  if (currentOrg.storageStrategy == "s3"){
-    const updatePaths = [],
-          encryptUrlQueue = [],
-          requestQueue = []
-
-    if (envParams.users){
-      for (let userId in envParams.users){
-        let apps = envParams.users[userId].apps
-        for (let appId in apps){
-          let appEnvsWithMeta  = apps[appId].envsWithMeta,
-              appUser = yield select(getAppUserBy({userId, appId})),
-              user = yield select(getUser(userId))
-
-          for (let environment in appEnvsWithMeta){
-            let s3Info = appUser.s3UploadInfo[environment]
-
-            if (s3Info){
-              let env = appEnvsWithMeta[environment],
-                  secret = secureRandomAlphanumeric(20),
-                  fields = JSON.parse(s3Info.fields),
-                  data = new FormData(),
-                  key = s3Info.path + secret,
-                  url = s3Info.url + "/" + key
-
-              for (let field in fields){
-                data.append(field, fields[field])
-              }
-
-              data.append('key', key)
-              data.append('file', new Blob([env]),{type:'text/plain', filename: secret})
-              data.append('Content-Type', 'text/plain')
-
-              requestQueue.push(client.post(s3Info.url + "/", data))
-              updatePaths.push(["users", userId, "apps", appId, "envsWithMeta", env])
-              encryptUrlQueue.push(call(encryptJson, {data: url, pubkey: user.pubkey, privkey}))
-            }
-          }
-        }
-      }
-    }
-
-    if (envParams.localKeys){
-      for (let id in envParams.localKeys){
-        let env = envParams.localKeys[id].env,
-            localKey = yield select(getLocalKey(id)),
-            s3Info = localKey.s3UploadInfo.env
-
-        if (s3Info){
-          let secret = secureRandomAlphanumeric(20),
-              fields = JSON.parse(s3Info.fields),
-              data = new FormData(),
-              key = s3Info.path + secret,
-              url = s3Info.url + "/" + key
-
-          for (let field in fields){
-            data.append(field, fields[field])
-          }
-
-          data.append('key', key)
-          data.append('file', new Blob([env]),{type:'text/plain', filename: secret})
-          data.append('Content-Type', 'text/plain')
-
-          requestQueue.push(client.post(s3Info.url + "/", data))
-          updatePaths.push(["localKeys", id, "env"])
-          encryptUrlQueue.push(call(encryptJson, {data: url, pubkey: localKey.pubkey, privkey}))
-
-        }
-      }
-    }
-
-    if (envParams.servers){
-      for (let id in envParams.servers){
-        let server = yield select(getServer(id))
-
-        for (let k of ["env", "inheritanceOverrides"]){
-          let val = envParams.servers[id][k],
-              s3Info = server.s3UploadInfo[k]
-
-          if (val && s3Info){
-            let secret = secureRandomAlphanumeric(20),
-                fields = JSON.parse(s3Info.fields),
-                data = new FormData(),
-                key = s3Info.path + secret,
-                url = s3Info.url + "/" + key
-
-            for (let field in fields){
-              data.append(field, fields[field])
-            }
-
-            data.append('key', key)
-            data.append('file', new Blob([val]),{type:'text/plain', filename: secret})
-            data.append('Content-Type', 'text/plain')
-
-            requestQueue.push(client.post(s3Info.url + "/", data))
-            updatePaths.push(["servers", id, k])
-            encryptUrlQueue.push(call(encryptJson, {data: url, pubkey: server.pubkey, privkey}))
-          }
-        }
-      }
-    }
-
-    const results = yield requestQueue,
-          encryptedUrls = yield encryptUrlQueue
-
-    for (let i = 0; i < encryptedUrls.length; i++){
-      let encryptedUrl = encryptedUrls[i],
-          updatePath = updatePaths[i]
-
-      envParams = R.assocPath(updatePath, encryptedUrl, envParams)
-    }
-
+  if (currentOrg.s3Storage){
+    envParams = yield call(processS3Uploads, envParams)
   }
 
   yield put(updateEnvRequest({
