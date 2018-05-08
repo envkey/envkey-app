@@ -11,6 +11,7 @@ import {
   RENAME_SUB_ENV,
 
   GENERATE_ENV_UPDATE_ID,
+  CLEAR_PENDING_ENV_UPDATE,
   UPDATE_ENV_REQUEST,
   UPDATE_ENV_API_SUCCESS,
   UPDATE_ENV_SUCCESS,
@@ -109,6 +110,7 @@ export const
         return envActionsPendingCommitImportReducer(state, action)
 
       case UPDATE_ENV_SUCCESS:
+      case CLEAR_PENDING_ENV_UPDATE:
         return R.pipe(
           R.dissocPath([action.meta.parentId, action.meta.envUpdateId]),
           R.reject(R.isEmpty)

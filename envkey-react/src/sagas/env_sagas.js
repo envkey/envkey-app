@@ -30,9 +30,11 @@ import {
   VERIFY_ORG_PUBKEYS_SUCCESS,
   fetchObjectDetails,
   updateEnvRequest,
-  socketBroadcastEnvsStatus
+  socketBroadcastEnvsStatus,
+  clearPendingEnvUpdate
 } from "actions"
 import { isOutdatedEnvsResponse } from 'lib/actions'
+import { envUpdateConflicts } from 'lib/env/transform'
 import isElectron from 'is-electron'
 
 const onUpdateEnvRequest = apiSaga({
@@ -63,7 +65,9 @@ function* onUpdateEnvSuccess(action){
 
 function* onUpdateEnvFailed(action){
   if (isOutdatedEnvsResponse(action)){
-    const {payload, meta: {parentType, parentId, envUpdateId}} = action
+    const {payload, meta} = action,
+          {parentType, parentId, envUpdateId} = meta,
+          preUpdateParent = yield select(getObject(parentType, parentId))
 
     yield put(fetchObjectDetails({
       objectType: parentType,
@@ -74,11 +78,31 @@ function* onUpdateEnvFailed(action){
 
     yield take(FETCH_OBJECT_DETAILS_SUCCESS)
 
+    let reloadedParent = yield select(getObject(parentType, parentId))
     const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId))
+
+    const conflicts = envUpdateConflicts(
+      preUpdateParent.envsWithMeta,
+      reloadedParent.envsWithMeta,
+      envActionsPending
+    )
+
+    if (conflicts.length){
+      yield put(clearPendingEnvUpdate({parentId, envUpdateId}))
+      yield call(delay, 50)
+
+      const keys = conflicts.filter(R.complement(R.isNil)),
+            keyPart = keys.length ? ` for ${conflicts.map(s => `'${s}'`).join(", ")}` : '',
+            msg = `Your update was rejected due to a conflict with recent changes from another user. Check the updated values${keyPart}, then re-apply your update if necessary.`
+
+      alert(msg)
+      yield put({meta, type: UPDATE_ENV_FAILED, payload: "Update conflict.", error: true})
+      return
+    }
 
     for (let pendingAction of envActionsPending){
       try {
-        const reloadedParent = yield select(getObject(parentType, parentId))
+        reloadedParent = yield select(getObject(parentType, parentId))
         yield put({...pendingAction, meta: {...pendingAction.meta, parent: reloadedParent}})
       } catch (e){
         console.log("Replay pending envs error")
