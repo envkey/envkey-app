@@ -15,11 +15,12 @@
     position: relative
     top: -1px
 
-  .cell.entry-cell input
-    +safari-only
-      +placeholder
-        position: relative
-        top: -2px
+  .cell.entry-cell
+    input, textrea
+      +safari-only
+        +placeholder
+          position: relative
+          top: -2px
 
   .cell.val-cell:not(:hover):not(.editing)
     box-sizing: border-box
@@ -31,9 +32,10 @@
       border: 1px solid transparent !important
       box-shadow: none !important
 
-  .cell.entry-cell:not(.editing) input
-    pointer-events: none
-    position: relative
+  .cell.entry-cell:not(.editing)
+    input, textarea
+      pointer-events: none
+      position: relative
 
   .entry-row.editing-entry
     +cell-glow($light-orange)
