@@ -22,7 +22,7 @@ export default class Changelog extends React.Component {
   _fetchChanges(){
     axios.get('https://raw.githubusercontent.com/envkey/envkey-app/master/CHANGELOG.json')
          .then(({data}) => {
-           this.setState({changes: data[this.props.version]})
+           this.setState({changes: data})
          })
   }
 
@@ -33,8 +33,8 @@ export default class Changelog extends React.Component {
   }
 
   _renderChanges(){
-    if (this.state.changes){
-      return this.state.changes.map(renderChange)
+    if (this.state.changes && this.props.version && this.state.changes[this.props.version]){
+      return this.state.changes[this.props.version].map(renderChange)
     } else {
       return <li>Loading CHANGELOG…</li>
     }
