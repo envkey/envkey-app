@@ -3,7 +3,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 
 const defaultInputVal = props => props.inherits || props.val || ""
 
-const Editable = Cell => class extends Cell {
+const Editable = (Cell, editableOpts={}) => class extends Cell {
 
   constructor(props) {
     super(props)
@@ -44,7 +44,7 @@ const Editable = Cell => class extends Cell {
   _transformInputVal(val){ return val }
 
   _onInputKeydown(e){
-    if(e.key == "Enter"){
+    if(e.key == "Enter" && !e.shiftKey){
       this._handleEnter(e)
     } else if (e.key == "ArrowUp"){
       this._handleUpArrow(e)
@@ -56,6 +56,7 @@ const Editable = Cell => class extends Cell {
   _setTextSelected(){
     this.refs.input.focus()
     this.refs.input.select()
+    this.refs.input.scrollTop = 0
   }
 
   _inputPlaceholder(){ return "" }
@@ -88,15 +89,20 @@ const Editable = Cell => class extends Cell {
   }
 
   _renderInput(){
-    return h.input(".cell-input", {
-      ref: "input",
-      spellCheck: "false",
-      placeholder: this._inputPlaceholder(),
-      value: this.state.inputVal,
-      onChange: ::this._onInputChange,
-      onKeyDown: ::this._onInputKeydown
-    })
+    const inputParams = {
+            ref: "input",
+            spellCheck: "false",
+            placeholder: this._inputPlaceholder(),
+            value: this.state.inputVal,
+            onChange: ::this._onInputChange,
+            onKeyDown: ::this._onInputKeydown
+          },
+          inputClass = editableOpts.multiline ? h.textarea : h.input
+
+    return inputClass(".cell-input", inputParams)
   }
+
+
 }
 
 export default Editable

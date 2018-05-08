@@ -7,7 +7,7 @@
     box-sizing: border-box
     // padding: 0 15px
 
-    &, span, input
+    &, span, input, textarea
       font-family: $code-font
 
     &:hover, &:last-of-type:hover
@@ -72,7 +72,7 @@
     &.var:hover, &.var:last-of-type:hover
       +cell-glow($light-blue)
 
-    &, span, input
+    &, span, input, textarea
       font-size: 11px
 
     .val
@@ -91,7 +91,7 @@
         margin-right: 4px
         position: relative
 
-      &, span, input
+      &, span, input, textarea
         font-size: 11px
 
     &:last-of-type
@@ -101,7 +101,7 @@
         &.locked
           border-bottom: 1px solid rgba(hsl(0,0,75), 0.6)
 
-    &, span, input
+    &, span, input, textarea
       font-size: 10px
 
   &.vals-masked .val-cols .cell
@@ -110,25 +110,31 @@
     &.inherits
       color: $dark-blue
 
-  .cell input
-    outline: none
-    border: none
-    display: inline-block
-    width: 100%
-    height: 100%
-    box-sizing: border-box
-    box-shadow: none
-    border-radius: 0px
-    background: none
-    color: $dark-text
-    text-align: center
+  .cell
+    input, textarea
+      outline: none
+      border: none
+      display: inline-block
+      width: 100%
+      height: 100%
+      box-sizing: border-box
+      box-shadow: none
+      border-radius: 0px
+      background: none
+      color: $dark-text
+      text-align: center
 
-    &::selection
-      background: rgba($light-blue, 0.4)
+      &::selection
+        background: rgba($light-blue, 0.4)
 
-  .cell.entry-cell input
-    text-align: left
-    padding-left: 15px
+    textarea
+      resize: none
+      padding-top: 12px
+
+  .cell.entry-cell
+    input, textarea
+      text-align: left
+      padding-left: 15px
 
   .cell.editing
     .actions-overlay

@@ -10,7 +10,13 @@ export default class EnvCell extends React.Component {
 
   _valDisplay(){ return this._valString() }
 
-  _valString(){ return this.props.val }
+  _valString(){
+    const lines = (this.props.val || "").split(/[\r\n]+/)
+
+    return lines.length == 1 ?
+      this.props.val :
+      lines[0] + "…"
+  }
 
   _classNames(){
     return [
