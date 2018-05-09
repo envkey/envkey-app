@@ -36,7 +36,7 @@ export default class ValCell extends EnvCell {
     if(this.props.locked || (!this.props.isUpdating && this.props.hideValues)){
       return "●●●●●●●●●●●●";
     } else {
-      return this._valString()
+      return super._valDisplay()
     }
   }
 

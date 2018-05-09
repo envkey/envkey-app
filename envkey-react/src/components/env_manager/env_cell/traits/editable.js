@@ -97,9 +97,11 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
             onChange: ::this._onInputChange,
             onKeyDown: ::this._onInputKeydown
           },
-          inputClass = editableOpts.multiline ? h.textarea : h.input
+          component = editableOpts.multiline ? h.textarea : h.input,
+          hasMultipleLines = editableOpts.multiline && (this.state.inputVal || "").split(/[\r\n]+/).length > 1,
+          classStr = `.cell-input${hasMultipleLines ? '.multiline' : ''}`
 
-    return inputClass(".cell-input", inputParams)
+    return component(classStr, inputParams)
   }
 
 
