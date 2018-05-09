@@ -37,7 +37,10 @@
   ],
   "1.3.6": [
     "Really fix updater CHANGELOG display",
+    "Show all elapsed versions in updater CHANGELOG display",
+    "Fix for copying issue with multi-line text",
+    "Better alignment for multi-line text",
     "Fix for potential config overwrite bug when syncing outdated client on updates and encountering conflicts",
-
+    "Warning if user attempts to close app while encrypt-and-sync in progress"
   ]
 }
