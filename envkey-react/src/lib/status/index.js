@@ -1,6 +1,12 @@
 import {store} from 'init_redux'
+import {getIsUpdatingAnyEnv} from 'selectors'
 import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
 import isElectron from 'is-electron'
+
+
+window.isUpdatingAnyEnv = ()=> {
+  return getIsUpdatingAnyEnv(store.getState())
+}
 
 let isCheckingConnection = false,
     isCheckingActive = false,

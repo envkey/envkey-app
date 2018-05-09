@@ -2,6 +2,7 @@ import { defaultMemoize } from 'reselect'
 import db from 'lib/db'
 import {
   getApp,
+  getApps,
   getUser,
   getAppUserBy,
   getObject,
@@ -12,6 +13,8 @@ import {rawEnv, transformEnv} from 'lib/env/transform'
 import {allSubEnvsSorted, serverSubEnvOptsByRole} from 'lib/env/query'
 import R from 'ramda'
 import {camelize} from 'xcase'
+import {flattenObj} from 'lib/utils/object'
+
 
 export const
 
@@ -119,5 +122,42 @@ export const
   getServerSubEnvOptsByRole = R.curry((appId, state)=>{
     const envsWithMeta = getApp(appId, state).envsWithMeta
     return serverSubEnvOptsByRole(envsWithMeta)
-  })
+  }),
+
+  getIsUpdatingEnv = (appId, state)=> {
+    const checkFns = ["isUpdatingEnv", "isAddingSubEnv", "isUpdatingSubEnv"].map(k => {
+      return R.pipe(
+        db.path(k),
+        R.propOr({}, appId),
+        flattenObj,
+        R.complement(R.isEmpty)
+      )
+    })
+
+    return getIsCreatingEnvEntry(appId, state) || R.anyPass(checkFns)(state)
+  },
+
+  getIsUpdatingAnyEnv = (state)=>{
+    const apps = getApps(state)
+    return R.any(({id: appId})=> getIsUpdatingEnv(appId, state))(apps)
+  },
+
+  getIsUpdatingEnvVal = ({appId, entryKey, environment}, state)=>{
+    return db.path("isUpdatingEnv", appId, entryKey, environment)(state)
+  },
+
+  getIsUpdatingEnvEntry = ({appId, entryKey, environment}, state)=>{
+    return db.path("isUpdatingEnv", appId, entryKey, "key")(state)
+  },
+
+  getIsCreatingEnvEntry = (appId, state)=>{
+    const val = db.path("isCreatingEnvEntry", appId)(state)
+    return val && !R.isEmpty(val)
+  },
+
+  getIsGrantingEnvAccessByUserId = db.path("isGrantingEnvAccess"),
+
+  getIsGrantingEnvAccess = (userId, state)=> {
+    return getIsGrantingEnvAccessByUserId(state)[userId] || false
+  }
 
