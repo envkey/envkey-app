@@ -34,5 +34,9 @@
     "Fix blank screen for non-org owners after free trial expires",
     "Remove usage-based limits from billing screens",
     "Update electron"
+  ],
+  "1.3.6": [
+    "Really fix updater CHANGELOG display",
+    "Fix for potential config overwrite bug when syncing outdated client on updates and encountering conflicts"
   ]
 }
