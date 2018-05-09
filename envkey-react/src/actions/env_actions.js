@@ -8,6 +8,7 @@ import {
   UPDATE_ENTRY_VAL,
   UPDATE_ENV_REQUEST,
   GENERATE_ENV_UPDATE_ID,
+  CLEAR_PENDING_ENV_UPDATE,
   ADD_SUB_ENV,
   REMOVE_SUB_ENV,
   RENAME_SUB_ENV
@@ -43,6 +44,8 @@ export const
   ),
 
   generateEnvUpdateId = createAction(GENERATE_ENV_UPDATE_ID, uuid, pickMeta),
+
+  clearPendingEnvUpdate = createAction(CLEAR_PENDING_ENV_UPDATE, R.always({}), R.pick(["parentId", "envUpdateId"])),
 
   addSubEnv = createAction(
     ADD_SUB_ENV,
