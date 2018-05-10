@@ -227,6 +227,10 @@ export const
   },
 
   envUpdateConflicts = (preUpdateEnvsWithMeta, postUpdateEnvsWithMeta, envActionsPending)=>{
+    if (!envActionsPending || envActionsPending.length == 0){
+      return []
+    }
+
     const updateDiffs = diff(preUpdateEnvsWithMeta, postUpdateEnvsWithMeta),
           preUpdateWithPending = envActionsPending.reduce(transformEnv, preUpdateEnvsWithMeta),
           postUpdateWithPending = envActionsPending.reduce(transformEnv, postUpdateEnvsWithMeta),

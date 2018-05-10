@@ -85,7 +85,7 @@ const
   onFetchObjectDetails = action => apiSaga({
     authenticated: true,
     method: "get",
-    minDelay: (action.meta && action.meta.socketUpdate ? 2000 : 0),
+    minDelay: (action.meta && action.meta.socketUpdate ? 5000 : 0),
     actionTypes: [FETCH_OBJECT_DETAILS_API_SUCCESS, FETCH_OBJECT_DETAILS_FAILED],
     urlFn: ({meta: {objectType, targetId}})=> `/${pluralize(objectType)}/${targetId}.json`
   })(action),
