@@ -1,6 +1,5 @@
 import R from 'ramda'
 import { take, put, call, select, takeEvery, takeLatest } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
 import { push } from 'react-router-redux'
 import pluralize from 'pluralize'
 import { decamelize } from 'xcase'
@@ -9,7 +8,8 @@ import {
   dispatchEnvUpdateRequestIfNeeded,
   dispatchEnvUpdateRequest,
   clearSubEnvServersIfNeeded,
-  addDefaultSubEnvServerIfNeeded
+  addDefaultSubEnvServerIfNeeded,
+  resolveEnvUpdateConflicts
 } from './helpers'
 import {
   getEnvActionsPendingByEnvUpdateId,
@@ -34,7 +34,6 @@ import {
   clearPendingEnvUpdate
 } from "actions"
 import { isOutdatedEnvsResponse } from 'lib/actions'
-import { envUpdateConflicts } from 'lib/env/transform'
 import isElectron from 'is-electron'
 
 const onUpdateEnvRequest = apiSaga({
@@ -81,22 +80,15 @@ function* onUpdateEnvFailed(action){
     let reloadedParent = yield select(getObject(parentType, parentId))
     const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId))
 
-    const conflicts = envUpdateConflicts(
-      preUpdateParent.envsWithMeta,
-      reloadedParent.envsWithMeta,
-      envActionsPending
-    )
+    const hasConflict = yield call(resolveEnvUpdateConflicts, {
+      parentId,
+      envUpdateId,
+      envActionsPending,
+      preUpdateEnvsWithMeta: preUpdateParent.envsWithMeta,
+      postUpdateEnvsWithMeta: reloadedParent.envsWithMeta
+    })
 
-    if (conflicts.length){
-      yield put(clearPendingEnvUpdate({parentId, envUpdateId}))
-      yield call(delay, 50)
-
-      const keys = conflicts.filter(R.complement(R.isNil)),
-            keyPart = keys.length ? ` for ${conflicts.map(s => `'${s}'`).join(", ")}` : '',
-            msg = `Your update was rejected due to a conflict with recent changes from another user. Check the updated values${keyPart}, then re-apply your update if necessary.`
-
-      alert(msg)
-      yield put({meta, type: UPDATE_ENV_FAILED, payload: "Update conflict.", error: true})
+    if (hasConflict){
       return
     }
 
