@@ -1,6 +1,6 @@
 import R from 'ramda'
 import {inheritedVal} from './inheritance'
-import {allKeys, allEntries, subEnvPath, findSubEnv} from './query'
+import {allKeys, allEntries, subEnvPath, findSubEnv, allEntriesWithSubEnvs} from './query'
 import {
   CREATE_ENTRY,
   UPDATE_ENTRY,
@@ -10,6 +10,7 @@ import {
   REMOVE_SUB_ENV,
   RENAME_SUB_ENV
 } from 'actions'
+import diff from 'deep-diff'
 
 const
   isEntry = (v, k)=> k.indexOf("@@__") != 0,
@@ -223,6 +224,33 @@ export const
       withProductionMetaOnly,
       withLockedProduction
     )({envsWithMeta, ...payload})
+  },
+
+  envUpdateConflicts = (preUpdateEnvsWithMeta, postUpdateEnvsWithMeta, envActionsPending)=>{
+    if (!envActionsPending || envActionsPending.length == 0){
+      return []
+    }
+
+    const updateDiffs = diff(preUpdateEnvsWithMeta, postUpdateEnvsWithMeta),
+          preUpdateWithPending = envActionsPending.reduce(transformEnv, preUpdateEnvsWithMeta),
+          postUpdateWithPending = envActionsPending.reduce(transformEnv, postUpdateEnvsWithMeta),
+          preUpdatePendingDiffs = diff(preUpdateEnvsWithMeta, preUpdateWithPending),
+          allEntriesSet = new Set(R.concat(
+            allEntriesWithSubEnvs(preUpdateEnvsWithMeta),
+            allEntriesWithSubEnvs(postUpdateEnvsWithMeta),
+            allEntriesWithSubEnvs(preUpdateWithPending),
+            allEntriesWithSubEnvs(postUpdateWithPending)
+          )),
+          commonPaths = R.innerJoin(
+            (p1,p2)=> R.equals(p1,p2) || R.startsWith(p1,p2) || R.startsWith(p2,p1),
+            updateDiffs.map(R.prop('path')),
+            preUpdatePendingDiffs.map(R.prop('path'))
+          )
+
+    return R.pipe(
+      R.map(R.find(k => allEntriesSet.has(k))),
+      R.uniq
+    )(commonPaths)
   }
 
 

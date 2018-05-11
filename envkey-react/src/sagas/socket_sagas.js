@@ -1,6 +1,9 @@
 import { takeLatest, takeEvery, take, put, select, call } from 'redux-saga/effects'
 import {push } from 'react-router-redux'
-import { redirectFromOrgIndexIfNeeded } from './helpers'
+import {
+  redirectFromOrgIndexIfNeeded,
+  resolveEnvUpdateConflicts
+} from './helpers'
 import {
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   SOCKET_SUBSCRIBE_ORG_USER_CHANNEL,
@@ -36,7 +39,8 @@ import {
   getEnvironmentLabelsWithSubEnvs,
   getAnonSocketEnvsStatus,
   getSelectedObjectId,
-  getSubEnvs
+  getSubEnvs,
+  getEnvActionsPendingByEnvUpdateId
 } from 'selectors'
 import {
   UPDATE_ENVS,
@@ -162,9 +166,11 @@ function *onSocketUpdateOrg(action){
 
   // Env update
   if (actionType == "updated" && targetType == "App" && meta && meta.updateType == "update_envs"){
-    const app = yield select(getApp(appId))
+    let app = yield select(getApp(appId))
 
     if (app){
+      const preUpdateEnvsWithMeta = app.envsWithMeta
+
       yield put(fetchObjectDetails({
         targetId,
         objectType: "app",
@@ -175,6 +181,20 @@ function *onSocketUpdateOrg(action){
       }))
 
       yield take(FETCH_OBJECT_DETAILS_SUCCESS)
+
+      app = yield select(getApp(appId))
+      const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(appId, meta.envUpdateId)),
+            hasConflict = yield call(resolveEnvUpdateConflicts, {
+              envActionsPending,
+              preUpdateEnvsWithMeta,
+              envUpdateId: meta.envUpdateId,
+              parentId: app.id,
+              postUpdateEnvsWithMeta: app.envsWithMeta
+            })
+
+      if (hasConflict){
+        return
+      }
 
       yield call(dispatchEnvUpdateRequestIfNeeded, {
         parent: app,

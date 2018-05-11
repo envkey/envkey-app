@@ -1,4 +1,5 @@
 import { put, select, call } from 'redux-saga/effects'
+import { delay } from 'redux-saga'
 import R from 'ramda'
 import {envParamsForApp} from './attach_envs_helpers'
 import {signTrustedPubkeyChain} from './crypto_helpers'
@@ -20,10 +21,14 @@ import {
 import {
   ADD_SUB_ENV,
   REMOVE_SUB_ENV,
+  UPDATE_ENV_FAILED,
   updateEnvRequest,
   removeAssoc,
-  addAssoc
+  addAssoc,
+  clearPendingEnvUpdate
 } from "actions"
+import { envUpdateConflicts } from 'lib/env/transform'
+
 
 let dispatchingEnvUpdateId
 
@@ -110,3 +115,39 @@ export function* addDefaultSubEnvServerIfNeeded({meta: {envActionsPending, paren
     }))
   }
 }
+
+export function* resolveEnvUpdateConflicts({
+  parentId,
+  envUpdateId,
+  preUpdateEnvsWithMeta,
+  postUpdateEnvsWithMeta,
+  envActionsPending
+}){
+  const conflicts = envUpdateConflicts(
+    preUpdateEnvsWithMeta,
+    postUpdateEnvsWithMeta,
+    envActionsPending
+  )
+
+  if (conflicts.length){
+    yield put(clearPendingEnvUpdate({parentId, envUpdateId}))
+    yield call(delay, 50)
+
+    const keys = conflicts.filter(R.complement(R.isNil)),
+          keyPart = keys.length ? ` for ${conflicts.map(s => `'${s}'`).join(", ")}` : '',
+          msg = `Your update was rejected due to a conflict with recent changes from another user. Check the updated values${keyPart}, then re-apply your update if necessary.`
+
+    alert(msg)
+    yield put({
+      type: UPDATE_ENV_FAILED,
+      payload: "Update conflict.",
+      meta: {parentId, envActionsPending},
+      error: true
+    })
+    return true
+  } else {
+    return false
+  }
+}
+
+

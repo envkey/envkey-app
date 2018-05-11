@@ -1,6 +1,5 @@
 import R from 'ramda'
 import { take, put, call, select, takeEvery, takeLatest } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
 import { push } from 'react-router-redux'
 import pluralize from 'pluralize'
 import { decamelize } from 'xcase'
@@ -9,7 +8,8 @@ import {
   dispatchEnvUpdateRequestIfNeeded,
   dispatchEnvUpdateRequest,
   clearSubEnvServersIfNeeded,
-  addDefaultSubEnvServerIfNeeded
+  addDefaultSubEnvServerIfNeeded,
+  resolveEnvUpdateConflicts
 } from './helpers'
 import {
   getEnvActionsPendingByEnvUpdateId,
@@ -30,7 +30,8 @@ import {
   VERIFY_ORG_PUBKEYS_SUCCESS,
   fetchObjectDetails,
   updateEnvRequest,
-  socketBroadcastEnvsStatus
+  socketBroadcastEnvsStatus,
+  clearPendingEnvUpdate
 } from "actions"
 import { isOutdatedEnvsResponse } from 'lib/actions'
 import isElectron from 'is-electron'
@@ -63,7 +64,9 @@ function* onUpdateEnvSuccess(action){
 
 function* onUpdateEnvFailed(action){
   if (isOutdatedEnvsResponse(action)){
-    const {payload, meta: {parentType, parentId, envUpdateId}} = action
+    const {payload, meta} = action,
+          {parentType, parentId, envUpdateId} = meta,
+          preUpdateParent = yield select(getObject(parentType, parentId))
 
     yield put(fetchObjectDetails({
       objectType: parentType,
@@ -74,11 +77,24 @@ function* onUpdateEnvFailed(action){
 
     yield take(FETCH_OBJECT_DETAILS_SUCCESS)
 
+    let reloadedParent = yield select(getObject(parentType, parentId))
     const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId))
+
+    const hasConflict = yield call(resolveEnvUpdateConflicts, {
+      parentId,
+      envUpdateId,
+      envActionsPending,
+      preUpdateEnvsWithMeta: preUpdateParent.envsWithMeta,
+      postUpdateEnvsWithMeta: reloadedParent.envsWithMeta
+    })
+
+    if (hasConflict){
+      return
+    }
 
     for (let pendingAction of envActionsPending){
       try {
-        const reloadedParent = yield select(getObject(parentType, parentId))
+        reloadedParent = yield select(getObject(parentType, parentId))
         yield put({...pendingAction, meta: {...pendingAction.meta, parent: reloadedParent}})
       } catch (e){
         console.log("Replay pending envs error")

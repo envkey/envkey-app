@@ -8,9 +8,15 @@ export default class EnvCell extends React.Component {
 
   _actions(){ return [] }
 
-  _valDisplay(){ return this._valString() }
+  _valDisplay(){
+    const val = this._valString(),
+          lines = (val || "").split(/[\r\n]+/)
+    return lines.length == 1 ? val : (lines[0] + "…")
+  }
 
-  _valString(){ return this.props.val }
+  _valString(){
+    return this.props.val
+  }
 
   _classNames(){
     return [

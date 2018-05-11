@@ -1,6 +1,7 @@
 import React from "react"
-
+import semver from "semver"
 import axios from "axios"
+import R from 'ramda'
 
 const renderChange = (change, i) => {
   return <li key={i}>{change}</li>
@@ -22,22 +23,35 @@ export default class Changelog extends React.Component {
   _fetchChanges(){
     axios.get('https://raw.githubusercontent.com/envkey/envkey-app/master/CHANGELOG.json')
          .then(({data}) => {
-           this.setState({changes: data[this.props.version]})
+           this.setState({changes: data})
          })
   }
 
   render(){
     return <div className="changelog">
-      <ul>{this._renderChanges()}</ul>
+      {this._renderVersions()}
     </div>
   }
 
-  _renderChanges(){
-    if (this.state.changes){
-      return this.state.changes.map(renderChange)
+  _renderVersions(){
+    if (this.state.changes && this.props.version){
+      return R.pipe(
+        R.keys,
+        R.sort(semver.lt),
+        R.filter(v => semver.gt(v, window.updater.version)),
+        R.map(::this._renderChangeList)
+      )(this.state.changes)
     } else {
-      return <li>Loading CHANGELOG…</li>
+      return <ul><li>Loading CHANGELOG…</li></ul>
     }
   }
+
+  _renderChangeList(version){
+    return <div class="change-list">
+      <h5>{version}</h5>
+      <ul>{this.state.changes[version].map(renderChange)}</ul>
+    </div>
+  }
+
 
 }
