@@ -11,7 +11,8 @@ import {
   CLEAR_PENDING_ENV_UPDATE,
   ADD_SUB_ENV,
   REMOVE_SUB_ENV,
-  RENAME_SUB_ENV
+  RENAME_SUB_ENV,
+  GRANT_ENV_ACCESS_REQUEST
 } from './action_types'
 
 const metaKeys = ["parent", "parentType", "parentId", "timestamp", "importAction", "environment", "id"],
@@ -58,9 +59,13 @@ export const
 
   removeSubEnv = createAction(REMOVE_SUB_ENV, R.pick(["environment", "id"]), pickMeta),
 
-  renameSubEnv = createAction(RENAME_SUB_ENV, R.pick(["environment", "id", "name"]), pickMeta)
+  renameSubEnv = createAction(RENAME_SUB_ENV, R.pick(["environment", "id", "name"]), pickMeta),
 
-
+  grantEnvAccessRequest = createAction(
+    GRANT_ENV_ACCESS_REQUEST,
+    R.pick(['envs']),
+    R.pick(['orgUserId', 'userId'])
+  )
 
 
 

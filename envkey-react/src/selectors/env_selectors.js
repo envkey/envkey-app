@@ -153,11 +153,4 @@ export const
   getIsCreatingEnvEntry = (appId, state)=>{
     const val = db.path("isCreatingEnvEntry", appId)(state)
     return val && !R.isEmpty(val)
-  },
-
-  getIsGrantingEnvAccessByUserId = db.path("isGrantingEnvAccess"),
-
-  getIsGrantingEnvAccess = (userId, state)=> {
-    return getIsGrantingEnvAccessByUserId(state)[userId] || false
   }
-

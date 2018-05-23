@@ -9,10 +9,13 @@ import {
   dispatchEnvUpdateRequest,
   clearSubEnvServersIfNeeded,
   addDefaultSubEnvServerIfNeeded,
-  resolveEnvUpdateConflicts
+  resolveEnvUpdateConflicts,
+  processS3Uploads,
+  envParamsForInvitee
 } from './helpers'
 import {
   getEnvActionsPendingByEnvUpdateId,
+  getCurrentOrg,
   getObject
 } from 'selectors'
 import {
@@ -28,6 +31,12 @@ import {
   RENAME_SUB_ENV,
   FETCH_OBJECT_DETAILS_SUCCESS,
   VERIFY_ORG_PUBKEYS_SUCCESS,
+  GRANT_ENV_ACCESS,
+  GRANT_ENV_ACCESS_REQUEST,
+  GRANT_ENV_ACCESS_FAILED,
+  GRANT_ENV_ACCESS_SUCCESS,
+
+  grantEnvAccessRequest,
   fetchObjectDetails,
   updateEnvRequest,
   socketBroadcastEnvsStatus,
@@ -36,16 +45,24 @@ import {
 import { isOutdatedEnvsResponse } from 'lib/actions'
 import isElectron from 'is-electron'
 
-const onUpdateEnvRequest = apiSaga({
-  authenticated: true,
-  method: "patch",
-  actionTypes: [UPDATE_ENV_SUCCESS, UPDATE_ENV_FAILED],
-  minDelay: 800,
-  urlFn: ({meta: {parentType, parentId}})=> {
-    const urlSafeParentType = decamelize(pluralize(parentType))
-    return `/${urlSafeParentType}/${parentId}/update_envs.json`
-  }
-})
+const
+  onUpdateEnvRequest = apiSaga({
+    authenticated: true,
+    method: "patch",
+    actionTypes: [UPDATE_ENV_SUCCESS, UPDATE_ENV_FAILED],
+    minDelay: 800,
+    urlFn: ({meta: {parentType, parentId}})=> {
+      const urlSafeParentType = decamelize(pluralize(parentType))
+      return `/${urlSafeParentType}/${parentId}/update_envs.json`
+    }
+  }),
+
+  onGrantEnvAccessRequest = apiSaga({
+    authenticated: true,
+    method: "patch",
+    actionTypes: [GRANT_ENV_ACCESS_SUCCESS, GRANT_ENV_ACCESS_FAILED],
+    urlFn: (action)=> `/org_users/${action.meta.orgUserId}/grant_env_access.json`
+  })
 
 function* onTransformEnv(action){
   if(!action.meta.importAction){
@@ -124,6 +141,24 @@ function* onRemoveSubEnv({payload: {environment, id}}){
   if(path != newPath)yield put(push(newPath))
 }
 
+function *onGrantEnvAccess({payload: invitees, meta}){
+  const currentOrg = yield select(getCurrentOrg)
+
+  for (let invitee of invitees){
+    let inviteeEnvParams = yield call(envParamsForInvitee, invitee)
+
+    if (currentOrg.s3Storage){
+      inviteeEnvParams = yield call(processS3Uploads, inviteeEnvParams)
+    }
+
+    yield put(grantEnvAccessRequest({
+      ...meta,
+      ...R.pick(["orgUserId", "userId"], invitee),
+      envs: inviteeEnvParams
+    }))
+  }
+}
+
 export default function* envSagas(){
   yield [
     takeEvery([
@@ -141,6 +176,9 @@ export default function* envSagas(){
 
     takeLatest(UPDATE_ENV_REQUEST, onUpdateEnvRequest),
     takeLatest(UPDATE_ENV_SUCCESS, onUpdateEnvSuccess),
-    takeLatest(UPDATE_ENV_FAILED, onUpdateEnvFailed)
+    takeLatest(UPDATE_ENV_FAILED, onUpdateEnvFailed),
+
+    takeEvery(GRANT_ENV_ACCESS, onGrantEnvAccess),
+    takeEvery(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest),
   ]
 }

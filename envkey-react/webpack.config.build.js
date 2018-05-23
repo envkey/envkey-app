@@ -1,5 +1,4 @@
 var webpack = require('webpack'),
-    envkey = require('envkey/loader'),
     path = require('path'),
     EnvkeyWebpackPlugin = require('envkey-webpack-plugin')
 

@@ -143,6 +143,11 @@ export const
     sortBy: "createdAt"
   }),
 
+  getLocalKeysWithPubkeyForAppUser = db.appUsers.hasMany("localKeys", {
+    sortBy: "createdAt",
+    where: {pubkey: R.complement(R.isNil)}
+  }),
+
   getLocalKeysWithPubkeyForApp = db.apps.hasMany("localKeys", {
     where: {pubkey: R.complement(R.isNil)}
   }),

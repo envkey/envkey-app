@@ -14,7 +14,8 @@ import {
   envParamsForInvitee,
   redirectFromOrgIndexIfNeeded,
   decryptPrivkeyAndDecryptAllIfNeeded,
-  execAddAssoc
+  execAddAssoc,
+  processS3Uploads
 } from './helpers'
 import {
   getInviteParams,
@@ -71,11 +72,6 @@ import {
   GENERATE_USER_KEYPAIR,
   GENERATE_USER_KEYPAIR_SUCCESS,
 
-  GRANT_ENV_ACCESS,
-  GRANT_ENV_ACCESS_REQUEST,
-  GRANT_ENV_ACCESS_FAILED,
-  GRANT_ENV_ACCESS_SUCCESS,
-
   LOGIN_REQUEST,
 
   DECRYPT_PRIVKEY_SUCCESS,
@@ -94,7 +90,6 @@ import {
   acceptInviteRequest,
   loadInviteRequest,
   addTrustedPubkey,
-  grantEnvAccessRequest,
   decryptPrivkey,
   selectOrg,
   removeObject,
@@ -118,13 +113,6 @@ const
     method: "post",
     actionTypes: [ACCEPT_INVITE_SUCCESS, ACCEPT_INVITE_FAILED],
     urlFn: ({meta: {identityHash}}) => `/invite_links/${identityHash}/accept_invite.json`
-  }),
-
-  onGrantEnvAccessRequest = apiSaga({
-    authenticated: true,
-    method: "patch",
-    actionTypes: [GRANT_ENV_ACCESS_SUCCESS, GRANT_ENV_ACCESS_FAILED],
-    urlFn: (action)=> `/org_users/${action.meta.orgUserId}/grant_env_access.json`
   })
 
 
@@ -394,18 +382,6 @@ function *onRegenInvite(action){
   yield put({type: REGEN_INVITE_SUCCESS, meta: {userId}})
 }
 
-function *onGrantEnvAccess({payload: invitees, meta}){
-  for (let invitee of invitees){
-    let inviteeEnvParams = yield call(envParamsForInvitee, invitee)
-
-    yield put(grantEnvAccessRequest({
-      ...inviteeEnvParams,
-      ...meta,
-      ...R.pick(["orgUserId", "userId"], invitee)
-    }))
-  }
-}
-
 export default function* inviteSagas(){
   yield [
     takeLatest(LOAD_INVITE_REQUEST, onLoadInviteRequest),
@@ -415,8 +391,6 @@ export default function* inviteSagas(){
     takeLatest(ACCEPT_INVITE_REQUEST, onAcceptInviteRequest),
     takeLatest(ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
     takeEvery(GENERATE_INVITE_LINK, onGenerateInviteLink),
-    takeEvery(GRANT_ENV_ACCESS, onGrantEnvAccess),
-    takeEvery(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest),
     takeEvery(REVOKE_INVITE, onRevokeInvite),
     takeEvery(REGEN_INVITE, onRegenInvite)
   ]

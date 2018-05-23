@@ -10,9 +10,14 @@ import {
   redirectFromOrgIndexIfNeeded,
   execUpdateTrustedPubkeys,
   urlPointersForUpdateOrgRole,
-  urlPointersForOrgStorageUpdate
+  urlPointersForOrgStorageUpdate,
+  clearAllS3Uploads,
+  clearUserS3Uploads,
+  processS3Uploads
 } from './helpers'
 import {
+  API_SUCCESS,
+
   UPDATE_ORG_ROLE,
   UPDATE_ORG_ROLE_REQUEST,
   UPDATE_ORG_ROLE_SUCCESS,
@@ -93,32 +98,39 @@ function *onUpdateOrgRole({payload: {role, userId, orgUserId}}){
 
   yield put(fetchCurrentUserUpdates())
   yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
-  const envs = yield call(envParamsForUpdateOrgRole, {userId, role})
-  let action = updateOrgRoleRequest({envs, role, userId, orgUserId})
+
+  let envs = yield call(envParamsForUpdateOrgRole, {userId, role})
 
   if (currentOrg.s3Storage){
+    envs = yield call(processS3Uploads, envs)
+    yield call(clearUserS3Uploads, userId)
     const urlPointers = yield call(urlPointersForUpdateOrgRole, {userId, role})
     action = R.assocPath(["payload", urlPointers], urlPointers, action)
   }
+
+  let action = updateOrgRoleRequest({envs, role, userId, orgUserId})
 
   yield put(action)
 }
 
 function* onUpdateOrgStorageStrategy(action){
-  const {payload: {org: {storageStrategy}}},
-        currentOrg = yield select(getCurrentOrg),
-        envParams = yield call(envParamsForOrgStorageUpdate)
+  const {payload: {org: {storageStrategy}}} = action,
+        currentOrg = yield select(getCurrentOrg)
+
+  let envParams = yield call(envParamsForOrgStorageUpdate)
+
+  if (storageStrategy == "s3"){
+    envParams = yield call(processS3Uploads, envParams)
+    const urlPointers = yield call(urlPointersForOrgStorageUpdate)
+    action = R.assocPath(["payload", "urlPointers"], urlPointers)
+  } else {
+    yield call(clearAllS3Uploads)
+  }
 
   action = R.assocPath(["payload", "envs"], envParams)
 
-  if (storageStrategy == "s3"){
-    const urlPointers = yield call(urlPointersForOrgStorageUpdate)
-    action = R.assocPath(["payload", "urlPointers"], urlPointers)
-  } else if (storageStrategy == "envkey_cloud"){
-
-  }
-
   yield call(onUpdateOrgStorageStrategyRequest, action)
+
 }
 
 function *onCreateOrgSuccess(action){

@@ -11,10 +11,16 @@ import {
   urlPointersForRawEnvKeyable,
   urlPointersForAppUser,
   createUrlPointer,
-  processS3Uploads
+  processS3Uploads,
+  clearAppUserS3Uploads,
+  clearRawEnvKeyableS3Upload,
+  clearS3Upload,
+  execGrantEnvAccess
 } from './helpers'
 import {
+  API_SUCCESS,
   ADD_ASSOC_REQUEST,
+  ADD_ASSOC_API_SUCCESS,
   ADD_ASSOC_SUCCESS,
   ADD_ASSOC_FAILED,
   REMOVE_ASSOC_REQUEST,
@@ -41,7 +47,8 @@ import {
   generateKey,
   addTrustedPubkey,
   updateTrustedPubkeys,
-  fetchCurrentUserUpdates
+  fetchCurrentUserUpdates,
+  grantEnvAccessRequest
 } from "actions"
 import {
   generateKeys,
@@ -58,7 +65,10 @@ import {
   getLocalKey,
   getRawEnvWithPendingForApp,
   getPrivkey,
-  getApp
+  getApp,
+  getObject,
+  getAppUserBy,
+  getOrgUserForUser
 } from 'selectors'
 import {getAssocUrl} from 'lib/assoc/helpers'
 import { s3Client } from 'lib/s3'
@@ -93,15 +103,27 @@ const
   })
 
 
+function* onRevokeKey(action){
+  const {meta: {assocType, targetId}} = action,
+        currentOrg = yield select(getCurrentOrg),
+        keyable = yield select(getObject(assocType, targetId))
+
+  if (currentOrg.s3Storage && keyable && keyable.s3UploadInfo){
+    yield call(clearRawEnvKeyableS3Upload, keyable.s3UploadInfo)
+  }
+
+  yield call(onRevokeKeyRequest, action)
+}
+
 let isPrefetchingUpdatesForAddAssoc = false
 function* onAddAssoc(action){
   const currentOrg = yield select(getCurrentOrg)
 
-  let apiAction
-  const {meta: {parentType, assocType, isCreatingAssoc, shouldPrefetchUpdates, parentId}} = action,
+  let apiAction = action
+  const {meta: {parentType, assocType, isCreatingAssoc, shouldPrefetchUpdates, assocId, parentId}} = action,
         apiSaga = addRemoveAssocApiSaga({
           method: "post",
-          actionTypes: [ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED]
+          actionTypes: [ADD_ASSOC_API_SUCCESS, ADD_ASSOC_FAILED]
         })
 
   if(parentType == "app" && assocType == "user"){
@@ -116,29 +138,32 @@ function* onAddAssoc(action){
       yield call(delay, 50)
     }
 
-    apiAction = yield call(attachAssocEnvs, action)
+    if (currentOrg.storageStrategy == "s3"){
+      const urlPointerParams = yield call(urlPointersForAppUser, {
+              appId: parentId,
+              userId: assocId
+            })
 
-    if (currentOrg.s3Storage){
-      const envParams = yield call(processS3Uploads, apiAction.payload.envs),
-            urlPointerParams = yield call(urlPointersForAppUser({appId: parentId, userId: assocId})),
-
-      apiAction = R.pipe(
-        R.assocPath(["payload", "urlPointers"], urlPointerParams),
-        R.assocPath(["payload", "envs"], envParams)
-      )(apiAction)
+      apiAction = R.assocPath(["payload", "urlPointers"], urlPointerParams, apiAction)
     }
-  } else {
-    apiAction = action
   }
 
   yield call(apiSaga, apiAction)
 }
 
 function* onRemoveAssoc(action){
-  const apiSaga = addRemoveAssocApiSaga({
+  const {meta: {parentType, parentId, assocType, assocId}} = action,
+        currentOrg = yield select(getCurrentOrg),
+        apiSaga = addRemoveAssocApiSaga({
           method: "delete",
           actionTypes: [REMOVE_ASSOC_SUCCESS, REMOVE_ASSOC_FAILED]
         })
+
+  if (parentType == "app" && assocType == "user"){
+    if (currentOrg.s3Storage){
+      yield call(clearAppUserS3Uploads, {appId: parentId, userId: assocId})
+    }
+  }
 
   yield call(apiSaga, action)
 }
@@ -150,6 +175,36 @@ function* onCreateAssoc(action){
   } else {
     yield call(execCreateAssoc, action)
   }
+}
+
+function* onAddAssocApiSuccess(action){
+  const {meta, payload} = action,
+        {parentType, parentId, assocType, assocId} = meta
+
+  if (parentType == "app" && assocType == "user"){
+    const userId = assocId,
+          {id: orgUserId} = yield select(getOrgUserForUser(userId))
+
+    const grantEnvAccessRes = yield call(execGrantEnvAccess, {
+      payload: [{userId, orgUserId, permittedAppIds: [parentId]}],
+      meta
+    })
+
+    if (grantEnvAccessRes.error){
+      yield put({
+        meta,
+        type: ADD_ASSOC_FAILED,
+        payload: grantEnvAccessRes.payload,
+        error: true
+      })
+      return
+    }
+  }
+
+  yield put({
+    ...action,
+    type: ADD_ASSOC_SUCCESS
+  })
 }
 
 function* onAddAssocSuccess({meta, payload: {id: targetId}}){
@@ -213,9 +268,15 @@ function* onGenerateKey(action){
 
   let urlPointer
   if (target.s3UploadInfo){
-    urlPointer = createUrlPointer({target, keyableType: assocType})
+    if (target.pubkey){
+      yield call(clearRawEnvKeyableS3Upload, target.s3UploadInfo)
+    }
+
+    urlPointer = yield call(createUrlPointer, {target, keyableType: assocType})
+
+
     encryptedRawEnv = yield call(execRawEnvKeyableS3Post, {
-      s3Info: target.s3Info,
+      s3Info: target.s3UploadInfo.env,
       env: encryptedRawEnv,
       pubkey: signedPubkey,
       privkey: currentUserPrivkey,
@@ -230,18 +291,20 @@ function* onGenerateKey(action){
     passphrase,
     signedTrustedPubkeys,
     signedByTrustedPubkeys,
-    encryptedRawEnv: (encryptedUrl || encryptedRawEnv),
+    encryptedRawEnv,
     pubkey: signedPubkey,
     pubkeyFingerprint: getPubkeyFingerprint(signedPubkey)
   })
 
   if (target.s3UploadInfo){
+
     const urlPointerParams = yield call(urlPointersForRawEnvKeyable, {
       urlPointer,
       keyableType: assocType,
       keyableId: targetId,
       appId: app.id
     })
+
 
     keyRequestAction = R.assocPath(["payload", "urlPointers"], urlPointerParams, keyRequestAction)
   }
@@ -267,10 +330,11 @@ export default function* assocSagas(){
     takeEvery(ADD_ASSOC_REQUEST, onAddAssoc),
     takeEvery(REMOVE_ASSOC_REQUEST, onRemoveAssoc),
     takeEvery(CREATE_ASSOC_REQUEST, onCreateAssoc),
+    takeEvery(ADD_ASSOC_API_SUCCESS, onAddAssocApiSuccess),
     takeEvery(ADD_ASSOC_SUCCESS, onAddAssocSuccess),
     takeEvery(GENERATE_ASSOC_KEY, onGenerateKey),
     takeEvery(GENERATE_ASSOC_KEY_REQUEST, onGenerateKeyRequest),
     takeEvery(GENERATE_ASSOC_KEY_SUCCESS, onGenerateKeySuccess),
-    takeEvery(REVOKE_ASSOC_KEY_REQUEST, onRevokeKeyRequest)
+    takeEvery(REVOKE_ASSOC_KEY_REQUEST, onRevokeKey)
   ]
 }

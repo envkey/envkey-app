@@ -1,13 +1,19 @@
 import { select, call } from 'redux-saga/effects'
 import R from 'ramda'
 import { keyableIsTrusted } from './crypto_helpers'
+import pluralize from 'pluralize'
 import {
   getUser,
   getApp,
   getApps,
   getAppUserBy,
+  getAppsForUser,
+  getUsersForApp,
   getLocalKey,
+  getLocalKeysWithPubkeyForAppUser,
+  getLocalKeysWithPubkeyForApp,
   getServer,
+  getServersWithPubkeyForApp,
   getPrivkey
 } from 'selectors'
 import { s3Client } from 'lib/s3'
@@ -43,14 +49,16 @@ function* execS3Post({privkey, pubkey, secret, env, s3Info}){
 
 function* execUserS3Post(params){
   const {app, environment} = params,
-        decryptedEnv = app.envsWithMeta[environment],
-        secret = decryptedEnv["@@__url_secret__"]
+        decryptedEnv = app.envsWithMeta[environment]
+
+  let secret = decryptedEnv["@@__url_secret__"]
 
   if (!secret){
-    throw("envsWithMeta urlSecret not defined")
+    secret = decryptedEnv["@@__url_secret__"] = secureRandomAlphanumeric(20)
   }
 
   const encryptedUrl = yield call(execS3Post, {...params, secret})
+
   return encryptedUrl
 }
 
@@ -61,10 +69,15 @@ function* urlSecretForRawEnvKeyable({privkey, s3Info}){
     return secureRandomAlphanumeric(20)
   }
 
+  if (!s3Info.urlSecretSignedById){
+    debugger
+    throw(new Error("encryptedUrlSecret not signed."))
+  }
+
   const signedByUser = yield select(getUser(s3Info.urlSecretSignedById))
 
   if (!signedByUser){
-    throw("encryptedUrlSecret not signed.")
+    throw(new Error("encryptedUrlSecret not signed."))
   }
 
   const trusted = yield call(keyableIsTrusted, signedByUser)
@@ -79,17 +92,12 @@ function* urlSecretForRawEnvKeyable({privkey, s3Info}){
     encrypted: s3Info.encryptedUrlSecret
   })
 
+  // Shouldn't be mutating - convert this to redux action
   delete s3Info.encryptedUrlSecret
   delete s3Info.urlSecretSignedById
   s3Info.decryptedUrlSecret = decryptedSecret
 
   return decryptedSecret
-}
-
-function* execRawEnvKeyableS3Post(params){
-  const secret = params.secret || (yield call(urlSecretForRawEnvKeyable, params)),
-        encryptedUrl = yield call(execS3Post, {...params, secret})
-  return encryptedUrl
 }
 
 function* queueUserS3Uploads({privkey, envParams, updatePaths, requestQueue}){
@@ -99,7 +107,7 @@ function* queueUserS3Uploads({privkey, envParams, updatePaths, requestQueue}){
     let apps = envParams.users[userId].apps
     for (let appId in apps){
       let app = yield select(getApp(appId)),
-          encryptedEnvsWithMeta  = apps[appId].envsWithMeta,
+          encryptedEnvsWithMeta = apps[appId].envsWithMeta,
           appUser = yield select(getAppUserBy({userId, appId})),
           user = yield select(getUser(userId)),
           pubkey = user.pubkey
@@ -160,38 +168,97 @@ function* queueRawEnvKeyableS3Uploads({privkey, envParams, updatePaths, requestQ
   }
 }
 
-export function* clearRawEnvKeyableS3Upload(s3Info){
-  const privkey = yield select(getPrivkey),
-        secret = yield call(urlSecretForRawEnvKeyable, {privkey, s3Info})
+export function* execRawEnvKeyableS3Post(params){
+  const secret = params.secret || (yield call(urlSecretForRawEnvKeyable, params)),
+        encryptedUrl = yield call(execS3Post, {...params, secret})
 
-  const {url, data} = s3PostData({
-    secret,
-    s3Info,
-    body: ""
-  })
-
-  return s3Client.post(s3Info.url + "/", data)
+  return encryptedUrl
 }
 
-export function* clearAppUserS3Uploads({envsWithMeta, s3UploadInfo}){
-  const requestQueue = []
+export function* clearRawEnvKeyableS3Upload(s3UploadInfo){
+  const privkey = yield select(getPrivkey),
+        promises = []
 
-  for (let environment in envsWithMeta){
-    const s3Info = s3Info[environment],
+  for (let s3Key in s3UploadInfo){
+    let s3Info = s3UploadInfo[s3Key],
+        secret = yield call(urlSecretForRawEnvKeyable, {privkey, s3Info}),
+        {url, data} = s3PostData({
+          secret,
+          s3Info,
+          body: ""
+        })
+    promises.push(s3Client.post(s3Info.url + "/", data))
+  }
+
+  yield promises
+}
+
+export function* clearAppUserLocalKeyS3Uploads(appUserId){
+  const localKeys = yield select(getLocalKeysWithPubkeyForAppUser(appUserId))
+  yield localKeys.map(({s3UploadInfo})=> call(clearRawEnvKeyableS3Upload, s3UploadInfo))
+}
+
+export function* clearAppUserS3Uploads({appId, userId}){
+  const app = yield select(getApp(appId)),
+        appUser = yield select(getAppUserBy({appId, userId})),
+        envsWithMeta = app.envsWithMeta,
+        {id: appUserId, s3UploadInfo} = appUser
+
+  const promises = []
+
+  for (let environment in s3UploadInfo){
+    const s3Info = s3UploadInfo[environment],
           {url, data} = s3PostData({
             s3Info,
             secret: R.path([environment, "@@__url_secret__"], envsWithMeta),
             body: ""
           })
 
-    requestQueue.push(s3Client.post(s3Info.url + "/", data))
+    promises.push(s3Client.post(s3Info.url + "/", data))
   }
 
-  return requestQueue
+  promises.push(call(clearAppUserLocalKeyS3Uploads, appUserId))
+
+  yield promises
+}
+
+export function* clearAppServerS3Uploads(appId){
+  const servers = yield select(getServersWithPubkeyForApp(appId))
+  yield servers.map(({s3UploadInfo})=> call(clearRawEnvKeyableS3Upload, s3UploadInfo))
+}
+
+export function* clearAppS3Uploads(appId){
+  const users = yield select(getUsersForApp(appId)),
+        appUserPromises = R.pipe(
+          R.map(R.prop('relation')),
+          R.map(R.partial(call, [clearAppUserS3Uploads])),
+          R.flatten
+        )(users),
+        serverPromise = call(clearAppServerS3Uploads, appId),
+        allPromises = appUserPromises.concat([serverPromise])
+
+  yield allPromises
+}
+
+export function* clearUserS3Uploads(userId){
+  const apps = yield select(getAppsForUser(userId)),
+        appUserPromises = R.pipe(
+          R.map(R.prop('relation')),
+          R.map(R.partial(call, [clearAppUserS3Uploads])),
+          R.flatten
+        )(apps)
+
+  yield appUserPromises
 }
 
 export function* clearAllS3Uploads(){
+  const apps = yield select(getApps),
+        promises = apps.map(R.pipe(
+          R.prop('id'),
+          R.partial(call, [clearAppS3Uploads])
+        ))
 
+  yield promises
 }
 
 export function* processS3Uploads(envParams){
@@ -251,7 +318,7 @@ export function *urlPointersForRawEnvKeyable({appId, keyableType, keyableId, url
         encryptQueue = [],
         updatePaths = []
 
-  for (let {pubkey, userId: id} of users){
+  for (let {pubkey, id: userId} of users){
     encryptQueue.push(call(encryptUrlSecrets, {urlPointer, privkey, pubkey}))
     updatePaths.push([pluralize(keyableType), keyableId, [userId, appId].join("|")])
   }
@@ -272,12 +339,12 @@ export function *urlPointersForAppUser({appId, userId}){
         updatePaths = []
 
   for (let [keyables, keyableType] of [[servers, "server"], [localKeys, "localKeys"]]){
-    for (let {keyableId: id, pubkey, s3UploadInfo} of keyables){
-      let urlSecret = call(urlSecretForRawEnvKeyable({privkey, s3Info: s3UploadInfo.env})),
+    for (let {id: keyableId, pubkey, s3UploadInfo} of keyables){
+      let urlSecret = call(urlSecretForRawEnvKeyable, {privkey, s3Info: s3UploadInfo.env}),
           inheritanceOverridesUrlSecret
 
       if (s3UploadInfo.inheritanceOverrides){
-        inheritanceOverridesUrlSecret = call(urlSecretForRawEnvKeyable({privkey, s3Info: s3UploadInfo.inheritanceOverrides}))
+        inheritanceOverridesUrlSecret = call(urlSecretForRawEnvKeyable, {privkey, s3Info: s3UploadInfo.inheritanceOverrides})
       }
 
       encryptQueue.push(call(encryptUrlSecrets, {
@@ -326,10 +393,10 @@ export function *urlPointersForOrgStorageUpdate(){
   const generators = [],
         apps = yield select(getApps)
 
-  for (let {appId: id} of apps){
+  for (let {id: appId} of apps){
     let users = yield select(getUsersForApp(appId))
 
-    for (let {userId: id} of users){
+    for (let {id: userId} of users){
       generators.push(call(urlPointersForAppUser, {userId, appId}))
     }
   }

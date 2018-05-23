@@ -22,7 +22,6 @@ import {
   getOrgUsers,
   getCurrentUser,
   getCurrentOrg,
-  getIsGrantingEnvAccessByUserId,
   getGeneratedEnvKeysById,
   getIsRevokingInviteByUserId,
   getIsRegeneratingInviteByUserId
@@ -52,7 +51,6 @@ export default function({
       isRemovingById: getIsRemovingById(state),
       isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
       isRevokingAssocKeyById: getIsRevokingAssocKeyById(state),
-      isGrantingEnvAccessByUserId: getIsGrantingEnvAccessByUserId(state),
       generatedEnvKeysById: getGeneratedEnvKeysById(state),
       orgUsers: getOrgUsers(state),
       isRevokingInviteByUserId: getIsRevokingInviteByUserId(state),

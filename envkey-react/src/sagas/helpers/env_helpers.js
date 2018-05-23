@@ -1,4 +1,4 @@
-import { put, select, call } from 'redux-saga/effects'
+import { put, select, call, take } from 'redux-saga/effects'
 import { delay } from 'redux-saga'
 import R from 'ramda'
 import {envParamsForApp} from './attach_envs_helpers'
@@ -22,6 +22,9 @@ import {
   ADD_SUB_ENV,
   REMOVE_SUB_ENV,
   UPDATE_ENV_FAILED,
+  GRANT_ENV_ACCESS,
+  GRANT_ENV_ACCESS_SUCCESS,
+  GRANT_ENV_ACCESS_FAILED,
   updateEnvRequest,
   removeAssoc,
   addAssoc,
@@ -148,6 +151,16 @@ export function* resolveEnvUpdateConflicts({
   } else {
     return false
   }
+}
+
+function* dispatchGrantEnvAccess({payload, meta: {parentId}}){
+  yield put({type: GRANT_ENV_ACCESS, payload, meta: {isInvite: true, parentId}})
+}
+
+export function* execGrantEnvAccess({payload, meta}){
+  yield call(dispatchGrantEnvAccess, {payload, meta})
+  const res = yield take([GRANT_ENV_ACCESS_SUCCESS, GRANT_ENV_ACCESS_FAILED])
+  return res
 }
 
 

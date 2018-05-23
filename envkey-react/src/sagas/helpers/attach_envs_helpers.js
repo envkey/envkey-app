@@ -123,29 +123,25 @@ export function* envParamsForApp({appId}){
 
     allGenerators = userGenerators.concat(serverGenerators, localKeyGenerators),
 
-    allParams = yield allGenerators,
+    allParams = yield allGenerators
 
-    merged = allParams.reduce(R.mergeDeepRight)
-
-  return merged
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function *envParamsForInvitee({userId, permittedAppIds}){
   const generators = permittedAppIds.map(appId => call(envParamsWithAppUser, {userId, appId})),
-        allParams = yield generators,
-        merged = allParams.reduce(R.mergeDeepRight)
+        allParams = yield generators
 
-  return { envs: merged }
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function *envParamsForAcceptedInvite(withTrustedPubkey){
   const {id: userId} = yield select(getCurrentUser),
         apps = yield select(getApps),
         generators = apps.map(({id: appId})=> call(envParamsWithAppUser, {userId, appId, withTrustedPubkey, isAcceptingInvite: true})),
-        allParams = yield generators,
-        merged = allParams.reduce(R.mergeDeepRight)
+        allParams = yield generators
 
-  return merged
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function *envParamsForUpdateOrgRole({userId, role: newRole}){

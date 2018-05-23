@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "axios": "^0.15.3",
-    "axios-retry": "^3.0.1",
+    "axios-retry": "^3.1.0",
     "babel-plugin-transform-function-bind": "^6.8.0",
     "babel-polyfill": "^6.16.0",
     "babel-preset-stage-2": "^6.18.0",
@@ -77,7 +77,7 @@
     "babel-preset-react-hmre": "^1.1.1",
     "css-loader": "^0.26.1",
     "del": "^2.2.2",
-    "envkey-webpack-plugin": "^0.1.0",
+    "envkey-webpack-plugin": "^1.1.1",
     "enzyme": "^2.7.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "gulp": "^3.9.1",

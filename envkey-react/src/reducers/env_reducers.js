@@ -334,28 +334,6 @@ export const
       default:
         return state
     }
-  },
-
-  isGrantingEnvAccess = (state = {}, action)=>{
-    if (isClearSessionAction(action)){
-      return {}
-    }
-
-    switch(action.type){
-      case GRANT_ENV_ACCESS:
-        const userIds = R.pluck('userId', action.payload)
-        return userIds.reduce(
-          (acc, userId)=> R.assoc(userId, true, acc),
-          state
-        )
-
-      case GRANT_ENV_ACCESS_SUCCESS:
-      case GRANT_ENV_ACCESS_FAILED:
-        return R.dissoc(action.meta.userId, state)
-
-      default:
-        return state
-    }
   }
 
 
