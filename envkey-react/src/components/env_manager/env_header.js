@@ -2,7 +2,6 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { imagePath } from "lib/ui"
-import Filter from 'components/shared/filter'
 import BroadcastLoader from 'components/shared/broadcast_loader'
 
 export default function({parentType,
@@ -12,17 +11,9 @@ export default function({parentType,
                          isEmpty,
                          isUpdatingEnv,
                          entries,
-                         subEnvsOpen,
-                         envsWithMeta,
-                         filter,
-                         showFilter,
-                         onFilter,
-                         onToggleFilter,
                          onToggleHideValues}) {
 
   const
-    subEnvsEmpty = subEnvsOpen && R.isEmpty(envsWithMeta[subEnvsOpen]["@@__sub__"] || {}),
-
     renderTitleCell = ()=> h.div(".label-cell.title-cell", {key: "title"}, [
       h.label(parent.name)
     ]),
@@ -43,31 +34,11 @@ export default function({parentType,
         h(BroadcastLoader),
         h.span("Encrypting and syncing")
       ])
-    },
-
-    renderFilter = ()=>{
-      if (!subEnvsEmpty){
-        return h(Filter, {
-          onFilter,
-          onToggleFilter,
-          value: filter,
-          placeholder: "Filter by variable name…",
-          onKeyDown: (e)=> {
-            if (e.keyCode == 27){
-              onToggleFilter()
-            }
-          }
-        })
-      }
     }
 
-
-  return h.header(".env-header", {
-    className: (showFilter ? "show-filter" : "")
-  }, [
+  return h.header(".env-header", [
     renderTitleCell(),
     renderShowHide(),
-    renderUpdatingEnv(),
-    renderFilter()
+    renderUpdatingEnv()
   ])
 }

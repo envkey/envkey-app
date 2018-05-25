@@ -15,9 +15,11 @@ const CommitPromptable = Editable => class extends Editable {
     }
   }
 
-  _onEdit(){
+  _onEdit(isInitialEdit=true){
     super._onEdit()
-    this.setState({showCommitPrompt: false, showedPrompt: false})
+    if (isInitialEdit || (this._isMultiline && this._isMultiline())){
+      this.setState({showCommitPrompt: false, showedPrompt: false})
+    }
   }
 
   _onInputChange(e){
@@ -26,8 +28,13 @@ const CommitPromptable = Editable => class extends Editable {
   }
 
   _flashCommitPrompt(){
-    this.setState({showCommitPrompt: true, showedPrompt: true})
-    setTimeout(this.setState.bind(this, {showCommitPrompt: false}), PROMPT_FADE_DELAY)
+    if(this._isMultiline && this._isMultiline()){
+      return
+    }
+
+    this.setState({showCommitPrompt: true, showedPrompt: true}, ()=>{
+      setTimeout(this.setState.bind(this, {showCommitPrompt: false}), PROMPT_FADE_DELAY)
+    })
   }
 
   _renderCellContents(){

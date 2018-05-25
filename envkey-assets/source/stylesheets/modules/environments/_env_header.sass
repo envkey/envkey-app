@@ -68,35 +68,6 @@
     &, *
       cursor: pointer
 
-  .filter
-    position: fixed
-    height: $app-tab-height / 2 - 3px
-    right: 0
-    top: $app-tab-height
-    width: calc(25% - #{$sidemenu-width / 4})
-    background: none
-    transform: translateX(calc(100% - 35px))
-    transition: transform 0.2s ease-out
-
-    &.prefixed-input > span
-      background: hsl(0,0,85)
-      cursor: pointer
-      &:hover
-        background: hsl(0,0,88)
-
-    input, textarea
-      background: rgba(#fff, 0.7)
-      width: calc(100% - 35px)
-      border-top: 1px solid rgba(#000, 0.1)
-      border-bottom: 1px solid rgba(#000, 0.1)
-
-    @media (max-width: $min-width)
-      display: none
-
-  &.show-filter .filter
-    transform: translateX(0px)
-
-
   .title-cell
     label
       color: #fff
