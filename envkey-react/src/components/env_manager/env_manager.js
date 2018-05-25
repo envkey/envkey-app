@@ -6,6 +6,7 @@ import EnvGrid from './env_grid'
 import SubEnvs from './sub_envs'
 import {AddAssoc} from 'components/assoc_manager'
 import SmallLoader from 'components/shared/small_loader'
+import Filter from 'components/shared/filter'
 import { allEntries, hasAnyVal } from 'lib/env/query'
 import traversty from 'traversty'
 
@@ -17,7 +18,9 @@ export default class EnvManager extends React.Component {
       hideValues: true,
       filter: "",
       showFilter: false,
-      lastSocketUserUpdatingEnvs: null
+      lastSocketUserUpdatingEnvs: null,
+      editingMultilineEnvironment: null,
+      editingMultilineEntryKey: null
     }
   }
 
@@ -32,6 +35,56 @@ export default class EnvManager extends React.Component {
         this._subEnvsOpen(this.props) != this._subEnvsOpen(nextProps) ||
         (this._subEnvsOpen() && this.props.params.sel != nextProps.params.sel)){
       this.setState({showFilter: false, filter: ""})
+    }
+  }
+
+  _onToggleFilter(){
+    this.setState({filter: "", showFilter: !this.state.showFilter}, ()=>{
+      const input = traversty(".environments .filter input")[0]
+      if(this.state.showFilter){
+        input.focus()
+      } else {
+        input.blur()
+      }
+    })
+  }
+
+  _onEditCell(entryKey, environment, subEnvId, isMultiline, isEntryForm){
+    if (isMultiline){
+      this.setState({
+        editingMultilineEntryKey: entryKey,
+        editingMultilineEnvironment: environment
+      })
+    } else {
+      this.setState({
+        editingMultilineEntryKey: null,
+        editingMultilineEnvironment: null
+      })
+    }
+    if (!isEntryForm){
+      this.props.editCell(entryKey, environment, subEnvId)
+    }
+  }
+
+  _onStoppedEditing(isEntryForm){
+    this.setState({
+      editingMultilineEntryKey: null,
+      editingMultilineEnvironment: null
+    })
+
+    if (!isEntryForm){
+      this.props.stoppedEditing()
+    }
+  }
+
+  _onUpdateEntryVal(entryKey, environment, update, subEnvId, isEntryForm){
+    this.setState({
+      editingMultilineEntryKey: null,
+      editingMultilineEnvironment: null
+    })
+
+    if (!isEntryForm){
+      this.props.updateEntryVal(entryKey, environment, update, subEnvId)
     }
   }
 
@@ -54,7 +107,11 @@ export default class EnvManager extends React.Component {
       (this.state.hideValues ? "hide-values" : ""),
       (hasAnyVal(this.props.envsWithMeta) ? "" : "has-no-val"),
       (this.props.socketUserUpdatingEnvs ? "receiving-socket-update" : ""),
-      (this.props.didOnboardImport ? "did-onboard-import" : "")
+      (this.props.didOnboardImport ? "did-onboard-import" : ""),
+      (this.state.showFilter ? "show-filter" : ""),
+      (this.state.editingMultilineEnvironment ? "editing-multiline" : ""),
+      (this.state.editingMultilineEnvironment && !this.state.editingMultilineEntryKey ? "editing-multiline-entry-form" : ""),
+      (this.state.editingMultilineEnvironment && this.state.editingMultilineEntryKey ? "editing-multiline-grid" : "")
     ]
   }
 
@@ -69,6 +126,7 @@ export default class EnvManager extends React.Component {
   _renderContents(){
     return [
       this._renderHeader(),
+      this._renderFilter(),
       (this._subEnvsOpen() ? this._renderSubEnvs() : this._renderGrid()),
       this._renderSocketUpdate()
     ]
@@ -80,33 +138,59 @@ export default class EnvManager extends React.Component {
       ...R.pick(["hideValues", "filter", "showFilter"], this.state),
       subEnvsOpen: this._subEnvsOpen(),
       isEmpty: this._isEmpty(),
-      onFilter: filter => this.setState({filter}),
-      onToggleFilter: () => {
-        this.setState({filter: "", showFilter: !this.state.showFilter}, ()=>{
-          const input = traversty(".env-header .filter input")[0]
-          if(this.state.showFilter){
-            input.focus()
-          } else {
-            input.blur()
-          }
-        })
-      },
       onToggleHideValues: ()=> this.setState(state => ({hideValues: !state.hideValues})),
     })
+  }
+
+  _renderFilter(){
+    const envsWithMeta = this.props.envsWithMeta,
+          subEnvsOpen = this._subEnvsOpen(),
+          subEnvsEmpty = subEnvsOpen && R.isEmpty(envsWithMeta[subEnvsOpen]["@@__sub__"] || {})
+
+    if (!subEnvsEmpty){
+      return h(Filter, {
+        onFilter: filter => this.setState({filter}),
+        onToggleFilter: ::this._onToggleFilter,
+        value: this.state.filter,
+        placeholder: "Filter by variable name…",
+        onKeyDown: (e)=> {
+          if (e.keyCode == 27){
+            this._onToggleFilter()
+          }
+        }
+      })
+    }
   }
 
   _renderGrid(){
     return h(EnvGrid, {
       ...this.props,
-      ...R.pick(["hideValues", "startedOnboarding", "filter"], this.state)
+      ...R.pick([
+        "hideValues",
+        "startedOnboarding",
+        "filter",
+        "editingMultilineEntryKey",
+        "editingMultilineEnvironment"
+      ], this.state),
+      editCell: ::this._onEditCell,
+      stoppedEditing: ::this._onStoppedEditing,
+      updateEntryVal: ::this._onUpdateEntryVal
     })
   }
 
   _renderSubEnvs(){
     return h(SubEnvs, {
       ...this.props,
-      ...R.pick(["hideValues", "filter"], this.state),
-      environment: this._subEnvsOpen()
+      ...R.pick([
+        "hideValues",
+        "filter",
+        "editingMultilineEntryKey",
+        "editingMultilineEnvironment"
+      ], this.state),
+      environment: this._subEnvsOpen(),
+      editCell: ::this._onEditCell,
+      stoppedEditing: ::this._onStoppedEditing,
+      updateEntryVal: ::this._onUpdateEntryVal
     })
   }
 

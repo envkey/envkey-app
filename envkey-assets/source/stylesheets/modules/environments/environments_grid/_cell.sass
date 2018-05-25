@@ -40,7 +40,7 @@
         left: 40px
 
       .val
-        margin: 0 15px
+        margin: 1px 15px
 
       &.locked
         cursor: not-allowed
@@ -131,10 +131,26 @@
       resize: none
       padding-top: 12px
 
-    textarea.multiline
-      text-align: left
-      padding-top: 8px
-      line-height: 1.4
+    &.multiline
+      transition: background 0s
+
+      &.editing
+        position: fixed
+        background: #fff
+        z-index: 5
+        top: $env-grid-header-height
+        left: calc(#{$sidemenu-width} + 25% - #{($sidebar-width + $app-tab-width) / 4})
+        width: calc(100% - (#{$sidemenu-width} + 25% - #{($sidebar-width + $app-tab-width) / 4} ))
+        height: calc(100% - #{$env-grid-header-height})
+
+      textarea
+        text-align: left
+        padding-top: 8px
+        line-height: 1.4
+
+  .entry-form .cell.multiline.editing
+    top: $env-grid-header-height
+    height: calc(100% - #{$env-grid-header-height})
 
   .cell.entry-cell
     input, textarea
@@ -225,3 +241,9 @@
   .cell.socket-editing-entry-val
     &, &:hover
       border: none !important
+
+.sub-env-grid
+  .cell.multiline.editing
+    left: calc(#{$sidemenu-width} + 50% - #{($sidebar-width + $app-tab-width) / 2})
+    width: calc(100% - (#{$sidemenu-width} + 50% - #{($sidebar-width + $app-tab-width) / 2} ))
+

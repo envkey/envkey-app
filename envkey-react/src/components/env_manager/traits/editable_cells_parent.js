@@ -29,7 +29,7 @@ const EditableCellsParent = CellsParent => class extends CellsParent {
 
   _onKeyDown(e){
     if (e.key == "Escape" && (this.state.editing.entryKey)){
-      this._deselect()
+      this._deselect(true)
     }
   }
 

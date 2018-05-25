@@ -1,5 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
+import {isMultiline} from "lib/utils/string"
 
 const defaultInputVal = props => props.inherits || props.val || ""
 
@@ -33,12 +34,23 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
     }
   }
 
+  _isMultiline(){
+    const inputVal = this.state.inputVal || "",
+          singleLineMax = this.props.subEnvId ? 80 : 40
+
+    return editableOpts.multiline && isMultiline(inputVal, singleLineMax)
+  }
+
   _onEdit(){
-    this.props.onEditCell(this.props.entryKey, this.props.environment, this.props.subEnvId)
+    this.props.onEditCell(this.props.entryKey, this.props.environment, this.props.subEnvId, this._isMultiline())
   }
 
   _onInputChange(e){
-    this.setState({inputVal: this._transformInputVal(e.target.value)})
+    this.setState({
+      inputVal: this._transformInputVal(e.target.value)
+    }, ()=> {
+      this._onEdit(false)
+    })
   }
 
   _transformInputVal(val){ return val }
@@ -80,7 +92,8 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
 
   _classNames(){
     return super._classNames().concat([
-      (this.props.isEditing ? "editing": "")
+      (this.props.isEditing ? "editing": ""),
+      (this._isMultiline() ? "multiline" : "")
     ])
   }
 
@@ -97,11 +110,9 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
             onChange: ::this._onInputChange,
             onKeyDown: ::this._onInputKeydown
           },
-          component = editableOpts.multiline ? h.textarea : h.input,
-          hasMultipleLines = editableOpts.multiline && (this.state.inputVal || "").split(/[\r\n]+/).length > 1,
-          classStr = `.cell-input${hasMultipleLines ? '.multiline' : ''}`
+          component = editableOpts.multiline ? h.textarea : h.input
 
-    return component(classStr, inputParams)
+    return component(".cell-input", inputParams)
   }
 
 

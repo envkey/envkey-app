@@ -62,9 +62,9 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
     this.props.stoppedEditing()
   }
 
-  _onEditCell(entryKey, environment, subEnvId){
+  _onEditCell(entryKey, environment, subEnvId, isMultiline){
     this.setState({editing: {entryKey, environment, subEnvId}})
-    this.props.editCell(entryKey, environment, subEnvId)
+    this.props.editCell(entryKey, environment, subEnvId, isMultiline)
   }
 
   _onCommitEntryVal(entryKey, environment, update){
@@ -104,6 +104,9 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
   _renderEntryRow(entryKey){
     const filter = this.props.filter
     if(filter && !entryKey.toLowerCase().includes(filter))return
+    if(this.props.editingMultilineEntryKey){
+      if(this.props.editingMultilineEntryKey != entryKey)return
+    }
     return h(toClass(EntryRow), {
       entryKey,
       ...this.props,
