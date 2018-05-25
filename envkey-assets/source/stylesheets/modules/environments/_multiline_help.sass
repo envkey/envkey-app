@@ -1,0 +1,44 @@
+.multiline-help
+  position: fixed
+  background: hsl(0,0,95)
+  width: $env-grid-fixed-col-width
+  left: $sidemenu-width
+  z-index: 6
+
+  h4,h6
+    width: 100%
+    text-align: center
+    box-sizing: border-box
+
+  h4
+    color: hsl(0,0,68)
+    font-family: $condensed-font
+    font-weight: 600
+    font-size: 15px
+    padding: 10px 0
+    text-transform: uppercase
+    background: rgba(#000, 0.05)
+    margin-bottom: 5px
+
+  h6
+    color: hsl(0,0,70)
+    font-weight: 400
+    font-size: 13px
+    padding: 5px 0
+
+    em
+      font-family: $condensed-font
+      text-transform: uppercase
+      font-weight: 600
+      color: rgba($dark-blue, 0.8)
+
+.editing-multiline-grid .multiline-help
+  top: $env-grid-header-height * 2 - 2px
+  height: calc(100% - #{$env-grid-header-height * 2 - 2px})
+
+.editing-multiline-entry-form .multiline-help
+  top: $env-grid-header-height * 2 - 2px
+  height: calc(100% - #{$env-grid-header-height * 2 - 2px})
+
+.sub-envs .multiline-help
+  left: calc(#{$sidemenu-width} + 25% - #{($sidebar-width + $app-tab-width) / 4})

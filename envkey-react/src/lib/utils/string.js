@@ -13,6 +13,10 @@ export const
     } else {
       return n.toString()
     }
+  },
+
+  isMultiline = (s,singleLineMax=40)=>{
+    return s.length > singleLineMax || s.split(/[\r\n]+/).length > 1
   }
 
 

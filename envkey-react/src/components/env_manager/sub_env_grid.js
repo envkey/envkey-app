@@ -8,7 +8,9 @@ import {allEntries} from 'lib/env/query'
 export default class SubEnvGrid extends React.Component {
   constructor(props){
     super(props)
-    this.state = {showTransitionOverlay: false}
+    this.state = {
+      showTransitionOverlay: false
+    }
   }
 
   componentWillReceiveProps(nextProps){

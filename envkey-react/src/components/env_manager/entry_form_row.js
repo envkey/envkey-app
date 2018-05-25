@@ -62,6 +62,18 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     this.setState(defaultState(this.props))
   }
 
+  _deselect(isEscapeKey){
+    if (isEscapeKey){
+      const environment = this.state.editing.environment,
+            defaultVal = defaultState(this.props).envsWithMeta[environment].entry
+
+      this.setState(R.assocPath(["envsWithMeta", environment, "entry"], defaultVal))
+    }
+
+    super._deselect()
+    this.props.stoppedEditing(true)
+  }
+
   _addingEntry(){
     this.props.addingEntry(this.props.subEnvId)
   }
@@ -76,8 +88,40 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     }
   }
 
+  _getOnEditCell(environment){
+    return (entryKey, editEnvironment, subEnvId, isMultiline)=>{
+      this.setState({editing: {entryKey: "entry",environment}})
+      this.props.editCell(null, environment, subEnvId, isMultiline, true)
+    }
+  }
+
+  _getOnCommit(environment){
+    return update => {
+      this.setState(R.pipe(
+        R.assocPath(["envsWithMeta", environment, "entry"], update),
+        R.assocPath(["didCommit", environment], true)
+      ))
+      this._clearEditing()
+      this.props.updateEntryVal(null, environment, update, this.props.subEnvId, true)
+    }
+  }
+
+  _getOnChange(environment){
+    return val => {
+      let state = this.state
+      this.setState(
+        R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}),
+        this._onChangeFn(state)
+      )
+    }
+  }
+
   _formEmpty(state=null){
-    return !(state || this.state).entryKey && this._valsEmpty(state)
+    return !this._hasEntry(state) && this._valsEmpty(state)
+  }
+
+  _hasEntry(state=null){
+    return Boolean((state || this.state).entryKey)
   }
 
   _valsEmpty(state=null){
@@ -127,21 +171,9 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
       isEditing: this.state.editing.environment === environment,
       entryKey: "entry",
       envsWithMeta: this.state.envsWithMeta,
-      onEditCell: ()=> this.setState({editing: {entryKey: "entry",environment}}),
-      onCommit: (update)=> {
-        this.setState(R.pipe(
-          R.assocPath(["envsWithMeta", environment, "entry"], update),
-          R.assocPath(["didCommit", environment], true)
-        ))
-        this._clearEditing()
-      },
-      onChange: (val)=> {
-        let state = this.state
-        this.setState(
-          R.assocPath(["envsWithMeta", environment, "entry"], {val, inherits: null}),
-          this._onChangeFn(state)
-        )
-      }
+      onEditCell: ::this._getOnEditCell(environment),
+      onCommit: ::this._getOnCommit(environment),
+      onChange: ::this._getOnChange(environment)
     })
   }
 
@@ -156,13 +188,17 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
     return h.div(".row.entry-row",{
       className: (this._isEditingEntry() ? " editing-entry" : "") +
                  (this._isEditing() ? " is-editing" : "") +
+                 (this._hasEntry() ? " has-entry" : "") +
                  (!this._formEmpty() ? " not-empty" : "") +
                  (this.state.hoveringVals ? " hovering-vals" : "")
     },[
       h.div(".entry-col",[
         h(formEntryCellClass, {
           ...this.props,
-          onEditCell: ()=> this.setState({editing: entryEditing}),
+          onEditCell: ()=> {
+            this._deselect()
+            this.setState({editing: entryEditing})
+          },
           onAddingEntry: ::this._addingEntry,
           onCommit: ({val})=> {
             this.setState({entryKey: val})
