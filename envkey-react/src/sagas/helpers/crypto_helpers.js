@@ -121,7 +121,7 @@ function* decryptEnvironment(environment, opts){
         urlSecret = urlSplit[urlSplit.length - 1]
 
     decrypted = yield crypto.decryptJson({...opts, encrypted: res.data})
-    decrypted["@@__url_secret__"] = urlSecret
+    decrypted["@@__secret__"] = urlSecret
   }
 
   return {[environment]: decrypted}

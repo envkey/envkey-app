@@ -51,10 +51,10 @@ function* execUserS3Post(params){
   const {app, environment} = params,
         decryptedEnv = app.envsWithMeta[environment]
 
-  let secret = decryptedEnv["@@__url_secret__"]
+  let secret = decryptedEnv["@@__secret__"]
 
   if (!secret){
-    secret = decryptedEnv["@@__url_secret__"] = secureRandomAlphanumeric(20)
+    secret = decryptedEnv["@@__secret__"] = secureRandomAlphanumeric(20)
   }
 
   const encryptedUrl = yield call(execS3Post, {...params, secret})
@@ -210,7 +210,7 @@ export function* clearAppUserS3Uploads({appId, userId}){
     const s3Info = s3UploadInfo[environment],
           {url, data} = s3PostData({
             s3Info,
-            secret: R.path([environment, "@@__url_secret__"], envsWithMeta),
+            secret: R.path([environment, "@@__secret__"], envsWithMeta),
             body: ""
           })
 
