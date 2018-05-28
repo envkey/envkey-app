@@ -11,6 +11,7 @@ import {
 } from 'actions'
 import {getAuth, getCurrentOrgSlug} from "selectors"
 import api, { authenticatedClient } from "lib/api"
+import isElectron from 'is-electron'
 
 export default function apiSaga({
   authenticated,
@@ -67,14 +68,35 @@ export default function apiSaga({
     }
 
     const auth = yield select(getAuth),
+
           orgSlug = R.path(["meta", "orgSlug"], requestAction) || (yield select(getCurrentOrgSlug)),
+
           client = authenticated ? authenticatedClient(auth) : api,
+
           urlArg = urlSelector ? (yield select(urlSelector)) : null,
+
           url = urlFn(requestAction, urlArg),
+
           orgParams = skipOrg ? {} : {org_id: orgSlug},
+
+          electronParams = isElectron() ? {
+            client_name: "envkey-app",
+            client_os: window.platformInfo.platform,
+            client_arch: window.platformInfo.arch,
+            client_os_release: window.platformInfo.release,
+            client_version: window.appVersion
+          } : {
+            client_name: "envkey-web"
+          },
+
+          mergedParams = {...orgParams, ...electronParams},
+
           decamelizedPayload = decamelizeKeys(requestAction.payload || {}),
-          params = method == "get" ? {...orgParams, ...decamelizedPayload} : orgParams,
+
+          params = method == "get" ? {...mergedParams, ...decamelizedPayload} : mergedParams,
+
           data = method == "get" ? {} : decamelizedPayload,
+
           config = {method, url, params, data}
 
     try {
