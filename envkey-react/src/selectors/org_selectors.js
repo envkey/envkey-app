@@ -33,6 +33,8 @@ export const
 
   getIsUpdatingStripeCard = db.path("isUpdatingStripeCard"),
 
+  getIsUpdatingOrgStorageStrategy = db.path("isUpdatingOrgStorageStrategy"),
+
   getIsCreatingOrg = db.path("isCreatingOrg"),
 
   getIsUpdatingOrgOwner = db.path("isUpdatingOrgOwner"),

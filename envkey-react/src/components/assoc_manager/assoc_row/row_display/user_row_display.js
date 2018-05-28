@@ -14,7 +14,6 @@ export default function (props){
      onRenew,
      isRemoving,
      isGeneratingAssocKey,
-     isGrantingEnvAccess,
      getOrgUserForUserFn,
      permissions: {read: {user: canReadUser}},
      assoc: {id: userId, firstName, lastName, email, slug, relation, isCurrentUser},
@@ -49,8 +48,7 @@ export default function (props){
 
     h.div(".bottom-row", [
       h(AppUserStatus, {
-        ...relation.accessStatus,
-        isGrantingEnvAccess
+        ...relation.accessStatus
       }),
       renderInviteActions()
     ])

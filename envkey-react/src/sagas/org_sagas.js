@@ -5,11 +5,19 @@ import R from 'ramda'
 import {
   apiSaga,
   envParamsForUpdateOrgRole,
+  envParamsForOrgStorageUpdate,
   dispatchDecryptAllIfNeeded,
   redirectFromOrgIndexIfNeeded,
-  execUpdateTrustedPubkeys
+  execUpdateTrustedPubkeys,
+  urlPointersForUpdateOrgRole,
+  urlPointersForOrgStorageUpdate,
+  clearAllS3Uploads,
+  clearUserS3Uploads,
+  processS3Uploads
 } from './helpers'
 import {
+  API_SUCCESS,
+
   UPDATE_ORG_ROLE,
   UPDATE_ORG_ROLE_REQUEST,
   UPDATE_ORG_ROLE_SUCCESS,
@@ -18,10 +26,6 @@ import {
   UPDATE_ORG_OWNER_REQUEST,
   UPDATE_ORG_OWNER_SUCCESS,
   UPDATE_ORG_OWNER_FAILED,
-
-  // REMOVE_SELF_FROM_ORG,
-  // REMOVE_SELF_FROM_ORG_FAILED,
-  // REMOVE_SELF_FROM_ORG_SUCCESS,
 
   CREATE_ORG_REQUEST,
   CREATE_ORG_SUCCESS,
@@ -33,6 +37,10 @@ import {
 
   REMOVE_OBJECT_SUCCESS,
   REMOVE_OBJECT_FAILED,
+
+  UPDATE_ORG_STORAGE_STRATEGY_REQUEST,
+  UPDATE_ORG_STORAGE_STRATEGY_SUCCESS,
+  UPDATE_ORG_STORAGE_STRATEGY_FAILED,
 
   GENERATE_DEMO_ORG_REQUEST,
   GENERATE_DEMO_ORG_SUCCESS,
@@ -69,6 +77,14 @@ const
     urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/update_owner.json`
   }),
 
+  onUpdateOrgStorageStrategyRequest = apiSaga({
+    authenticated: true,
+    method: "patch",
+    urlSelector: getCurrentOrg,
+    actionTypes: [UPDATE_ORG_STORAGE_STRATEGY_SUCCESS, UPDATE_ORG_STORAGE_STRATEGY_FAILED],
+    urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/update_storage_strategy.json`
+  }),
+
   onGenerateDemoOrgRequest = apiSaga({
     authenticated: false,
     method: "post",
@@ -78,10 +94,43 @@ const
   })
 
 function *onUpdateOrgRole({payload: {role, userId, orgUserId}}){
+  const currentOrg = yield select(getCurrentOrg)
+
   yield put(fetchCurrentUserUpdates())
   yield take(FETCH_CURRENT_USER_UPDATES_SUCCESS)
-  const envs = yield call(envParamsForUpdateOrgRole, {userId, role})
-  yield put(updateOrgRoleRequest({envs, role, userId, orgUserId}))
+
+  let envs = yield call(envParamsForUpdateOrgRole, {userId, role})
+
+  if (currentOrg.s3Storage){
+    envs = yield call(processS3Uploads, envs)
+    yield call(clearUserS3Uploads, userId)
+    const urlPointers = yield call(urlPointersForUpdateOrgRole, {userId, role})
+    action = R.assocPath(["payload", urlPointers], urlPointers, action)
+  }
+
+  let action = updateOrgRoleRequest({envs, role, userId, orgUserId})
+
+  yield put(action)
+}
+
+function* onUpdateOrgStorageStrategy(action){
+  const {payload: {org: {storageStrategy}}} = action,
+        currentOrg = yield select(getCurrentOrg)
+
+  let envParams = yield call(envParamsForOrgStorageUpdate)
+
+  if (storageStrategy == "s3"){
+    envParams = yield call(processS3Uploads, envParams)
+    const urlPointers = yield call(urlPointersForOrgStorageUpdate)
+    action = R.assocPath(["payload", "urlPointers"], urlPointers)
+  } else {
+    yield call(clearAllS3Uploads)
+  }
+
+  action = R.assocPath(["payload", "envs"], envParams)
+
+  yield call(onUpdateOrgStorageStrategyRequest, action)
+
 }
 
 function *onCreateOrgSuccess(action){
@@ -146,6 +195,10 @@ function *onUpdateOrgOwnerSuccess(action){
   yield call(redirectFromOrgIndexIfNeeded)
 }
 
+function *onUpdateOrgStorageStrategySuccess(action){
+  yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+}
+
 function *onGenerateDemoOrgSuccess({payload: {path}}){
   yield put(push(path))
 }
@@ -159,8 +212,9 @@ export default function* orgSagas(){
     takeLatest(UPDATE_ORG_OWNER_REQUEST, onUpdateOrgOwnerRequest),
     takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
     takeLatest(GENERATE_DEMO_ORG_REQUEST, onGenerateDemoOrgRequest),
-    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess)
-    // takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
+    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess),
+    takeLatest(UPDATE_ORG_STORAGE_STRATEGY_REQUEST, onUpdateOrgStorageStrategy),
+    takeLatest(UPDATE_ORG_STORAGE_STRATEGY_SUCCESS, onUpdateOrgStorageStrategySuccess)
   ]
 }
 

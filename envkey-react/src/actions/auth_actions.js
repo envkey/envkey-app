@@ -13,7 +13,6 @@ import {
   LOGOUT,
   LOGOUT_ALL,
   SELECT_ACCOUNT,
-  GRANT_ENV_ACCESS_REQUEST,
   START_DEMO,
   SET_DEMO_DOWNLOAD_URL,
   RESET_SESSION
@@ -49,12 +48,6 @@ export const
   logout = createAction(LOGOUT, R.always({}), R.pick(["accountId"])),
 
   logoutAll = createAction(LOGOUT_ALL),
-
-  grantEnvAccessRequest = createAction(
-    GRANT_ENV_ACCESS_REQUEST,
-    R.pick(['envs', 'orgUser']),
-    R.pick(['orgUserId', 'userId', 'isInvite', 'parentId'])
-  ),
 
   startDemo = createAction(START_DEMO),
 

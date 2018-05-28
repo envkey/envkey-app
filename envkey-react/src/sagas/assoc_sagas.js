@@ -6,10 +6,21 @@ import {
   signTrustedPubkeyChain,
   inviteUser,
   execCreateAssoc,
-  attachAssocEnvs
+  attachAssocEnvs,
+  execRawEnvKeyableS3Post,
+  urlPointersForRawEnvKeyable,
+  urlPointersForAppUser,
+  createUrlPointer,
+  processS3Uploads,
+  clearAppUserS3Uploads,
+  clearRawEnvKeyableS3Upload,
+  clearS3Upload,
+  execGrantEnvAccess
 } from './helpers'
 import {
+  API_SUCCESS,
   ADD_ASSOC_REQUEST,
+  ADD_ASSOC_API_SUCCESS,
   ADD_ASSOC_SUCCESS,
   ADD_ASSOC_FAILED,
   REMOVE_ASSOC_REQUEST,
@@ -36,7 +47,8 @@ import {
   generateKey,
   addTrustedPubkey,
   updateTrustedPubkeys,
-  fetchCurrentUserUpdates
+  fetchCurrentUserUpdates,
+  grantEnvAccessRequest
 } from "actions"
 import {
   generateKeys,
@@ -53,9 +65,13 @@ import {
   getLocalKey,
   getRawEnvWithPendingForApp,
   getPrivkey,
-  getApp
+  getApp,
+  getObject,
+  getAppUserBy,
+  getOrgUserForUser
 } from 'selectors'
 import {getAssocUrl} from 'lib/assoc/helpers'
+import { s3Client } from 'lib/s3'
 
 const
   addRemoveAssocApiSaga = ({method, actionTypes})=> {
@@ -87,13 +103,27 @@ const
   })
 
 
+function* onRevokeKey(action){
+  const {meta: {assocType, targetId}} = action,
+        currentOrg = yield select(getCurrentOrg),
+        keyable = yield select(getObject(assocType, targetId))
+
+  if (currentOrg.s3Storage && keyable && keyable.s3UploadInfo){
+    yield call(clearRawEnvKeyableS3Upload, keyable.s3UploadInfo)
+  }
+
+  yield call(onRevokeKeyRequest, action)
+}
+
 let isPrefetchingUpdatesForAddAssoc = false
 function* onAddAssoc(action){
-  let apiAction
-  const {meta: {parentType, assocType, isCreatingAssoc, shouldPrefetchUpdates, parentId}} = action,
+  const currentOrg = yield select(getCurrentOrg)
+
+  let apiAction = action
+  const {meta: {parentType, assocType, isCreatingAssoc, shouldPrefetchUpdates, assocId, parentId}} = action,
         apiSaga = addRemoveAssocApiSaga({
           method: "post",
-          actionTypes: [ADD_ASSOC_SUCCESS, ADD_ASSOC_FAILED]
+          actionTypes: [ADD_ASSOC_API_SUCCESS, ADD_ASSOC_FAILED]
         })
 
   if(parentType == "app" && assocType == "user"){
@@ -108,19 +138,32 @@ function* onAddAssoc(action){
       yield call(delay, 50)
     }
 
-    apiAction = yield call(attachAssocEnvs, action)
-  } else {
-    apiAction = action
+    if (currentOrg.storageStrategy == "s3"){
+      const urlPointerParams = yield call(urlPointersForAppUser, {
+              appId: parentId,
+              userId: assocId
+            })
+
+      apiAction = R.assocPath(["payload", "urlPointers"], urlPointerParams, apiAction)
+    }
   }
 
   yield call(apiSaga, apiAction)
 }
 
 function* onRemoveAssoc(action){
-  const apiSaga = addRemoveAssocApiSaga({
+  const {meta: {parentType, parentId, assocType, assocId}} = action,
+        currentOrg = yield select(getCurrentOrg),
+        apiSaga = addRemoveAssocApiSaga({
           method: "delete",
           actionTypes: [REMOVE_ASSOC_SUCCESS, REMOVE_ASSOC_FAILED]
         })
+
+  if (parentType == "app" && assocType == "user"){
+    if (currentOrg.s3Storage){
+      yield call(clearAppUserS3Uploads, {appId: parentId, userId: assocId})
+    }
+  }
 
   yield call(apiSaga, action)
 }
@@ -134,13 +177,41 @@ function* onCreateAssoc(action){
   }
 }
 
+function* onAddAssocApiSuccess(action){
+  const {meta, payload} = action,
+        {parentType, parentId, assocType, assocId} = meta
+
+  if (parentType == "app" && assocType == "user"){
+    const userId = assocId,
+          {id: orgUserId} = yield select(getOrgUserForUser(userId))
+
+    const grantEnvAccessRes = yield call(execGrantEnvAccess, {
+      payload: [{userId, orgUserId, permittedAppIds: [parentId]}],
+      meta
+    })
+
+    if (grantEnvAccessRes.error){
+      yield put({
+        meta,
+        type: ADD_ASSOC_FAILED,
+        payload: grantEnvAccessRes.payload,
+        error: true
+      })
+      return
+    }
+  }
+
+  yield put({
+    ...action,
+    type: ADD_ASSOC_SUCCESS
+  })
+}
+
 function* onAddAssocSuccess({meta, payload: {id: targetId}}){
   const {parentType, assocType} = meta
 
   if(parentType == "app" && ["server", "localKey"].includes(assocType) && !meta.skipKeygen){
-    yield put(generateKey({
-      ...meta, targetId
-    }))
+    yield put(generateKey({...meta, targetId}))
   }
 }
 
@@ -179,33 +250,66 @@ function* onGenerateKey(action){
 
     signedPubkey = yield signPublicKey({pubkey, privkey: currentUserPrivkey}),
 
-    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment, subEnvId: target.subEnvId})),
+    rawEnv = yield select(getRawEnvWithPendingForApp({appId: app.id, environment, subEnvId: target.subEnvId}))
 
-    [
-      encryptedRawEnv,
-      signedTrustedPubkeys,
-      signedByTrustedPubkeys
-    ] = yield [
-     encryptJson({
-       pubkey: signedPubkey,
-       privkey: currentUserPrivkey,
-       data: rawEnv
-     }),
-     call(signTrustedPubkeyChain, decryptedPrivkey),
-     call(signTrustedPubkeyChain)
-    ]
+  let [
+    encryptedRawEnv,
+    signedTrustedPubkeys,
+    signedByTrustedPubkeys
+  ] = yield [
+   encryptJson({
+     pubkey: signedPubkey,
+     privkey: currentUserPrivkey,
+     data: rawEnv
+   }),
+   call(signTrustedPubkeyChain, decryptedPrivkey),
+   call(signTrustedPubkeyChain)
+  ]
 
-  yield put(generateKeyRequest({
+  let urlPointer
+  if (target.s3UploadInfo){
+    if (target.pubkey){
+      yield call(clearRawEnvKeyableS3Upload, target.s3UploadInfo)
+    }
+
+    urlPointer = yield call(createUrlPointer, {target, keyableType: assocType})
+
+
+    encryptedRawEnv = yield call(execRawEnvKeyableS3Post, {
+      s3Info: target.s3UploadInfo.env,
+      env: encryptedRawEnv,
+      pubkey: signedPubkey,
+      privkey: currentUserPrivkey,
+      secret: urlPointer.urlSecret
+    })
+  }
+
+  let keyRequestAction = generateKeyRequest({
     ...action.meta,
     assocId,
     encryptedPrivkey,
-    encryptedRawEnv,
     passphrase,
     signedTrustedPubkeys,
     signedByTrustedPubkeys,
+    encryptedRawEnv,
     pubkey: signedPubkey,
     pubkeyFingerprint: getPubkeyFingerprint(signedPubkey)
-  }))
+  })
+
+  if (target.s3UploadInfo){
+
+    const urlPointerParams = yield call(urlPointersForRawEnvKeyable, {
+      urlPointer,
+      keyableType: assocType,
+      keyableId: targetId,
+      appId: app.id
+    })
+
+
+    keyRequestAction = R.assocPath(["payload", "urlPointers"], urlPointerParams, keyRequestAction)
+  }
+
+  yield put(keyRequestAction)
 }
 
 function *onGenerateKeySuccess({meta: {assocType, targetId}}){
@@ -226,10 +330,11 @@ export default function* assocSagas(){
     takeEvery(ADD_ASSOC_REQUEST, onAddAssoc),
     takeEvery(REMOVE_ASSOC_REQUEST, onRemoveAssoc),
     takeEvery(CREATE_ASSOC_REQUEST, onCreateAssoc),
+    takeEvery(ADD_ASSOC_API_SUCCESS, onAddAssocApiSuccess),
     takeEvery(ADD_ASSOC_SUCCESS, onAddAssocSuccess),
     takeEvery(GENERATE_ASSOC_KEY, onGenerateKey),
     takeEvery(GENERATE_ASSOC_KEY_REQUEST, onGenerateKeyRequest),
     takeEvery(GENERATE_ASSOC_KEY_SUCCESS, onGenerateKeySuccess),
-    takeEvery(REVOKE_ASSOC_KEY_REQUEST, onRevokeKeyRequest)
+    takeEvery(REVOKE_ASSOC_KEY_REQUEST, onRevokeKey)
   ]
 }

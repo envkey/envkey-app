@@ -3,6 +3,7 @@ import { select, call } from 'redux-saga/effects'
 import {encryptJson, signPublicKey} from 'lib/crypto'
 import {orgRoleIsAdmin} from 'lib/roles'
 import {keyableIsTrusted} from './crypto_helpers'
+import pluralize from 'pluralize'
 import {
   getUser,
   getApp,
@@ -122,29 +123,25 @@ export function* envParamsForApp({appId}){
 
     allGenerators = userGenerators.concat(serverGenerators, localKeyGenerators),
 
-    allParams = yield allGenerators,
+    allParams = yield allGenerators
 
-    merged = allParams.reduce(R.mergeDeepRight)
-
-  return merged
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function *envParamsForInvitee({userId, permittedAppIds}){
   const generators = permittedAppIds.map(appId => call(envParamsWithAppUser, {userId, appId})),
-        allParams = yield generators,
-        merged = allParams.reduce(R.mergeDeepRight)
+        allParams = yield generators
 
-  return { envs: merged }
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function *envParamsForAcceptedInvite(withTrustedPubkey){
   const {id: userId} = yield select(getCurrentUser),
         apps = yield select(getApps),
         generators = apps.map(({id: appId})=> call(envParamsWithAppUser, {userId, appId, withTrustedPubkey, isAcceptingInvite: true})),
-        allParams = yield generators,
-        merged = allParams.reduce(R.mergeDeepRight)
+        allParams = yield generators
 
-  return merged
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function *envParamsForUpdateOrgRole({userId, role: newRole}){
@@ -164,6 +161,22 @@ export function *envParamsForUpdateOrgRole({userId, role: newRole}){
         merged = allParams.reduce(R.mergeDeepRight)
 
   return merged
+}
+
+export function *envParamsForOrgStorageUpdate(){
+  const generators = [],
+        apps = yield select(getApps)
+
+  for (let {appId: id} of apps){
+    let users = yield select(getUsersForApp(appId))
+
+    for (let {userId: id} of users){
+      generators.push(call(envParamsWithAppUser, {userId, appId}))
+    }
+  }
+
+  const allParams = yield generators
+  return allParams.reduce(R.mergeDeepRight)
 }
 
 export function* attachAssocEnvs(action){

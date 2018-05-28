@@ -3,7 +3,13 @@ import { delay } from 'redux-saga'
 import {push} from 'react-router-redux'
 import R from 'ramda'
 import merge from 'lodash/merge'
-import {apiSaga, redirectFromOrgIndexIfNeeded} from './helpers'
+import {
+  apiSaga,
+  redirectFromOrgIndexIfNeeded,
+  clearAppS3Uploads,
+  clearUserS3Uploads,
+  clearAllS3Uploads
+} from './helpers'
 import pluralize from 'pluralize'
 import {decamelize} from 'xcase'
 import {
@@ -49,6 +55,7 @@ import {
 import {
   getCurrentOrg,
   getCurrentUser,
+  getObject,
   getIsPollingInviteesPendingAcceptance,
   getEnvUpdateId
 } from "selectors"
@@ -107,10 +114,12 @@ const
   },
 
   onRemoveObject = function*(action){
-    const currentOrg = yield select(getCurrentOrg),
+    const {meta: {objectType, targetId, isOnboardAction, noRedirect}} = action,
+          currentOrg = yield select(getCurrentOrg),
           currentUser = yield select(getCurrentUser),
-          shouldClearSession = ((action.meta.objectType == "user" && action.meta.targetId == currentUser.id) ||
-                          (action.meta.objectType == "org" && action.meta.targetId == currentOrg.id))
+          target = yield select(getObject(objectType, targetId)),
+          shouldClearSession = ((objectType == "user" && targetId == currentUser.id) ||
+                                (objectType == "org" && targetId == currentOrg.id))
 
     yield fork(apiSaga({
       authenticated: true,
@@ -119,14 +128,25 @@ const
       urlFn:  getUpdateUrlFn()
     }), action)
 
-    if(!action.meta.isOnboardAction){
-      const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
+    const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
+
+    if (currentOrg.s3Storage && apiResultType == API_SUCCESS){
+      if (objectType == "app"){
+        yield call(clearAppS3Uploads, targetId)
+      } else if (objectType == "orgUser"){
+        yield call(clearUserS3Uploads, target.userId)
+      } else if (objectType == "org"){
+        yield call(clearAllS3Uploads)
+      }
+    }
+
+    if(!isOnboardAction){
       if (apiResultType == API_SUCCESS) {
         // If user just deleted their account or organization, log them out and return
         if (shouldClearSession){
           yield put(push("/home"))
           yield put(resetSession())
-        } else if (!action.meta.noRedirect){
+        } else if (!noRedirect){
           yield take(REMOVE_OBJECT_SUCCESS)
           yield put(push(`/${currentOrg.slug}`))
           yield call(redirectFromOrgIndexIfNeeded)

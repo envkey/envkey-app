@@ -9,7 +9,7 @@ import {
   DECRYPT_ENVS_SUCCESS,
   UPDATE_ENV_SUCCESS,
   REMOVE_ASSOC_SUCCESS,
-  ADD_ASSOC_SUCCESS,
+  ADD_ASSOC_API_SUCCESS,
   CREATE_OBJECT_SUCCESS,
   UPDATE_OBJECT_SETTINGS_SUCCESS,
   RENAME_OBJECT_SUCCESS,
@@ -229,7 +229,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
       case REMOVE_ASSOC_SUCCESS:
         return getRemoveAssocReducer(objectTypePlural)(state, action)
 
-      case ADD_ASSOC_SUCCESS:
+      case ADD_ASSOC_API_SUCCESS:
         return getAddAssocReducer(objectTypePlural)(state, action)
 
       case CREATE_OBJECT_SUCCESS:

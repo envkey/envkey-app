@@ -4,7 +4,7 @@ import {
   UPDATE_ORG_ROLE,
   UPDATE_ORG_ROLE_REQUEST,
   UPDATE_ORG_OWNER_REQUEST,
-  // REMOVE_SELF_FROM_ORG,
+  UPDATE_ORG_STORAGE_STRATEGY_REQUEST,
   CREATE_ORG_REQUEST,
   GENERATE_DEMO_ORG_REQUEST,
 } from './action_types'
@@ -27,5 +27,7 @@ export const
   // removeSelfFromOrg = createAction(REMOVE_SELF_FROM_ORG, R.always({}), R.pick(["newOwnerId"])),
 
   createOrg = createAction(CREATE_ORG_REQUEST, (params)=> ({org: params}) ),
+
+  updateOrgStorageStrategy = createAction(UPDATE_ORG_STORAGE_STRATEGY_REQUEST, (params)=> ({org: params}) ),
 
   generateDemoOrg = createAction(GENERATE_DEMO_ORG_REQUEST)

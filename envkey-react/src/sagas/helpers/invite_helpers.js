@@ -5,7 +5,8 @@ import {
   execAddAssoc,
   dispatchCreateAssocSuccess,
   dispatchCreateAssocFailed,
-  checkPubkeyIsValid
+  checkPubkeyIsValid,
+  execGrantEnvAccess
 } from '.'
 import {
   GENERATE_INVITE_LINK,
@@ -14,9 +15,6 @@ import {
   CHECK_EMAIL_EXISTS_REQUEST,
   CHECK_EMAIL_EXISTS_SUCCESS,
   CHECK_EMAIL_EXISTS_FAILED,
-  GRANT_ENV_ACCESS,
-  GRANT_ENV_ACCESS_SUCCESS,
-  GRANT_ENV_ACCESS_FAILED,
   INVITE_USER,
   INVITE_USER_SUCCESS,
   INVITE_USER_FAILED,
@@ -36,16 +34,6 @@ import { sha256 } from 'lib/crypto'
 function* generateInviteLink(action){
   yield put({...action, type: GENERATE_INVITE_LINK})
   const res = yield take([GENERATE_INVITE_LINK_SUCCESS, GENERATE_INVITE_LINK_FAILED])
-  return res
-}
-
-function* dispatchGrantEnvAccess({payload, meta: {parentId}}){
-  yield put({type: GRANT_ENV_ACCESS, payload, meta: {isInvite: true, parentId}})
-}
-
-function* execGrantEnvAccess({payload, meta}){
-  yield call(dispatchGrantEnvAccess, {payload, meta})
-  const res = yield take([GRANT_ENV_ACCESS_SUCCESS, GRANT_ENV_ACCESS_FAILED])
   return res
 }
 

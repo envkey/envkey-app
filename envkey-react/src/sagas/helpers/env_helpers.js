@@ -1,8 +1,9 @@
-import { put, select, call } from 'redux-saga/effects'
+import { put, select, call, take } from 'redux-saga/effects'
 import { delay } from 'redux-saga'
 import R from 'ramda'
 import {envParamsForApp} from './attach_envs_helpers'
 import {signTrustedPubkeyChain} from './crypto_helpers'
+import {processS3Uploads} from './s3_storage_helpers'
 import {
   getEnvsWithMetaWithPending,
   getEnvActionsPendingByEnvUpdateId,
@@ -11,12 +12,19 @@ import {
   getHasEnvActionsPending,
   getObject,
   getSocketUserUpdatingEnvs,
-  getServersForSubEnv
+  getServersForSubEnv,
+  getCurrentOrg,
+  getServer,
+  getUser,
+  getPrivkey
 } from 'selectors'
 import {
   ADD_SUB_ENV,
   REMOVE_SUB_ENV,
   UPDATE_ENV_FAILED,
+  GRANT_ENV_ACCESS,
+  GRANT_ENV_ACCESS_SUCCESS,
+  GRANT_ENV_ACCESS_FAILED,
   updateEnvRequest,
   removeAssoc,
   addAssoc,
@@ -35,16 +43,23 @@ export function* dispatchEnvUpdateRequest(params){
   dispatchingEnvUpdateId = envUpdateId
 
   const
+    currentOrg = yield select(getCurrentOrg),
     parent = yield select(getObject(parentType, parentId)),
     envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
     envActionsPendingBefore = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
-    envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta}),
     signedByTrustedPubkeys = yield call(signTrustedPubkeyChain),
-    envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId))
+    envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(parentId, envUpdateId)),
+    privkey = yield select(getPrivkey)
+
+  let envParams = yield call(envParamsForApp, {appId: parentId, envsWithMeta})
 
   if (envActionsPendingBefore.length != envActionsPending.length){
     yield call(dispatchEnvUpdateRequest, {...params, updatePending: true})
     return
+  }
+
+  if (currentOrg.s3Storage){
+    envParams = yield call(processS3Uploads, envParams)
   }
 
   yield put(updateEnvRequest({
@@ -60,6 +75,7 @@ export function* dispatchEnvUpdateRequest(params){
     envsUpdatedAt: parent.envsUpdatedAt,
     keyablesUpdatedAt: parent.keyablesUpdatedAt
   }))
+
   dispatchingEnvUpdateId = null
 }
 
@@ -135,6 +151,16 @@ export function* resolveEnvUpdateConflicts({
   } else {
     return false
   }
+}
+
+function* dispatchGrantEnvAccess({payload, meta: {parentId}}){
+  yield put({type: GRANT_ENV_ACCESS, payload, meta: {isInvite: true, parentId}})
+}
+
+export function* execGrantEnvAccess({payload, meta}){
+  yield call(dispatchGrantEnvAccess, {payload, meta})
+  const res = yield take([GRANT_ENV_ACCESS_SUCCESS, GRANT_ENV_ACCESS_FAILED])
+  return res
 }
 
 
