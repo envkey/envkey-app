@@ -3,7 +3,7 @@ import R from 'ramda'
 import axiosRetry from 'axios-retry'
 
 const
-  API_VERSION = "v1",
+  API_VERSION = "v2",
 
   opts =  {
     baseURL: [process.env.API_HOST, API_VERSION].join("/"),
