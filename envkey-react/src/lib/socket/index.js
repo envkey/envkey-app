@@ -8,6 +8,7 @@ import {
   socketUserSubscribedObjectChannel,
   socketAction
 } from 'actions'
+import {API_VERSION} from "lib/api"
 
 export const
   UPDATE_ENVS = "UPDATE_ENVS",
@@ -34,7 +35,7 @@ const
 
   pusherClient = (auth, orgSlug)=> {
     return new Pusher(process.env.PUSHER_APP_KEY, {
-      authEndpoint: `${process.env.API_HOST}/pusher/subscribe.json`,
+      authEndpoint: `${process.env.API_HOST}/${API_VERSION}/pusher/subscribe.json`,
       auth: {
         headers: R.pick(["access-token", "uid", "client"], auth),
         params: { org_id: orgSlug }
