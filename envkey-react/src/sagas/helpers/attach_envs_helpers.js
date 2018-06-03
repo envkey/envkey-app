@@ -39,10 +39,11 @@ export function* envParamsWithAppUser({
 
   const privkey = yield select(getPrivkey),
         user = yield select(getUser(userId)),
+        app = yield select(getApp(appId)),
         pubkey = withTrustedPubkey || user.pubkey || user.invitePubkey,
         environments = yield select(getCurrentUserEnvironmentsAssignableToAppUser({appId, userId, role})),
         targetAppUser = yield select(getAppUserBy({appId, userId})),
-        envs = {}
+        envs = R.pick(["envsUpdatedAt", "keyablesUpdatedAt"], app)
 
   // Make productionMetaOnly assignable for a dev user when accepting an invitation
   if(isAcceptingInvite && !environments.includes("productionMetaOnly")){
@@ -50,8 +51,7 @@ export function* envParamsWithAppUser({
   }
 
   if(pubkey && (withTrustedPubkey || (yield call(keyableIsTrusted, user)))){
-    const app = yield select(getApp(appId)),
-          envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
+    const envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
           encryptedEnvs = yield environments.map(environment => encryptJson({data: envsWithMeta[environment], pubkey, privkey}))
 
     envs.envsWithMeta = R.zipObj(environments, encryptedEnvs)
@@ -62,10 +62,19 @@ export function* envParamsWithAppUser({
 }
 
 export function* envParamsWithServer({appId, serverId}, envParams={}){
-  const privkey = yield select(getPrivkey),
+  const app = yield select(getApp(appId)),
+        privkey = yield select(getPrivkey),
         server = yield select(getServer(serverId)),
         {pubkey, subEnvId, role: serverRole} = server,
         environment = yield select(getCurrentUserEnvironmentAssignableToServer({appId, serverId}))
+
+  if (!R.path(["servers", "envsUpdatedAt"], envParams)){
+    envParams = R.assocPath(["servers", "envsUpdatedAt"], app.envsUpdatedAt, envParams)
+  }
+
+  if (!R.path(["servers", "keyablesUpdatedAt"], envParams)){
+    envParams = R.assocPath(["servers", "keyablesUpdatedAt"], app.keyablesUpdatedAt, envParams)
+  }
 
   if(!(yield call(keyableIsTrusted, server))) return envParams
 
