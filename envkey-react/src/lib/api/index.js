@@ -2,9 +2,9 @@ import axios from 'axios'
 import R from 'ramda'
 import axiosRetry from 'axios-retry'
 
-const
-  API_VERSION = "v2",
+export const API_VERSION = "v2"
 
+const
   opts =  {
     baseURL: [process.env.API_HOST, API_VERSION].join("/"),
     timeout: 30000
