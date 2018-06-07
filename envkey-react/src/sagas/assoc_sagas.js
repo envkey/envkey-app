@@ -1,6 +1,7 @@
 import R from 'ramda'
 import { takeEvery, put, call, take, select } from 'redux-saga/effects'
 import { delay } from 'redux-saga'
+import pluralize from 'pluralize'
 import {
   apiSaga,
   signTrustedPubkeyChain,
@@ -274,7 +275,6 @@ function* onGenerateKey(action){
 
     urlPointer = yield call(createUrlPointer, {target, keyableType: assocType})
 
-
     encryptedRawEnv = yield call(execRawEnvKeyableS3Post, {
       s3Info: target.s3UploadInfo.env,
       env: encryptedRawEnv,
@@ -293,7 +293,15 @@ function* onGenerateKey(action){
     signedByTrustedPubkeys,
     encryptedRawEnv,
     pubkey: signedPubkey,
-    pubkeyFingerprint: getPubkeyFingerprint(signedPubkey)
+    pubkeyFingerprint: getPubkeyFingerprint(signedPubkey),
+    envs: {
+      [pluralize(assocType)]: {
+        [target.id]: {
+          envsUpdatedAt: app.envsUpdatedAt,
+          env: encryptedRawEnv
+        }
+      }
+    }
   })
 
   if (target.s3UploadInfo){

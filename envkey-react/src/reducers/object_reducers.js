@@ -141,7 +141,11 @@ const
       const {id} = payload
       return R.assoc(id, R.omit(["keyablesUpdatedAt"], payload), state)
     } else if (objectTypePlural == "apps"){
-      return R.assocPath([payload.appId, "keyablesUpdatedAt"], payload.keyablesUpdatedAt, state)
+      return R.pipe(
+        R.assocPath([payload.appId, "keyablesUpdatedAt"], payload.keyablesUpdatedAt),
+        R.assocPath([payload.appId, "localKeysUpdatedAt"], payload.localKeysUpdatedAt),
+        R.assocPath([payload.appId, "serversUpdatedAt"], payload.serversUpdatedAt)
+      )(state)
     }
     return state
   },

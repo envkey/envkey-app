@@ -71,9 +71,7 @@ export function* dispatchEnvUpdateRequest(params){
     envUpdateId,
     signedByTrustedPubkeys,
     updatedEnvsWithMeta: envsWithMeta,
-    envs: envParams,
-    envsUpdatedAt: parent.envsUpdatedAt,
-    keyablesUpdatedAt: parent.keyablesUpdatedAt
+    envs: envParams
   }))
 
   dispatchingEnvUpdateId = null

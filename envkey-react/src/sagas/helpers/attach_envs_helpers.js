@@ -68,21 +68,16 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
         {pubkey, subEnvId, role: serverRole} = server,
         environment = yield select(getCurrentUserEnvironmentAssignableToServer({appId, serverId}))
 
-  if (!R.path(["servers", "envsUpdatedAt"], envParams)){
-    envParams = R.assocPath(["servers", "envsUpdatedAt"], app.envsUpdatedAt, envParams)
-  }
-
-  if (!R.path(["servers", "keyablesUpdatedAt"], envParams)){
-    envParams = R.assocPath(["servers", "keyablesUpdatedAt"], app.keyablesUpdatedAt, envParams)
-  }
-
   if(!(yield call(keyableIsTrusted, server))) return envParams
 
+  envParams = R.assocPath(["servers", server.id, "envsUpdatedAt"], app.envsUpdatedAt, envParams)
+  envParams = R.assocPath(["servers", server.id, "serversUpdatedAt"], app.serversUpdatedAt, envParams)
+
   if (environment){
-    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment, subEnvId}))
-    return R.assocPath(["servers", serverId], {
-      env: yield encryptJson({data: rawEnv, pubkey, privkey })
-    }, envParams)
+    const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment, subEnvId})),
+          encryptedEnv = yield encryptJson({data: rawEnv, pubkey, privkey })
+
+    return R.assocPath(["servers", serverId, "env"], encryptedEnv, envParams)
   } else {
     const {role: appRole} =  yield select(getApp(appId))
     if (appRole == "development" && serverRole == "production"){
@@ -93,9 +88,8 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
       if (R.isEmpty(inheritanceOverrides)){
         return envParams
       } else {
-        return R.assocPath(["servers", serverId], {
-          inheritanceOverrides: yield encryptJson({ data: inheritanceOverrides, pubkey, privkey})
-        }, envParams)
+        const encryptedInheritanceOverrides = yield encryptJson({ data: inheritanceOverrides, pubkey, privkey})
+        return R.assocPath(["servers", serverId, "inheritanceOverrides"], encryptedInheritanceOverrides, envParams)
       }
     } else {
       return envParams
@@ -104,17 +98,21 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
 }
 
 export function* envParamsWithLocalKey({appId, localKeyId}, envParams={}){
-  const privkey = yield select(getPrivkey),
+  const app = yield select(getApp(appId)),
+        privkey = yield select(getPrivkey),
         localKey = yield select(getLocalKey(localKeyId)),
         {pubkey, role: localKeyRole} = localKey,
         environment = "development"
 
   if(!(yield call(keyableIsTrusted, localKey))) return envParams
 
-  const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment}))
-  return R.assocPath(["localKeys", localKeyId], {
-    env: yield encryptJson({data: rawEnv, pubkey, privkey })
-  }, envParams)
+  envParams = R.assocPath(["localKeys", localKey.id, "envsUpdatedAt"], app.envsUpdatedAt, envParams)
+  envParams = R.assocPath(["localKeys", localKey.id, "localKeysUpdatedAt"], app.localKeysUpdatedAt, envParams)
+
+  const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment})),
+        encryptedEnv = yield encryptJson({data: rawEnv, pubkey, privkey })
+
+  return R.assocPath(["localKeys", localKeyId, "env"], encryptedEnv, envParams)
 }
 
 

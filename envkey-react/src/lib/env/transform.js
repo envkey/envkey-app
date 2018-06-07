@@ -231,7 +231,7 @@ export const
       return []
     }
 
-    const updateDiffs = diff(preUpdateEnvsWithMeta, postUpdateEnvsWithMeta),
+    const updateDiffs = diff(preUpdateEnvsWithMeta, postUpdateEnvsWithMeta) || [],
           preUpdateWithPending = envActionsPending.reduce(transformEnv, preUpdateEnvsWithMeta),
           postUpdateWithPending = envActionsPending.reduce(transformEnv, postUpdateEnvsWithMeta),
           preUpdatePendingDiffs = diff(preUpdateEnvsWithMeta, preUpdateWithPending),

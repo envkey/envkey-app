@@ -60,14 +60,14 @@ export const
       signedByTrustedPubkeys,
       pubkey,
       pubkeyFingerprint,
-      encryptedRawEnv,
+      envs,
       assocType})=> {
 
       return {
         [assocType]: {encryptedPrivkey, pubkey, pubkeyFingerprint},
         signedTrustedPubkeys,
         signedByTrustedPubkeys,
-        env: encryptedRawEnv,
+        envs,
       }
     },
     pickMeta
