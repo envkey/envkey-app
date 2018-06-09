@@ -1,7 +1,6 @@
 import db from 'lib/db'
 import { defaultMemoize } from 'reselect'
 import R from 'ramda'
-import merge from 'lodash/merge'
 import {getUser, getSelectedObject, getSelectedObjectType} from './object_selectors'
 import {getEnvironmentsAccessibleWithSubEnvs} from './auth_selectors'
 import {getSelectedParentEnvUpdateId, getSubEnvs} from './env_selectors'
@@ -63,7 +62,7 @@ export const
       subEnvs = getSubEnvs(parent.id, state),
       entries = allEntriesWithSubEnvs(parent.envsWithMeta),
       local = {[envUpdateId]: state.localSocketEnvsStatus},
-      merged = merge({}, local, state.pendingLocalSocketEnvsStatus),
+      merged = R.mergeDeepRight({}, local, state.pendingLocalSocketEnvsStatus),
       mergedWithStatusKeyArrays = R.map(statusKeysToArrays, merged),
       anon = anonymizeEnvStatus(mergedWithStatusKeyArrays, entries, environments, subEnvs)
 

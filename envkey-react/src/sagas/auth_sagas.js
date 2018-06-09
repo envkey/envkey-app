@@ -1,141 +1,44 @@
 import { delay } from 'redux-saga'
-import { takeLatest, takeEvery, put, select, call, fork, take } from 'redux-saga/effects'
+import { takeLatest, put, select, call, take } from 'redux-saga/effects'
 import { push } from 'react-router-redux'
-import R from 'ramda'
 import {
-  apiSaga,
-  redirectFromOrgIndexIfNeeded,
-  decryptPrivkeyAndDecryptAllIfNeeded,
-  dispatchDecryptAllIfNeeded,
-  decryptAllEnvParents,
-  execUpdateTrustedPubkeys
+  redirectFromOrgIndexIfNeeded
 } from './helpers'
 import {
   APP_LOADED,
   REACTIVATED_BRIEF,
   REACTIVATED_LONG,
-  FETCH_CURRENT_USER_REQUEST,
   FETCH_CURRENT_USER_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
-  FETCH_CURRENT_USER_UPDATES_REQUEST,
   FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_FAILED,
-  VERIFY_EMAIL_REQUEST,
-  VERIFY_EMAIL_SUCCESS,
   VERIFY_EMAIL_FAILED,
-  VERIFY_EMAIL_CODE_REQUEST,
-  VERIFY_EMAIL_CODE_SUCCESS,
-  VERIFY_EMAIL_CODE_FAILED,
   LOGIN,
-  LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILED,
-  SELECT_ACCOUNT,
-  SELECT_ACCOUNT_REQUEST,
   SELECT_ACCOUNT_SUCCESS,
   SELECT_ACCOUNT_FAILED,
   LOGOUT,
   RESET_SESSION,
   REGISTER,
-  REGISTER_REQUEST,
   REGISTER_SUCCESS,
   REGISTER_FAILED,
-  HASH_USER_PASSWORD,
-  HASH_USER_PASSWORD_SUCCESS,
-  HASH_PASSWORD_AND_GENERATE_KEYS,
-  HASH_PASSWORD_AND_GENERATE_KEYS_SUCCESS,
-  GENERATE_USER_KEYPAIR,
-  GENERATE_USER_KEYPAIR_SUCCESS,
   SELECT_ORG,
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
-  DECRYPT_PRIVKEY_SUCCESS,
-  VERIFY_ORG_PUBKEYS_SUCCESS,
   START_DEMO,
-  DECRYPT_ALL_SUCCESS,
+  UPDATE_TRUSTED_PUBKEYS_SUCCESS,
   appLoaded,
   login,
-  logout,
-  selectOrg,
   socketUnsubscribeAll,
-  addTrustedPubkey,
-  decryptPrivkey,
-  verifyOrgPubkeys,
   fetchCurrentUserUpdates
 } from "actions"
 import {
-  getAuth,
-  getCurrentOrg,
   getOrgs,
   getOrgBySlug,
-  getApps,
-  getPassword,
-  getPrivkey,
-  getEncryptedPrivkey,
-  getIsDecryptingEnvs,
-  getEnvsAreDecrypted,
-  getInviteesNeedingAccess,
-  getInviteesPendingAcceptance,
-  getUser,
-  getCurrentUser,
-  getLastFetchAt,
-  getAppLoaded
+  getLastFetchAt
 } from "selectors"
-import * as crypto from 'lib/crypto'
-import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
 import {setAuthenticatingOverlay, clearAuthenticatingOverlay} from 'lib/ui'
-
-const
-  onFetchCurrentUserRequest = apiSaga({
-    authenticated: true,
-    method: "get",
-    actionTypes: [FETCH_CURRENT_USER_SUCCESS, FETCH_CURRENT_USER_FAILED],
-    urlSelector: getAuth,
-    urlFn: (action, auth)=> `/users/${auth.id}.json`
-  }),
-
-  onFetchCurrentUserUpdatesRequest = apiSaga({
-    authenticated: true,
-    method: "get",
-    actionTypes: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS, FETCH_CURRENT_USER_UPDATES_FAILED],
-    urlSelector: getAuth,
-    urlFn: (action, auth)=> `/users/${auth.id}.json`
-  }),
-
-  onVerifyEmailRequest = apiSaga({
-    authenticated: false,
-    method: "post",
-    actionTypes: [VERIFY_EMAIL_SUCCESS, VERIFY_EMAIL_FAILED],
-    urlFn: action => "/email_verifications.json"
-  }),
-
-  onVerifyEmailCodeRequest = apiSaga({
-    authenticated: false,
-    method: "post",
-    actionTypes: [VERIFY_EMAIL_CODE_SUCCESS, VERIFY_EMAIL_CODE_FAILED],
-    urlFn: action => "/email_verifications/check_valid.json"
-  }),
-
-  onLoginRequest = apiSaga({
-    authenticated: false,
-    method: "post",
-    actionTypes: [LOGIN_SUCCESS, LOGIN_FAILED],
-    urlFn: (action)=> "/auth/sign_in.json"
-  }),
-
-  onRegisterRequest = apiSaga({
-    authenticated: false,
-    method: "post",
-    actionTypes: [REGISTER_SUCCESS, REGISTER_FAILED],
-    urlFn: (action)=> "/auth.json"
-  }),
-
-  onSelectAccountRequest = apiSaga({
-    authenticated: true,
-    method: "get",
-    actionTypes: [SELECT_ACCOUNT_SUCCESS, SELECT_ACCOUNT_FAILED],
-    urlFn: (action)=> "/auth/session.json"
-  })
 
 function *loginSelectOrg(){
   clearAuthenticatingOverlay()
@@ -173,71 +76,26 @@ function *onVerifyEmailFailed({payload, meta: {status, message}}){
 function *onLogin(action){
   yield call(delay, 50)
   setAuthenticatingOverlay()
-  yield put({
-    ...action,
-    type: LOGIN_REQUEST
-  })
 }
 
 function* onLoginSuccess({meta: {password, orgSlug}}){
-  if (orgSlug){
-    yield put(selectOrg(orgSlug))
-  } else {
+  if (!orgSlug){
     const orgs = yield select(getOrgs)
-
-    yield (
-      orgs.length == 1 && orgs[0].isActive ?
-        put(selectOrg(orgs[0].slug)) :
-        call(loginSelectOrg)
-    )
-  }
-
-  if (password){
-    yield take(FETCH_CURRENT_USER_SUCCESS)
-    yield put(decryptPrivkey({password: password}))
-    yield take(DECRYPT_PRIVKEY_SUCCESS)
-    yield call(dispatchDecryptAllIfNeeded)
+    if (!(orgs.length == 1 && orgs[0].isActive)){
+      yield call(loginSelectOrg)
+    }
   }
 }
 
 function *onRegister({payload}){
   yield call(delay, 500)
-
-  yield put({type: GENERATE_USER_KEYPAIR, payload})
-
-  const {payload: {pubkey, encryptedPrivkey}} = yield take(GENERATE_USER_KEYPAIR_SUCCESS)
-
-  yield put({
-    type: REGISTER_REQUEST,
-    payload: {
-      ...R.omit(["password"], payload),
-      pubkey,
-      encryptedPrivkey,
-      pubkeyFingerprint: crypto.getPubkeyFingerprint(pubkey),
-      provider: "email",
-      uid: payload.email
-    },
-    meta: {password: payload.password}
-  })
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
-
-  const currentOrg = yield select(getCurrentOrg),
-        currentUser = yield select(getCurrentUser),
-        [ , decryptPrivkeyResult] = yield [
-          put(addTrustedPubkey({keyable: {type: "user", ...currentUser, pubkey}, orgId: currentOrg.id})),
-          call(decryptPrivkeyAndDecryptAllIfNeeded, password)
-        ]
-
-  if (!decryptPrivkeyResult.error){
-    const updateTrustedRes = yield call(execUpdateTrustedPubkeys, currentOrg.slug)
-    if (!updateTrustedRes.error){
-      yield put(push(`/${currentOrg.slug}`))
-      yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
-      yield call(redirectFromOrgIndexIfNeeded)
-    }
-  }
+  yield take(UPDATE_TRUSTED_PUBKEYS_SUCCESS)
+  yield put(push(`/${currentOrg.slug}`))
+  yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
+  yield call(redirectFromOrgIndexIfNeeded)
 }
 
 function* onStartDemo({payload: {email, token, password}}){
@@ -264,47 +122,30 @@ function* onSelectOrg({payload: slug}){
   }
 }
 
-function* onSelectAccount({meta}){
-  yield put({meta, type: SELECT_ACCOUNT_REQUEST})
-}
-
 function* onSelectAccountSuccess(){
   const orgs = yield select(getOrgs)
 
-  yield (
-    orgs.length == 1 && orgs[0].isActive ?
-      put(selectOrg(orgs[0].slug)) :
-      call(loginSelectOrg)
-  )
+  if (!(orgs.length == 1 && orgs[0].isActive)){
+    yield call(loginSelectOrg)
+  }
 }
 
 function *onFetchCurrentUserSuccess(action){
   yield put(appLoaded())
   yield [
     put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL}),
-    call(dispatchDecryptAllIfNeeded),
     call(redirectFromOrgIndexIfNeeded)
   ]
 }
 
 function *onFetchCurrentUserFailed(action){
-  yield put(logout())
   yield put(push("/home"))
 }
 
 function *onFetchCurrentUserUpdatesApiSuccess({payload}){
   if (payload.apps && payload.apps.length > 0){
     yield call(delay, 100)
-    yield call(dispatchDecryptAllIfNeeded, true)
-    yield take(DECRYPT_ALL_SUCCESS)
-  } else if ((payload.users && payload.users.length > 0) ||
-      (payload.servers && payload.servers.length > 0) ||
-      (payload.localKeys && payload.localKeys.length > 0)){
-    yield put(verifyOrgPubkeys())
-    yield take(VERIFY_ORG_PUBKEYS_SUCCESS)
   }
-
-  yield put({type: FETCH_CURRENT_USER_UPDATES_SUCCESS})
 }
 
 function *onResetSession(action){
@@ -325,22 +166,14 @@ export default function* authSagas(){
     takeLatest(APP_LOADED, onAppLoaded),
     takeLatest(REACTIVATED_BRIEF, onReactivatedBrief),
     takeLatest(REACTIVATED_LONG, onReactivatedLong),
-    takeLatest(FETCH_CURRENT_USER_REQUEST, onFetchCurrentUserRequest),
-    takeLatest(FETCH_CURRENT_USER_UPDATES_REQUEST, onFetchCurrentUserUpdatesRequest),
     takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
     takeLatest(FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
     takeLatest(FETCH_CURRENT_USER_UPDATES_API_SUCCESS, onFetchCurrentUserUpdatesApiSuccess),
-    takeLatest(VERIFY_EMAIL_REQUEST, onVerifyEmailRequest),
     takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
-    takeLatest(VERIFY_EMAIL_CODE_REQUEST, onVerifyEmailCodeRequest),
     takeLatest(LOGIN, onLogin),
-    takeLatest(LOGIN_REQUEST, onLoginRequest),
     takeLatest(LOGIN_SUCCESS, onLoginSuccess),
     takeLatest(REGISTER, onRegister),
-    takeLatest(REGISTER_REQUEST, onRegisterRequest),
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
-    takeLatest(SELECT_ACCOUNT, onSelectAccount),
-    takeLatest(SELECT_ACCOUNT_REQUEST, onSelectAccountRequest),
     takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
     takeLatest(START_DEMO, onStartDemo),

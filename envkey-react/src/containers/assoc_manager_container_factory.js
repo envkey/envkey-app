@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import columnsConfig from 'lib/assoc/columns_config'
+import columnsConfig from 'lib/columns/columns_config'
 import {
   addAssoc,
   createAssoc,

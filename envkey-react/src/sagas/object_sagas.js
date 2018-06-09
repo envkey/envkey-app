@@ -1,36 +1,12 @@
-import { takeEvery, takeLatest, take, put, select, call, fork} from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import { takeEvery, takeLatest, take, put, select, call } from 'redux-saga/effects'
 import {push} from 'react-router-redux'
-import R from 'ramda'
-import merge from 'lodash/merge'
 import {
-  apiSaga,
-  redirectFromOrgIndexIfNeeded,
-  clearAppS3Uploads,
-  clearUserS3Uploads,
-  clearAllS3Uploads
+  redirectFromOrgIndexIfNeeded
 } from './helpers'
 import pluralize from 'pluralize'
-import {decamelize} from 'xcase'
 import {
   SELECTED_OBJECT,
-
-  FETCH_OBJECT_DETAILS_REQUEST,
-  FETCH_OBJECT_DETAILS_API_SUCCESS,
-  FETCH_OBJECT_DETAILS_SUCCESS,
-  FETCH_OBJECT_DETAILS_FAILED,
-
-  CREATE_OBJECT_REQUEST,
   CREATE_OBJECT_SUCCESS,
-  CREATE_OBJECT_FAILED,
-
-  UPDATE_OBJECT_SETTINGS_REQUEST,
-  UPDATE_OBJECT_SETTINGS_SUCCESS,
-  UPDATE_OBJECT_SETTINGS_FAILED,
-
-  RENAME_OBJECT_REQUEST,
-  RENAME_OBJECT_SUCCESS,
-  RENAME_OBJECT_FAILED,
 
   REMOVE_OBJECT_REQUEST,
   REMOVE_OBJECT_SUCCESS,
@@ -39,64 +15,20 @@ import {
   API_SUCCESS,
   API_FAILED,
 
-  CHECK_INVITES_ACCEPTED_REQUEST,
-
   SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
-
-  VERIFY_ORG_PUBKEYS_SUCCESS,
 
   socketSubscribeObjectChannel,
   generateEnvUpdateId,
-  importAllEnvironments,
-  decryptEnvs,
-  verifyOrgPubkeys,
+
   resetSession
 } from "actions"
 import {
   getCurrentOrg,
-  getCurrentUser,
   getObject,
-  getIsPollingInviteesPendingAcceptance,
   getEnvUpdateId
 } from "selectors"
-import {
-  decryptEnvParent
-} from './helpers'
 
 const
-  getUpdateUrlFn = (path)=> ({meta: {objectType, targetId}}) => {
-    return `/${pluralize(decamelize(objectType))}/${targetId}${path ? ('/' + path): ''}.json`
-  },
-
-  onCreateObject = apiSaga({
-    authenticated: true,
-    method: "post",
-    actionTypes: [CREATE_OBJECT_SUCCESS, CREATE_OBJECT_FAILED],
-    urlFn: ({meta: {objectType}}) => `/${pluralize(objectType)}.json`
-  }),
-
-  onUpdateObjectSettings = apiSaga({
-    authenticated: true,
-    method: "patch",
-    actionTypes: [UPDATE_OBJECT_SETTINGS_SUCCESS, UPDATE_OBJECT_SETTINGS_FAILED],
-    urlFn: getUpdateUrlFn("update_settings")
-  }),
-
-  onRenameObject = apiSaga({
-    authenticated: true,
-    method: "patch",
-    actionTypes: [RENAME_OBJECT_SUCCESS, RENAME_OBJECT_FAILED],
-    urlFn: getUpdateUrlFn("rename")
-  }),
-
-  onFetchObjectDetails = action => apiSaga({
-    authenticated: true,
-    method: "get",
-    minDelay: (action.meta && action.meta.socketUpdate ? 5000 : 0),
-    actionTypes: [FETCH_OBJECT_DETAILS_API_SUCCESS, FETCH_OBJECT_DETAILS_FAILED],
-    urlFn: ({meta: {objectType, targetId}})=> `/${pluralize(objectType)}/${targetId}.json`
-  })(action),
-
   onSelectedObject = function*({payload: object}){
     yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
     const currentOrg = yield select(getCurrentOrg)
@@ -116,29 +48,11 @@ const
   onRemoveObject = function*(action){
     const {meta: {objectType, targetId, isOnboardAction, noRedirect}} = action,
           currentOrg = yield select(getCurrentOrg),
-          currentUser = yield select(getCurrentUser),
           target = yield select(getObject(objectType, targetId)),
           shouldClearSession = ((objectType == "user" && targetId == currentUser.id) ||
                                 (objectType == "org" && targetId == currentOrg.id))
 
-    yield fork(apiSaga({
-      authenticated: true,
-      method: "delete",
-      actionTypes: [REMOVE_OBJECT_SUCCESS, REMOVE_OBJECT_FAILED],
-      urlFn:  getUpdateUrlFn()
-    }), action)
-
     const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
-
-    if (currentOrg.s3Storage && apiResultType == API_SUCCESS){
-      if (objectType == "app"){
-        yield call(clearAppS3Uploads, targetId)
-      } else if (objectType == "orgUser"){
-        yield call(clearUserS3Uploads, target.userId)
-      } else if (objectType == "org"){
-        yield call(clearAllS3Uploads)
-      }
-    }
 
     if(!isOnboardAction){
       if (apiResultType == API_SUCCESS) {
@@ -155,30 +69,11 @@ const
     }
   },
 
-  onFetchObjectDetailsApiSuccess = function*(action){
-    if (action.meta.decryptEnvs){
-      yield put(verifyOrgPubkeys())
-      yield take(VERIFY_ORG_PUBKEYS_SUCCESS)
-      const decrypted = yield call(decryptEnvParent, action.payload)
-      yield put({...action, type: FETCH_OBJECT_DETAILS_SUCCESS, payload: decrypted})
-    } else {
-      yield put({...action, type: FETCH_OBJECT_DETAILS_SUCCESS})
-    }
-  },
-
   onCreateObjectSuccess = function*({
-    meta: {status, createAssoc, objectType, isOnboardAction, willImport, toImport},
+    meta: {createAssoc, objectType, isOnboardAction, willImport},
     payload
   }){
-    const {id, slug} = payload
-
-    if (toImport){
-      yield put(importAllEnvironments({
-        ...toImport,
-        parentType: objectType,
-        parentId: id
-      }))
-    }
+    const {slug} = payload
 
     const currentOrg = yield select(getCurrentOrg)
 
@@ -187,24 +82,12 @@ const
     } else if(!createAssoc){
       yield put(push(`/${currentOrg.slug}/${pluralize(objectType)}/${slug}`))
     }
-  },
-
-  onUpdateObjectSuccess = function*({meta}){
-    if (meta.objectType == "app"){
-      yield(put(decryptEnvs(meta)))
-    }
   }
 
 export default function* objectSagas(){
   yield [
     takeLatest(SELECTED_OBJECT, onSelectedObject),
-    takeEvery(FETCH_OBJECT_DETAILS_REQUEST, onFetchObjectDetails),
-    takeEvery(FETCH_OBJECT_DETAILS_API_SUCCESS, onFetchObjectDetailsApiSuccess),
-    takeEvery(CREATE_OBJECT_REQUEST, onCreateObject),
-    takeEvery(UPDATE_OBJECT_SETTINGS_REQUEST, onUpdateObjectSettings),
-    takeEvery(RENAME_OBJECT_REQUEST, onRenameObject),
-    takeEvery([RENAME_OBJECT_SUCCESS, UPDATE_OBJECT_SETTINGS_SUCCESS], onUpdateObjectSuccess),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
-    takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
+    takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess)
   ]
 }

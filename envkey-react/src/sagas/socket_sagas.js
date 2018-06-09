@@ -176,6 +176,7 @@ function *onSocketUpdateOrg(action){
         objectType: "app",
         decryptEnvs: true,
         socketUpdate: true,
+        minDelay: 2000,
         socketActorId: actorId,
         socketEnvUpdateId: meta.envUpdateId
       }))

@@ -1,35 +1,46 @@
 import R from 'ramda'
 import db from 'lib/db'
+import {
+  getApps,
+  getCurrentUser,
+  getCurrentOrg,
+  getActiveUsers
+} from 'envkey-client-core/selectors'
 
 export const
+  getAppLoaded = db.path("appLoaded"),
+
+  getDisconnected = db.path("disconnected"),
 
   getCurrentRoute = db.path("routing", "locationBeforeTransitions"),
 
-  getIsRemovingById = db.path("isRemoving"),
+  getIsInvitee = db.path("isInvitee"),
 
-  getIsRemoving = (id, state)=> getIsRemovingById(state)[id] || false,
+  getIsOnboarding = (state)=> getApps(state).length == 1 || getIsInvitee(state),
 
-  getIsCreating = ({objectType, parentId, assocType, role}, state)=> {
-    const path = ["isCreating"].concat(objectType ? [objectType] : [parentId, assocType, (role || "all")])
+  getIsDemo = R.anyPass([
+    db.path("isDemo"),
+    R.pipe(getCurrentUser, R.path(['demo'])),
+    R.pipe(getCurrentOrg, R.path(['demo']))
+  ]),
 
-    return db.path(...path)(state)
-  },
+  getDemoDownloadUrl = db.path("demoDownloadUrl"),
 
-  getIsRenaming = (id, state)=> db.path("isRenaming", id)(state),
+  getStripeFormOpened = db.path("stripeFormOpened"),
 
-  getIsUpdatingSettings = (id, state)=> db.path("isUpdatingSettings", id)(state),
+  getIsExceedingFreeTier = state => {
+    const currentOrg = getCurrentOrg(state)
+    if (!currentOrg || !currentOrg.freePlan)return false
 
-  getIsUpdatingOrgRole = (userId, state)=> db.path("isUpdatingOrgRole", userId)(state),
+    const {maxUsers, maxApps, maxKeysPerEnv} = currentOrg.freePlan
 
-  getIsAddingAssoc = ({parentId, assocType, role}, state)=> {
-    const isAdding = db.path("isAddingAssoc", parentId, assocType, (role || "all"))(state)
-    return isAdding && !R.isEmpty(isAdding)
-  },
+    return getApps(state).length > maxApps ||
+           getActiveUsers(state).length > maxUsers // ||
+           // getMostEnvKeysPerEnvironment(state) > maxKeysPerEnv
+  }
 
-  getIsGeneratingAssocKeyById = db.path("isGeneratingAssocKey"),
 
-  getIsGeneratingAssocKey = (id, state)=> getIsGeneratingAssocKeyById(state)[id] || false,
 
-  getIsRevokingAssocKeyById = db.path("isRevokingAssocKey"),
 
-  getIsRevokingAssocKey = (id, state)=> getIsRevokingAssocKeyById(state)[id] || false
+
+
