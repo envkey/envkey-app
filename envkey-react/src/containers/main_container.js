@@ -30,7 +30,7 @@ import {
   resetSession
 } from 'actions'
 import { TrialOverdueContainer } from 'containers'
-import {orgRoleIsAdmin} from 'lib/roles'
+import {orgRoleIsAdmin} from "envkey-client-core/lib/roles"
 import R from 'ramda'
 import {openLinkExternal} from 'lib/ui'
 import Spinner from 'components/shared/spinner'

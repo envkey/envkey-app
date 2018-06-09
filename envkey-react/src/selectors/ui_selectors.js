@@ -1,5 +1,5 @@
 import R from 'ramda'
-import db from 'lib/db'
+import db from "envkey-client-core/lib/db"
 import {
   getApps,
   getCurrentUser,

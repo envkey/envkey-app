@@ -2,8 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
-import {secureRandomAlphanumeric} from 'lib/crypto'
-import { parseMultiFormat } from 'lib/parse'
+import {secureRandomAlphanumeric} from "envkey-client-core/lib/crypto"
+import { parseMultiFormat } from "envkey-client-core/lib/parse"
 import { importerPlaceholder } from 'lib/env/imports'
 import { importSingleEnvironment } from 'actions'
 import {

@@ -7,7 +7,7 @@ import scrollIntoView from 'scroll-into-view'
 import EntryRow from './entry_row'
 import EditableCellsParent from './traits/editable_cells_parent'
 import {toClass} from 'recompose'
-import { allEntries } from 'lib/env/query'
+import { allEntries } from "envkey-client-core/lib/env/query"
 
 const HIGHLIGHT_ROW_DELAY = 2000
 

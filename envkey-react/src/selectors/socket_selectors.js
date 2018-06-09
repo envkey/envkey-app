@@ -1,11 +1,11 @@
-import db from 'lib/db'
+import db from "envkey-client-core/lib/db"
 import { defaultMemoize } from 'reselect'
 import R from 'ramda'
 import {getUser, getSelectedObject, getSelectedObjectType} from './object_selectors'
 import {getEnvironmentsAccessibleWithSubEnvs} from './auth_selectors'
 import {getSelectedParentEnvUpdateId, getSubEnvs} from './env_selectors'
 import {anonymizeEnvStatus, statusKeysToArrays} from 'lib/env/update_status'
-import { allEntriesWithSubEnvs } from 'lib/env/query'
+import { allEntriesWithSubEnvs } from "envkey-client-core/lib/env/query"
 
 const
   getUserByIdFn = state => R.flip(getUser)(state),

@@ -8,7 +8,7 @@ import {
   socketUserSubscribedObjectChannel,
   socketAction
 } from 'actions'
-import {API_VERSION} from "lib/api"
+import {API_VERSION} from "envkey-client-core/lib/api"
 
 export const
   UPDATE_ENVS = "UPDATE_ENVS",

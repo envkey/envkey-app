@@ -53,7 +53,7 @@ import {
   broadcastOrgChannel,
   broadcastObjectChannel
 } from 'lib/socket'
-import { allEntriesWithSubEnvs } from 'lib/env/query'
+import { allEntriesWithSubEnvs } from "envkey-client-core/lib/env/query"
 import { deanonymizeEnvStatus } from 'lib/env/update_status'
 import {dispatchEnvUpdateRequestIfNeeded} from './helpers'
 

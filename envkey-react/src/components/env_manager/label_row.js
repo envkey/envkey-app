@@ -4,7 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import {Link} from "react-router"
 import {imagePath} from "lib/ui"
 import {ImportEnvContainer, ExportEnvContainer} from 'containers'
-import {appRoleIsAdmin} from 'lib/roles'
+import {appRoleIsAdmin} from "envkey-client-core/lib/roles"
 import traversty from 'traversty'
 
 export default class LabelRow extends React.Component {

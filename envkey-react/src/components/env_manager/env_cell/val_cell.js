@@ -1,6 +1,6 @@
 import h from "lib/ui/hyperscript_with_helpers"
 import EnvCell from './env_cell'
-import {inheritedVal} from 'lib/env/inheritance'
+import {inheritedVal} from "envkey-client-core/lib/env/inheritance"
 
 export default class ValCell extends EnvCell {
 

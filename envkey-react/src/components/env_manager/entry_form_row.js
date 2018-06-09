@@ -5,7 +5,7 @@ import FormEntryCell from './env_cell/form_entry_cell'
 import FormValCell from './env_cell/form_val_cell'
 import LockedFormValCell from './env_cell/locked_form_val_cell'
 import EditableCellsParent from './traits/editable_cells_parent'
-import {allEntries} from 'lib/env/query'
+import {allEntries} from "envkey-client-core/lib/env/query"
 
 const
   entryEditing = {entryKey: "entry", environment: null},

@@ -7,7 +7,7 @@ import {
 import {
   EXPORT_ENVIRONMENT
 } from "actions"
-import {toYaml, toDotEnv} from 'lib/parse'
+import {toYaml, toDotEnv} from "envkey-client-core/lib/parse"
 import isElectron from 'is-electron'
 
 const rawEnvToTxt = (rawEnv, format)=> {

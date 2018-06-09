@@ -1,7 +1,7 @@
 import R from 'ramda'
 import FormEntryCell from './form_entry_cell'
 import Autocompletable from './traits/autocompletable'
-import {allEntries} from 'lib/env/query'
+import {allEntries} from "envkey-client-core/lib/env/query"
 
 export default class SubEnvFormEntryCell extends Autocompletable(FormEntryCell){
 
