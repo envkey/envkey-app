@@ -21,6 +21,8 @@ export const
 
   getInvitePassphrase = db.path("invitePassphrase"),
 
+  getInviteExistingUserInvalidPassphraseError = db.path("inviteExistingUserInvalidPassphraseError"),
+
   getInviteParamsVerified = db.path("inviteParamsVerified"),
 
   getInviteParamsInvalid = db.path("inviteParamsInvalid"),
