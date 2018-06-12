@@ -11,7 +11,7 @@ import {
   BILLING_UPDATE_CARD_FAILED
 } from "actions"
 import R from 'ramda'
-import { orgs as coreOrgsReducer } from "envkey-client-core/reducers/org_reducers"
+import { orgs as coreOrgsReducer } from "envkey-client-core/dist/reducers/org_reducers"
 
 export const
   orgs = (state = {}, action)=>{

@@ -13,7 +13,7 @@ import rootSaga from './sagas/root_saga'
 import appMiddlewares from 'middleware'
 import isElectron from 'is-electron'
 import createLogger from 'redux-logger'
-import {AUTH_KEYS, LOCAL_PERSISTENCE_AUTH_KEYS, SESSION_PERSISTENCE_AUTH_KEYS} from 'constants'
+import {AUTH_KEYS, LOCAL_PERSISTENCE_AUTH_KEYS, SESSION_PERSISTENCE_AUTH_KEYS} from 'envkey-client-core/dist/constants'
 import {electronStorageAdapter} from 'lib/storage'
 
 const

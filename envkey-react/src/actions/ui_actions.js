@@ -1,3 +1,4 @@
+import { createAction } from 'redux-actions'
 import {
   APP_LOADED,
   RESET_VERIFY_EMAIL,
@@ -10,6 +11,8 @@ import {
 } from './action_types'
 
 export const
+  appLoaded = createAction(APP_LOADED),
+
   startDemo = createAction(START_DEMO),
 
   setDemoDownloadUrl = createAction(SET_DEMO_DOWNLOAD_URL),

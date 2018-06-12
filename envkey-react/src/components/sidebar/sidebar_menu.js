@@ -4,7 +4,7 @@ import {Link} from 'react-router'
 import { imagePath } from 'lib/ui'
 import pluralize from 'pluralize'
 import R from 'ramda'
-import {orgRoleIsAdmin} from "envkey-client-core/lib/roles"
+import {orgRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
 
 export default class SidebarMenu extends React.Component {
 

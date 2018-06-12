@@ -21,7 +21,7 @@ import {
   ProdAccessAppKeysSlider,
   DevAccessAppKeysSlider
 } from 'components/onboard'
-import {appRoleHasProdAccess, appRoleIsAdmin} from "envkey-client-core/lib/roles"
+import {appRoleHasProdAccess, appRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
 
 const canGenerateServerKeys = (props)=> R.any(R.path(["permissions", "generateKey"]), props.servers)
 

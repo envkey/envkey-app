@@ -1,5 +1,5 @@
 import React from 'react'
-import {twitterShortTs} from 'lib/utils/date'
+import {twitterShortTs} from 'envkey-client-core/dist/lib/utils/date'
 import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from "components/shared/small_loader"
 

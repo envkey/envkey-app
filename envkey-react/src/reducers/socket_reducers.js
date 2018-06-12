@@ -1,4 +1,4 @@
-import {isClearSessionAction} from './helpers'
+import {isClearSessionAction} from 'envkey-client-core/dist/lib/actions'
 import R from 'ramda'
 import {
   CREATE_ENTRY,

@@ -47,7 +47,7 @@ import {
   getCurrentUserEnvironmentsAssignableForApp,
   getIsImportingAnyEnvironment
 } from 'selectors'
-import { allEntries } from "envkey-client-core/lib/env/query"
+import { allEntries } from "envkey-client-core/dist/lib/env/query"
 import EnvManager from 'components/env_manager'
 import {
   OrgOwnerAppEnvSlider,
@@ -56,7 +56,7 @@ import {
   NonAdminAppEnvSlider
 } from 'components/onboard'
 import {Onboardable} from 'components/onboard'
-import {orgRoleIsAdmin, appRoleIsAdmin} from "envkey-client-core/lib/roles"
+import {orgRoleIsAdmin, appRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
 
 const EnvManagerContainerFactory = ({parentType})=> {
 

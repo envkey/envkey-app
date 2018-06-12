@@ -1,11 +1,13 @@
 import R from 'ramda'
-import db from "envkey-client-core/lib/db"
+import db from "envkey-client-core/dist/lib/db"
 import {
   getApps,
   getCurrentUser,
   getCurrentOrg,
-  getActiveUsers
-} from 'envkey-client-core/selectors'
+  getActiveUsers,
+  getObject,
+  getEnvUpdateId
+} from 'envkey-client-core/dist/selectors'
 
 export const
   getAppLoaded = db.path("appLoaded"),
@@ -37,6 +39,20 @@ export const
     return getApps(state).length > maxApps ||
            getActiveUsers(state).length > maxUsers // ||
            // getMostEnvKeysPerEnvironment(state) > maxKeysPerEnv
+  },
+
+  getSelectedObjectType = db.path("selectedObjectType"),
+
+  getSelectedObjectId = db.path("selectedObjectId"),
+
+  getSelectedObject = state => {
+    const type = getSelectedObjectType(state),
+          id = getSelectedObjectId(state)
+    return getObject(type, id, state)
+  },
+
+  getSelectedParentEnvUpdateId = state =>{
+    return getEnvUpdateId(getSelectedObjectId(state), state)
   }
 
 

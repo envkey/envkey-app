@@ -1,7 +1,7 @@
 import React from 'react'
 import R from 'ramda'
 import SmallLoader from 'components/shared/small_loader'
-import {secureRandomAlphanumeric} from "envkey-client-core/lib/crypto"
+import {secureRandomAlphanumeric} from "envkey-client-core/dist/lib/crypto"
 
 const AWS_REGIONS = [
   ["US East (N. Virgina)", "us-east-1"],

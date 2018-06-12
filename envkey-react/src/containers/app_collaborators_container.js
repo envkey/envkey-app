@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import moment from 'moment'
-import { getColumnsFlattened } from "lib/assoc/helpers"
+import { getColumnsFlattened } from "envkey-client-core/dist/lib/assoc/helpers"
 import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink, getIsDemo } from 'selectors'
 import { closeGeneratedInviteLink } from 'actions'
 import { AssocManagerContainerFactory } from 'containers'

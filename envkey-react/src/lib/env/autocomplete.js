@@ -1,5 +1,5 @@
 import R from 'ramda'
-import {inheritedShallow} from "./inheritance"
+import {inheritedShallow} from "envkey-client-core/dist/lib/env/inheritance"
 
 const getEnvsFilter = ({entryKey, envsWithMeta, environment}, searchStr) => envOpt => {
   // Remove current environment

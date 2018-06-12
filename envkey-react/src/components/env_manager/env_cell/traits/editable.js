@@ -1,6 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
-import {isMultiline} from "lib/utils/string"
+import {isMultiline} from "envkey-client-core/dist/lib/utils/string"
 
 const defaultInputVal = props => props.inherits || props.val || ""
 

@@ -7,7 +7,7 @@ import SubEnvs from './sub_envs'
 import {AddAssoc} from 'components/assoc_manager'
 import SmallLoader from 'components/shared/small_loader'
 import Filter from 'components/shared/filter'
-import { allEntries, hasAnyVal } from "envkey-client-core/lib/env/query"
+import { allEntries, hasAnyVal } from "envkey-client-core/dist/lib/env/query"
 import traversty from 'traversty'
 
 export default class EnvManager extends React.Component {

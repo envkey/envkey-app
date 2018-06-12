@@ -3,7 +3,7 @@ import R from 'ramda'
 import pluralize from 'pluralize'
 import SidebarMenu from './sidebar_menu'
 import AccountMenu from './account_menu'
-import {ORG_ROLES} from 'constants'
+import {ORG_ROLES} from 'envkey-client-core/dist/constants'
 import {orgRoleGroupLabel} from 'lib/ui'
 import Filter from 'components/shared/filter'
 

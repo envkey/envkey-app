@@ -3,7 +3,7 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import EnvGrid from './env_grid'
 import SubEnvFormEntryCell from './env_cell/sub_env_form_entry_cell'
-import {allEntries} from "envkey-client-core/lib/env/query"
+import {allEntries} from "envkey-client-core/dist/lib/env/query"
 
 export default class SubEnvGrid extends React.Component {
   constructor(props){

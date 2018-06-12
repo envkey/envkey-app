@@ -1,9 +1,9 @@
 import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
-import {twitterShortTs} from 'lib/utils/date'
+import {twitterShortTs} from 'envkey-client-core/dist/lib/utils/date'
 import {imagePath} from "lib/ui"
-import {capitalize} from "lib/utils/string"
+import {capitalize} from "envkey-client-core/dist/lib/utils/string"
 import SmallLoader from 'components/shared/small_loader'
 import KeyIcon from "components/shared/key_icon"
 

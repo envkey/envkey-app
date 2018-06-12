@@ -1,10 +1,11 @@
-import { isClearSessionAction } from "envkey-client-core/reducers/helpers"
+import { isClearSessionAction } from "envkey-client-core/dist/lib/actions"
 import {
   APP_LOADED,
   DISCONNECTED,
   START_DEMO,
   SET_DEMO_DOWNLOAD_URL,
-  ACCEPT_INVITE_SUCCESS
+  ACCEPT_INVITE_SUCCESS,
+  SELECTED_OBJECT
 } from "actions"
 
 

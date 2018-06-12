@@ -14,7 +14,7 @@ import {
   LocalKeyForm
 } from 'components/forms'
 import { appRoleGroupLabel, imagePath } from 'lib/ui'
-import { findSubEnv } from "envkey-client-core/lib/env/query"
+import { findSubEnv } from "envkey-client-core/dist/lib/env/query"
 import {
   getUserGroupsByRoleForApp,
   getServerGroupsForApp,

@@ -6,7 +6,7 @@ import BillingColumns from 'components/billing/billing_columns'
 import queryString from 'query-string'
 import moment from 'moment'
 import {imagePath} from "lib/ui"
-import {shortNum} from 'lib/utils/string'
+import {shortNum} from 'envkey-client-core/dist/lib/utils/string'
 
 class StripeCardForm extends React.Component {
 

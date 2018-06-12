@@ -27,7 +27,7 @@ import {
   getIsRegeneratingInviteByUserId
 } from 'selectors'
 import AssocManager from 'components/assoc_manager'
-import {getTrueParentAssoc, getJoinType} from "lib/assoc/helpers"
+import {getTrueParentAssoc, getJoinType} from "envkey-client-core/dist/lib/assoc/helpers"
 
 export default function({
   AssocManagerClass,

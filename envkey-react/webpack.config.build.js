@@ -76,7 +76,7 @@ module.exports =  {
     "stripe_card": "./src/stripe_card.js",
     "main_updater": "./src/main_updater.js"
   },
-  resolve: { root: path.resolve("./src"), modulesDirectories: [path.resolve("./node_modules")] },
+  resolve: { root: path.resolve("./src"), modulesDirectories: [ path.resolve(__dirname, 'node_modules'), path.resolve("./node_modules")] },
   plugins: plugins
 };
 

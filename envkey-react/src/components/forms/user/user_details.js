@@ -1,6 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
-import {twitterShortTs} from 'lib/utils/date'
+import {twitterShortTs} from 'envkey-client-core/dist/lib/utils/date'
 
 export default function({
   firstName,

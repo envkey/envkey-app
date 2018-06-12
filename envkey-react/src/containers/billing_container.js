@@ -23,7 +23,7 @@ import {imagePath} from 'lib/ui'
 import BillingColumns from 'components/billing/billing_columns'
 import Spinner from 'components/shared/spinner'
 import {trialDaysRemaining} from "lib/billing"
-import {shortNum} from "lib/utils/string"
+import {shortNum} from "envkey-client-core/dist/lib/utils/string"
 
 class Billing extends React.Component {
 

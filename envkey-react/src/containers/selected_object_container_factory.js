@@ -4,7 +4,7 @@ import R from 'ramda'
 import pluralize from 'pluralize'
 import SelectedTabs from 'components/shared/selected_tabs'
 import {childrenWithProps} from 'lib/ui'
-import {capitalize} from 'lib/utils/string'
+import {capitalize} from 'envkey-client-core/dist/lib/utils/string'
 import {
   getCurrentOrg,
   getCurrentUser,

@@ -4,7 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import {isElementInViewport} from 'lib/ui'
 import {getAutocompleteOpts} from 'lib/env/autocomplete'
-import {inheritedVal} from  'lib/env/inheritance'
+import {inheritedVal} from  'envkey-client-core/dist/lib/env/inheritance'
 import AutocompleteOptions from 'components/shared/autocomplete_options'
 
 const Autocompletable = Editable => class extends Editable {

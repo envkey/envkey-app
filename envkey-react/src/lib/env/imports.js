@@ -1,4 +1,4 @@
-import {secureRandomAlphanumeric} from "envkey-client-core/lib/crypto"
+import {secureRandomAlphanumeric} from "envkey-client-core/dist/lib/crypto"
 
 const
   exampleKey = secureRandomAlphanumeric(30)
