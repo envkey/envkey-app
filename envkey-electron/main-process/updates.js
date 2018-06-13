@@ -75,7 +75,9 @@ const
     })
 
     ipcMain.on('main-updater-restart', ()=> {
-      updaterWin.close()
+      if(updaterWin){
+        updaterWin.close()
+      }
       updater.quitAndInstall()
     })
 
