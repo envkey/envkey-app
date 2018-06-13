@@ -42,5 +42,11 @@
     "Better alignment for multi-line text",
     "Warning if conflict encountered when syncing env before update (fixes potential overwrite issue)",
     "Warning if user attempts to close app while encrypt-and-sync in progress"
+  ],
+  "1.3.7": [
+    "Multi-line editing mode - more space for long values",
+    "Fix for error/endless spinner when user with existing account accepts invite with invalid passphrase",
+    "Fix for upgrading plan after trial expires",
+    "Update electron"
   ]
 }
