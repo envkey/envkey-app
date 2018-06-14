@@ -1,3 +1,4 @@
+import R from 'ramda'
 import { isClearSessionAction } from "envkey-client-core/dist/lib/actions"
 import {
   APP_LOADED,
@@ -5,8 +6,12 @@ import {
   START_DEMO,
   SET_DEMO_DOWNLOAD_URL,
   ACCEPT_INVITE_SUCCESS,
-  SELECTED_OBJECT
+  SELECTED_OBJECT,
+  CLOSE_GENERATED_INVITE_LINK
 } from "actions"
+import {
+  generatedInviteLinks as coreGeneratedInviteLinksReducer
+} from "envkey-client-core/dist/reducers/invite_reducers"
 
 
 export const
@@ -71,6 +76,14 @@ export const
 
       default:
         return state
+    }
+  },
+
+  generatedInviteLinks = (state={}, action)=>{
+    if (action.type == CLOSE_GENERATED_INVITE_LINK){
+      return R.dissoc(action.meta.parentId, state)
+    } else {
+      return coreGeneratedInviteLinksReducer(state, action)
     }
   }
 

@@ -3,8 +3,10 @@ const electron = require("electron"),
       {dialog} = electron.remote,
       updater = remote.require("electron-simple-updater"),
       fs = require('fs'),
-      Store = require('electron-store'),
-      os = require("os")
+      Conf = require('conf'),
+      os = require("os"),
+      path = require("path")
+
 
 window.copy = s => {
   clipboard.writeText(s)
@@ -16,7 +18,10 @@ window.updater = updater
 window.shell = shell
 window.dialog = dialog
 window.fs = fs
-window.electronStore = new Store()
+window.configStore = new Conf({
+  cwd: path.join(os.homedir(), ".envkey"),
+  encryptionKey: "envkey-config-obfuscator"
+})
 
 window.platformInfo = {
   platform: os.platform(),

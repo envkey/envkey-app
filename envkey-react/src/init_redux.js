@@ -14,7 +14,7 @@ import appMiddlewares from 'middleware'
 import isElectron from 'is-electron'
 import createLogger from 'redux-logger'
 import {AUTH_KEYS, LOCAL_PERSISTENCE_AUTH_KEYS, SESSION_PERSISTENCE_AUTH_KEYS} from 'envkey-client-core/dist/constants'
-import {electronStorageAdapter} from 'lib/storage'
+import {configStorageAdapter} from 'lib/storage'
 
 const
   devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
@@ -54,9 +54,9 @@ const
 
   reducer = compose(mergePersistedState())(rootReducer),
 
-  sessionAdapter = isElectron() ? electronStorageAdapter : localStorageAdapter(window.localStorage),
+  sessionAdapter = isElectron() ? configStorageAdapter : localStorageAdapter(window.localStorage),
 
-  privkeyAdapter = isElectron() ? electronStorageAdapter : sessionStorageAdapter(window.sessionStorage),
+  privkeyAdapter = isElectron() ? configStorageAdapter : sessionStorageAdapter(window.sessionStorage),
 
   sessionPersistence = compose(filter(LOCAL_PERSISTENCE_AUTH_KEYS))(sessionAdapter),
 

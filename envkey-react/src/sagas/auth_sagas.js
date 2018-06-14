@@ -34,6 +34,7 @@ import {
   fetchCurrentUserUpdates
 } from "actions"
 import {
+  getCurrentOrg,
   getOrgs,
   getOrgBySlug,
   getLastFetchAt
@@ -92,6 +93,8 @@ function *onRegister({payload}){
 }
 
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
+  const currentOrg = yield select(getCurrentOrg)
+
   yield take(UPDATE_TRUSTED_PUBKEYS_SUCCESS)
   yield put(push(`/${currentOrg.slug}`))
   yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})

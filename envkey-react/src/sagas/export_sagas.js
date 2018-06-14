@@ -43,7 +43,7 @@ function* onExportEnvironment({meta: {parentId}, payload: {environment, format}}
   }
 }
 
-export default function* importSagas(){
+export default function* exportSagas(){
   yield [
     takeEvery(EXPORT_ENVIRONMENT, onExportEnvironment)
   ]
