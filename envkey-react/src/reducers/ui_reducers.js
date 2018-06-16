@@ -86,5 +86,3 @@ export const
       return coreGeneratedInviteLinksReducer(state, action)
     }
   }
-
-

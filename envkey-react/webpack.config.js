@@ -5,6 +5,9 @@ var webpack = require('webpack'),
 
 var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
+  new webpack.IgnorePlugin(/openpgp/),
+  new webpack.IgnorePlugin(/webworker-threads/),
+  new webpack.IgnorePlugin(/^os$/),
   new EnvkeyWebpackPlugin({
     dotEnvFile: '.env.development',
     permitted: ["NODE_ENV","API_HOST", "ASSET_HOST", "HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"],
@@ -24,7 +27,7 @@ module.exports =  {
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
+        include: path.join(__dirname, 'src'),
         loaders: [
           'react-hot',
           'babel?' + JSON.stringify({ presets: presets, plugins: ["transform-function-bind"] })
@@ -40,7 +43,7 @@ module.exports =  {
     "stripe_card": "./src/stripe_card.js",
     "main_updater": "./src/main_updater.js"
   },
-  resolve: { root: path.join(projectRoot, "src"), modulesDirectories: [path.join(projectRoot,"node_modules")] },
+  resolve: { root: path.resolve("./src"), modulesDirectories: [path.resolve(__dirname,"node_modules"), path.resolve(__dirname,"node_modules", "envkey-client-core", "node_modules")] },
   plugins: plugins,
   devServer: {
     historyApiFallback: true,

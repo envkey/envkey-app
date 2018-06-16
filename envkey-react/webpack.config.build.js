@@ -20,6 +20,9 @@ if (isProd){
 
 var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
+  new webpack.IgnorePlugin(/openpgp/),
+  new webpack.IgnorePlugin(/webworker-threads/),
+  new webpack.IgnorePlugin(/^os$/),
   new EnvkeyWebpackPlugin({
     dotEnvFile: `.env.${buildEnv}`,
     permitted: ["HOST", "PUSHER_APP_KEY", "STRIPE_PUBLISHABLE_KEY"],

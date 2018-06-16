@@ -71,7 +71,10 @@ const
     wrapperDisplayName: 'HasAccount'
   })
 
-export default class Routes extends React.Component {
+
+
+
+class Routes extends React.Component {
 
   _redirectIndex(){
     const orgSlug = getCurrentOrgSlug(store.getState())
