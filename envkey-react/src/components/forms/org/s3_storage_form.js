@@ -30,14 +30,26 @@ export default class S3StorageForm extends React.Component {
     this.state = {
       awsRegion: "us-east-1",
 
-      awsBucketDevelopment: `envkey-development-${secureRandomAlphanumeric(10)}`,
+      awsBucketDevelopment: null,
       awsAccessKeyDevelopment: null,
       awsSecretDevelopment: null,
 
-      awsBucketProduction: `envkey-production-${secureRandomAlphanumeric(10)}`,
+      awsBucketProduction: null,
       awsAccessKeyProduction: null,
       awsSecretProduction: null
     }
+  }
+
+  componentDidMount(){
+    Promise.all([
+      secureRandomAlphanumeric(10),
+      secureRandomAlphanumeric(10)
+    ]).then(([dev, prod])=>{
+      this.setState({
+        awsBucketDevelopment: `envkey-development-${dev}`,
+        awsBucketProduction: `envkey-production-${prod}`
+      })
+    })
   }
 
   _onSubmit(e){

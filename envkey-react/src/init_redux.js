@@ -13,7 +13,7 @@ import rootSaga from './sagas/root_saga'
 import appMiddlewares from 'middleware'
 import isElectron from 'is-electron'
 import createLogger from 'redux-logger'
-import {AUTH_KEYS, LOCAL_PERSISTENCE_AUTH_KEYS, SESSION_PERSISTENCE_AUTH_KEYS} from 'envkey-client-core/dist/constants'
+import {LOCAL_PERSISTENCE_AUTH_KEYS, SESSION_PERSISTENCE_AUTH_KEYS} from 'envkey-client-core/dist/constants'
 import {configStorageAdapter} from 'lib/storage'
 
 const
@@ -54,20 +54,18 @@ const
 
   reducer = compose(mergePersistedState())(rootReducer),
 
-  sessionAdapter = isElectron() ? configStorageAdapter : localStorageAdapter(window.localStorage),
+  storageAdapter = isElectron() ? configStorageAdapter : localStorageAdapter(window.localStorage),
 
-  privkeyAdapter = isElectron() ? configStorageAdapter : sessionStorageAdapter(window.sessionStorage),
+  accountsPersistence = compose(filter(["accounts", "accountPrivkeys"]))(storageAdapter),
 
-  sessionPersistence = compose(filter(LOCAL_PERSISTENCE_AUTH_KEYS))(sessionAdapter),
-
-  privkeyPersistence = compose(filter(SESSION_PERSISTENCE_AUTH_KEYS))(privkeyAdapter),
+  sessionPersistence = compose(filter(["auth", "privkey", "currentOrgSlug"]))(storageAdapter),
 
   enhancerCompose = devMode ? composeWithDevTools : compose,
 
   enhancer =  enhancerCompose(
     applyMiddleware(...middlewares),
-    persistState(sessionPersistence, 'session'),
-    persistState(privkeyPersistence, 'pgp')
+    persistState(accountsPersistence, 'accounts'),
+    persistState(sessionPersistence, 'ui-session')
   ),
 
   store = createStore(reducer, enhancer),
