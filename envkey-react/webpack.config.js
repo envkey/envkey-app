@@ -43,7 +43,16 @@ module.exports =  {
     "stripe_card": "./src/stripe_card.js",
     "main_updater": "./src/main_updater.js"
   },
-  resolve: { root: path.resolve("./src"), modulesDirectories: [path.resolve(__dirname,"node_modules"), path.resolve(__dirname,"node_modules", "envkey-client-core", "node_modules")] },
+  resolve: {
+    root: path.resolve("./src"),
+    modulesDirectories: [
+      path.resolve(__dirname,"node_modules"),
+      path.resolve(__dirname, "..", "..", "envkey-client-core", "node_modules")
+    ],
+    alias: {
+      "envkey-client-core": path.resolve(__dirname, "..", "..", "envkey-client-core")
+    }
+  },
   plugins: plugins,
   devServer: {
     historyApiFallback: true,

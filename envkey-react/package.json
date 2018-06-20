@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "copy-to-clipboard": "^3.0.8",
-    "envkey-client-core": "file:../../envkey-client-core",
     "es6-promise": "^4.0.5",
     "hyperscript-helpers": "^3.0.2",
     "is-electron": "^2.1.0",

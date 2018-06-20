@@ -2,7 +2,6 @@ import R from 'ramda'
 import { createAction } from 'redux-actions'
 import {
   APP_LOADED,
-  RESET_VERIFY_EMAIL,
   START_DEMO,
   SET_DEMO_DOWNLOAD_URL,
   GENERATE_DEMO_ORG_REQUEST,
