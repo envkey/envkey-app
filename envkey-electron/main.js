@@ -47,24 +47,29 @@ function createWindow () {
   win.on('close', e => {
     if (forceClose) return
     e.preventDefault()
-    win.webContents.executeJavaScript("isUpdatingAnyEnv()").then(res => {
-      if (res){
-        dialog.showMessageBox({
-            type: 'question',
-            buttons: ['Yes', 'No'],
-            title: 'Confirm',
-            message: 'EnvKey is still encrypting and syncing. Your updates may not be committed. Are you sure you want to quit?'
-        }, function (i) {
-            if (i === 0) { // Runs the following if 'Yes' is clicked
-              forceClose = true
-              win.close()
-            }
-        })
-      } else {
-        forceClose = true
-        win.close()
-      }
-    })
+    try {
+      win.webContents.executeJavaScript("isUpdatingAnyEnv()").then(res => {
+        if (res){
+          dialog.showMessageBox({
+              type: 'question',
+              buttons: ['Yes', 'No'],
+              title: 'Confirm',
+              message: 'EnvKey is still encrypting and syncing. Your updates may not be committed. Are you sure you want to quit?'
+          }, function (i) {
+              if (i === 0) { // Runs the following if 'Yes' is clicked
+                forceClose = true
+                win.close()
+              }
+          })
+        } else {
+          forceClose = true
+          win.close()
+        }
+      })
+    } catch (err){
+      forceClose = true
+      win.close()
+    }
   })
 
   // Emitted when the window is closed.
