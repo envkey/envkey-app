@@ -36,7 +36,7 @@ import {
   getCurrentOrgUser,
   getCurrentAppUserForApp,
   getLocalSocketEnvsStatus,
-  getEnvironmentLabelsWithSubEnvs,
+  getEnvironmentLabelsWithSubEnvIds,
   getAnonSocketEnvsStatus,
   getSelectedObjectId,
   getSubEnvs,
@@ -56,6 +56,7 @@ import {
 import { allEntriesWithSubEnvs } from "envkey-client-core/dist/lib/env/query"
 import { deanonymizeEnvStatus } from 'lib/env/update_status'
 import {dispatchEnvUpdateRequestIfNeeded} from './helpers'
+import isElectron from 'is-electron'
 
 function *ensureSocketReady(){
   const auth = yield select(getAuth),
@@ -95,10 +96,22 @@ function *onSocketUpdateOrg(action){
 
   const currentOrgUser = yield select(getCurrentOrgUser),
         selectedObjectId = yield select(getSelectedObjectId),
-        {actorId, actionType, targetType, targetId, appId, meta} = action.payload
+        {
+          actorId,
+          actionType,
+          targetType,
+          targetId,
+          appId,
+          clientName,
+          meta
+        } = action.payload
 
-  // Do nothing if update message originated with this user
-  if(auth.id == actorId)return
+
+  // Do nothing if update message originated with this user / this client
+  if(auth.id == actorId){
+    const isSameClientType = (isElectron() && clientName == "envkey-app") || (!isElectron() && clientName == "envkey-web")
+    if(isSameClientType)return
+  }
 
   // Handle org deleted
   if (actionType == "deleted" && targetType == "Org" && targetId == currentOrg.id){
@@ -236,7 +249,7 @@ function *onSocketUpdateEnvsStatus(action){
   const selectedObject = yield select(getSelectedObject),
         entries = yield call(allEntriesWithSubEnvs, selectedObject.envsWithMeta),
         selectedObjectType = yield select(getSelectedObjectType),
-        environments = yield select(getEnvironmentLabelsWithSubEnvs(selectedObject.id)),
+        environments = yield select(getEnvironmentLabelsWithSubEnvIds(selectedObject.id)),
         subEnvs = yield select(getSubEnvs(selectedObject.id)),
         deanonStatus = deanonymizeEnvStatus(action.payload.status, entries, environments, subEnvs)
 

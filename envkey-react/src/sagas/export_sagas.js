@@ -7,20 +7,8 @@ import {
 import {
   EXPORT_ENVIRONMENT
 } from "actions"
-import {toYaml, toDotEnv} from "envkey-client-core/dist/lib/parse"
+import {rawEnvToTxt} from "envkey-client-core/dist/lib/parse"
 import isElectron from 'is-electron'
-
-const rawEnvToTxt = (rawEnv, format)=> {
-  let txt
-  if (format == "json"){
-    txt = JSON.stringify(rawEnv, null, 2)
-  } else if (format == "yaml"){
-    txt = toYaml(rawEnv)
-  } else if (format == "env"){
-    txt = toDotEnv(rawEnv)
-  }
-  return txt
-}
 
 function* onExportEnvironment({meta: {parentId}, payload: {environment, format}}){
   const app = yield select(getApp(parentId)),
