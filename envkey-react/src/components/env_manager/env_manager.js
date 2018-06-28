@@ -77,14 +77,14 @@ export default class EnvManager extends React.Component {
     }
   }
 
-  _onUpdateEntryVal(entryKey, environment, update, subEnvId, isEntryForm){
+  _onUpdateEntryVal(params){
     this.setState({
       editingMultilineEntryKey: null,
       editingMultilineEnvironment: null
     })
 
-    if (!isEntryForm){
-      this.props.updateEntryVal(entryKey, environment, update, subEnvId)
+    if (!params.isEntryForm){
+      this.props.updateEntryVal(params)
     }
   }
 

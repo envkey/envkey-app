@@ -1,7 +1,7 @@
 import {isClearSessionAction} from 'envkey-client-core/dist/lib/actions'
 import R from 'ramda'
 import {
-  CREATE_ENTRY,
+  CREATE_ENTRY_ROW,
   UPDATE_ENTRY,
   REMOVE_ENTRY,
   UPDATE_ENTRY_VAL,
@@ -109,7 +109,7 @@ export const
     }
 
     switch(action.type){
-      case CREATE_ENTRY:
+      case CREATE_ENTRY_ROW:
         return R.assocPath([action.meta.envUpdateId, "addingEntry"], (action.payload.subEnvId || "@@__base__"), state)
 
       case UPDATE_ENTRY:

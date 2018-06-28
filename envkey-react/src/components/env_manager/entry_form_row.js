@@ -52,9 +52,9 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   formData() {
     return {
+      ...R.pick(["subEnvId", "parentEnvironment"], this.props),
       entryKey: this.state.entryKey,
-      vals: this._vals(),
-      subEnvId: this.props.subEnvId
+      vals: this._vals()
     }
   }
 
@@ -102,7 +102,13 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
         R.assocPath(["didCommit", environment], true)
       ))
       this._clearEditing()
-      this.props.updateEntryVal(null, environment, update, this.props.subEnvId, true)
+      this.props.updateEntryVal({
+        environment,
+        update,
+        entryKey: null,
+        subEnvId: this.props.subEnvId,
+        isEntryForm: true
+      })
     }
   }
 

@@ -11,7 +11,7 @@ export default function(props) {
          !(props.editingMultilineEnvironment && props.editingMultilineEntryKey)){
         return h(EntryForm, {
           ...props,
-          onSubmit: props.createEntry
+          onSubmit: props.createEntryRow
         })
       }
     },

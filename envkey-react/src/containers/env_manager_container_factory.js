@@ -4,7 +4,7 @@ import R from 'ramda'
 import moment from 'moment'
 import columnsConfig from 'lib/columns/columns_config'
 import {
-  createEntry,
+  createEntryRow,
   updateEntry,
   removeEntry,
   updateEntryVal,
@@ -101,18 +101,33 @@ const EnvManagerContainerFactory = ({parentType})=> {
       }
     },
 
+    // createEntryRow: ({entryKey, vals, subEnvId})=> dispatch(createEntryRow({...baseProps, entryKey, vals, subEnvId, timestamp: moment().valueOf()})),
+
+    //     updateEntry: (entryKey, newKey, subEnvId)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, subEnvId, timestamp: moment().valueOf()})),
+
+    //     removeEntry: (entryKey, subEnvId)=> dispatch(removeEntry({...baseProps, entryKey, subEnvId})),
+
+    //     updateEntryVal: (entryKey, environment, update, subEnvId)=> dispatch(updateEntryVal({...baseProps, entryKey, environment, update, subEnvId})),
+
+
     mapDispatchToProps = (dispatch, ownProps) => {
       const parent = ownProps[parentType],
             baseProps = {parent, parentType, parentId: parent.id}
       return {
         dispatch,
-        createEntry: ({entryKey, vals, subEnvId})=> dispatch(createEntry({...baseProps, entryKey, vals, subEnvId, timestamp: moment().valueOf()})),
-        updateEntry: (entryKey, newKey, subEnvId)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, subEnvId, timestamp: moment().valueOf()})),
-        removeEntry: (entryKey, subEnvId)=> dispatch(removeEntry({...baseProps, entryKey, subEnvId})),
-        updateEntryVal: (entryKey, environment, update, subEnvId)=> dispatch(updateEntryVal({...baseProps, entryKey, environment, update, subEnvId})),
+
+        createEntryRow: params => dispatch(createEntryRow({...baseProps, ...params, timestamp: moment().valueOf()})),
+
+        updateEntry: params => dispatch(updateEntry({...baseProps, ...params, timestamp: moment().valueOf()})),
+
+        removeEntry: params => dispatch(removeEntry({...baseProps, ...params})),
+
+        updateEntryVal: params => dispatch(updateEntryVal({...baseProps, ...params})),
 
         addSubEnv: params => dispatch(addSubEnv({...baseProps, ...params})),
+
         removeSubEnv: params => dispatch(removeSubEnv({...baseProps, ...params})),
+
         renameSubEnv: params => dispatch(renameSubEnv({...baseProps, ...params})),
 
         editCell: (entryKey, environment, subEnvId)=>{
@@ -124,7 +139,9 @@ const EnvManagerContainerFactory = ({parentType})=> {
         },
 
         stoppedEditing: ()=> dispatch(socketUpdateLocalStatus({})),
+
         addingEntry: (subEnvId)=> dispatch(socketUpdateLocalStatus({addingEntry: (subEnvId || "@@__base__")})),
+
         stoppedAddingEntry: ()=> dispatch(socketUpdateLocalStatus({}))
       }
     },

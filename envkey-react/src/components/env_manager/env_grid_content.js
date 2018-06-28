@@ -69,12 +69,12 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
 
   _onCommitEntryVal(entryKey, environment, update){
     this._clearEditing()
-    this.props.updateEntryVal(entryKey, environment, update, this.props.subEnvId)
+    this.props.updateEntryVal({entryKey, environment, update, subEnvId: this.props.subEnvId})
   }
 
   _onCommitEntry(entryKey, update){
     this._clearEditing()
-    this.props.updateEntry(entryKey, update, this.props.subEnvId)
+    this.props.updateEntry({entryKey, update, ...R.pick(["subEnvId", "parentEnvironment"], this.props)})
   }
 
   render(){
