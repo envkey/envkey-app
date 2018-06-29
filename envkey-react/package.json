@@ -30,6 +30,7 @@
     "copy-to-clipboard": "^3.0.8",
     "deep-diff": "^1.0.0",
     "es6-promise": "^4.0.5",
+    "esprima": "^4.0.0",
     "hyperscript-helpers": "^3.0.2",
     "is-electron": "^2.1.0",
     "js-base64": "^2.1.9",
