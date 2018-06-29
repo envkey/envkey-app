@@ -48,5 +48,10 @@
     "Fix for error/endless spinner when user with existing account accepts invite with invalid passphrase",
     "Fix for upgrading plan after trial expires",
     "Update electron"
+  ],
+  "1.3.8": [
+    "Import and export for sub-environments",
+    "On mac, quit app when all windows close instead of continuing to run in the background",
+    "Fix for bug that could prevent clean exits in some cases"
   ]
 }
