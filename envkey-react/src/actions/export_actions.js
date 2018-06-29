@@ -8,6 +8,6 @@ export const
 
   exportEnvironment = createAction(
     EXPORT_ENVIRONMENT,
-    R.pick(["environment", "format"]),
+    R.pick(["environment", "format", "subEnvId", "subEnvName"]),
     R.pick(["parentType", "parentId", "environment"])
   )

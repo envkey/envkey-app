@@ -95,7 +95,8 @@ export default class SubEnvs extends React.Component {
     return h(LabelRow, {
       ...this.props,
       isSubEnvsLabel: true,
-      environments: [this.props.environment]
+      environments: [this.props.environment],
+      subEnv: this._selectedSubEnv()
     })
   }
 
