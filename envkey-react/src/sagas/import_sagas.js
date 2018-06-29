@@ -69,7 +69,7 @@ function* dispatchCommitImportActions(meta){
 }
 
 function* onImportEnvironment({
-  payload: {parsed, environment, format},
+  payload: {parsed, environment, subEnvId, format},
   meta
 }){
   if(R.isEmpty(parsed))return
@@ -77,7 +77,7 @@ function* onImportEnvironment({
   const {parentType, parentId} = meta,
         envsWithMeta = yield select(getEnvsWithMetaWithPendingWithImports(parentType, parentId)),
         entries = new Set(allEntries(envsWithMeta)),
-        environments = yield select(getEnvironmentsAccessible(parentId))
+        environments = subEnvId ? [subEnvId] : (yield select(getEnvironmentsAccessible(parentId)))
 
   for (let entryKey in parsed){
     let val = parsed[entryKey]
@@ -88,15 +88,17 @@ function* onImportEnvironment({
         vals:  R.pipe(
           R.map(e => ({[e]: {val: null, inherits: null}})),
           R.mergeAll,
-          R.assoc(environment, {val, inherits: null})
+          R.assoc((subEnvId || environment), {val, inherits: null})
         )(environments),
+        subEnvId,
         importAction: true
       }))
     } else {
       yield put(updateEntryVal({
         ...meta,
         entryKey,
-        environment,
+        subEnvId,
+        environment: (subEnvId || environment),
         importAction: true,
         update: { val }
       }))

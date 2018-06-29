@@ -22,15 +22,14 @@ const rawEnvToTxt = (rawEnv, format)=> {
   return txt
 }
 
-function* onExportEnvironment({meta: {parentId}, payload: {environment, format}}){
+function* onExportEnvironment({meta: {parentId}, payload: {environment, format, subEnvId, subEnvName}}){
   const app = yield select(getApp(parentId)),
-        rawEnv = yield select(getRawEnvWithPendingForApp({appId: parentId, environment}))
+        rawEnv = yield select(getRawEnvWithPendingForApp({appId: parentId, environment, subEnvId}))
 
   if (isElectron()){
-
     window.dialog.showSaveDialog({
       title: `Export ${app.name} - ${environment}`,
-      defaultPath: `${environment}.${format}`
+      defaultPath: `${subEnvName || environment}.${format}`
     }, (filename)=> {
       if(!filename)return
       window.fs.writeFile(filename, rawEnvToTxt(rawEnv, format), (err) => {

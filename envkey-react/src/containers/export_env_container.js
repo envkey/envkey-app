@@ -24,12 +24,16 @@ class ExportEnv extends React.Component {
     this.setState({format: e.target.value})
   }
 
+  _environmentTitle(){
+    return this.props.subEnv ? this.props.subEnv["@@__name__"] : this.props.environment
+  }
+
   render(){
     return h.div(".env-modal.export-env", [
       h.div(".bg", {onClick: this.props.onClose}),
       h.form([
         this._renderClose(),
-        <h3>Export <em>{this.props.environment}</em></h3>,
+        <h3>Export <em>{this._environmentTitle()}</em></h3>,
 
         this._renderFormatSelect(),
 
@@ -75,12 +79,18 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onSubmit: params => dispatch(exportEnvironment({
-      ...params,
-      environment: ownProps.environment,
-      parentType: "app",
-      parentId: ownProps.app.id
-    }))
+    onSubmit: params => {
+      const subEnvId = R.path(["subEnv", "@@__id__"], ownProps),
+            subEnvName = R.path(["subEnv", "@@__name__"], ownProps)
+      dispatch(exportEnvironment({
+        ...params,
+        subEnvId,
+        subEnvName,
+        environment: ownProps.environment,
+        parentType: "app",
+        parentId: ownProps.app.id,
+      }))
+    }
   }
 }
 

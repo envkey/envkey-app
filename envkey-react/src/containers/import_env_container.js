@@ -55,16 +55,20 @@ class ImportEnv extends React.Component {
     this.setState({val, valid, parsed})
   }
 
+  _environmentTitle(){
+    return this.props.subEnv ? this.props.subEnv["@@__name__"] : this.props.environment
+  }
+
   render(){
     return h.div(".env-modal.import-env", [
       h.div(".bg", {onClick: this.props.onClose}),
       h.form([
         this._renderClose(),
-        <h3>Import To <em>{this.props.environment}</em></h3>,
+        <h3>Import To <em>{this._environmentTitle()}</em></h3>,
         h.textarea({
           disabled: this.props.isSubmitting,
           value: this.val,
-          placeholder: importerPlaceholder(this.props.environment),
+          placeholder: importerPlaceholder(this._environmentTitle()),
           onChange: ::this._onChange
         }),
 
@@ -104,12 +108,16 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onSubmit: parsed => dispatch(importSingleEnvironment({
-      parsed,
-      environment: ownProps.environment,
-      parentType: "app",
-      parentId: ownProps.app.id
-    }))
+    onSubmit: parsed => {
+      const subEnvId = R.path(["subEnv", "@@__id__"], ownProps)
+      dispatch(importSingleEnvironment({
+        parsed,
+        subEnvId,
+        environment: ownProps.environment,
+        parentType: "app",
+        parentId: ownProps.app.id
+      }))
+    }
   }
 }
 
