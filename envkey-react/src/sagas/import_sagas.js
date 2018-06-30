@@ -20,7 +20,7 @@ function* onImportAllEnvironmentsSuccess({meta}){
 }
 
 export default function* importSagas(){
-  // yield [
-  //   takeEvery(IMPORT_ALL_ENVIRONMENTS_SUCCESS, onImportAllEnvironmentsSuccess)
-  // ]
+  yield [
+    takeEvery(IMPORT_ALL_ENVIRONMENTS_SUCCESS, onImportAllEnvironmentsSuccess)
+  ]
 }

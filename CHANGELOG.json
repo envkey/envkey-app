@@ -48,5 +48,10 @@
     "Fix for error/endless spinner when user with existing account accepts invite with invalid passphrase",
     "Fix for upgrading plan after trial expires",
     "Update electron"
+  ],
+  "1.3.8": [
+    "Import and export for sub-environments",
+    "Fix for CMD+Q/Quit EnvKey not exiting on mac",
+    "Some dependency updates and cleanup"
   ]
 }

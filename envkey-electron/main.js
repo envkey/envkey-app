@@ -11,7 +11,8 @@ const
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win, stripeWin, updaterWin
-let appReady = false
+let appReady = false,
+    forceClose = false
 
 function onAppReady(){
   appReady = true
@@ -43,40 +44,37 @@ function createWindow () {
 
   win.on('page-title-updated', e => e.preventDefault())
 
-  let forceClose = false
   win.on('close', e => {
     if (forceClose) return
     e.preventDefault()
-    try {
-      win.webContents.executeJavaScript("isUpdatingAnyEnv()").then(res => {
-        if (res){
-          dialog.showMessageBox({
-              type: 'question',
-              buttons: ['Yes', 'No'],
-              title: 'Confirm',
-              message: 'EnvKey is still encrypting and syncing. Your updates may not be committed. Are you sure you want to quit?'
-          }, function (i) {
-              if (i === 0) { // Runs the following if 'Yes' is clicked
-                forceClose = true
-                win.close()
-              }
-          })
-        } else {
-          forceClose = true
-          win.close()
-        }
-      })
-    } catch (err){
+    win.webContents.executeJavaScript("isUpdatingAnyEnv()").then(res => {
+      if (res){
+        dialog.showMessageBox({
+            type: 'question',
+            buttons: ['Yes', 'No'],
+            title: 'Confirm',
+            message: 'EnvKey is still encrypting and syncing. Your updates may not be committed. Are you sure you want to quit?'
+        }, function (i) {
+            if (i === 0) { // Runs the following if 'Yes' is clicked
+              forceClose = true
+              win.close()
+            }
+        })
+      } else {
+        forceClose = true
+        win.close()
+      }
+    }).catch(err => {
       forceClose = true
       win.close()
-    }
+    })
   })
 
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
+    // when you should delete the corresponding   element.
     win = null
     if(stripeWin)stripeWin.close()
   })
@@ -129,10 +127,12 @@ function createStripeWindow(json){
 // Some APIs can only be used after this event occurs.
 app.on('ready', onAppReady)
 
+app.on('before-quit', ()=>{
+  forceClose = true
+})
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
     app.quit()
   }

@@ -42,6 +42,14 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
        (this.props.app && nextProps.app && this.props.app.id != nextProps.app.id)){
       this.setState(defaultState(nextProps))
     }
+
+    // ensures entry field is de-focused after first sub-env entry is added to prevent autocomplete list blocking grid
+    if (this.props.subEnvId &&
+        nextProps.subEnvId &&
+        this.props.subEnvId == nextProps.subEnvId &&
+        allEntries(this.props.envsWithMeta).length == 0 && allEntries(nextProps.envsWithMeta).length == 1){
+      this.setState(defaultState(nextProps))
+    }
   }
 
   componentWillUpdate(nextProps, nextState) {

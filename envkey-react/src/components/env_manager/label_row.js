@@ -92,7 +92,7 @@ export default class LabelRow extends React.Component {
   }
 
   _renderActionsToggle(environment){
-    if (!this._locked(environment) && !this.props.isSubEnvsLabel){
+    if (!this._locked(environment) && !(this.props.isSubEnvsLabel && !this.props.subEnv)){
       return h.span(".toggle-menu", {onClick: this._onToggleMenuFn(environment)}, [
         h.i(["..."])
       ])
@@ -100,11 +100,8 @@ export default class LabelRow extends React.Component {
   }
 
   _renderActionsMenu(environment){
-
     return h.ul(".actions-menu", [
-
       // h.li([h.span("Versions")]),
-
       h.li({
         onClick: e => this.setState({importOpen: environment, menuOpen: null})
       },[h.span("Import")]),
@@ -127,6 +124,7 @@ export default class LabelRow extends React.Component {
       return h(ImportEnvContainer, {
         environment,
         app: this.props.parent,
+        subEnv: this.props.subEnv,
         onClose: ()=> this.setState({importOpen: null})
       })
     }
@@ -137,6 +135,7 @@ export default class LabelRow extends React.Component {
       return h(ExportEnvContainer, {
         environment,
         app: this.props.parent,
+        subEnv: this.props.subEnv,
         onClose: ()=> this.setState({exportOpen: null})
       })
     }

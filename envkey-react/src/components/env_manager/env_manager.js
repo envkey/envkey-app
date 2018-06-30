@@ -145,16 +145,17 @@ export default class EnvManager extends React.Component {
   _renderFilter(){
     const envsWithMeta = this.props.envsWithMeta,
           subEnvsOpen = this._subEnvsOpen(),
-          subEnvsEmpty = subEnvsOpen && R.isEmpty(envsWithMeta[subEnvsOpen]["@@__sub__"] || {})
+          subEnvsEmpty = subEnvsOpen && R.isEmpty(envsWithMeta[subEnvsOpen]["@@__sub__"] || {}),
+          subEnvsAdding = subEnvsOpen && this.props.params.sel == "add"
 
-    if (!subEnvsEmpty){
+    if (!subEnvsEmpty && !subEnvsAdding){
       return h(Filter, {
         onFilter: filter => this.setState({filter}),
         onToggleFilter: ::this._onToggleFilter,
         value: this.state.filter,
         placeholder: "Filter by variable name…",
         onKeyDown: (e)=> {
-          if (e.keyCode == 27){
+          if (e.keyCode == 27){ // escape key
             this._onToggleFilter()
           }
         }
