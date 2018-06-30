@@ -11,7 +11,8 @@ const
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win, stripeWin, updaterWin
-let appReady = false
+let appReady = false,
+    forceClose = false
 
 function onAppReady(){
   appReady = true
@@ -43,7 +44,6 @@ function createWindow () {
 
   win.on('page-title-updated', e => e.preventDefault())
 
-  let forceClose = false
   win.on('close', e => {
     if (forceClose) return
     e.preventDefault()
@@ -74,7 +74,7 @@ function createWindow () {
   win.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
+    // when you should delete the corresponding   element.
     win = null
     if(stripeWin)stripeWin.close()
   })
@@ -127,9 +127,15 @@ function createStripeWindow(json){
 // Some APIs can only be used after this event occurs.
 app.on('ready', onAppReady)
 
+app.on('before-quit', ()=>{
+  forceClose = true
+})
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  app.quit()
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
 })
 
 app.on('activate', () => {
