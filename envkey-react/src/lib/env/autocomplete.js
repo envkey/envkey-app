@@ -1,24 +1,9 @@
 import R from 'ramda'
-import {inheritedShallow} from "envkey-client-core/dist/lib/env/inheritance"
+import {inheritableEnvs} from "envkey-client-core/dist/lib/env/inheritance"
 
 const getEnvsFilter = ({entryKey, envsWithMeta, environment}, searchStr) => envOpt => {
-  // Remove current environment
-  if (envOpt === environment)return false
-
-  // Remove productionMetaOnly
-  if (envOpt == "productionMetaOnly")return false
-
-  // Remove locked environments
-  if (R.path([envOpt, entryKey, "locked"], envsWithMeta))return false
-
-  // Remove circular dependencies
-  let inherited = inheritedShallow({entryKey, envsWithMeta, inherits: envOpt})
-  while (inherited.inherits){
-    if(inherited.inherits === environment)return false
-    inherited = inheritedShallow({entryKey, envsWithMeta, inherits: inherited.inherits})
-  }
-
-  return true
+  const inheritable = inheritableEnvs({envsWithMeta, entryKey, environment})
+  return inheritable.includes(envOpt)
 }
 
 export const optIndex = (searchStr, opts) => R.findIndex(({val})=> val === searchStr)(opts)

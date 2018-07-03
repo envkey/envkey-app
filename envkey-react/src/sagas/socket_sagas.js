@@ -110,7 +110,9 @@ function *onSocketUpdateOrg(action){
   // Do nothing if update message originated with this user / this client
   if(auth.id == actorId){
     const isSameClientType = (isElectron() && clientName == "envkey-app") || (!isElectron() && clientName == "envkey-web")
-    if(isSameClientType)return
+    if (isSameClientType){
+      return
+    }
   }
 
   // Handle org deleted

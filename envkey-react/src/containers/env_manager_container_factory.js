@@ -101,15 +101,6 @@ const EnvManagerContainerFactory = ({parentType})=> {
       }
     },
 
-    // createEntryRow: ({entryKey, vals, subEnvId})=> dispatch(createEntryRow({...baseProps, entryKey, vals, subEnvId, timestamp: moment().valueOf()})),
-
-    //     updateEntry: (entryKey, newKey, subEnvId)=> dispatch(updateEntry({...baseProps,  entryKey, newKey, subEnvId, timestamp: moment().valueOf()})),
-
-    //     removeEntry: (entryKey, subEnvId)=> dispatch(removeEntry({...baseProps, entryKey, subEnvId})),
-
-    //     updateEntryVal: (entryKey, environment, update, subEnvId)=> dispatch(updateEntryVal({...baseProps, entryKey, environment, update, subEnvId})),
-
-
     mapDispatchToProps = (dispatch, ownProps) => {
       const parent = ownProps[parentType],
             baseProps = {parent, parentType, parentId: parent.id}

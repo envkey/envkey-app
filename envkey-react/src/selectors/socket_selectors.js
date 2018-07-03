@@ -2,8 +2,7 @@ import db from "envkey-client-core/dist/lib/db"
 import { defaultMemoize } from 'reselect'
 import R from 'ramda'
 import {getUser} from 'envkey-client-core/dist/selectors/object_selectors'
-import {getEnvironmentsAccessibleWithSubEnvs} from 'envkey-client-core/dist/selectors/auth_selectors'
-import {getSubEnvs} from 'envkey-client-core/dist/selectors/env_selectors'
+import {getSubEnvs, getEnvironmentsAccessibleWithSubEnvs} from 'envkey-client-core/dist/selectors/env_selectors'
 import {getSelectedObject, getSelectedObjectType, getSelectedParentEnvUpdateId} from './ui_selectors'
 import {anonymizeEnvStatus, statusKeysToArrays} from 'lib/env/update_status'
 import { allEntriesWithSubEnvs } from "envkey-client-core/dist/lib/env/query"

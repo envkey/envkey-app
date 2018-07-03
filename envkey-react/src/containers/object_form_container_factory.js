@@ -7,8 +7,7 @@ import {
   getIsCreating,
   getOrgRolesAssignable,
   getCurrentOrg,
-  getApps,
-  getImportErrors
+  getApps
 } from 'selectors'
 import {AppForm, UserForm} from 'components/forms'
 

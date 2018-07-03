@@ -7,8 +7,7 @@ import { importerPlaceholder } from 'lib/env/imports'
 import { importSingleEnvironment } from 'actions'
 import {
   getApp,
-  getIsImportingEnvironment,
-  getImportErrors
+  getIsImportingEnvironment
 } from 'selectors'
 
 const initialState = {
@@ -26,11 +25,7 @@ class ImportEnv extends React.Component {
 
   componentWillReceiveProps(nextProps){
     if (this.props.isSubmitting && !nextProps.isSubmitting){
-      if (!this.props.importError && nextProps.importError){
-        this.setState(initialState)
-      } else {
-        this.props.onClose()
-      }
+      this.props.onClose()
     }
   }
 
@@ -100,22 +95,28 @@ class ImportEnv extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     ...ownProps,
-    isSubmitting: getIsImportingEnvironment(ownProps.app.id, ownProps.environment, state),
-    importError: getImportErrors(ownProps.app.id, state)
+    isSubmitting: getIsImportingEnvironment(ownProps.app.id, ownProps.environment, state)
   }
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onSubmit: parsed => {
-      const subEnvId = R.path(["subEnv", "@@__id__"], ownProps)
-      dispatch(importSingleEnvironment({
-        parsed,
-        subEnvId,
-        environment: ownProps.environment,
-        parentType: "app",
-        parentId: ownProps.app.id
-      }))
+      const subEnvId = R.path(["subEnv", "@@__id__"], ownProps),
+            params = {
+              parsed,
+              parentType: "app",
+              parentId: ownProps.app.id,
+            }
+
+      if (subEnvId){
+        params.subEnvId = params.environment = subEnvId
+        params.parentEnvironment = ownProps.environment
+      } else {
+        params.environment = ownProps.environment
+      }
+
+      dispatch(importSingleEnvironment(params))
     }
   }
 }
