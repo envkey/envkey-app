@@ -10,8 +10,12 @@ export default class EnvCell extends React.Component {
 
   _valDisplay(){
     const val = this._valString(),
-          lines = (val || "").split(/[\r\n]+/)
-    return lines.length == 1 ? val : (lines[0] + "…")
+          splitN = (val || "").split(/\n/),
+          joinedN = splitN.join("\\n"),
+          splitR = joinedN.split(/\r/),
+          joinedR = splitR.join("\\r")
+
+    return joinedR
   }
 
   _valString(){
