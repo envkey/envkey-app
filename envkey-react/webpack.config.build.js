@@ -67,7 +67,7 @@ module.exports =  {
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
+        include: path.join(__dirname, 'src'),
         loaders: [
           'babel?' + JSON.stringify({ presets: presets, plugins: ["transform-function-bind"] })
         ]
@@ -79,7 +79,16 @@ module.exports =  {
     "stripe_card": "./src/stripe_card.js",
     "main_updater": "./src/main_updater.js"
   },
-  resolve: { root: path.resolve("./src"), modulesDirectories: [ path.resolve(__dirname, 'node_modules'), path.resolve("./node_modules")] },
+  resolve: {
+    root: path.resolve("./src"),
+    modulesDirectories: [
+      path.resolve(__dirname,"node_modules"),
+      path.resolve(__dirname, "..", "..", "envkey-client-core", "node_modules")
+    ],
+    alias: {
+      "envkey-client-core": path.resolve(__dirname, "..", "..", "envkey-client-core")
+    }
+  },
   plugins: plugins
 };
 
