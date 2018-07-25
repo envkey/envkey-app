@@ -7,7 +7,10 @@ import {
   BILLING_UPDATE_CARD_REQUEST,
   BILLING_STRIPE_FORM_SUBMITTED,
   BILLING_STRIPE_FORM_CLOSED,
-  BILLING_UPDATE_SUBSCRIPTION_REQUEST
+  BILLING_UPDATE_SUBSCRIPTION_REQUEST,
+  BILLING_FETCH_INVOICE_LIST_REQUEST,
+  BILLING_FETCH_INVOICE_PDF,
+  BILLING_FETCH_INVOICE_PDF_REQUEST
 } from './action_types'
 
 export const
@@ -24,4 +27,14 @@ export const
 
   billingStripeFormSubmitted = createAction(BILLING_STRIPE_FORM_SUBMITTED, R.pick(["stripeToken"])),
 
-  billingStripeFormClosed = createAction(BILLING_STRIPE_FORM_CLOSED)
+  billingStripeFormClosed = createAction(BILLING_STRIPE_FORM_CLOSED),
+
+  billingFetchInvoiceList = createAction(BILLING_FETCH_INVOICE_LIST_REQUEST),
+
+  billingFetchInvoicePdf = createAction(BILLING_FETCH_INVOICE_PDF),
+
+  billingFetchInvoicePdfRequest = createAction(
+    BILLING_FETCH_INVOICE_PDF_REQUEST,
+    R.pick(["id"]),
+    R.pick(["filename"])
+  )

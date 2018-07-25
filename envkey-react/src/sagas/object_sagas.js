@@ -173,6 +173,11 @@ const
     if (meta.objectType == "app"){
       yield(put(decryptEnvs(meta)))
     }
+  },
+
+  onUpdateObjectSettingsFailed = function*({meta, payload}){
+    alert(`There was a problem updating the ${meta.objectType}'s settings.
+${payload.toString()}`)
   }
 
 export default function* objectSagas(){
@@ -186,5 +191,6 @@ export default function* objectSagas(){
     takeEvery([RENAME_OBJECT_SUCCESS, UPDATE_OBJECT_SETTINGS_SUCCESS], onUpdateObjectSuccess),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
     takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
+    takeLatest(UPDATE_OBJECT_SETTINGS_FAILED, onUpdateObjectSettingsFailed)
   ]
 }

@@ -7,7 +7,7 @@ import {
   getApps
 } from "./object_selectors"
 
-db.init("orgs")
+db.init("orgs", "invoices")
 
 export const
 
@@ -50,4 +50,12 @@ export const
     return getApps(state).length > maxApps ||
            getActiveUsers(state).length > maxUsers // ||
            // getMostEnvKeysPerEnvironment(state) > maxKeysPerEnv
-  }
+  },
+
+  getInvoices = db.invoices.list({sortBy: 'createdAt', reverse: true}),
+
+  getInvoice = db.invoices.find(),
+
+  getIsLoadingInvoices = db.path("isLoadingInvoices"),
+
+  getIsLoadingInvoicePdf = db.path("isLoadingInvoicePdf")
