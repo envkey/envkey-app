@@ -6,22 +6,28 @@ import h from "lib/ui/hyperscript_with_helpers"
 import moment from "moment"
 import {
   getCurrentOrg,
+  getCurrentUser,
   getApps,
   getActiveUsers,
   getPendingUsers,
   getIsUpdatingSubscription,
   getIsUpdatingStripeCard,
   getIsExceedingFreeTier,
-  getStripeFormOpened
+  getStripeFormOpened,
+  getInvoices,
+  getIsUpdatingSettings
 } from "selectors"
 import {
   billingUpgradeSubscription,
   billingCancelSubscription,
-  billingUpdateCard
+  billingUpdateCard,
+  updateObjectSettings
 } from "actions"
 import {imagePath} from 'lib/ui'
 import BillingColumns from 'components/billing/billing_columns'
+import InvoiceSettingsForm from 'components/forms/org/invoice_settings_form'
 import Spinner from 'components/shared/spinner'
+import {InvoiceListContainer} from 'containers'
 import {trialDaysRemaining} from "lib/billing"
 import {shortNum} from "lib/utils/string"
 
@@ -121,7 +127,9 @@ class Billing extends React.Component {
   _renderPaidTierContents(){
     return [
       this._renderSubscription(),
-      this._renderStripeCard()
+      this._renderStripeCard(),
+      this._renderInvoiceSettings(),
+      this._renderInvoices()
     ]
   }
 
@@ -222,7 +230,9 @@ class Billing extends React.Component {
           ],
           ["Next invoice due",
             [
-              moment(this.props.subscription.currentPeriodEndsAt).calendar()
+              moment(this.props.subscription.currentPeriodEndsAt).calendar(null, {
+                sameElse: "YYYY-MM-DD"
+              })
             ]
           ],
         ],
@@ -253,7 +263,9 @@ class Billing extends React.Component {
           ],
           ["Next invoice due",
             [
-              moment(this.props.subscription.currentPeriodEndsAt).calendar()
+              moment(this.props.subscription.currentPeriodEndsAt).calendar(null, {
+                sameElse: "YYYY-MM-DD"
+              })
             ]
           ],
         ]
@@ -395,8 +407,18 @@ class Billing extends React.Component {
     ]
   }
 
-  _renderInvoices(){
+  _renderInvoiceSettings(){
+    return <section className="billing-invoice-settings">
+      <h2> Invoice Settings </h2>
+      <InvoiceSettingsForm {...this.props} />
+    </section>
+  }
 
+  _renderInvoices(){
+    return <section className="billing-invoices">
+      <h2> Invoices </h2>
+      <InvoiceListContainer />
+    </section>
   }
 }
 
@@ -416,7 +438,12 @@ const mapStateToProps = state => {
         "trialOverdue",
         "trialDaysRemaining",
         "stripeCard",
-        "invoices"
+        "name",
+        "billingName",
+        "billingEmail",
+        "billingAddress",
+        "billingVat",
+        "id"
       ],
       currentOrg
     ),
@@ -426,7 +453,10 @@ const mapStateToProps = state => {
     isExceedingFreeTier: getIsExceedingFreeTier(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
     isUpdatingStripeCard: getIsUpdatingStripeCard(state),
-    stripeFormOpened: getStripeFormOpened(state)
+    stripeFormOpened: getStripeFormOpened(state),
+    invoices: getInvoices(state),
+    ownerEmail: getCurrentUser(state).email,
+    isUpdatingSettings: getIsUpdatingSettings(currentOrg.id, state)
   }
 }
 
@@ -434,7 +464,12 @@ const mapDispatchToProps = dispatch => {
   return {
     updateCard: ()=> dispatch(billingUpdateCard()),
     upgradeSubscription: ()=> dispatch(billingUpgradeSubscription()),
-    cancelSubscription: ()=> dispatch(billingCancelSubscription())
+    cancelSubscription: ()=> dispatch(billingCancelSubscription()),
+    updateInvoiceSettings: (targetId, params) => dispatch(updateObjectSettings({
+      objectType: "org",
+      targetId,
+      params
+    }))
   }
 }
 

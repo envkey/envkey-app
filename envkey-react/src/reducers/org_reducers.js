@@ -29,7 +29,16 @@ import {
   FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   UPDATE_ORG_OWNER_REQUEST,
   UPDATE_ORG_OWNER_SUCCESS,
-  UPDATE_ORG_OWNER_FAILED
+  UPDATE_ORG_OWNER_FAILED,
+  BILLING_FETCH_INVOICE_LIST_REQUEST,
+  BILLING_FETCH_INVOICE_LIST_SUCCESS,
+  BILLING_FETCH_INVOICE_LIST_FAILED,
+  BILLING_FETCH_INVOICE_PDF,
+  BILLING_FETCH_INVOICE_PDF_SUCCESS,
+  BILLING_FETCH_INVOICE_PDF_FAILED,
+  BILLING_SAVE_INVOICE_PDF_SUCCESS,
+  BILLING_SAVE_INVOICE_PDF_FAILED
+
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
@@ -195,6 +204,54 @@ export const
       case UPDATE_ORG_OWNER_SUCCESS:
       case UPDATE_ORG_OWNER_FAILED:
         return false
+
+      default:
+        return state
+    }
+  },
+
+  invoices = (state = null, action)=>{
+    switch(action.type){
+      case LOGIN:
+      case LOGIN_REQUEST:
+      case REGISTER:
+      case LOGOUT:
+      case ORG_INVALID:
+      case SELECT_ACCOUNT:
+      case BILLING_FETCH_INVOICE_LIST_REQUEST:
+        return null
+
+      case BILLING_FETCH_INVOICE_LIST_SUCCESS:
+        return indexById(action.payload)
+
+      default:
+        return state
+    }
+  },
+
+  isLoadingInvoices = (state = false, action)=>{
+    switch(action.type){
+      case BILLING_FETCH_INVOICE_LIST_REQUEST:
+        return true
+
+      case BILLING_FETCH_INVOICE_LIST_SUCCESS:
+      case BILLING_FETCH_INVOICE_LIST_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  isLoadingInvoicePdf = (state = {}, action)=> {
+    switch(action.type){
+      case BILLING_FETCH_INVOICE_PDF:
+        return R.assoc(action.payload.id, true, state)
+
+      case BILLING_SAVE_INVOICE_PDF_SUCCESS:
+      case BILLING_SAVE_INVOICE_PDF_FAILED:
+      case BILLING_FETCH_INVOICE_PDF_FAILED:
+        return R.dissoc(action.meta.requestPayload.id, state)
 
       default:
         return state

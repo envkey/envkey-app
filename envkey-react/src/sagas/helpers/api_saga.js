@@ -16,6 +16,7 @@ export default function apiSaga({
   authenticated,
   actionTypes,
   method,
+  responseType,
   urlSelector,
   skipOrg,
   urlFn,
@@ -75,7 +76,7 @@ export default function apiSaga({
           decamelizedPayload = decamelizeKeys(requestAction.payload || {}),
           params = method == "get" ? {...orgParams, ...decamelizedPayload} : orgParams,
           data = method == "get" ? {} : decamelizedPayload,
-          config = {method, url, params, data}
+          config = {method, url, params, data, responseType}
 
     try {
       const [res] = (minDelay && !R.path(["meta", "skipDelay"], requestAction)) ?

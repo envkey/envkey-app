@@ -8,7 +8,8 @@ import {
   getCurrentOrg,
   getActiveUsers,
   getPendingUsers,
-  getPrivkey
+  getPrivkey,
+  getInvoice
 } from 'selectors'
 import {
   APP_LOADED,
@@ -29,11 +30,27 @@ import {
   BILLING_UPDATE_CARD_SUCCESS,
   BILLING_UPDATE_CARD_FAILED,
 
+  BILLING_FETCH_INVOICE_LIST_REQUEST,
+  BILLING_FETCH_INVOICE_LIST_SUCCESS,
+  BILLING_FETCH_INVOICE_LIST_FAILED,
+
+  BILLING_FETCH_INVOICE_PDF,
+  BILLING_FETCH_INVOICE_PDF_REQUEST,
+  BILLING_FETCH_INVOICE_PDF_SUCCESS,
+  BILLING_FETCH_INVOICE_PDF_FAILED,
+
+  BILLING_SAVE_INVOICE_PDF_SUCCESS,
+  BILLING_SAVE_INVOICE_PDF_FAILED,
+
   billingUpdateSubscriptionRequest,
   billingUpdateCardRequest,
 
+  billingFetchInvoicePdfRequest,
+
   fetchCurrentUserUpdates
 } from "actions"
+import isElectron from 'is-electron'
+import moment from 'moment'
 
 const
   onBillingUpdateSubscriptionRequest = apiSaga({
@@ -50,6 +67,21 @@ const
     actionTypes: [BILLING_UPDATE_CARD_SUCCESS, BILLING_UPDATE_CARD_FAILED],
     urlSelector: getCurrentOrg,
     urlFn: (action, currentOrg)=> `/orgs/${currentOrg.id}/update_stripe_card.json`
+  }),
+
+  onBillingFetchInvoiceListRequest = apiSaga({
+    authenticated: true,
+    method: "get",
+    actionTypes: [BILLING_FETCH_INVOICE_LIST_SUCCESS, BILLING_FETCH_INVOICE_LIST_FAILED],
+    urlFn: R.always('/invoices.json')
+  }),
+
+  onBillingFetchPdfRequest = apiSaga({
+    authenticated: true,
+    method: "get",
+    responseType: "blob",
+    actionTypes: [BILLING_FETCH_INVOICE_PDF_SUCCESS, BILLING_FETCH_INVOICE_PDF_FAILED],
+    urlFn: ({payload: {id}})=> `/invoices/${id}.pdf`
   })
 
 function *onAppLoaded(){
@@ -137,6 +169,68 @@ function* onBillingUpdateCard(){
   }
 }
 
+function saveFile(invoice){
+  return new Promise(resolve => {
+    window.dialog.showSaveDialog({
+      title: 'Save Invoice',
+      defaultPath: `envkey-invoice-${moment(invoice.createdAt).format("YYYY-MM-DD")}.pdf`
+    }, resolve)
+  })
+}
+
+function writeFile(filename, data){
+  const fileReader = new FileReader()
+
+  return new Promise(resolve => {
+    fileReader.onload = function() {
+      fs.writeFile(
+        filename,
+        Buffer.from(new Uint8Array(this.result)),
+        resolve
+      )
+    }
+    fileReader.readAsArrayBuffer(data)
+  })
+}
+
+function* onBillingFetchPdf(action){
+  if (!isElectron()){
+    return
+  }
+
+  yield put(billingFetchInvoicePdfRequest(action.payload))
+
+  const invoice = yield select(getInvoice(action.payload.id))
+
+
+  const [filename, fetchRes] = yield [
+    saveFile(invoice),
+    take([BILLING_FETCH_INVOICE_PDF_SUCCESS, BILLING_FETCH_INVOICE_PDF_FAILED])
+  ]
+
+  if (fetchRes.error){
+    return
+  }
+
+  const writeErr = yield writeFile(filename, fetchRes.payload)
+
+  if(writeErr){
+    alert(`An error ocurred saving ${filename}: ${writeErr.message}`)
+    yield put({
+      type: BILLING_SAVE_INVOICE_PDF_FAILED,
+      error: true,
+      payload: writeErr,
+      meta: fetchRes.meta
+    })
+  } else {
+    yield put({
+      type: BILLING_SAVE_INVOICE_PDF_SUCCESS,
+      meta: fetchRes.meta
+    })
+  }
+}
+
+
 export default function* billingSagas(){
   yield [
     takeLatest(APP_LOADED, onAppLoaded),
@@ -144,7 +238,10 @@ export default function* billingSagas(){
     takeLatest(BILLING_UPGRADE_SUBSCRIPTION, onBillingUpgradeSubscription),
     takeLatest(BILLING_CANCEL_SUBSCRIPTION, onBillingCancelSubscription),
     takeLatest(BILLING_UPDATE_SUBSCRIPTION_REQUEST, onBillingUpdateSubscriptionRequest),
-    takeLatest(BILLING_UPDATE_CARD_REQUEST, onBillingUpdateCardRequest)
+    takeLatest(BILLING_UPDATE_CARD_REQUEST, onBillingUpdateCardRequest),
+    takeLatest(BILLING_FETCH_INVOICE_LIST_REQUEST, onBillingFetchInvoiceListRequest),
+    takeLatest(BILLING_FETCH_INVOICE_PDF, onBillingFetchPdf),
+    takeLatest(BILLING_FETCH_INVOICE_PDF_REQUEST, onBillingFetchPdfRequest)
   ]
 }
 
