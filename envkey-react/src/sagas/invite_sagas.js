@@ -90,6 +90,8 @@ import {
   CREATE_ASSOC_SUCCESS,
   CREATE_ASSOC_FAILED,
 
+  INVITE_EXISTING_USER_INVALID_PASSPHRASE,
+
   verifyInviteParams,
   acceptInviteRequest,
   loadInviteRequest,
@@ -100,7 +102,7 @@ import {
   removeObject,
   createAssoc,
   addAssoc,
-  fetchCurrentUserUpdates
+  fetchCurrentUserUpdates,
 } from 'actions'
 
 const
@@ -186,7 +188,7 @@ function* onVerifyInviteParams(action){
   }
 }
 
-function *onAcceptInvite({payload}){
+function *onAcceptInvite({payload, meta}){
   document.body.className += " preloader-authenticate"
 
   const {password} = payload,
@@ -218,8 +220,21 @@ function *onAcceptInvite({payload}){
       encryptedPrivkey,
       pubkeyFingerprint
     },
-    invitePrivkey = yield select(getPrivkey),
+    invitePrivkey = yield select(getPrivkey)
+
+  let decryptedPrivkey
+
+  try {
     decryptedPrivkey = yield decryptPrivateKey({privkey: encryptedPrivkey, passphrase: password})
+  } catch (e) {
+    yield put({
+      type: INVITE_EXISTING_USER_INVALID_PASSPHRASE,
+      error: true,
+      payload: e,
+      meta: meta
+    })
+    return
+  }
 
   const signedPubkey = yield signPublicKey({pubkey, privkey: invitePrivkey})
 

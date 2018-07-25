@@ -2,3 +2,4 @@ envkey-assets/source/javascripts/
 .netlify
 .DS_Store
 .wincertpw
+netlify*

@@ -1,6 +1,6 @@
 {
   "name": "EnvKey",
-  "version": "1.3.6",
+  "version": "1.3.8",
   "description": "EnvKey's cross-platform native app",
   "author": "Dane Schneider <dane@envkey.com> (https://www.envkey.com)",
   "homepage": "https://www.envkey.com",
@@ -16,7 +16,8 @@
     "dist": "electron-builder -mwl --x64 --ia32",
     "distmac": "electron-builder -m",
     "publish": "publish darwin-x64 && publish win32-x64 && publish win32-ia32 && publish linux-x64 && publish linux-ia32",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron ."
   },
   "build": {
     "appId": "com.envkey.EnvKeyApp",
@@ -42,12 +43,12 @@
   },
   "devDependencies": {
     "ajv": "^5.0.0",
-    "electron": "1.7.13",
-    "electron-builder": "^19.54.0",
-    "electron-builder-squirrel-windows": "^19.54.0",
+    "electron": "1.7.15",
+    "electron-builder": "^19.55.0",
+    "electron-builder-squirrel-windows": "^19.55.0",
     "electron-download-tf": "^4.3.4",
     "electron-simple-publisher": "envkey/electron-simple-publisher",
-    "envkey": "^0.3.0",
+    "envkey": "^1.1.2",
     "github-remove-all-releases": "^1.0.1"
   }
 }

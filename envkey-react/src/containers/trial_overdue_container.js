@@ -72,7 +72,11 @@ const TrialOverdue = ({
       let instructions
 
       if (currentUser.role == "org_owner"){
-        instructions = `To regain access, upgrade to the ${currentOrg.businessPlan.name} for $${currentOrg.businessPlan.amount / 100}.00/user/month. `
+        if (currentOrg.pricingVersion >= 4){
+          instructions = `To regain access, upgrade to the ${currentOrg.businessPlan.name} for $${currentOrg.businessPlan.amount / 100}.00/month. `
+        } else {
+          instructions = `To regain access, upgrade to the ${currentOrg.businessPlan.name} for $${currentOrg.businessPlan.amount / 100}.00/user/month. `
+        }
       } else {
         instructions = `To regain access, the org owner ${currentOrg.ownerName} should upgrade to the ${currentOrg.businessPlan.name}. `
       }

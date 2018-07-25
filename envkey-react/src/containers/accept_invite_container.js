@@ -12,21 +12,26 @@ import {
   getAcceptInviteEmailError,
   getIsLoadingInvite,
   getLoadInviteError,
-  getIsInvitee
+  getIsInvitee,
+  getInviteExistingUserInvalidPassphraseError
 } from 'selectors'
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
 import PasswordCopy from 'components/shared/password_copy'
 
-const initialState = ()=> ({
-  emailVerificationCode: "",
-  encryptionCode: "",
-  password: "",
-  passwordValid: false,
-  passwordScore: null,
-  passwordFeedback: null
-})
+const
+  initialPasswordState = ()=> ({
+    password: "",
+    passwordValid: false,
+    passwordScore: null,
+    passwordFeedback: null
+  }),
+  initialState = ()=> ({
+    emailVerificationCode: "",
+    encryptionCode: "",
+    ...initialPasswordState()
+  })
 
 class AcceptInvite extends React.Component {
 
@@ -44,6 +49,13 @@ class AcceptInvite extends React.Component {
       this.refs.inviteToken.focus()
     } else if (this.refs.encryptionToken){
       this.refs.encryptionToken.focus()
+    }
+  }
+
+  componentWillReceiveProps(nextProps){
+    if (!this.props.inviteExistingUserInvalidPassphraseError &&
+        nextProps.inviteExistingUserInvalidPassphraseError){
+      this.setState(initialPasswordState())
     }
   }
 
@@ -168,7 +180,11 @@ class AcceptInvite extends React.Component {
     if (this._isNewUser()){
       return "Invite verified. To sign in, set a strong master encryption passphrase."
     } else {
-      return "Invite verified. To sign in, enter your master encryption passphrase."
+      if (this.props.inviteExistingUserInvalidPassphraseError){
+        return "Incorrect passphrase. Please try again."
+      } else {
+        return "Invite verified. To sign in, enter your master encryption passphrase."
+      }
     }
   }
 
@@ -219,6 +235,7 @@ const mapStateToProps = (state, ownProps) => {
     inviteParamsVerified: getInviteParamsVerified(state),
     inviteParamsInvalid: getInviteParamsInvalid(state),
     acceptInviteEmailError: getAcceptInviteEmailError(state),
+    inviteExistingUserInvalidPassphraseError: getInviteExistingUserInvalidPassphraseError(state),
     isAuthenticating: getIsAuthenticating(state),
     isLoadingInvite: getIsLoadingInvite(state),
     loadInviteError: getLoadInviteError(state),

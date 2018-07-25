@@ -36,6 +36,8 @@ import {
   REGEN_INVITE,
   REGEN_INVITE_SUCCESS,
   REGEN_INVITE_FAILED,
+
+  INVITE_EXISTING_USER_INVALID_PASSPHRASE
 } from "actions"
 
 export const
@@ -308,6 +310,24 @@ export const
       case REGEN_INVITE_SUCCESS:
       case REGEN_INVITE_FAILED:
         return R.dissoc(action.meta.userId, state)
+
+      default:
+        return state
+    }
+  },
+
+  inviteExistingUserInvalidPassphraseError = (state=null, action)=>{
+    if (isClearSessionAction(action) ||
+        action.type == RESET_ACCEPT_INVITE){
+      return null
+    }
+
+    switch(action.type){
+      case INVITE_EXISTING_USER_INVALID_PASSPHRASE:
+        return action.payload
+
+      case ACCEPT_INVITE_SUCCESS:
+        return null
 
       default:
         return state

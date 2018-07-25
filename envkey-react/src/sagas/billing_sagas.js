@@ -7,7 +7,8 @@ import {listenCardForm, openCardForm} from 'lib/billing'
 import {
   getCurrentOrg,
   getActiveUsers,
-  getPendingUsers
+  getPendingUsers,
+  getPrivkey
 } from 'selectors'
 import {
   APP_LOADED,
@@ -60,10 +61,13 @@ function *onBillingUpgradeSubscription(){
         numUsersActive = (yield select(getActiveUsers)).length,
         numUsersPending = (yield select(getPendingUsers)).length,
         plan = currentOrg.businessPlan,
-        subscription = currentOrg.subscription
+        subscription = currentOrg.subscription,
+        privkey = yield select(getPrivkey)
 
-  yield put(fetchCurrentUserUpdates())
-  yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+  if (privkey){
+    yield put(fetchCurrentUserUpdates())
+    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+  }
 
   let error
 
