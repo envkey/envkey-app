@@ -8,8 +8,9 @@ const updater = require('electron-simple-updater'),
 let versionAvailable,
     versionDownloaded,
     mainWin,
+    updaterWin,
     checkingUpdates = false,
-    updaterWin = null
+    receivedUpdaterWinClosed = false
 
 logger.transports.file.level = 'info'
 
@@ -71,6 +72,7 @@ const
     })
 
     ipcMain.on('main-updater-closed', ()=> {
+      receivedUpdaterWinClosed = true
       updaterWin.hide()
     })
 
@@ -82,7 +84,10 @@ const
     })
 
     updaterWin.on('hide', ()=> {
-      updaterWin = null
+      if (receivedUpdaterWinClosed){
+        updaterWin = null
+        receivedUpdaterWinClosed = false
+      }
     })
 
     updaterWin.on('close', ()=> {
@@ -96,7 +101,6 @@ const
   }
 
 module.exports = {
-
   listenUpdater: (win)=>{
     mainWin = win
 
