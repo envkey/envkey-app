@@ -15,8 +15,8 @@ export const
     }
   },
 
-  isMultiline = (s,singleLineMax=40)=>{
-    return s.length > singleLineMax || s.split(/[\r\n]+/).length > 1
+  isMultiline = (s)=>{
+    return s.split(/[\r\n]+/).length > 1
   }
 
 
