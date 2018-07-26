@@ -53,5 +53,14 @@
     "Import and export for sub-environments",
     "Fix for CMD+Q/Quit EnvKey not exiting on mac",
     "Some dependency updates and cleanup"
+  ],
+  "1.3.9": [
+    "Invoices can now be downloaded as PDFs by Org Owners in the My Organization > Billing section",
+    "An invoice PDF is now attached to emailed receipts",
+    "Org Owners can set a billing email to determine where receipts/invoices are sent",
+    "Org Owners can also set the organization's legal name, billing address, and VAT number for display on invoices",
+    "Better preview for multi-line values",
+    "Increase length limit for displaying multi-line edit mode",
+    "Fix for persistent null error issue when closing updater window - finally discovered the true cause of this"
   ]
 }
