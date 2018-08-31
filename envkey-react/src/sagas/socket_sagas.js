@@ -103,9 +103,9 @@ function *onSocketUpdateOrg(action){
           targetId,
           appId,
           clientName,
+          envUpdateId,
           meta
         } = action.payload
-
 
   // Do nothing if update message originated with this user / this client
   if(auth.id == actorId){
@@ -193,17 +193,17 @@ function *onSocketUpdateOrg(action){
         socketUpdate: true,
         minDelay: 2000,
         socketActorId: actorId,
-        socketEnvUpdateId: meta.envUpdateId
+        socketEnvUpdateId: envUpdateId
       }))
 
       yield take(FETCH_OBJECT_DETAILS_SUCCESS)
 
       app = yield select(getApp(appId))
-      const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(appId, meta.envUpdateId)),
+      const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(appId, envUpdateId)),
             hasConflict = yield call(resolveEnvUpdateConflicts, {
               envActionsPending,
               preUpdateEnvsWithMeta,
-              envUpdateId: meta.envUpdateId,
+              envUpdateId: envUpdateId,
               parentId: app.id,
               postUpdateEnvsWithMeta: app.envsWithMeta
             })
