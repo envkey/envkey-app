@@ -70,7 +70,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
 
       const currentUser = getCurrentUser(state),
             environments = getEnvironmentLabels(appId, state),
-            envsWithMetaWithPending = getEnvsWithMetaWithPending(parentType, appId, state)
+            envsWithMetaWithPending = getEnvsWithMetaWithPending(appId, state)
 
       return {
         currentOrg: getCurrentOrg(state),
