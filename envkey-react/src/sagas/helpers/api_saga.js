@@ -104,7 +104,7 @@ export default function apiSaga({
 
       if (status){
 
-        yield put({type: API_FAILED})
+        yield put({type: API_FAILED, error: true, payload, meta})
 
         yield put({type: FAILURE_TYPE, error: true, payload, meta})
 

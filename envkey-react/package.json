@@ -32,6 +32,7 @@
     "es6-promise": "^4.0.5",
     "esprima": "^4.0.0",
     "hyperscript-helpers": "^3.0.2",
+    "ipaddr.js": "^1.8.1",
     "is-electron": "^2.1.0",
     "js-base64": "^2.1.9",
     "js-yaml": "^3.10.0",
