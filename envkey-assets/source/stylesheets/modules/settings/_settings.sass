@@ -2,8 +2,12 @@
   padding: 25px
   max-width: 375px
 
-  input, button
+  input, textarea, button
     width: 100%
+
+  textarea
+    min-height: 60px
+    margin-bottom: 10px
 
   input, select
     margin-bottom: 10px
@@ -16,9 +20,20 @@
     text-transform: uppercase
     font-family: $condensed-font
     font-weight: 500
-    font-size: 14px
+    font-size: 16px
     color: hsl(0,0,70)
 
+    &.small
+      font-weight: 400
+      font-size: 13px
+      color: $dark-blue
+      display: inline-block
+      margin-bottom: 10px
+
+  input, textarea
+    &.invalid
+      border-color: $red
+      outline-color: $red
 
   fieldset
     > label
@@ -47,10 +62,21 @@
         cursor: pointer
         margin: 0
         line-height: 1
+        font-size: 14px
 
   .msg
     color: $dark-text
     font-weight: 300
+
+    &.small
+      color: hsl(0,0,55)
+      font-size: 12px
+
+  .invalid-msg
+    color: $red
+    font-weight: 600
+    font-size: 14px
+    margin: 10px 0
 
   .details
     fieldset:not(:last-of-type)

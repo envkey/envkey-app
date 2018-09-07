@@ -1,3 +1,7 @@
+import R from 'ramda'
+import ipaddr from 'ipaddr.js'
+
+const IP_LIST_SPLIT_REGEX = /[,;\n\r]\s*/
 
 export const
 
@@ -17,6 +21,23 @@ export const
 
   isMultiline = (s)=>{
     return s.split(/[\r\n]+/).length > 1
-  }
+  },
+
+  isValidIPString = R.pipe(
+    R.split(IP_LIST_SPLIT_REGEX),
+    R.all(s => {
+      try {
+        ipaddr.parseCIDR(s)
+        return true
+      } catch (err){
+        try {
+          ipaddr.parse(s)
+          return true
+        } catch (err){
+          return false
+        }
+      }
+    })
+  )
 
 

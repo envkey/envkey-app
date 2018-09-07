@@ -155,6 +155,8 @@ export const
     return getLocalKeysForAppUser(appUserId, state)
   }),
 
+  getAllowedIpsMergeStrategies = db.path("allowedIpsMergeStrategies"),
+
   getIsDemo = R.anyPass([
     db.path("isDemo"),
     R.pipe(getCurrentUser, R.path(['demo'])),

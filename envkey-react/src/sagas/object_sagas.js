@@ -176,8 +176,12 @@ const
   },
 
   onUpdateObjectSettingsFailed = function*({meta, payload}){
-    alert(`There was a problem updating the ${meta.objectType}'s settings.
+    if (R.path(["response", "status"], payload) == 422 && meta.message == "Unauthorized IP"){
+      alert(`You cannot restrict EnvKey App requests to a network that doesn't include your current IP (${payload.response.data.ip}).`)
+    } else {
+      alert(`There was a problem updating the ${meta.objectType}'s settings.
 ${payload.toString()}`)
+    }
   }
 
 export default function* objectSagas(){

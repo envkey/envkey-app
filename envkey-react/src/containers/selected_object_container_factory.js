@@ -134,6 +134,7 @@ const SelectedObjectContainerFactory = ({
 
       return {
         [objectType]: obj,
+        currentOrg: getCurrentOrg(state),
         permissions: getPermissions(state),
         isDecrypting: getIsDecryptingAllForeground(state),
         isDemo: getIsDemo(state),

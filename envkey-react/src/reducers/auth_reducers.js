@@ -56,7 +56,9 @@ import {
   SELECT_ORG,
 
   START_DEMO,
-  SET_DEMO_DOWNLOAD_URL
+  SET_DEMO_DOWNLOAD_URL,
+
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS
 } from 'actions'
 import {decamelizeKeys} from 'xcase'
 
@@ -382,6 +384,21 @@ export const
 
     return state
   },
+
+  allowedIpsMergeStrategies = (state = null, action)=>{
+    if (isFetchCurrentUserAction(action, {
+      except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+    })){
+      return action.payload.allowedIpsMergeStrategies
+    }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
+  },
+
 
   isDemo = (state = false, {type})=> type == START_DEMO ? true : state,
 

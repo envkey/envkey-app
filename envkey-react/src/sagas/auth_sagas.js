@@ -53,6 +53,7 @@ import {
   VERIFY_ORG_PUBKEYS_SUCCESS,
   START_DEMO,
   DECRYPT_ALL_SUCCESS,
+  API_FAILED,
   appLoaded,
   login,
   logout,
@@ -319,6 +320,11 @@ function *onAuthFailed(action){
   clearAuthenticatingOverlay()
 }
 
+function *onApiFailed({payload, meta}){
+  if (R.path(["response", "status"], payload) == 403 && meta.message == "Unauthorized IP"){
+    alert(`This Org does not allow EnvKey App requests from your current IP (${payload.response.data.ip}).`)
+  }
+}
 
 export default function* authSagas(){
   yield [
@@ -346,7 +352,8 @@ export default function* authSagas(){
     takeLatest(START_DEMO, onStartDemo),
     takeLatest(SELECT_ACCOUNT_FAILED, onSelectAccountFailed),
     takeLatest([LOGOUT, RESET_SESSION], onResetSession),
-    takeLatest([SELECT_ACCOUNT_FAILED, LOGIN_FAILED, REGISTER_FAILED], onAuthFailed)
+    takeLatest([SELECT_ACCOUNT_FAILED, LOGIN_FAILED, REGISTER_FAILED], onAuthFailed),
+    takeLatest(API_FAILED, onApiFailed)
   ]
 }
 

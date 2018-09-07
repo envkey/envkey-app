@@ -3,7 +3,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from 'components/shared/small_loader'
 import BasicRenameForm from '../shared/basic_rename_form'
 import DeleteField from '../shared/delete_field'
-import {UpdateOwnerContainer} from 'containers'
+import {UpdateOwnerContainer, OrgAllowedIpsContainer} from 'containers'
 
 export default function({
   currentOrg,
@@ -34,6 +34,8 @@ const label = "Organization",
     h(BasicRenameForm, {label, isRenaming, onRename, name: currentOrg.name}),
 
     h(UpdateOwnerContainer),
+
+    (currentOrg.flagAllowedIps ? h(OrgAllowedIpsContainer) : null),
 
     renderDangerZone()
   ])
