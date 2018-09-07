@@ -37,7 +37,8 @@ import {
   BILLING_FETCH_INVOICE_PDF_SUCCESS,
   BILLING_FETCH_INVOICE_PDF_FAILED,
   BILLING_SAVE_INVOICE_PDF_SUCCESS,
-  BILLING_SAVE_INVOICE_PDF_FAILED
+  BILLING_SAVE_INVOICE_PDF_FAILED,
+  UPDATE_OBJECT_SETTINGS_SUCCESS
 
 } from "actions"
 import R from 'ramda'
@@ -98,6 +99,7 @@ export const
         return R.assoc(action.payload.id, action.payload, state)
 
       case RENAME_OBJECT_SUCCESS:
+      case UPDATE_OBJECT_SETTINGS_SUCCESS:
         if (action.meta.objectType == "org"){
           return R.assoc(action.payload.id, action.payload, state)
         } else {
