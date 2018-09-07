@@ -47,77 +47,82 @@ class OrgAllowedIps extends React.Component {
   }
 
   render(){
-    return <form className="settings object-form"
+    return <form className="settings object-form allowed-networks"
                  onSubmit={::this._onSubmit} >
 
       <fieldset>
         <label>EnvKey App Allowed Networks</label>
 
         <p className="msg">Allowed networks for requests from the EnvKey App.</p>
-        <p className="msg">Accepts valid IPV4/IPV6 IPs and ranges. Use commas, semicolons, or line breaks as delimiters.</p>
-
         <textarea type="text"
+                  className={this._isValid("allowedIpsApi") ? '' : 'invalid'}
                   placeholder="*"
                   value={this.state.allowedIpsApi}
                   onChange={e => this.setState({allowedIpsApi: e.target.value})} />
 
         {this._renderInvalidMsg("allowedIpsApi")}
+
+        {this._renderHelpMsg()}
       </fieldset>
 
       <fieldset>
         <label>Local Development Key Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Local Development ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
-        <p className="msg">Accepts valid IPV4/IPV6 IPs and ranges. Use commas, semicolons, or line breaks as delimiters.</p>
-
         <textarea type="text"
+                  className={this._isValid("allowedIpsLocal") ? '' : 'invalid'}
                   placeholder="*"
                   value={this.state.allowedIpsLocal}
                   onChange={e => this.setState({allowedIpsLocal: e.target.value})} />
 
         {this._renderInvalidMsg("allowedIpsLocal")}
+
+        {this._renderHelpMsg()}
       </fieldset>
 
       <fieldset>
         <label>Test Server Key Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Test Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
-        <p className="msg">Accepts valid IPV4/IPV6 IPs and ranges. Use commas, semicolons, or line breaks as delimiters.</p>
-
         <textarea type="text"
+                  className={this._isValid("allowedIpsTest") ? '' : 'invalid'}
                   placeholder="*"
                   value={this.state.allowedIpsTest}
                   onChange={e => this.setState({allowedIpsTest: e.target.value})} />
 
         {this._renderInvalidMsg("allowedIpsTest")}
+
+        {this._renderHelpMsg()}
       </fieldset>
 
       <fieldset>
         <label>Staging Server Key Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Staging Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
-        <p className="msg">Accepts valid IPV4/IPV6 IPs and ranges. Use commas, semicolons, or line breaks as delimiters.</p>
-
         <textarea type="text"
+                  className={this._isValid("allowedIpsStaging") ? '' : 'invalid'}
                   placeholder="*"
                   value={this.state.allowedIpsStaging}
                   onChange={e => this.setState({allowedIpsStaging: e.target.value})} />
 
         {this._renderInvalidMsg("allowedIpsStaging")}
+
+        {this._renderHelpMsg()}
       </fieldset>
 
       <fieldset>
         <label>Production Server Key Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Production Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
-        <p className="msg">Accepts valid IPV4/IPV6 IPs and ranges. Use commas, semicolons, or line breaks as delimiters.</p>
-
         <textarea type="text"
+                  className={this._isValid("allowedIpsProduction") ? '' : 'invalid'}
                   placeholder="*"
                   value={this.state.allowedIpsProduction}
                   onChange={e => this.setState({allowedIpsProduction: e.target.value})} />
 
         {this._renderInvalidMsg("allowedIpsProduction")}
+
+        {this._renderHelpMsg()}
       </fieldset>
 
       <fieldset>
@@ -130,9 +135,13 @@ class OrgAllowedIps extends React.Component {
   _renderInvalidMsg(field){
     if (!this._isValid(field)){
       return <p className="invalid-msg">
-        Not a valid list of IPs.
+        Not a valid list of IPs and/or CIDR ranges.
       </p>
     }
+  }
+
+  _renderHelpMsg(){
+    return <p className="msg small">Accepts valid IPV4/IPV6 IPs and CIDR ranges. Use commas, semicolons, or line breaks as delimiters. Example: `172.18.0.0/24, 192.12.24.123`</p>
   }
 
   _renderSubmit(){

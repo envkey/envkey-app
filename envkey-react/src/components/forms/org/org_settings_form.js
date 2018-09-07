@@ -35,7 +35,7 @@ const label = "Organization",
 
     h(UpdateOwnerContainer),
 
-    h(OrgAllowedIpsContainer),
+    (currentOrg.flagAllowedIps ? h(OrgAllowedIpsContainer) : null),
 
     renderDangerZone()
   ])

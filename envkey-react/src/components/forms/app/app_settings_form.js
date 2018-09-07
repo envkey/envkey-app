@@ -31,7 +31,7 @@ export default class AppSettingsForm extends React.Component {
     return h.div(".app-settings", [
       this._renderRename(),
       this._renderSettings(),
-      h(AppAllowedIpsContainer, this.props),
+      (this.props.currentOrg.flagAllowedIps ? h(AppAllowedIpsContainer, this.props) : null),
       this._renderDangerZone()
     ])
   }

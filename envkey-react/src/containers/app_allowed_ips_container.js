@@ -16,19 +16,19 @@ const
   ALLOWED_IP_LABELS = {
     allowedIpsLocal: [
       "Local Development Keys Allowed Networks",
-      "Default allowed networks for Local Development ENVKEYs."
+      "Allowed networks for this app's Local Development ENVKEYs."
     ],
     allowedIpsTest: [
       "Test Server Keys Allowed Networks",
-      "Default allowed networks for Test Server ENVKEYs."
+      "Allowed networks for this app's Test Server ENVKEYs."
     ],
     allowedIpsStaging: [
       "Staging Server Keys Allowed Networks",
-      "Default allowed networks for Staging Server ENVKEYs."
+      "Allowed networks for this app's Staging Server ENVKEYs."
     ],
     allowedIpsProduction: [
       "Production Production Keys Allowed Networks",
-      "Default allowed networks for Production Server ENVKEYs."
+      "Allowed networks for this app's Production Server ENVKEYs."
     ],
   },
   ALLOWED_IP_FIELDS = R.keys(ALLOWED_IP_LABELS),
@@ -51,6 +51,12 @@ class AppAllowedIps extends React.Component {
   constructor(props){
     super(props)
     this.state = getInitialState(props)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.app.id != this.props.app.id){
+      this.setState(getInitialState(nextProps))
+    }
   }
 
   _onSubmit(e){
@@ -92,7 +98,7 @@ class AppAllowedIps extends React.Component {
   }
 
   render(){
-    return <form className="settings object-form"
+    return <form className="settings object-form allowed-networks"
                  onSubmit={::this._onSubmit} >
 
       {this._renderFieldsets()}
@@ -116,7 +122,8 @@ class AppAllowedIps extends React.Component {
 
       <p className="msg">{msg}</p>
 
-      <select onChange={this._getOnMergeStrategyChange(field)}
+      <select className="select-merge-strategy"
+              onChange={this._getOnMergeStrategyChange(field)}
               value={this.state[field + "MergeStrategy"]}>
         {this._renderMergeStrategyOpts()}
       </select>
@@ -130,16 +137,21 @@ class AppAllowedIps extends React.Component {
     const strategy = this._mergeStrategyForField(field)
 
     if (strategy == "inherit"){
-      return <textarea type="text"
-                       disabled={true}
-                       value={this.props.currentOrg.allowedIps[field] || "*"} />
+      return <div>
+        <textarea type="text"
+                  disabled={true}
+                  value={this.props.currentOrg.allowedIps[field] || "*"} />
+
+      </div>
     } else if (strategy == "override"){
-      return <textarea type="text"
+      return <textarea className={this._isValid(field) ? '' : 'invalid'}
+                       type="text"
                        placeholder="*"
                        value={this.state[field]}
                        onChange={e => this.setState({[field]: e.target.value})} />
     } else if (strategy == "extend"){
       return <div className="ip-field-extends">
+        <label className="small">Org Allowed Networks</label>
         <textarea className="org-field"
                   type="text"
                   disabled={true}
@@ -152,12 +164,15 @@ class AppAllowedIps extends React.Component {
 
   _renderAppExtendField(field){
     if (this._orgVal(field)){
-      return  <textarea className="app-field"
-                        type="text"
-                        value={this.state[field]}
-                        onChange={e => this.setState({[field]: e.target.value})} />
+      return  <div>
+        <label className="small">App Allowed Networks</label>
+        <textarea className={'app-field ' + (this._isValid(field) ? '' : 'invalid')}
+                  value={this.state[field]}
+                  onChange={e => this.setState({[field]: e.target.value})} />
+        <p className="msg small">Accepts valid IPV4/IPV6 IPs and CIDR ranges. Use commas, semicolons, or line breaks as delimiters. Example: `172.18.0.0/24, 192.12.24.123`</p>
+      </div>
     } else {
-      return <p class="msg no-extends-msg">Your Org already allows any IP for this resource type, so there's nothing to extend.</p>
+      return <p className="msg small no-extends-msg">Your Org already allows any IP for this resource type, so there's nothing to extend.</p>
     }
   }
 
@@ -170,7 +185,7 @@ class AppAllowedIps extends React.Component {
   _renderInvalidMsg(field){
     if (!this._isValid(field)){
       return <p className="invalid-msg">
-        Not a valid list of IPs.
+        Not a valid list of IPs and/or CIDR ranges.
       </p>
     }
   }
