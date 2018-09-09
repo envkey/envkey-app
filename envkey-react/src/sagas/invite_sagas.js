@@ -47,6 +47,11 @@ import {
   LOAD_INVITE_SUCCESS,
   LOAD_INVITE_FAILED,
 
+  REFRESH_INVITE_REQUEST,
+  REFRESH_INVITE_API_SUCCESS,
+  REFRESH_INVITE_SUCCESS,
+  REFRESH_INVITE_FAILED,
+
   VERIFY_INVITE_PARAMS,
   VERIFY_INVITE_PARAMS_SUCCESS,
   VERIFY_INVITE_PARAMS_FAILED,
@@ -54,6 +59,7 @@ import {
   ACCEPT_INVITE,
   ACCEPT_INVITE_REQUEST,
   ACCEPT_INVITE_SUCCESS,
+  ACCEPT_INVITE_API_FAILED,
   ACCEPT_INVITE_FAILED,
 
   REVOKE_INVITE,
@@ -93,8 +99,10 @@ import {
   INVITE_EXISTING_USER_INVALID_PASSPHRASE,
 
   verifyInviteParams,
+  acceptInvite,
   acceptInviteRequest,
   loadInviteRequest,
+  refreshInviteRequest,
   addTrustedPubkey,
   grantEnvAccessRequest,
   decryptPrivkey,
@@ -102,23 +110,31 @@ import {
   removeObject,
   createAssoc,
   addAssoc,
-  fetchCurrentUserUpdates,
+  fetchCurrentUserUpdates
 } from 'actions'
 
 const
   onLoadInviteRequest = apiSaga({
-    authenticated: false,
+    authenticated: false, // authenticated through invite params instead of token auth
     skipOrg: true,
     method: "get",
     actionTypes: [LOAD_INVITE_API_SUCCESS, LOAD_INVITE_FAILED],
     urlFn: ({meta: {identityHash}}) => `/invite_links/${identityHash}.json`
   }),
 
+  onRefreshInviteRequest = apiSaga({
+    authenticated: false, // authenticated through invite params instead of token auth
+    skipOrg: true,
+    method: "get",
+    actionTypes: [REFRESH_INVITE_API_SUCCESS, REFRESH_INVITE_FAILED],
+    urlFn: ({meta: {identityHash}}) => `/invite_links/${identityHash}/refresh.json`
+  }),
+
   onAcceptInviteRequest = apiSaga({
-    authenticated: false,
+    authenticated: false, // authenticated through invite params instead of token auth
     skipOrg: true,
     method: "post",
-    actionTypes: [ACCEPT_INVITE_SUCCESS, ACCEPT_INVITE_FAILED],
+    actionTypes: [ACCEPT_INVITE_SUCCESS, ACCEPT_INVITE_API_FAILED],
     urlFn: ({meta: {identityHash}}) => `/invite_links/${identityHash}/accept_invite.json`
   }),
 
@@ -129,13 +145,17 @@ const
     urlFn: (action)=> `/org_users/${action.meta.orgUserId}/grant_env_access.json`
   })
 
+function* onLoadOrRefreshInviteApiSuccess(action){
+  const [successAction, failAction] = {
+    [LOAD_INVITE_API_SUCCESS]: [LOAD_INVITE_SUCCESS, LOAD_INVITE_FAILED],
+    [REFRESH_INVITE_API_SUCCESS]: [REFRESH_INVITE_SUCCESS, REFRESH_INVITE_FAILED]
+  }[action.type]
 
-function* onLoadInviteApiSuccess(action){
   yield put(verifyInviteParams())
   const res = yield take([VERIFY_INVITE_PARAMS_SUCCESS, VERIFY_INVITE_PARAMS_FAILED])
 
   if (res.error){
-    yield put({...res, type: LOAD_INVITE_FAILED})
+    yield put({...res, type: failAction})
   } else {
     let err
     const invitePassphrase = yield select(getInvitePassphrase),
@@ -168,9 +188,9 @@ function* onLoadInviteApiSuccess(action){
     }
 
     if (err){
-      yield put({type: LOAD_INVITE_FAILED, error: true, payload: err})
+      yield put({type: failAction, error: true, payload: err})
     } else {
-      yield put({type: LOAD_INVITE_SUCCESS, meta: action.meta})
+      yield put({type: successAction, meta: action.meta})
     }
   }
 }
@@ -258,11 +278,33 @@ function *onAcceptInvite({payload, meta}){
     identityHash,
     user,
     orgSlug,
+    inviteUpdatedAt: inviteParams.inviteUpdatedAt,
     email: inviteParams.invitee.email,
     orgUser: { signedTrustedPubkeys, pubkey: signedPubkey },
     envs: yield call(envParamsForAcceptedInvite, signedPubkey),
     currentUserId: currentUser.id
   }))
+}
+
+function* onAcceptInviteApiFailed(action){
+  const {payload, meta} = action
+  if (R.pathEq(["response", "data", "error"], "Outdated resource"), payload){
+    yield put(refreshInviteRequest({
+      emailVerificationCode: meta.requestPayload.emailVerificationCode,
+      identityHash: meta.identityHash
+    }))
+
+    const res = yield take([REFRESH_INVITE_SUCCESS, REFRESH_INVITE_FAILED])
+
+    if (res.error){
+      yield put({...res, type: ACCEPT_INVITE_FAILED})
+    } else {
+      yield put(acceptInvite({password: meta.password}))
+    }
+
+  } else {
+    yield put({...action, type: ACCEPT_INVITE_FAILED})
+  }
 }
 
 function* onAcceptInviteSuccess({meta: {password, orgSlug}}){
@@ -424,11 +466,13 @@ function *onGrantEnvAccess({payload: invitees, meta}){
 export default function* inviteSagas(){
   yield [
     takeLatest(LOAD_INVITE_REQUEST, onLoadInviteRequest),
-    takeLatest(LOAD_INVITE_API_SUCCESS, onLoadInviteApiSuccess),
+    takeLatest(REFRESH_INVITE_REQUEST, onRefreshInviteRequest),
+    takeLatest([LOAD_INVITE_API_SUCCESS, REFRESH_INVITE_API_SUCCESS], onLoadOrRefreshInviteApiSuccess),
     takeLatest(VERIFY_INVITE_PARAMS, onVerifyInviteParams),
     takeLatest(ACCEPT_INVITE, onAcceptInvite),
     takeLatest(ACCEPT_INVITE_REQUEST, onAcceptInviteRequest),
     takeLatest(ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
+    takeLatest(ACCEPT_INVITE_API_FAILED, onAcceptInviteApiFailed),
     takeEvery(GENERATE_INVITE_LINK, onGenerateInviteLink),
     takeEvery(GRANT_ENV_ACCESS, onGrantEnvAccess),
     takeEvery(GRANT_ENV_ACCESS_REQUEST, onGrantEnvAccessRequest),

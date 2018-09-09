@@ -12,6 +12,11 @@ import {
   LOAD_INVITE_SUCCESS,
   LOAD_INVITE_FAILED,
 
+  REFRESH_INVITE_REQUEST,
+  REFRESH_INVITE_API_SUCCESS,
+  REFRESH_INVITE_SUCCESS,
+  REFRESH_INVITE_FAILED,
+
   VERIFY_INVITE_PARAMS,
   VERIFY_INVITE_PARAMS_SUCCESS,
   VERIFY_INVITE_PARAMS_FAILED,
@@ -196,7 +201,11 @@ export const
     }
 
     switch(action.type){
+      case REFRESH_INVITE_REQUEST:
+        return null
+
       case LOAD_INVITE_FAILED:
+      case REFRESH_INVITE_FAILED:
         return action.payload
 
       default:
@@ -212,6 +221,7 @@ export const
 
     switch(action.type){
       case LOAD_INVITE_API_SUCCESS:
+      case REFRESH_INVITE_API_SUCCESS:
         return action.payload
 
       default:

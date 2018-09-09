@@ -7,6 +7,7 @@ import {
   VERIFY_INVITE_PARAMS,
   CLOSE_GENERATED_INVITE_LINK,
   LOAD_INVITE_REQUEST,
+  REFRESH_INVITE_REQUEST,
   REVOKE_INVITE,
   REGEN_INVITE,
   INVITE_EXISTING_USER_INVALID_PASSPHRASE
@@ -18,12 +19,14 @@ export const
 
   loadInviteRequest = createAction(LOAD_INVITE_REQUEST, R.pick(["emailVerificationCode"]), R.pick(["passphrase", "identityHash"])),
 
+  refreshInviteRequest = createAction(REFRESH_INVITE_REQUEST, R.pick(["emailVerificationCode"]), R.pick(["identityHash"])),
+
   acceptInvite = createAction(ACCEPT_INVITE, R.pick(["password"])),
 
   acceptInviteRequest = createAction(
     ACCEPT_INVITE_REQUEST,
     R.pipe(
-      R.pick(["user", "orgUser", "envs", "emailVerificationCode"]),
+      R.pick(["user", "orgUser", "envs", "emailVerificationCode", "inviteUpdatedAt"]),
       R.evolve({
         user: R.pick(["password", "pubkey", "pubkeyFingerprint", "encryptedPrivkey"]),
         orgUser: R.pick(["pubkey", "signedTrustedPubkeys"])
