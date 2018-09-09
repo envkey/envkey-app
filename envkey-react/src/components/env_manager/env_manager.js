@@ -10,6 +10,10 @@ import Filter from 'components/shared/filter'
 import { allEntries, hasAnyVal } from 'lib/env/query'
 import traversty from 'traversty'
 
+const subEnvsReadOnly = props => props.app.role == "development",
+
+      subEnvVarsReadOnly = props => props.app.role == "development" && props.environment == "production"
+
 export default class EnvManager extends React.Component {
 
   constructor(props){
@@ -93,6 +97,16 @@ export default class EnvManager extends React.Component {
     return (props.envsWithMeta && props.params.sub) || false
   }
 
+  _subEnvsReadOnly(props){
+    if(!props)props = this.props
+    return subEnvsReadOnly(props)
+  }
+
+  _subEnvVarsReadOnly(props){
+    if(!props)props = this.props
+    return subEnvVarsReadOnly({...props, environment: this._subEnvsOpen()})
+  }
+
   _isEmpty(arg=null){
     const props = arg || this.props
     return allEntries(props.envsWithMeta).length == 0
@@ -111,7 +125,10 @@ export default class EnvManager extends React.Component {
       (this.state.showFilter ? "show-filter" : ""),
       (this.state.editingMultilineEnvironment ? "editing-multiline" : ""),
       (this.state.editingMultilineEnvironment && !this.state.editingMultilineEntryKey ? "editing-multiline-entry-form" : ""),
-      (this.state.editingMultilineEnvironment && this.state.editingMultilineEntryKey ? "editing-multiline-grid" : "")
+      (this.state.editingMultilineEnvironment && this.state.editingMultilineEntryKey ? "editing-multiline-grid" : ""),
+      (this._subEnvsOpen() ? "sub-envs-open" : ""),
+      (this._subEnvsReadOnly() ? "subenvs-read-only" : ""),
+      (this._subEnvVarsReadOnly() ? "subenv-vars-read-only" : "")
     ]
   }
 
@@ -148,7 +165,7 @@ export default class EnvManager extends React.Component {
           subEnvsEmpty = subEnvsOpen && R.isEmpty(envsWithMeta[subEnvsOpen]["@@__sub__"] || {}),
           subEnvsAdding = subEnvsOpen && this.props.params.sel == "add"
 
-    if (!subEnvsEmpty && !subEnvsAdding){
+    if (!subEnvsEmpty && !subEnvsAdding && !(subEnvsOpen && this._subEnvVarsReadOnly())){
       return h(Filter, {
         onFilter: filter => this.setState({filter}),
         onToggleFilter: ::this._onToggleFilter,
@@ -180,6 +197,7 @@ export default class EnvManager extends React.Component {
   }
 
   _renderSubEnvs(){
+    const environment = this._subEnvsOpen()
     return h(SubEnvs, {
       ...this.props,
       ...R.pick([
@@ -188,10 +206,12 @@ export default class EnvManager extends React.Component {
         "editingMultilineEntryKey",
         "editingMultilineEnvironment"
       ], this.state),
-      environment: this._subEnvsOpen(),
+      environment,
       editCell: ::this._onEditCell,
       stoppedEditing: ::this._onStoppedEditing,
-      updateEntryVal: ::this._onUpdateEntryVal
+      updateEntryVal: ::this._onUpdateEntryVal,
+      subEnvsReadOnly: this._subEnvsReadOnly(),
+      subEnvVarsReadOnly: subEnvVarsReadOnly({...this.props, environment})
     })
   }
 
