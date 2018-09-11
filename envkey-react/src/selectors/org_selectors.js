@@ -15,6 +15,8 @@ export const
 
   getOrgBySlug = db.orgs.findBy("slug"),
 
+  getOrgsBySlug = db.orgs.indexBy("slug"),
+
   getCurrentOrg = (state)=> getOrgBySlug(getCurrentOrgSlug(state), state),
 
   getOrgs = db.orgs.list({

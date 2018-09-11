@@ -34,6 +34,7 @@ import {
   REGISTER_FAILED,
 
   LOGOUT,
+  RESET_SESSION,
   LOGOUT_ALL,
 
   FETCH_CURRENT_USER_REQUEST,
@@ -52,6 +53,10 @@ import {
   SELECT_ACCOUNT,
   SELECT_ACCOUNT_SUCCESS,
   SELECT_ACCOUNT_FAILED,
+
+  ACCOUNT_RESET_OPTIONS_REQUEST,
+  ACCOUNT_RESET_OPTIONS_SUCCESS,
+  ACCOUNT_RESET_OPTIONS_FAILED,
 
   SELECT_ORG,
 
@@ -227,8 +232,13 @@ export const
         return {}
 
       case LOGOUT:
+      case RESET_SESSION:
       case SELECT_ACCOUNT_FAILED:
-        return R.dissoc((action.meta.accountId || action.meta.currentUserId), state)
+        if (action.meta && (action.meta.accountId || action.meta.currentUserId)){
+          return R.dissoc((action.meta.accountId || action.meta.currentUserId), state)
+        } else {
+          return state
+        }
 
       default:
         return state
@@ -399,6 +409,25 @@ export const
     return state
   },
 
+  resetAccountOptions = (state = null, action)=> {
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    switch(action.type){
+      case ACCOUNT_RESET_OPTIONS_REQUEST:
+        return null
+
+      case ACCOUNT_RESET_OPTIONS_SUCCESS:
+        return action.payload
+
+      case ACCOUNT_RESET_OPTIONS_FAILED:
+        return {}
+
+      default:
+        return state
+    }
+  },
 
   isDemo = (state = false, {type})=> type == START_DEMO ? true : state,
 

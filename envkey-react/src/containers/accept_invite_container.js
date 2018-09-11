@@ -36,7 +36,7 @@ const
 class AcceptInvite extends React.Component {
 
   constructor(props){
-    super()
+    super(props)
     this.state = initialState()
 
     if (props.params.inviteToken){
@@ -212,7 +212,8 @@ class AcceptInvite extends React.Component {
             })
           })
         ]),
-        h.fieldset([this._renderSubmitPassword()]),
+        h.fieldset([this._renderSubmitPassword()])
+        // h.p(".msg-reset-account", ["Forgot your passphrase? ", h(Link, {to: "/reset_account"}, ["Reset your account."])])
       ]),
 
       (this._isNewUser() ? h(PasswordCopy) : null)

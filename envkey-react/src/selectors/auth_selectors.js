@@ -157,6 +157,8 @@ export const
 
   getAllowedIpsMergeStrategies = db.path("allowedIpsMergeStrategies"),
 
+  getResetAccountOptions = db.path("resetAccountOptions"),
+
   getIsDemo = R.anyPass([
     db.path("isDemo"),
     R.pipe(getCurrentUser, R.path(['demo'])),

@@ -79,8 +79,22 @@ export function* inviteUser(action){
   const createRes = yield call(execCreateObject, {...action, payload: createPayload})
 
   if (createRes.error){
+    const status = R.path(["payload", "response", "status"], createRes),
+          errorType = R.path(["payload", "response", "data", "errors", 0, "type"], createRes)
+
+    if (status == 422){
+      const msg = {
+        already_org_member: "This user is already a member of your organization.",
+        already_invited: "This user already has a pending invitation."
+      }[errorType]
+
+      if (msg){
+        alert(msg)
+      }
+    }
+
     yield call(dispatchCreateAssocFailed, {failAction: createRes, meta})
-    yield put({...createRes, type: INVITE_USER_FAILED})
+    yield put({...createRes, meta, type: INVITE_USER_FAILED})
     return
   }
 

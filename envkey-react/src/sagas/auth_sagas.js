@@ -35,6 +35,9 @@ import {
   SELECT_ACCOUNT_REQUEST,
   SELECT_ACCOUNT_SUCCESS,
   SELECT_ACCOUNT_FAILED,
+  ACCOUNT_RESET_OPTIONS_REQUEST,
+  ACCOUNT_RESET_OPTIONS_SUCCESS,
+  ACCOUNT_RESET_OPTIONS_FAILED,
   LOGOUT,
   RESET_SESSION,
   REGISTER,
@@ -136,6 +139,14 @@ const
     method: "get",
     actionTypes: [SELECT_ACCOUNT_SUCCESS, SELECT_ACCOUNT_FAILED],
     urlFn: (action)=> "/auth/session.json"
+  }),
+
+  onAccountResetOptionsRequest = apiSaga({
+    authenticated: true,
+    method: "get",
+    skipOrg: true,
+    actionTypes: [ACCOUNT_RESET_OPTIONS_SUCCESS, ACCOUNT_RESET_OPTIONS_FAILED],
+    urlFn: action => "/users/reset_options.json"
   })
 
 function *loginSelectOrg(){
@@ -349,6 +360,7 @@ export default function* authSagas(){
     takeLatest(SELECT_ACCOUNT_REQUEST, onSelectAccountRequest),
     takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
+    takeLatest(ACCOUNT_RESET_OPTIONS_REQUEST, onAccountResetOptionsRequest),
     takeLatest(START_DEMO, onStartDemo),
     takeLatest(SELECT_ACCOUNT_FAILED, onSelectAccountFailed),
     takeLatest([LOGOUT, RESET_SESSION], onResetSession),

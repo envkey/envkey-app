@@ -37,7 +37,8 @@ import {
   SelectAccountContainer,
   CreateOrgContainer,
   NoAppsContainer,
-  DowngradeRemovalContainer
+  DowngradeRemovalContainer,
+  ResetAccountContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -129,6 +130,8 @@ export default class Routes extends React.Component {
         <Route path="/select_org" component={RequiresConnection(UserAuthenticated(OrgsLoaded(BaseRoute(SelectOrgContainer))))} />
 
         <Route path="/create_org" component={RequiresConnection(UserAuthenticated(BaseRoute(CreateOrgContainer)))} />
+
+        <Route path="/reset_account" component={RequiresConnection(UserAuthenticated(OrgsLoaded(BaseRoute(ResetAccountContainer))))} />
 
         <Route path="/:orgSlug" component={RequiresConnection(OrgSelected(UserAuthenticated(MainContainer)))}>
 
