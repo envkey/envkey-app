@@ -19,6 +19,8 @@ export const
 
   getIsUpdatingSettings = (id, state)=> db.path("isUpdatingSettings", id)(state),
 
+  getIsUpdatingNetworkSettings = (id, state)=> db.path("isUpdatingNetworkSettings", id)(state),
+
   getIsUpdatingOrgRole = (userId, state)=> db.path("isUpdatingOrgRole", userId)(state),
 
   getIsAddingAssoc = ({parentId, assocType, role}, state)=> {

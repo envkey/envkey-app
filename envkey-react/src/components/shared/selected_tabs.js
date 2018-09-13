@@ -10,7 +10,11 @@ const config = {
   integration: ["integration", "Integrate", 52, 25],
   settings: ["settings", "Settings", 33, 33, {objectPermissionPath: ["updateSettings"]}],
   apps: ["apps", "Apps", 36, 32],
-  billing: ["billing", "Billing", 34, 23, {permissionFn: R.complement(R.prop('isDemo'))}]
+  firewall: ["firewall", "Firewall", 28, 34, {objectPermissionPath: ["updateNetworkSettings"]}],
+  billing: ["billing", "Billing", 34, 23, {
+    permissionFn: R.complement(R.prop('isDemo')),
+    objectPermissionPath: ["updateBilling"]
+  }]
 }
 
 const SelectedTabs = (props)=>{
@@ -18,12 +22,18 @@ const SelectedTabs = (props)=>{
 
   const renderTab = ([action, label, imgW, imgH, {permissionPath, objectPermissionPath, permissionFn}={}], i)=>{
     const selected = selectedTab.indexOf(action) == 0,
-          className = [("tab-" + action), (selected ? "selected" : "")].join(" "),
-          hasPermission = !(
-            (permissionPath && (!permissions || !R.path(permissionPath, permissions))) ||
-            (objectPermissionPath && (!objectPermissions || !R.path(objectPermissionPath, objectPermissions))) ||
-            (permissionFn && !permissionFn(props))
-          )
+          className = [("tab-" + action), (selected ? "selected" : "")].join(" ")
+
+    let hasPermission = true
+    if (permissionPath && (!permissions || !R.path(permissionPath, permissions))){
+      hasPermission = false
+    }
+    if (objectPermissionPath && (!objectPermissions || !R.path(objectPermissionPath, objectPermissions))){
+      hasPermission = false
+    }
+    if (permissionFn && !permissionFn(props)){
+      hasPermission = false
+    }
 
     if (hasPermission){
       return <Link key={i}

@@ -10,6 +10,8 @@ export const
 
   orgRoleIsAdmin = role => orgRoleGTE(role, "org_admin"),
 
+  orgRoleIsOwner = role => orgRoleGTE(role, "org_owner"),
+
   appRoleIndex = role => APP_ROLES.indexOf(role),
 
   appRolesGTE = role => APP_ROLES.slice(appRoleIndex(role)),

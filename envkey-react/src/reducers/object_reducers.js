@@ -12,6 +12,7 @@ import {
   ADD_ASSOC_SUCCESS,
   CREATE_OBJECT_SUCCESS,
   UPDATE_OBJECT_SETTINGS_SUCCESS,
+  UPDATE_NETWORK_SETTINGS_SUCCESS,
   RENAME_OBJECT_SUCCESS,
   REMOVE_OBJECT_SUCCESS,
   FETCH_OBJECT_DETAILS_API_SUCCESS,
@@ -239,6 +240,7 @@ ORG_OBJECT_TYPES_PLURALIZED.forEach(objectTypePlural => {
         return getRemoveObjectReducer(objectTypePlural)(state, action)
 
       case UPDATE_OBJECT_SETTINGS_SUCCESS:
+      case UPDATE_NETWORK_SETTINGS_SUCCESS:
       case RENAME_OBJECT_SUCCESS:
         return getUpdateObjectReducer(objectTypePlural)(state, action)
 

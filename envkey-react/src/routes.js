@@ -38,7 +38,9 @@ import {
   CreateOrgContainer,
   NoAppsContainer,
   DowngradeRemovalContainer,
-  ResetAccountContainer
+  ResetAccountContainer,
+  AppAllowedIpsContainer,
+  OrgAllowedIpsContainer,
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -165,6 +167,8 @@ export default class Routes extends React.Component {
 
             <Route path="collaborators" component={AppCollaboratorsContainer} />
 
+            <Route path="firewall" component={AppAllowedIpsContainer} />
+
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "app"})}/>
 
           </Route>
@@ -183,9 +187,9 @@ export default class Routes extends React.Component {
 
           <Route path="my_org" component={SelectedObjectContainerFactory({objectType: "currentOrg"})} >
 
-            <IndexRedirect to="settings" />
-
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentOrg", targetObjectType: "org"})}/>
+
+            <Route path="firewall" component={OrgAllowedIpsContainer} />
 
             <Route path="billing" component={BillingContainer}/>
 

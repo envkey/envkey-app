@@ -7,6 +7,7 @@ import {
   REMOVE_OBJECT_REQUEST,
   SELECTED_OBJECT,
   UPDATE_OBJECT_SETTINGS_REQUEST,
+  UPDATE_NETWORK_SETTINGS_REQUEST,
   FETCH_OBJECT_DETAILS_REQUEST
 } from './action_types'
 
@@ -35,6 +36,8 @@ export const
   removeObject = createAction(REMOVE_OBJECT_REQUEST, R.pick(["revokeInvite"]), pickMeta),
 
   updateObjectSettings = createAction(UPDATE_OBJECT_SETTINGS_REQUEST, payloadFn, pickMeta),
+
+  updateNetworkSettings = createAction(UPDATE_NETWORK_SETTINGS_REQUEST, payloadFn, pickMeta),
 
   selectedObject = createAction(SELECTED_OBJECT),
 

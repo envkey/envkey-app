@@ -88,6 +88,7 @@ import {
 import * as crypto from 'lib/crypto'
 import { ORG_OBJECT_TYPES_PLURALIZED } from 'constants'
 import {setAuthenticatingOverlay, clearAuthenticatingOverlay} from 'lib/ui'
+import { isTimeout } from 'lib/actions'
 
 const
   onFetchCurrentUserRequest = apiSaga({
@@ -300,8 +301,13 @@ function *onFetchCurrentUserSuccess(action){
 }
 
 function *onFetchCurrentUserFailed(action){
-  yield put(logout())
-  yield put(push("/home"))
+  if (isTimeout(action)){
+    console.log("API call to server timed out. Refreshing...")
+    window.location.reload()
+  } else {
+    yield put(logout())
+    yield put(push("/home"))
+  }
 }
 
 function *onFetchCurrentUserUpdatesApiSuccess({payload}){

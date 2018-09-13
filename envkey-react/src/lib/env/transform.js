@@ -1,5 +1,5 @@
 import R from 'ramda'
-import {inheritedVal} from './inheritance'
+import {inheritedVal, inheritingEnvironments} from './inheritance'
 import {allKeys, allEntries, subEnvPath, findSubEnv, allEntriesWithSubEnvs} from './query'
 import {
   CREATE_ENTRY,
@@ -188,7 +188,20 @@ export const
   }),
 
   updateEntryVal = subEnvUpdatable(({envsWithMeta, entryKey, environment, update})=>{
-    return R.assocPath([environment, entryKey], update, envsWithMeta)
+    let updated = R.assocPath([environment, entryKey], update, envsWithMeta)
+    const inheriting = inheritingEnvironments({environment, entryKey, envsWithMeta})
+
+    if (inheriting.length){
+      for (let inheritingEnvironment of inheriting){
+        if (update.val){
+          updated = R.assocPath([inheritingEnvironment, entryKey, "inheritedVal"], update.val, updated)
+        } else {
+          updated = R.dissocPath([inheritingEnvironment, entryKey, "inheritedVal"], updated)
+        }
+      }
+    }
+
+    return updated
   }),
 
   addSubEnv = ({envsWithMeta, environment, name, id})=>{

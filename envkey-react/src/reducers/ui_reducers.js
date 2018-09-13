@@ -30,6 +30,10 @@ import {
   UPDATE_OBJECT_SETTINGS_SUCCESS,
   UPDATE_OBJECT_SETTINGS_FAILED,
 
+  UPDATE_NETWORK_SETTINGS_REQUEST,
+  UPDATE_NETWORK_SETTINGS_SUCCESS,
+  UPDATE_NETWORK_SETTINGS_FAILED,
+
   RENAME_OBJECT_REQUEST,
   RENAME_OBJECT_SUCCESS,
   RENAME_OBJECT_FAILED,
@@ -201,6 +205,24 @@ export const
 
       case UPDATE_OBJECT_SETTINGS_SUCCESS:
       case UPDATE_OBJECT_SETTINGS_FAILED:
+        return R.dissoc(action.meta.targetId, state)
+
+      default:
+        return state
+    }
+  },
+
+  isUpdatingNetworkSettings = (state = {}, action)=>{
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
+    switch(action.type){
+      case UPDATE_NETWORK_SETTINGS_REQUEST:
+        return R.assoc(action.meta.targetId, true, state)
+
+      case UPDATE_NETWORK_SETTINGS_SUCCESS:
+      case UPDATE_NETWORK_SETTINGS_FAILED:
         return R.dissoc(action.meta.targetId, state)
 
       default:

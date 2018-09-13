@@ -102,24 +102,16 @@ export default function apiSaga({
             payload = err,
             meta = {...requestAction.meta, status, requestPayload: requestAction.payload, message: msg}
 
-      if (status){
+      yield put({type: API_FAILED, error: true, payload, meta})
+      yield put({type: FAILURE_TYPE, error: true, payload, meta})
 
-        yield put({type: API_FAILED, error: true, payload, meta})
-
-        yield put({type: FAILURE_TYPE, error: true, payload, meta})
-
-        if (authenticated){
-          if (status == 401){
-            yield put({type: TOKEN_INVALID, error: true, payload, meta})
-          } else if (status == 404 && msg == "Missing org"){
-            yield put({type: ORG_INVALID, error: true, payload, meta})
-          }
+      if (status && authenticated){
+        if (status == 401){
+          yield put({type: TOKEN_INVALID, error: true, payload, meta})
+        } else if (status == 404 && msg == "Missing org"){
+          yield put({type: ORG_INVALID, error: true, payload, meta})
         }
-
-      } else {
-        throw(err)
       }
-
     }
 
   }

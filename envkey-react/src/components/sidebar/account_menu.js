@@ -1,6 +1,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 import {imagePath, orgRoleLabel} from 'lib/ui'
+import {orgRoleIsAdmin, orgRoleIsOwner} from 'lib/roles'
 
 const AccountMenu = ({
   currentUser,
@@ -49,6 +50,16 @@ const AccountMenu = ({
       </section>
     },
 
+    myOrgIndexRoute = ()=> {
+      if (currentOrg.permissions.updateSettings){
+        return "settings"
+      } else if (currentOrg.permissions.updateNetworkSettings){
+        return "firewall"
+      } else if (currentOrg.permissions.updateBilling){
+        return "billing"
+      }
+    },
+
     renderMenuBody = ()=>{
       if (isOpen){
         return <section className="menu-body">
@@ -59,8 +70,8 @@ const AccountMenu = ({
 
           <div className="spacer"/>
 
-          {currentUser.role == "org_owner" ? renderMenuRow("My Organization",
-                                                           `/${params.orgSlug}/my_org`,
+          {orgRoleIsAdmin(currentUser.role) ? renderMenuRow("My Organization",
+                                                           `/${params.orgSlug}/my_org/${myOrgIndexRoute()}`,
                                                            "briefcase-black.png") :
                                               ""}
 

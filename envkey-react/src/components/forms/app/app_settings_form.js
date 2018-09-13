@@ -4,7 +4,6 @@ import h from "lib/ui/hyperscript_with_helpers"
 import SmallLoader from 'components/shared/small_loader'
 import BasicRenameForm from '../shared/basic_rename_form'
 import DeleteField from '../shared/delete_field'
-import {AppAllowedIpsContainer} from 'containers'
 
 const label = "App"
 
@@ -37,7 +36,6 @@ export default class AppSettingsForm extends React.Component {
     return h.div(".app-settings", [
       this._renderRename(),
       this._renderSettings(),
-      (this.props.currentOrg.flagAllowedIps ? h(AppAllowedIpsContainer, this.props) : null),
       this._renderDangerZone()
     ])
   }

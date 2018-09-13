@@ -3,10 +3,10 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import {
   getCurrentOrg,
-  getIsUpdatingSettings
+  getIsUpdatingNetworkSettings
 } from "selectors"
 import {
-  updateObjectSettings
+  updateNetworkSettings
 } from "actions"
 import SmallLoader from 'components/shared/small_loader'
 import {isValidIPString} from 'lib/utils/string'
@@ -66,7 +66,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Local Development Key Allowed Networks</label>
+        <label>Local Development Keys Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Local Development ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -81,7 +81,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Test Server Key Allowed Networks</label>
+        <label>Test Server Keys Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Test Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -96,7 +96,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Staging Server Key Allowed Networks</label>
+        <label>Staging Server Keys Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Staging Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -111,7 +111,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Production Server Key Allowed Networks</label>
+        <label>Production Server Keys Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Production Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -145,7 +145,7 @@ class OrgAllowedIps extends React.Component {
   }
 
   _renderSubmit(){
-    if (this.props.isUpdatingSettings){
+    if (this.props.isUpdating){
       return <SmallLoader />
     } else {
       return <button disabled={!this._allValid()}> <span>Update Network Settings</span> </button>
@@ -160,13 +160,13 @@ const mapStateToProps = state => {
   return {
     id: currentOrg.id,
     allowedIps: currentOrg.allowedIps,
-    isUpdatingSettings: getIsUpdatingSettings(currentOrg.id, state)
+    isUpdating: getIsUpdatingNetworkSettings(currentOrg.id, state)
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateAllowedIpSettings: (targetId, params) => dispatch(updateObjectSettings({
+    updateAllowedIpSettings: (targetId, params) => dispatch(updateNetworkSettings({
       objectType: "org",
       targetId,
       params

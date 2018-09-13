@@ -22,6 +22,10 @@ import {
   UPDATE_OBJECT_SETTINGS_SUCCESS,
   UPDATE_OBJECT_SETTINGS_FAILED,
 
+  UPDATE_NETWORK_SETTINGS_REQUEST,
+  UPDATE_NETWORK_SETTINGS_SUCCESS,
+  UPDATE_NETWORK_SETTINGS_FAILED,
+
   RENAME_OBJECT_REQUEST,
   RENAME_OBJECT_SUCCESS,
   RENAME_OBJECT_FAILED,
@@ -73,6 +77,13 @@ const
     method: "patch",
     actionTypes: [UPDATE_OBJECT_SETTINGS_SUCCESS, UPDATE_OBJECT_SETTINGS_FAILED],
     urlFn: getUpdateUrlFn("update_settings")
+  }),
+
+  onUpdateNetworkSettings = apiSaga({
+    authenticated: true,
+    method: "patch",
+    actionTypes: [UPDATE_NETWORK_SETTINGS_SUCCESS, UPDATE_NETWORK_SETTINGS_FAILED],
+    urlFn: getUpdateUrlFn("update_network_settings")
   }),
 
   onRenameObject = apiSaga({
@@ -176,10 +187,15 @@ const
   },
 
   onUpdateObjectSettingsFailed = function*({meta, payload}){
+      alert(`There was a problem updating the ${meta.objectType}'s settings.
+${payload.toString()}`)
+  },
+
+  onUpdateNetworkSettingsFailed = function*({meta, payload}){
     if (R.path(["response", "status"], payload) == 422 && meta.message == "Unauthorized IP"){
       alert(`You cannot restrict EnvKey App requests to a network that doesn't include your current IP (${payload.response.data.ip}).`)
     } else {
-      alert(`There was a problem updating the ${meta.objectType}'s settings.
+      alert(`There was a problem updating the ${meta.objectType}'s network settings.
 ${payload.toString()}`)
     }
   }
@@ -191,10 +207,12 @@ export default function* objectSagas(){
     takeEvery(FETCH_OBJECT_DETAILS_API_SUCCESS, onFetchObjectDetailsApiSuccess),
     takeEvery(CREATE_OBJECT_REQUEST, onCreateObject),
     takeEvery(UPDATE_OBJECT_SETTINGS_REQUEST, onUpdateObjectSettings),
+    takeEvery(UPDATE_NETWORK_SETTINGS_REQUEST, onUpdateNetworkSettings),
     takeEvery(RENAME_OBJECT_REQUEST, onRenameObject),
-    takeEvery([RENAME_OBJECT_SUCCESS, UPDATE_OBJECT_SETTINGS_SUCCESS], onUpdateObjectSuccess),
+    takeEvery([RENAME_OBJECT_SUCCESS, UPDATE_OBJECT_SETTINGS_SUCCESS, UPDATE_NETWORK_SETTINGS_SUCCESS], onUpdateObjectSuccess),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
     takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
-    takeLatest(UPDATE_OBJECT_SETTINGS_FAILED, onUpdateObjectSettingsFailed)
+    takeLatest(UPDATE_OBJECT_SETTINGS_FAILED, onUpdateObjectSettingsFailed),
+    takeLatest(UPDATE_NETWORK_SETTINGS_FAILED, onUpdateNetworkSettingsFailed)
   ]
 }

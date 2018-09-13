@@ -3,11 +3,11 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import {
   getCurrentOrg,
-  getIsUpdatingSettings,
+  getIsUpdatingNetworkSettings,
   getAllowedIpsMergeStrategies
 } from "selectors"
 import {
-  updateObjectSettings
+  updateNetworkSettings
 } from "actions"
 import SmallLoader from 'components/shared/small_loader'
 import {isValidIPString} from 'lib/utils/string'
@@ -27,7 +27,7 @@ const
       "Allowed networks for this app's Staging Server ENVKEYs."
     ],
     allowedIpsProduction: [
-      "Production Production Keys Allowed Networks",
+      "Production Server Keys Allowed Networks",
       "Allowed networks for this app's Production Server ENVKEYs."
     ],
   },
@@ -144,11 +144,14 @@ class AppAllowedIps extends React.Component {
 
       </div>
     } else if (strategy == "override"){
-      return <textarea className={this._isValid(field) ? '' : 'invalid'}
+      return <div>
+        <textarea className={this._isValid(field) ? '' : 'invalid'}
                        type="text"
                        placeholder="*"
                        value={this.state[field]}
                        onChange={e => this.setState({[field]: e.target.value})} />
+        {this._renderHelp()}
+      </div>
     } else if (strategy == "extend"){
       return <div className="ip-field-extends">
         <label className="small">Org Allowed Networks</label>
@@ -163,17 +166,13 @@ class AppAllowedIps extends React.Component {
   }
 
   _renderAppExtendField(field){
-    if (this._orgVal(field)){
-      return  <div>
-        <label className="small">App Allowed Networks</label>
-        <textarea className={'app-field ' + (this._isValid(field) ? '' : 'invalid')}
-                  value={this.state[field]}
-                  onChange={e => this.setState({[field]: e.target.value})} />
-        <p className="msg small">Accepts valid IPV4/IPV6 IPs and CIDR ranges. Use commas, semicolons, or line breaks as delimiters. Example: `172.18.0.0/24, 192.12.24.123`</p>
-      </div>
-    } else {
-      return <p className="msg small no-extends-msg">Your Org already allows any IP for this resource type, so there's nothing to extend.</p>
-    }
+    return  <div>
+      <label className="small">App Allowed Networks</label>
+      <textarea className={'app-field ' + (this._isValid(field) ? '' : 'invalid')}
+                value={this.state[field]}
+                onChange={e => this.setState({[field]: e.target.value})} />
+      {this._renderHelp()}
+    </div>
   }
 
   _renderMergeStrategyOpts(){
@@ -190,8 +189,12 @@ class AppAllowedIps extends React.Component {
     }
   }
 
+  _renderHelp(){
+    return <p className="msg small">Accepts valid IPV4/IPV6 IPs and CIDR ranges. Use commas, semicolons, or line breaks as delimiters. Example: `172.18.0.0/24, 192.12.24.123`</p>
+  }
+
   _renderSubmit(){
-    if (this.props.isUpdatingSettings){
+    if (this.props.isUpdating){
       return <SmallLoader />
     } else {
       return <button disabled={!this._allValid()}> <span>Update Network Settings</span> </button>
@@ -204,14 +207,14 @@ const mapStateToProps = (state, ownProps) => {
   return {
     ...ownProps,
     currentOrg: getCurrentOrg(state),
-    isUpdatingSettings: getIsUpdatingSettings(ownProps.app.id, state),
+    isUpdating: getIsUpdatingNetworkSettings(ownProps.app.id, state),
     allowedIpsMergeStrategies: getAllowedIpsMergeStrategies(state)
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateAllowedIpSettings: (targetId, params) => dispatch(updateObjectSettings({
+    updateAllowedIpSettings: (targetId, params) => dispatch(updateNetworkSettings({
       objectType: "app",
       targetId,
       params
