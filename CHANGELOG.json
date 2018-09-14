@@ -62,5 +62,16 @@
     "Better preview for multi-line values",
     "Increase length limit for displaying multi-line edit mode",
     "Fix for persistent null error issue when closing updater window - finally discovered the true cause of this"
+  ],
+  "1.4.0": [
+    "EnvKey Firewall allows whitelisting IP addresses and IP ranges to restrict access to trusted networks - can be set on an org-wide basis (by Org Admins) or an app-specific basis (by App Admins)",
+    "ENVKEYs with IP restrictions now have their encrypted backups sent to a private S3 bucket with an Lambda function in front of it that verifies IPs - client libraries should therefore be updated to enable high availability when using EnvKey Firewall",
+    "Automated account reset - if a user forgets their passphrase, EnvKey now guides them through resetting their account and regaining access from an admin (when possible)",
+    "Fix for race condition when accepting an invitation that could sometimes cause decryption to fail",
+    "Fix for invoice settings not being displayed correctly after an update",
+    "Fix for inheritance issue that could cause an environment to retain the old value when the environment it inherits from is set to undefined",
+    "Fix for auto-caps setting not updating when switching between apps",
+    "Better handle account deletion scenarios that involve multiple organizations or an Org Owner deleting their account",
+    "Better handle timeouts from the API server caused by patchy network conditions, waking up from sleep, etc. instead of showing an endless spinner"
   ]
 }
