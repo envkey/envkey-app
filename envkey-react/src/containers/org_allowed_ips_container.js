@@ -73,7 +73,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Local Development Keys Allowed Networks</label>
+        <label>Local Development Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Local Development ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -88,7 +88,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Test Server Keys Allowed Networks</label>
+        <label>Test Server Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Test Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -103,7 +103,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Staging Server Keys Allowed Networks</label>
+        <label>Staging Server Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Staging Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"
@@ -118,7 +118,7 @@ class OrgAllowedIps extends React.Component {
       </fieldset>
 
       <fieldset>
-        <label>Production Server Keys Allowed Networks</label>
+        <label>Production Server Allowed Networks</label>
 
         <p className="msg">Default allowed networks for Production Server ENVKEYs. These can be extended or overriden on an app-specific basis.</p>
         <textarea type="text"

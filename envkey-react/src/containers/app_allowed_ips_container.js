@@ -15,19 +15,19 @@ import {isValidIPString} from 'lib/utils/string'
 const
   ALLOWED_IP_LABELS = {
     allowedIpsLocal: [
-      "Local Development Keys Allowed Networks",
+      "Local Development Allowed Networks",
       "Allowed networks for this app's Local Development ENVKEYs."
     ],
     allowedIpsTest: [
-      "Test Server Keys Allowed Networks",
+      "Test Server Allowed Networks",
       "Allowed networks for this app's Test Server ENVKEYs."
     ],
     allowedIpsStaging: [
-      "Staging Server Keys Allowed Networks",
+      "Staging Server Allowed Networks",
       "Allowed networks for this app's Staging Server ENVKEYs."
     ],
     allowedIpsProduction: [
-      "Production Server Keys Allowed Networks",
+      "Production Server Allowed Networks",
       "Allowed networks for this app's Production Server ENVKEYs."
     ],
   },
