@@ -31,6 +31,13 @@ class OrgAllowedIps extends React.Component {
     this.state = getInitialState(props)
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!R.equals(getInitialState(nextProps), getInitialState(this.props))){
+      // for handling socket updates
+      this.setState(getInitialState(nextProps))
+    }
+  }
+
   _onSubmit(e){
     e.preventDefault()
     this.props.updateAllowedIpSettings(this.props.id, this.state)

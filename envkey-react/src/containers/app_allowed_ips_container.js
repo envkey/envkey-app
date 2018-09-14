@@ -56,6 +56,9 @@ class AppAllowedIps extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.app.id != this.props.app.id){
       this.setState(getInitialState(nextProps))
+    } else if (!R.equals(getInitialState(nextProps), getInitialState(this.props))){
+      // for handling socket updates
+      this.setState(getInitialState(nextProps))
     }
   }
 
