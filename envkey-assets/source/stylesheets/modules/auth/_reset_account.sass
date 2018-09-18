@@ -1,0 +1,59 @@
+.reset-account
+  width: 60%
+  margin: 0 auto
+
+  .spinner svg
+    width: 40px
+
+  .org-sections
+    max-height: 200px
+    overflow: auto
+    margin-bottom: 30px
+
+  .org-section
+    background: rgba(#fff, 0.07)
+
+    h3
+      color: #fff
+      font-weight: 600
+      text-align: left
+      padding: 7px
+      background: $darker-blue
+      font-family: $condensed-font
+      font-size: 14.5px
+      text-transform: uppercase
+
+    .org-users
+      .org-user, &.no-users span
+        color: #fff
+        font-size: 13px
+        text-align: left
+        padding: 10px
+
+        &:not(:last-of-type)
+          border-bottom: 1px solid hsl(0,0,40)
+
+        strong
+          font-weight: 600
+
+      &.no-users span
+        display: block
+        line-height: 125%
+
+  .delete-account
+
+    button
+      background: darken($orange, 10%)
+      width: 150px
+      margin-right: 40px
+
+      &:hover
+        background: darken($orange, 15%)
+
+    small
+      font-size: 13px
+      color: hsl(0,0,90)
+      font-style: italic
+
+
+

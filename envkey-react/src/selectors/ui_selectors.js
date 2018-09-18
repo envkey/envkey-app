@@ -28,18 +28,7 @@ export const
 
   getDemoDownloadUrl = db.path("demoDownloadUrl"),
 
-  getStripeFormOpened = db.path("stripeFormOpened"),
-
-  getIsExceedingFreeTier = state => {
-    const currentOrg = getCurrentOrg(state)
-    if (!currentOrg || !currentOrg.freePlan)return false
-
-    const {maxUsers, maxApps, maxKeysPerEnv} = currentOrg.freePlan
-
-    return getApps(state).length > maxApps ||
-           getActiveUsers(state).length > maxUsers // ||
-           // getMostEnvKeysPerEnvironment(state) > maxKeysPerEnv
-  },
+  getIsUpdatingOrgRole = (userId, state)=> db.path("isUpdatingOrgRole", userId)(state),
 
   getSelectedObjectType = db.path("selectedObjectType"),
 

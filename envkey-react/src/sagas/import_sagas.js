@@ -16,7 +16,6 @@ function* onImportAllEnvironmentsSuccess({meta}){
         object = yield select(getObject(parentType, parentId))
 
   yield put(push(`/${currentOrg.slug}/${pluralize(parentType)}/${object.slug}`))
-
 }
 
 export default function* importSagas(){

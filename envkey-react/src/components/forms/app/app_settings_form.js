@@ -17,6 +17,12 @@ export default class AppSettingsForm extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.app.id != this.props.app.id){
+      this.setState({autoCaps: nextProps.app.autoCaps})
+    }
+  }
+
   _onSettingsSubmit(e){
     if(e)e.preventDefault()
     this.props.onUpdateSettings(R.pick(["autoCaps"], this.state))

@@ -6,7 +6,8 @@ import {
   SET_DEMO_DOWNLOAD_URL,
   GENERATE_DEMO_ORG_REQUEST,
   CLOSE_GENERATED_INVITE_LINK,
-  SELECTED_OBJECT
+  SELECTED_OBJECT,
+  ACCOUNT_RESET_OPTIONS_REQUEST
 } from './action_types'
 
 export const
@@ -20,6 +21,8 @@ export const
 
   closeGeneratedInviteLink = createAction(CLOSE_GENERATED_INVITE_LINK, R.always({}), R.pick(["parentId"])),
 
-  selectedObject = createAction(SELECTED_OBJECT)
+  selectedObject = createAction(SELECTED_OBJECT),
+
+  accountResetOptionsRequest= createAction(ACCOUNT_RESET_OPTIONS_REQUEST)
 
 

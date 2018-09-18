@@ -82,12 +82,34 @@ const
     } else if(!createAssoc){
       yield put(push(`/${currentOrg.slug}/${pluralize(objectType)}/${slug}`))
     }
+  },
+
+  onUpdateObjectSuccess = function*({meta}){
+    if (meta.objectType == "app"){
+      yield(put(decryptEnvs(meta)))
+    }
+  },
+
+  onUpdateObjectSettingsFailed = function*({meta, payload}){
+      alert(`There was a problem updating the ${meta.objectType}'s settings.
+${payload.toString()}`)
+  },
+
+  onUpdateNetworkSettingsFailed = function*({meta, payload}){
+    if (R.path(["response", "status"], payload) == 422 && meta.message == "Unauthorized IP"){
+      alert(`You cannot restrict EnvKey App requests to a network that doesn't include your current IP (${payload.response.data.ip}).`)
+    } else {
+      alert(`There was a problem updating the ${meta.objectType}'s network settings.
+${payload.toString()}`)
+    }
   }
 
 export default function* objectSagas(){
   yield [
     takeLatest(SELECTED_OBJECT, onSelectedObject),
     takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
-    takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess)
+    takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
+    takeLatest(UPDATE_OBJECT_SETTINGS_FAILED, onUpdateObjectSettingsFailed),
+    takeLatest(UPDATE_NETWORK_SETTINGS_FAILED, onUpdateNetworkSettingsFailed)
   ]
 }

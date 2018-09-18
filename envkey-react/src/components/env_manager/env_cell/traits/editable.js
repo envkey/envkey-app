@@ -35,10 +35,8 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
   }
 
   _isMultiline(){
-    const inputVal = this.state.inputVal || "",
-          singleLineMax = this.props.subEnvId ? 80 : 40
-
-    return editableOpts.multiline && isMultiline(inputVal, singleLineMax)
+    const inputVal = this.state.inputVal || ""
+    return editableOpts.multiline && isMultiline(inputVal)
   }
 
   _onEdit(){

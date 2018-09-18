@@ -19,6 +19,9 @@ import {
   LOGIN_FAILED,
   SELECT_ACCOUNT_SUCCESS,
   SELECT_ACCOUNT_FAILED,
+  ACCOUNT_RESET_OPTIONS_REQUEST,
+  ACCOUNT_RESET_OPTIONS_SUCCESS,
+  ACCOUNT_RESET_OPTIONS_FAILED,
   LOGOUT,
   RESET_SESSION,
   REGISTER,
@@ -28,6 +31,7 @@ import {
   SOCKET_SUBSCRIBE_ORG_CHANNEL,
   START_DEMO,
   UPDATE_TRUSTED_PUBKEYS_SUCCESS,
+  API_FAILED,
   appLoaded,
   login,
   socketUnsubscribeAll,
@@ -40,6 +44,16 @@ import {
   getLastFetchAt
 } from "selectors"
 import {setAuthenticatingOverlay, clearAuthenticatingOverlay} from 'lib/ui'
+import { isTimeout } from 'envkey-client-core/dist/lib/actions'
+
+const
+  onAccountResetOptionsRequest = apiSaga({
+    authenticated: true,
+    method: "get",
+    skipOrg: true,
+    actionTypes: [ACCOUNT_RESET_OPTIONS_SUCCESS, ACCOUNT_RESET_OPTIONS_FAILED],
+    urlFn: action => "/users/reset_options.json"
+  })
 
 function *loginSelectOrg(){
   clearAuthenticatingOverlay()
@@ -142,7 +156,12 @@ function *onFetchCurrentUserSuccess(action){
 }
 
 function *onFetchCurrentUserFailed(action){
-  yield put(push("/home"))
+  if (isTimeout(action)){
+    console.log("API call to server timed out. Refreshing...")
+    window.location.reload()
+  } else {
+    yield put(push("/home"))
+  }
 }
 
 function *onFetchCurrentUserUpdatesApiSuccess({payload}){
@@ -163,6 +182,11 @@ function *onAuthFailed(action){
   clearAuthenticatingOverlay()
 }
 
+function *onApiFailed({payload, meta}){
+  if (R.path(["response", "status"], payload) == 403 && meta.message == "Unauthorized IP"){
+    alert(`This Org does not allow EnvKey App requests from your current IP (${payload.response.data.ip}).`)
+  }
+}
 
 export default function* authSagas(){
   yield [
@@ -179,10 +203,12 @@ export default function* authSagas(){
     takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
     takeLatest(SELECT_ORG, onSelectOrg),
+    takeLatest(ACCOUNT_RESET_OPTIONS_REQUEST, onAccountResetOptionsRequest),
     takeLatest(START_DEMO, onStartDemo),
     takeLatest(SELECT_ACCOUNT_FAILED, onSelectAccountFailed),
     takeLatest([LOGOUT, RESET_SESSION], onResetSession),
-    takeLatest([SELECT_ACCOUNT_FAILED, LOGIN_FAILED, REGISTER_FAILED], onAuthFailed)
+    takeLatest([SELECT_ACCOUNT_FAILED, LOGIN_FAILED, REGISTER_FAILED], onAuthFailed),
+    takeLatest(API_FAILED, onApiFailed)
   ]
 }
 

@@ -325,24 +325,24 @@
   &.production .sub-envs-list header
     background: $dark-blue
 
-  &.subenvs-read-only
-    .sub-envs-list
-      header
-        padding-left: 15px
-        label > span
-          margin-left: 10px
-      li
-        padding-left: 0
-        .content
-          left: 0
-          width: 100%
-
-  &.subenv-vars-read-only
-    .grid.env-grid
-      padding-top: 2px
-
   .transition-overlay
     width: calc(100% - (#{$sidemenu-width} + (25% - #{$sidemenu-width / 4})))
     left: auto
     right: 0
+
+.subenvs-read-only .sub-envs
+  .sub-envs-list
+    header
+      padding-left: 15px
+      label > span
+        margin-left: 10px
+    li
+      padding-left: 0
+      .content
+        left: 0
+        width: 100%
+
+.subenv-vars-read-only .sub-envs
+  .grid.env-grid
+    padding-top: 2px
 

@@ -10,7 +10,7 @@ import {
 import {rawEnvToTxt} from "envkey-client-core/dist/lib/parse"
 import isElectron from 'is-electron'
 
-function* onExportEnvironment({meta: {parentId}, payload: {environment, format}}){
+function* onExportEnvironment({meta: {parentId}, payload: {environment, format, subEnvId, subEnvName}}){
   const app = yield select(getApp(parentId)),
         rawEnv = yield select(getRawEnvWithPendingForApp({appId: parentId, environment, subEnvId}))
 

@@ -7,4 +7,5 @@ export * from "envkey-client-core/dist/selectors/import_selectors"
 export * from "envkey-client-core/dist/selectors/invite_selectors"
 
 export * from "./ui_selectors"
+export * from "./billing_selectors"
 export * from "./socket_selectors"

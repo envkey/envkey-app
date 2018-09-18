@@ -8,11 +8,7 @@ import SubEnvGrid from './sub_env_grid'
 
 const envWithMeta = props => props.envsWithMeta[props.environment],
 
-      subEnvs = props => envWithMeta(props)["@@__sub__"] || {},
-
-      subEnvsReadOnly = props => props.app.role == "development",
-
-      varsReadOnly = props => props.app.role == "development" && props.environment == "production"
+      subEnvs = props => envWithMeta(props)["@@__sub__"] || {}
 
 export default class SubEnvs extends React.Component {
   constructor(props){
@@ -64,24 +60,12 @@ export default class SubEnvs extends React.Component {
     return {...subEnv, "@@__id__": this._selected()}
   }
 
-  _subEnvsReadOnly(){
-    return subEnvsReadOnly(this.props)
-  }
-
-  _varsReadOnly(){
-    return varsReadOnly(this.props)
-  }
-
   _addSubEnv(params){
     this.setState({addedSubEnv: true}, ()=> this.props.addSubEnv(params))
   }
 
   _classNames(){
-    return [
-      this.props.environment,
-      subEnvsReadOnly(this.props) ? "subenvs-read-only" : "",
-      varsReadOnly(this.props) ? "subenv-vars-read-only" : ""
-    ]
+    return [this.props.environment]
   }
 
   render(){
@@ -121,7 +105,7 @@ export default class SubEnvs extends React.Component {
       ...this.props,
       subEnvs: this._sortedSubEnvs(),
       selected: this._selected(),
-      isReadOnly: this._subEnvsReadOnly(),
+      isReadOnly: this.props.subEnvsReadOnly,
       isAddingSubEnv: this._isAddingSubEnv()
     })
   }
@@ -131,13 +115,13 @@ export default class SubEnvs extends React.Component {
   }
 
   _renderAddForm(){
-    if (!this._subEnvsReadOnly()){
+    if (!this.props.subEnvsReadOnly){
       return h.div(".add-sub-env-form", [this._renderSubEnvForm()])
     }
   }
 
   _renderSubEnvForm(){
-    if(!this._subEnvsReadOnly()){
+    if(!this.props.subEnvsReadOnly){
       return h(SubEnvForm, {
         ...this.props,
         addSubEnv: ::this._addSubEnv
@@ -149,7 +133,7 @@ export default class SubEnvs extends React.Component {
     if (this._selectedSubEnv()){
       return h(SubEnvGrid, {
         ...this.props,
-        isReadOnly: this._varsReadOnly(),
+        isReadOnly: this.props.subEnvVarsReadOnly,
         subEnv: this._selectedSubEnv()
       })
     }

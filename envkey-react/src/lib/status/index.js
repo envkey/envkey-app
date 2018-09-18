@@ -14,6 +14,10 @@ let isCheckingConnection = false,
 
 const
   isOnline = (retries)=>{
+    if (process.env.NODE_ENV == 'development'){
+      return Promise.resolve(true)
+    }
+
     const url = isElectron() ? "http://www.msftconnecttest.com/connecttest.txt" : "https://ipv4.icanhazip.com/"
 
     return fetch((url + "?" + Date.now().toString()), {
@@ -30,6 +34,10 @@ const
   },
 
   checkConnection = ()=> {
+    if (process.env.NODE_ENV == 'development'){
+      return
+    }
+
     isCheckingConnection = true
     const disconnected = store.getState().disconnected == true
 

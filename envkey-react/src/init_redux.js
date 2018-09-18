@@ -26,11 +26,13 @@ const
   sagaMiddleware = createSagaMiddleware(),
 
   loggerOpts = {
+    diff: (devMode || debugBuild),
     level: {
       prevState: (devMode || debugBuild) ? "info" : false,
       nextState: (devMode || debugBuild) ? "info" : false,
       action: "info",
-      error: "info"
+      error: "info",
+      diff: (devMode || debugBuild)
     }
   }
 
