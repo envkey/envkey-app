@@ -10,7 +10,7 @@ import {
   updateNetworkSettings
 } from "actions"
 import SmallLoader from 'components/shared/small_loader'
-import {isValidIPString} from 'lib/utils/string'
+import {isValidIPString} from 'envkey-client-core/dist/lib/utils/string'
 
 const
   ALLOWED_IP_LABELS = {
@@ -137,6 +137,8 @@ class AppAllowedIps extends React.Component {
   }
 
   _renderIPField(field){
+    console.log(this.props.currentOrg)
+
     const strategy = this._mergeStrategyForField(field)
 
     if (strategy == "inherit"){

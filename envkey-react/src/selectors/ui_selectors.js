@@ -28,8 +28,6 @@ export const
 
   getDemoDownloadUrl = db.path("demoDownloadUrl"),
 
-  getIsUpdatingOrgRole = (userId, state)=> db.path("isUpdatingOrgRole", userId)(state),
-
   getSelectedObjectType = db.path("selectedObjectType"),
 
   getSelectedObjectId = db.path("selectedObjectId"),

@@ -1,7 +1,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 import {imagePath, orgRoleLabel} from 'lib/ui'
-import {orgRoleIsAdmin, orgRoleIsOwner} from 'lib/roles'
+import {orgRoleIsAdmin, orgRoleIsOwner} from 'envkey-client-core/dist/lib/roles'
 
 const AccountMenu = ({
   currentUser,

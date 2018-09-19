@@ -9,7 +9,7 @@ import {
   updateNetworkSettings
 } from "actions"
 import SmallLoader from 'components/shared/small_loader'
-import {isValidIPString} from 'lib/utils/string'
+import {isValidIPString} from 'envkey-client-core/dist/lib/utils/string'
 
 const
   ALLOWED_IP_FIELDS = [
