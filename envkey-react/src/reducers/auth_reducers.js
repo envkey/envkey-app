@@ -232,7 +232,6 @@ export const
         return {}
 
       case LOGOUT:
-      case RESET_SESSION:
       case SELECT_ACCOUNT_FAILED:
         if (action.meta && (action.meta.accountId || action.meta.currentUserId)){
           return R.dissoc((action.meta.accountId || action.meta.currentUserId), state)
