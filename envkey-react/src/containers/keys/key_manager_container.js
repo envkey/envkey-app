@@ -11,10 +11,8 @@ import {
   getApps,
   getLocalKeysForAppUser
 } from 'selectors'
-import {
-  DevKeyManagerContainer,
-  AssocManagerContainerFactory
-} from 'containers'
+import { DevKeyManagerContainer } from '.'
+import { AssocManagerContainerFactory } from '../base'
 import {Onboardable} from 'components/onboard'
 import {
   AdminAppKeysSlider,

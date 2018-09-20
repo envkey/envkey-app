@@ -27,7 +27,7 @@ import {imagePath} from 'lib/ui'
 import BillingColumns from 'components/billing/billing_columns'
 import InvoiceSettingsForm from 'components/forms/org/invoice_settings_form'
 import Spinner from 'components/shared/spinner'
-import {InvoiceListContainer} from 'containers'
+import {InvoiceListContainer} from '.'
 import {trialDaysRemaining} from "lib/billing"
 import {shortNum} from "envkey-client-core/dist/lib/utils/string"
 

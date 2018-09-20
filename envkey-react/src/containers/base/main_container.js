@@ -29,7 +29,7 @@ import {
   billingUpgradeSubscription,
   resetSession
 } from 'actions'
-import { TrialOverdueContainer } from 'containers'
+import { TrialOverdueContainer } from '..'
 import {orgRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
 import R from 'ramda'
 import {openLinkExternal} from 'lib/ui'

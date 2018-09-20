@@ -6,11 +6,11 @@ import moment from 'moment'
 import { getColumnsFlattened } from "lib/columns/helpers"
 import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink, getIsDemo } from 'selectors'
 import { closeGeneratedInviteLink } from 'actions'
-import { AssocManagerContainerFactory } from 'containers'
 import {Onboardable} from 'components/onboard'
 import {AppCollaboratorsSlider} from 'components/onboard'
 import AssocManager from 'components/assoc_manager'
 import {InviteUserOverlay} from 'components/invites'
+import { AssocManagerContainerFactory } from '../base'
 
 const
   justInvitedFirstUser = (users)=>{
