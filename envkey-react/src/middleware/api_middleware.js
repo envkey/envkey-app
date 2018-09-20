@@ -4,6 +4,9 @@ import isElectron from 'is-electron'
 export const
 
   attachLoggingParams = store => next => action => {
+    if (!action.type){
+      debugger
+    }
     if (action.type.endsWith("_REQUEST")){
       const params = (isElectron() ? {
                        client_name: "envkey-app",

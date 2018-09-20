@@ -27,6 +27,7 @@ import {
 } from "actions"
 import {
   getCurrentOrg,
+  getCurrentUser,
   getObject,
   getEnvUpdateId
 } from "selectors"
@@ -51,6 +52,7 @@ const
   onRemoveObject = function*(action){
     const {meta: {objectType, targetId, isOnboardAction, noRedirect}} = action,
           currentOrg = yield select(getCurrentOrg),
+          currentUser = yield select(getCurrentUser),
           target = yield select(getObject(objectType, targetId)),
           shouldClearSession = ((objectType == "user" && targetId == currentUser.id) ||
                                 (objectType == "org" && targetId == currentOrg.id))
