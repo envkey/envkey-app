@@ -5,6 +5,7 @@ export * from "envkey-client-core/dist/selectors/crypto_selectors"
 export * from "envkey-client-core/dist/selectors/env_selectors"
 export * from "envkey-client-core/dist/selectors/import_selectors"
 export * from "envkey-client-core/dist/selectors/invite_selectors"
+export * from "envkey-client-core/dist/selectors/version_selectors"
 
 export * from "./ui_selectors"
 export * from "./billing_selectors"

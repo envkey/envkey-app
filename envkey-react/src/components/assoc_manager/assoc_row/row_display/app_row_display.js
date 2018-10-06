@@ -9,14 +9,18 @@ export default function ({
   onCopy,
   onRenew,
   isRemoving,
-  parent: {isCurrentUser},
   assoc: {name, relation, slug},
 }){
+
+  const linkDest = {
+    user: "collaborators",
+    configBlock: "variables"
+  }[parentType] || "variables"
 
   return h.div([
     h.div(".top-row", [
       h.span(".primary", [
-        h(Link, {to: `/${params.orgSlug}/apps/${slug}/collaborators`}, name)
+        h(Link, {to: `/${params.orgSlug}/apps/${slug}/${linkDest}`}, name)
       ])
     ]),
 

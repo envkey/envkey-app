@@ -159,8 +159,16 @@ function *onFetchCurrentUserSuccess(action){
 }
 
 function *onFetchCurrentUserFailed(action){
+  const status = R.path(["payload", "response", "status"], action)
+
   if (isTimeout(action)){
     console.log("API call to server timed out. Refreshing...")
+    window.location.reload()
+  } else if (status == 500){
+    console.log("Server error...")
+    window.alert("A server error prevented EnvKey from loading your data. If the problem persists, please contact support@envkey.com")
+  } else if (!([404,403,401].includes(status))){
+    console.log("API call failed. Refreshing...")
     window.location.reload()
   } else {
     yield put(push("/home"))

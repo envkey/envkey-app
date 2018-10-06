@@ -86,7 +86,7 @@ const
       if (diff > (1000 * 60)){
         console.log("REACTIVATED_LONG if connected")
         reactivateIfConnected(REACTIVATED_LONG)
-      } else if (diff > (1000 * 10)){
+      } else if (diff > (1000 * 20)){
         console.log("REACTIVATED_BRIEF if connected")
         reactivateIfConnected(REACTIVATED_BRIEF)
       }

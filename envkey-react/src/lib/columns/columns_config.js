@@ -5,10 +5,10 @@ import {
   UserRowDisplay,
   AppRowDisplay,
   ServerRowDisplay,
-  LocalKeyRowDisplay
+  LocalKeyRowDisplay,
+  AppConfigBlockRowDisplay
 } from 'components/assoc_manager'
 import {
-  AppForm,
   ServerForm,
   UserForm,
   LocalKeyForm
@@ -24,9 +24,13 @@ import {
   getIsAddingAssoc,
   getIsCreating,
   getUsersForApp,
+  getAppsForConfigBlock,
+  getConfigBlocksForApp,
+  getConfigBlocks,
   getAppsForUser,
   getOrgRolesInvitable,
   getCurrentUserLocalKeysForApp,
+  getCurrentUserAppsWithMinRole,
   getCurrentOrg,
   getOrgOwner,
   getUsers,
@@ -215,7 +219,7 @@ export default function({
             connectedAppsWithoutRelations = dissocRelations(getAppsForUser(parent.id, state)),
             appCandidates = R.without(connectedAppsWithoutRelations, getApps(state))
 
-      let columns = [{
+      let userAppColumns = [{
         title: "Admin",
         subtitle: "Access",
         role: "admin",
@@ -229,7 +233,7 @@ export default function({
       }]
 
       if(!["org_owner", "org_admin"].includes(parent.role)){
-        columns = columns.concat([
+        userAppColumns = userAppColumns.concat([
           {
             title: "Devops",
             subtitle: "Access",
@@ -261,7 +265,51 @@ export default function({
         addExistingSubmitLabelFn: (n)=> "Add Apps",
         addExistingTextFn: R.prop("name"),
         parentNameFn: ({firstName, lastName})=> [firstName, lastName].join(" "),
-        columns
+        columns: userAppColumns
+      }
+
+    case "configBlock-app":
+      const blockApps = getAppsForConfigBlock(parent.id, state),
+            blockAppsWithoutRelations = dissocRelations(blockApps),
+            blockAppCandidates = R.without(blockAppsWithoutRelations, getCurrentUserAppsWithMinRole("production", state))
+
+      let configBlockAppColumns = [{
+        title: "Connected Apps",
+        groups: {apps: blockApps},
+        isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id}, state),
+        isCreating: getIsCreating({assocType, parentId: parent.id}, state),
+        candidates: blockAppCandidates
+      }]
+
+      return {
+        rowDisplayType: AppRowDisplay,
+        addLabel: "+",
+        addExistingSubmitLabelFn: (n)=> "Connect Apps",
+        addExistingTextFn: R.prop("name"),
+        parentNameFn: R.prop("name"),
+        columns: configBlockAppColumns
+      }
+
+    case "app-configBlock":
+      const appBlocks = getConfigBlocksForApp(parent.id, state),
+            orgBlocks = getConfigBlocks(state)
+      return {
+        rowDisplayType: AppConfigBlockRowDisplay,
+        // addFormType: ServiceForm,
+        addLabel: "+",
+        addExistingSubmitLabelFn: (n)=> "Connect",
+        addExistingTextFn: R.prop("name"),
+        addExistingLabel: "Connect Blocks",
+        // addNewLabel: "Create New Mixin",
+        columns: [
+          {
+            title: "Connected Blocks",
+            groups: {configBlocks: appBlocks},
+            candidates: R.without(dissocRelations(appBlocks || []))(orgBlocks),
+            isAddingAssoc: getIsAddingAssoc({assocType, parentId: parent.id}, state),
+            isCreating: getIsCreating({assocType, parentId: parent.id}, state)
+          }
+        ]
       }
 
     default:

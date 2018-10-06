@@ -4,7 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import {Link} from "react-router"
 import {imagePath} from "lib/ui"
 import {ImportEnvContainer, ExportEnvContainer} from 'containers'
-import {appRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
+import {appRoleIsAdmin, orgRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
 import traversty from 'traversty'
 
 export default class LabelRow extends React.Component {
@@ -76,17 +76,19 @@ export default class LabelRow extends React.Component {
   }
 
   _renderSubEnvsAction(environment){
-    const {parent, location, params, isSubEnvsLabel} = this.props
+    const {parentType, parent, location, params, isSubEnvsLabel} = this.props
 
-    if (!(parent.role == "development" && !this._hasSubEnvs(environment))){
-      if (isSubEnvsLabel){
-        return h(Link, {className: "close-subenvs", to: location.pathname.replace(new RegExp(`/${params.sub}/.*$`), "")}, [
-          h.i("←")
-        ])
-      } else {
-        return h(Link, {className: "open-subenvs", to: location.pathname + `/${environment}/first`}, [
-          h.img({src: imagePath("subenvs-zoom-white.svg")})
-        ])
+    if (parentType == "app"){
+      if (!(parent.role == "development" && !this._hasSubEnvs(environment))){
+        if (isSubEnvsLabel){
+          return h(Link, {className: "close-subenvs", to: location.pathname.replace(new RegExp(`/${params.sub}/.*$`), "")}, [
+            h.i("←")
+          ])
+        } else {
+          return h(Link, {className: "open-subenvs", to: location.pathname + `/${environment}/first`}, [
+            h.img({src: imagePath("subenvs-zoom-white.svg")})
+          ])
+        }
       }
     }
   }
@@ -112,7 +114,7 @@ export default class LabelRow extends React.Component {
   }
 
   _renderExportAction(environment){
-    if (appRoleIsAdmin(this.props.parent.role)){
+    if (orgRoleIsAdmin(this.props.currentOrg.role) || appRoleIsAdmin(this.props.parent.role)){
       return h.li({
         onClick: e => this.setState({exportOpen: environment, menuOpen: null})
       },[h.span("Export")])
@@ -123,7 +125,7 @@ export default class LabelRow extends React.Component {
     if (this.state.importOpen == environment){
       return h(ImportEnvContainer, {
         environment,
-        app: this.props.parent,
+        parent: this.props.parent,
         subEnv: this.props.subEnv,
         onClose: ()=> this.setState({importOpen: null})
       })
@@ -134,7 +136,8 @@ export default class LabelRow extends React.Component {
     if (this.state.exportOpen == environment){
       return h(ExportEnvContainer, {
         environment,
-        app: this.props.parent,
+        parentType: this.props.parentType,
+        parent: this.props.parent,
         subEnv: this.props.subEnv,
         onClose: ()=> this.setState({exportOpen: null})
       })

@@ -12,8 +12,15 @@ export default class LockedValCell extends SocketEditable(ValCell) {
   }
 
   _valDisplay(){
-    const img = h.img(".img-locked", {src: imagePath("padlock.svg")})
-    return [img, super._valDisplay()]
+    if (this._showLockImg()){
+      const img = h.img(".img-locked", {src: imagePath("padlock.svg")})
+      return [img, super._valDisplay()]
+    }
+    return super._valDisplay()
+  }
+
+  _showLockImg(){
+    return true
   }
 
 }

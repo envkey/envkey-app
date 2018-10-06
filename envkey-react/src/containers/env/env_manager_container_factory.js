@@ -18,12 +18,13 @@ import {
 } from 'actions'
 import {
   getCurrentAppUserForApp,
+  getConfigBlocksForApp,
   getCurrentUser,
   getCurrentOrg,
   getIsUpdatingEnvVal,
   getIsUpdatingEnvEntry,
   getIsCreatingEnvEntry,
-  getIsRemoving,
+  getIsRemovingById,
   getIsAddingAssoc,
   getIsCreating,
   getIsUpdatingEnv,
@@ -33,7 +34,7 @@ import {
   getIsInvitee,
   getLastAddedEntry,
   getApps,
-  getApp,
+  getEnvParent,
   getSocketUserUpdatingEnvs,
   getSocketRemovingEntry,
   getSocketEditingEntry,
@@ -44,7 +45,7 @@ import {
   getIsUpdatingOutdatedEnvs,
   getIsRebasingOutdatedEnvs,
   getDidOnboardImport,
-  getCurrentUserEnvironmentsAssignableForApp,
+  getCurrentUserEnvironmentsAssignableForEnvParentUser,
   getIsImportingAnyEnvironment
 } from 'selectors'
 import { allEntries } from "envkey-client-core/dist/lib/env/query"
@@ -63,42 +64,88 @@ const EnvManagerContainerFactory = ({parentType})=> {
   const
     mapStateToProps = (state, ownProps) => {
       const parent = ownProps[parentType],
-            appId = parent.id,
-            app = getApp(appId, state)
+            parentId = parent.id
 
-      if(!app)return {}
+      if(!parent)return {}
 
       const currentUser = getCurrentUser(state),
-            environments = getEnvironmentLabels(appId, state),
-            envsWithMetaWithPending = getEnvsWithMetaWithPending(appId, state)
+            envsWithMetaWithPending = getEnvsWithMetaWithPending(parentId, state)
 
-      return {
+      let environments,
+          environmentsAssignable
+
+      if (parentType == "appUser"){
+        environments = ["local"]
+        environmentsAssignable = ["local"]
+      } else {
+        environments = getEnvironmentLabels(parentId, state)
+        environmentsAssignable = getCurrentUserEnvironmentsAssignableForEnvParentUser({
+          parentType,
+          parentId
+        }, state)
+      }
+
+      let props = {
         currentOrg: getCurrentOrg(state),
-        envsAreDecrypted: getEnvsAreDecrypted(appId,state),
+        envsAreDecrypted: getEnvsAreDecrypted(parentId,state),
         envsWithMeta: envsWithMetaWithPending,
-        isUpdatingEnv: getIsUpdatingEnv(appId, state),
-        isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({appId, entryKey, environment}, state),
-        isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({appId, entryKey}, state),
-        isCreatingEntry: getIsCreatingEnvEntry(appId, state),
+        isUpdatingEnv: getIsUpdatingEnv(parentId, state),
+        isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({parentId, entryKey, environment}, state),
+        isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({parentId, entryKey}, state),
+        isCreatingEntry: getIsCreatingEnvEntry(parentId, state),
         isOnboarding: getIsOnboarding(state),
-        didOnboardImport: getDidOnboardImport(appId, state),
+        didOnboardImport: getDidOnboardImport(parentId, state),
         isInvitee: getIsInvitee(state),
-        lastAddedEntry: getLastAddedEntry(appId, state),
+        lastAddedEntry: getLastAddedEntry(parentId, state),
         numApps: getApps(state).length,
-        socketUserUpdatingEnvs: getSocketUserUpdatingEnvs(appId, state),
+        socketUserUpdatingEnvs: getSocketUserUpdatingEnvs(parentId, state),
         socketRemovingEntry: getSocketRemovingEntry(state),
         socketEditingEntry: getSocketEditingEntry(state),
         socketEditingEntryVal: getSocketEditingEntryVal(state),
         socketAddingEntry: getSocketAddingEntry(state),
-        isRequestingEnvUpdate: getIsRequestingEnvUpdate(appId, state),
-        isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(appId, state),
-        isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(appId, state),
-        environmentsAssignable: getCurrentUserEnvironmentsAssignableForApp(appId, state),
-        isImportingAnyEnvironment: getIsImportingAnyEnvironment(appId, state),
+        isRequestingEnvUpdate: getIsRequestingEnvUpdate(parentId, state),
+        isUpdatingOutdatedEnvs: getIsUpdatingOutdatedEnvs(parentId, state),
+        isRebasingOutdatedEnvs: getIsRebasingOutdatedEnvs(parentId, state),
+        isImportingAnyEnvironment: getIsImportingAnyEnvironment(parentId, state),
         environments,
+        environmentsAssignable,
         parent,
         parentType
       }
+
+      if (parentType == "app"){
+        const {
+          addFormType,
+          addExistingSubmitLabelFn,
+          addExistingTextFn,
+          addNewLabel,
+          addExistingLabel,
+          columns: [{
+            groups: {configBlocks},
+            candidates,
+            isAddingAssoc,
+            isCreating
+          }]
+        } = columnsConfig({ parentType, parent, state, assocType: "configBlock" })
+
+        props = {
+          ...props,
+          configBlocks,
+          isRemovingById: getIsRemovingById(state),
+          addBlockConfig: {
+            addFormType,
+            addExistingTextFn,
+            addExistingSubmitLabelFn,
+            addNewLabel,
+            addExistingLabel,
+            candidates,
+            isAddingAssoc,
+            isCreating
+          }
+        }
+      }
+
+      return props
     },
 
     mapDispatchToProps = (dispatch, ownProps) => {
@@ -119,7 +166,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
 
         removeSubEnv: params => dispatch(removeSubEnv({...baseProps, ...params})),
 
-        renameSubEnv: params => dispatch(renameSubEnv({...baseProps, ...params})),
+        // renameSubEnv: params => dispatch(renameSubEnv({...baseProps, ...params})),
 
         editCell: (entryKey, environment, subEnvId)=>{
           if (entryKey && environment){
@@ -133,46 +180,56 @@ const EnvManagerContainerFactory = ({parentType})=> {
 
         addingEntry: (subEnvId)=> dispatch(socketUpdateLocalStatus({addingEntry: (subEnvId || "@@__base__")})),
 
-        stoppedAddingEntry: ()=> dispatch(socketUpdateLocalStatus({}))
+        stoppedAddingEntry: ()=> dispatch(socketUpdateLocalStatus({})),
+
+        removeConfigBlock: targetId => dispatch(removeAssoc({...baseProps, targetId, assocType: "appConfigBlock"}))
       }
-    },
+    }
 
-    startedOnboardingFn = (props, state)=> {
-      if(!props.parent)return false
-      return ((props.parent.role == "org_owner" && allEntries(props.envsWithMeta).length == 0) ||
-              (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry) ||
-              props.didOnboardImport) &&
-              props.numApps < 2 &&
-             !state.finishedOnboarding
-    },
+    let EnvManagerContainer
+    if (parentType == "app"){
+      const
+        startedOnboardingFn = (props, state)=> {
+          if(!props.parent)return false
+          return ((props.parent.role == "org_owner" && allEntries(props.envsWithMeta).length == 0) ||
+                  (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry) ||
+                  props.didOnboardImport) &&
+                  props.numApps < 2 &&
+                 !state.finishedOnboarding
+        },
 
-    finishedOnboardingFn = (props, state)=> {
-      return props.lastAddedEntry
-    },
+        finishedOnboardingFn = (props, state)=> {
+          return props.lastAddedEntry
+        },
 
-    selectedIndexFn = (props, state)=> {
-      return props.lastAddedEntry ? 1 : 0
-    },
+        selectedIndexFn = (props, state)=> {
+          return props.lastAddedEntry ? 1 : 0
+        },
 
-    OnboardSlider = props => {
-      if(props.parent.role == "org_owner"){
-        return OrgOwnerAppEnvSlider(props)
-      } else if (props.parent.role == "org_admin"){
-        return OrgAdminAppEnvSlider(props)
-      } else if (appRoleIsAdmin(props.parent.role)){
-        return AppAdminAppEnvSlider(props)
-      } else {
-        return NonAdminAppEnvSlider(props)
-      }
-    },
+        OnboardSlider = props => {
+          if(props.parent.role == "org_owner"){
+            return OrgOwnerAppEnvSlider(props)
+          } else if (props.parent.role == "org_admin"){
+            return OrgAdminAppEnvSlider(props)
+          } else if (appRoleIsAdmin(props.parent.role)){
+            return AppAdminAppEnvSlider(props)
+          } else {
+            return NonAdminAppEnvSlider(props)
+          }
+        }
 
-    OnboardableEnvManager = Onboardable(
-      EnvManager,
-      OnboardSlider,
-      {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn}
-    )
+      EnvManagerContainer = Onboardable(
+        EnvManager,
+        OnboardSlider,
+        {startedOnboardingFn, finishedOnboardingFn, selectedIndexFn}
+      )
+    } else {
+      EnvManagerContainer = EnvManager
+    }
 
-  return connect(mapStateToProps, mapDispatchToProps)(OnboardableEnvManager)
+
+
+  return connect(mapStateToProps, mapDispatchToProps)(EnvManagerContainer)
 }
 
 export default EnvManagerContainerFactory

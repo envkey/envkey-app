@@ -27,10 +27,8 @@ export default class AssocColumn extends React.Component {
   }
 
   _canAdd(){
-    const canAdd = (this.props.parentType == "user" ||
-                   R.path([this.props.joinType, "create"], this.props.parent.permissions)) &&
-                    (this.props.columnsConfig.addFormType ||
-                      (this.props.config.candidates && this.props.config.candidates.length))
+    const canAdd = (["user", "configBlock"].includes(this.props.parentType) || R.path([this.props.joinType, "create"], this.props.parent.permissions)) &&
+                   (this.props.columnsConfig.addFormType || (this.props.config.candidates && this.props.config.candidates.length))
 
     if (this.props.columnsConfig.canAddFn){
       return canAdd && this.props.columnsConfig.canAddFn(this.props)
@@ -143,7 +141,7 @@ export default class AssocColumn extends React.Component {
   }
 
   _renderSections(){
-    const sections = R.values(R.mapObjIndexed(::this._renderSection, this.props.config.groups))
+    const sections = R.values(R.mapObjIndexed(::this._renderSection, this.props.config.groups)).filter(Boolean)
     if (sections.length){
       return h.div(".sections", sections)
     } else {

@@ -6,7 +6,8 @@ import {
   SET_DEMO_DOWNLOAD_URL,
   GENERATE_DEMO_ORG_REQUEST,
   CLOSE_GENERATED_INVITE_LINK,
-  SELECTED_OBJECT
+  SELECTED_OBJECT,
+  UPDATE_VERSION_FILTERS
 } from './action_types'
 
 export const
@@ -20,6 +21,9 @@ export const
 
   closeGeneratedInviteLink = createAction(CLOSE_GENERATED_INVITE_LINK, R.always({}), R.pick(["parentId"])),
 
-  selectedObject = createAction(SELECTED_OBJECT)
+  selectedObject = createAction(SELECTED_OBJECT),
+
+  updateVersionFilters = createAction(UPDATE_VERSION_FILTERS)
+
 
 

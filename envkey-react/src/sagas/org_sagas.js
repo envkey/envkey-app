@@ -13,6 +13,7 @@ import {
   GENERATE_DEMO_ORG_REQUEST,
   GENERATE_DEMO_ORG_SUCCESS,
   GENERATE_DEMO_ORG_FAILED,
+  UPDATE_TRUSTED_PUBKEYS_SUCCESS
 } from 'actions'
 import { getCurrentOrg } from 'selectors'
 

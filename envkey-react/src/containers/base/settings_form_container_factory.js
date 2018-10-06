@@ -12,7 +12,8 @@ import {
   AppSettingsForm,
   UserSettingsForm,
   OrgSettingsForm,
-  AccountSettingsForm
+  AccountSettingsForm,
+  ConfigBlockSettingsForm
 } from 'components/forms'
 import {
   getIsRemoving,
@@ -26,6 +27,7 @@ const SettingsFormContainerFactory = ({objectType, targetObjectType, targetObjec
   const
     formClass = {
       app: AppSettingsForm,
+      configBlock: ConfigBlockSettingsForm,
       user: UserSettingsForm,
       currentOrg: OrgSettingsForm,
       currentUser: AccountSettingsForm

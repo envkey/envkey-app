@@ -3,3 +3,31 @@
   position: relative
   width: 100%
   border-bottom: 2px solid rgba(#000, 0.05)
+
+.env-grid .block-entry-rows .entry-row
+  .entry-col
+    border-left: 2px solid hsl(0,0,60)
+  .val-cols
+    border-right: 2px solid hsl(0,0,60)
+    width: calc(75% - 2px)
+    .val-col:nth-of-type(2)
+      width: calc(33.33% + 2px)
+    .val-col:nth-of-type(3)
+      width: calc(33.33% - 2px)
+
+  .cell
+    border-bottom: #fff
+
+  &:first-of-type
+    border-top: none
+    .entry-col
+      border-top: 2px solid hsl(0,0,40)
+    .val-cols
+      border-top: 2px solid hsl(0,0,60)
+
+  &:last-of-type
+    border-bottom: none
+    .entry-col, .val-cols
+      border-bottom: 2px solid hsl(0,0,60)
+    .cell
+      border-bottom: #fff

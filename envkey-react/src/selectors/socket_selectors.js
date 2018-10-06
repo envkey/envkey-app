@@ -5,7 +5,7 @@ import {getUser} from 'envkey-client-core/dist/selectors/object_selectors'
 import {getSubEnvs, getEnvironmentsAccessibleWithSubEnvs} from 'envkey-client-core/dist/selectors/env_selectors'
 import {getSelectedObject, getSelectedObjectType, getSelectedParentEnvUpdateId} from './ui_selectors'
 import {anonymizeEnvStatus, statusKeysToArrays} from 'lib/env/update_status'
-import { allEntriesWithSubEnvs } from "envkey-client-core/dist/lib/env/query"
+import { allEntriesWithSubEnvs, allEntries } from "envkey-client-core/dist/lib/env/query"
 
 const
   getUserByIdFn = state => R.flip(getUser)(state),
@@ -58,9 +58,9 @@ export const
       parent = getSelectedObject(state),
       parentType = getSelectedObjectType(state),
       envUpdateId = getSelectedParentEnvUpdateId(state),
-      environments = getEnvironmentsAccessibleWithSubEnvs(parent.id, state),
-      subEnvs = getSubEnvs(parent.id, state),
-      entries = allEntriesWithSubEnvs(parent.envsWithMeta),
+      environments = parentType == "appUser" ? ["local"] : getEnvironmentsAccessibleWithSubEnvs(parent.id, state),
+      subEnvs = parentType == "appUser" ? [] : getSubEnvs(parent.id, state),
+      entries = parentType == "appUser" ? allEntries(parent.envsWithMeta) : allEntriesWithSubEnvs(parent.envsWithMeta),
       local = {[envUpdateId]: state.localSocketEnvsStatus},
       merged = R.mergeDeepRight({}, local, state.pendingLocalSocketEnvsStatus),
       mergedWithStatusKeyArrays = R.map(statusKeysToArrays, merged),

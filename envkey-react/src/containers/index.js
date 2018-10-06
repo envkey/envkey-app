@@ -7,4 +7,5 @@ export * from './env'
 export * from './invites'
 export * from './keys'
 export * from './org'
-
+export * from './logs'
+export * from './versions'

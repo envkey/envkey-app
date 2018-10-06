@@ -37,11 +37,13 @@ const
     yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
     const currentOrg = yield select(getCurrentOrg)
 
-    if (object && object.objectType == "app" && object.broadcastChannel && object.id != currentOrg.id){
+    const isEnvParent = object && ["app", "configBlock", "appUser"].includes(object.objectType)
+
+    if (isEnvParent && object.broadcastChannel && object.id != currentOrg.id){
       yield put(socketSubscribeObjectChannel(object))
     }
 
-    if (object.objectType == "app"){
+    if (isEnvParent){
       const envUpdateId = yield select(getEnvUpdateId(object.id))
       if (!envUpdateId){
         yield put(generateEnvUpdateId({parentId: object.id, parentType: object.objectType}))
@@ -86,12 +88,6 @@ const
       yield put(push(`/${currentOrg.slug}/onboard/2`))
     } else if(!createAssoc){
       yield put(push(`/${currentOrg.slug}/${pluralize(objectType)}/${slug}`))
-    }
-  },
-
-  onUpdateObjectSuccess = function*({meta}){
-    if (meta.objectType == "app"){
-      yield(put(decryptEnvs(meta)))
     }
   },
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
-import {AppForm} from "../forms"
+import {EnvParentFormFactory} from "../forms"
 
 export default class OnboardAppForm extends React.Component {
 
@@ -24,7 +24,11 @@ export default class OnboardAppForm extends React.Component {
         h.strong("Start From Scratch.")
       ]),
 
-      h(AppForm, {onSubmit: createApp, isSubmitting: isCreating, renderImportOpts: true})
+      h(EnvParentFormFactory({parentType: "app", parentTypeLabel: "App"}), {
+        onSubmit: createApp,
+        isSubmitting: isCreating,
+        renderImportOpts: true
+      })
     ])
   }
 }

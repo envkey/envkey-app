@@ -18,17 +18,19 @@ const
     }
   },
 
-  defaultState = props => ({
-    envsWithMeta: props.environmentsAssignable.reduce((acc, environment) => {
-      return {...acc, [environment]: {
-        "entry": {val: null, inherits: null}
-      }}
-    }, {}),
-    editing: defaultEditing(props),
-    didCommit: {},
-    entryKey: "",
-    hoveringVals: false
-  })
+  defaultState = props => {
+    return ({
+      envsWithMeta: props.environmentsAssignable.reduce((acc, environment) => {
+        return {...acc, [environment]: {
+          "entry": {val: null, inherits: null}
+        }}
+      }, {}),
+      editing: defaultEditing(props),
+      didCommit: {},
+      entryKey: "",
+      hoveringVals: false
+    })
+  }
 
 export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
@@ -39,7 +41,7 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.subEnvId != nextProps.subEnvId ||
-       (this.props.app && nextProps.app && this.props.app.id != nextProps.app.id)){
+       (this.props.parent && nextProps.parent && this.props.parent.id != nextProps.parent.id)){
       this.setState(defaultState(nextProps))
     }
 

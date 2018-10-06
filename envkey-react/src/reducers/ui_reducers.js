@@ -7,7 +7,9 @@ import {
   SET_DEMO_DOWNLOAD_URL,
   ACCEPT_INVITE_SUCCESS,
   SELECTED_OBJECT,
-  CLOSE_GENERATED_INVITE_LINK
+  CLOSE_GENERATED_INVITE_LINK,
+  UPDATE_VERSION_FILTERS,
+  UPDATE_REVERT_RECURSIVE
 } from "actions"
 import {
   generatedInviteLinks as coreGeneratedInviteLinksReducer
@@ -85,4 +87,17 @@ export const
     } else {
       return coreGeneratedInviteLinksReducer(state, action)
     }
+  },
+
+  versionFilters = (state = {}, action)=> {
+    if (isClearSessionAction(action)){
+      return {}
+    }
+
+    if (action.type == UPDATE_VERSION_FILTERS){
+      return action.payload
+    } else {
+      return state
+    }
   }
+

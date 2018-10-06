@@ -40,7 +40,10 @@ export const
 
   getSelectedParentEnvUpdateId = state =>{
     return getEnvUpdateId(getSelectedObjectId(state), state)
-  }
+  },
+
+  getVersionFilters = db.path("versionFilters")
+
 
 
 

@@ -1,0 +1,1 @@
+export {default as LogManagerContainerFactory} from './log_manager_container_factory'

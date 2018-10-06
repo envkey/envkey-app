@@ -87,8 +87,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         subEnvId,
         subEnvName,
         environment: ownProps.environment,
-        parentType: "app",
-        parentId: ownProps.app.id,
+        parentType: ownProps.parentType,
+        parentId: ownProps.parent.id
       }))
     }
   }

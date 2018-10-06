@@ -8,6 +8,7 @@ import EntryRow from './entry_row'
 import EditableCellsParent from './traits/editable_cells_parent'
 import {toClass} from 'recompose'
 import { allEntries } from "envkey-client-core/dist/lib/env/query"
+import ConfigBlock from './config_block'
 
 const HIGHLIGHT_ROW_DELAY = 2000
 
@@ -80,6 +81,7 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
   render(){
     return h.div(".grid-content", [
       this._renderSocketAddingEntries(),
+      this._renderConfigBlocks(),
       this._renderEntryRows()
     ])
   }
@@ -119,6 +121,26 @@ export default class EnvGridContent extends EditableCellsParent(React.Component)
       onEditCell: ::this._onEditCell,
       onCommitEntry: ::this._onCommitEntry,
       onCommitEntryVal: ::this._onCommitEntryVal,
+    })
+  }
+
+  _renderConfigBlocks(){
+    if(this.props.parentType == "app" && !this.props.subEnvId && this.props.configBlocks && this.props.configBlocks.length){
+      return h.div(".blocks", this.props.configBlocks.map(::this._renderConfigBlock))
+    }
+  }
+
+  _renderConfigBlock(block, i){
+    const filter = this.props.filter,
+          entries = allEntries(block.envsWithMeta),
+          toCheck = [block.name].concat(entries).map(s => s.toLowerCase())
+    if(filter && !R.any(R.contains(filter), toCheck))return
+    return h(ConfigBlock, {
+      ...this.props,
+      entries,
+      isRemoving: this.props.isRemovingById[block.relation.id],
+      block,
+      key: i
     })
   }
 }

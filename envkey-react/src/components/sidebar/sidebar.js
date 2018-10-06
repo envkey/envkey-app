@@ -128,6 +128,14 @@ export default class Sidebar extends React.Component {
                                     groups: R.reverse(ORG_ROLES),
                                     groupLabelFn: orgRoleGroupLabel})}
 
+      {this._renderMenuListSection("configBlocks",
+                                   "Blocks",
+                                   this.props.configBlocks,
+                                   "menu-blocks-white.svg",
+                                   {selected: selected == "configBlocks",
+                                    pathFn: (item => `/${this.props.currentOrg.slug}/configBlocks/${item.slug}`),
+                                    newBtnLabel: "New Block"})}
+
     </section>
   }
 

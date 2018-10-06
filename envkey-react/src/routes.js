@@ -41,6 +41,9 @@ import {
   ResetAccountContainer,
   AppAllowedIpsContainer,
   OrgAllowedIpsContainer,
+  VersionManagerContainerFactory,
+  LogManagerContainerFactory,
+  CollaboratorLocalsContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -170,9 +173,33 @@ export default class Routes extends React.Component {
 
             <Route path="collaborators" component={AppCollaboratorsContainer} />
 
+            <Route path="collaborators/:userSlug/locals" component={CollaboratorLocalsContainer} />
+
+            <Route path="versions" component={VersionManagerContainerFactory({parentType: "app"})} />
+
+            <Route path="logs" component={LogManagerContainerFactory({parentType: "app"})} />
+
             <Route path="firewall" component={AppAllowedIpsContainer} />
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "app"})}/>
+
+          </Route>
+
+          <Route path="configBlocks/new" component={ObjectFormContainerFactory({objectType: "configBlock"})} />
+
+          <Route path="configBlocks/:slug" component={SelectedObjectContainerFactory({objectType: "configBlock"})} >
+
+            <IndexRedirect to="variables" />
+
+            <Route path="variables" component={EnvManagerContainerFactory({parentType: "configBlock"})} />
+
+            <Route path="apps" component={AssocManagerContainerFactory({parentType: "configBlock", assocType: "app", joinType: "appConfigBlock", isManyToMany: true})} />
+
+            <Route path="versions" component={VersionManagerContainerFactory({parentType: "configBlock"})} />
+
+            <Route path="logs" component={LogManagerContainerFactory({parentType: "configBlock"})} />
+
+            <Route path="settings" component={SettingsFormContainerFactory({objectType: "configBlock"})}/>
 
           </Route>
 
@@ -186,11 +213,19 @@ export default class Routes extends React.Component {
 
             <Route path="apps" component={AssocManagerContainerFactory({parentType: "user", assocType: "app", joinType: "appUser", isManyToMany: true})} />
 
+            <Route path="versions" component={VersionManagerContainerFactory({parentType: "user"})} />
+
+            <Route path="logs" component={LogManagerContainerFactory({parentType: "user"})} />
+
           </Route>
 
           <Route path="my_org" component={SelectedObjectContainerFactory({objectType: "currentOrg"})} >
 
             <Route path="settings" component={SettingsFormContainerFactory({objectType: "currentOrg", targetObjectType: "org"})}/>
+
+            <Route path="versions" component={VersionManagerContainerFactory({parentType: "currentOrg"})} />
+
+            <Route path="logs" component={LogManagerContainerFactory({parentType: "currentOrg"})} />
 
             <Route path="firewall" component={OrgAllowedIpsContainer} />
 

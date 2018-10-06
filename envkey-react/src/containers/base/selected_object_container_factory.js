@@ -9,6 +9,7 @@ import {
   getCurrentOrg,
   getCurrentUser,
   getAppBySlug,
+  getConfigBlockBySlug,
   getUserWithOrgUserBySlug,
   getPermissions,
   getIsDecryptingAllForeground,
@@ -126,6 +127,7 @@ const SelectedObjectContainerFactory = ({
         const slug = ownProps.params.slug,
               method = {
                 app: getAppBySlug,
+                configBlock: getConfigBlockBySlug,
                 user: getUserWithOrgUserBySlug
               }[objectType]
 

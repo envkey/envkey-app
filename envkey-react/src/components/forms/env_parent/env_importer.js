@@ -5,7 +5,7 @@ import SmallLoader from 'components/shared/small_loader'
 import { parseMultiFormat } from "envkey-client-core/dist/lib/parse"
 import { importerPlaceholder } from 'lib/env/imports'
 
-export default class AppImporter extends React.Component {
+export default class EnvImporter extends React.Component {
 
   constructor(props) {
     super(props)
@@ -70,7 +70,7 @@ export default class AppImporter extends React.Component {
   }
 
   render(){
-    return h.form(".object-form.app-importer", [
+    return h.form(".object-form.env-importer", [
       <p>Paste in your development, staging, and production config in <strong>KEY=VAL</strong>, <strong>YAML</strong>, or <strong>JSON</strong> format. If you aren’t ready to import an environment, just leave it blank.</p>,
       h.div(".tabs", [
         this._renderTabBar(),
@@ -118,7 +118,7 @@ export default class AppImporter extends React.Component {
   }
 
   _renderSubmit(){
-    if (!this.props.embeddedInAppForm){
+    if (!this.props.embeddedInNewForm){
       if(this.props.isSubmitting){
         return h.div(".actions", [
           h.button(".secondary", {disabled: true}, "Skip"),

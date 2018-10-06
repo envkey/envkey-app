@@ -10,9 +10,9 @@ import Filter from 'components/shared/filter'
 import { allEntries, hasAnyVal } from "envkey-client-core/dist/lib/env/query"
 import traversty from 'traversty'
 
-const subEnvsReadOnly = props => props.app.role == "development",
-
-      subEnvVarsReadOnly = props => props.app.role == "development" && props.environment == "production"
+const canHaveSubEnvs = props => props.parentType == "app",
+      subEnvsReadOnly = props => canHaveSubEnvs(props) && props.parent.role == "development",
+      subEnvVarsReadOnly = props => canHaveSubEnvs(props) && props.parent.role == "development" && props.environment == "production"
 
 export default class EnvManager extends React.Component {
 
@@ -94,7 +94,7 @@ export default class EnvManager extends React.Component {
 
   _subEnvsOpen(props){
     if(!props)props = this.props
-    return (props.envsWithMeta && props.params.sub) || false
+    return canHaveSubEnvs(props) && (props.envsWithMeta && props.params.sub) || false
   }
 
   _subEnvsReadOnly(props){

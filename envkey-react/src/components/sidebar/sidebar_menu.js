@@ -73,28 +73,22 @@ export default class SidebarMenu extends React.Component {
       R.map(::this._filteredItems, this.props.items) :
       this._filteredItems(this.props.items)
 
-    const numItems = this.props.groups ?
-      R.pipe(R.values, R.flatten)(filtered).length :
-      filtered.length
-
     return (
       <div className={"side-menu " + this.props.type + (this.state.open ? " open" : "")}>
-        {this._renderMenuLabel(filtered, numItems)}
-        {this._renderMenuContent(filtered, numItems)}
+        {this._renderMenuLabel(filtered)}
+        {this._renderMenuContent(filtered)}
       </div>
     )
   }
 
-  _renderMenuLabel(filtered, numItems){
-    if (numItems > 0){
-      return <div className="menu-label"
-                  onClick={::this._onClickLabel}>
-        {this._renderToggleIcon()}
-        <img className="type-icon" src={imagePath(this.props.icon)} />
-        <label>{this.props.label}</label>
-        <span className="line" />
-      </div>
-    }
+  _renderMenuLabel(filtered){
+    return <div className="menu-label"
+                onClick={::this._onClickLabel}>
+      {this._renderToggleIcon()}
+      <img className="type-icon" src={imagePath(this.props.icon)} />
+      <label>{this.props.label}</label>
+      <span className="line" />
+    </div>
   }
 
   _renderToggleIcon(){
@@ -103,8 +97,8 @@ export default class SidebarMenu extends React.Component {
     }
   }
 
-  _renderMenuContent(filtered, numItems){
-    if (this.state.open && numItems > 0){
+  _renderMenuContent(filtered){
+    if (this.state.open){
       return <div className="menu-content">
         {this._renderNewButton()}
         <div className="menu-list">

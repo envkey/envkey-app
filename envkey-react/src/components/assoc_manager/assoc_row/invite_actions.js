@@ -1,13 +1,10 @@
 import React from 'react'
 import h from "lib/ui/hyperscript_with_helpers"
-import SmallLoader from "components/shared/small_loader"
 
 export default function ({
   assoc: {id: userId, relation: {accessStatus: {status}}},
   revokeInvite,
-  regenInvite,
-  isRevokingInviteByUserId,
-  isRegeneratingInviteByUserId
+  regenInvite
 }){
   const
     renderRevoke = ()=> {
@@ -21,11 +18,7 @@ export default function ({
     },
 
     renderContent = ()=> {
-      if (isRevokingInviteByUserId[userId] || isRegeneratingInviteByUserId[userId]){
-        return [h(SmallLoader)]
-      } else {
-        return [renderRevoke(), renderRegen()]
-      }
+      return [renderRevoke(), renderRegen()]
     }
 
 

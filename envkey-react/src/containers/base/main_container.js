@@ -6,6 +6,7 @@ import Header from 'components/shared/header'
 import {
   getAppLoaded,
   getApps,
+  getConfigBlocks,
   getOrgs,
   getUserGroupsByRole,
   getIsLoadingAppState,
@@ -177,6 +178,7 @@ const mapStateToProps = (state, ownProps) => {
     decryptedAll: getDecryptedAll(state),
     numOrgs: getOrgs(state).length,
     apps: getApps(state),
+    configBlocks: getConfigBlocks(state),
     users: getUserGroupsByRole(state),
     appLoaded: getAppLoaded(state),
     isLoadingAppState: getIsLoadingAppState(state),

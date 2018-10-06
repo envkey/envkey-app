@@ -28,7 +28,7 @@ const Onboardable = (Component, OnboardSlider, {
 
     if (!nextProps.parent)return
 
-    if (this.props.app.id != nextProps.app.id){
+    if (this.props.parent.id != nextProps.parent.id){
       this.setState({startedOnboarding: false, finishedOnboarding: false})
     }
 

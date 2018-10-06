@@ -1,10 +1,9 @@
 import React from 'react'
 import {RadioGroup, Radio} from 'react-radio-group'
 import moment from 'moment'
-import AppImporter from './app_importer'
-import { SubscriptionWallContainer } from 'containers'
+import EnvImporter from './env_importer'
 
-export default class AppForm extends React.Component {
+const EnvParentFormFactory = ({parentType, parentTypeLabel})=> class extends React.Component {
 
   constructor(props) {
     super(props)
@@ -22,7 +21,7 @@ export default class AppForm extends React.Component {
     e.preventDefault()
     this.props.onSubmit({
       willImport: this.state.importOption == "import",
-      toImport: this._willImport() ? this.refs.appImporter.toImport() : undefined,
+      toImport: this._willImport() ? this.refs.envImporter.toImport() : undefined,
       params: {name: this.refs.name.value}
     })
   }
@@ -35,27 +34,18 @@ export default class AppForm extends React.Component {
     return this.props.renderImporter && this.state.importOption == "import"
   }
 
-  _showSubscriptionWall(){
-    return this.props.numApps && this.props.currentOrg && this.props.numApps >= this.props.currentOrg.maxApps
-  }
-
   render(){
-    if (this._showSubscriptionWall()){
-      return <SubscriptionWallContainer type="app"
-                                        max={this.props.currentOrg.maxApps} />
-    }
-
     return (
       <form ref="form"
-            className="object-form new-form app-form"
+            className="object-form new-form env-parent-form"
             onSubmit={this._onSubmit.bind(this)}>
 
         <fieldset>
           <input type="text"
-                 className="app-name"
+                 className="env-parent-name"
                  disabled={this.props.isSubmitting}
                  ref="name"
-                 placeholder="App Name"
+                 placeholder={`${parentTypeLabel} Name`}
                  required />
         </fieldset>
 
@@ -83,23 +73,25 @@ export default class AppForm extends React.Component {
 
   _renderImporter(){
     if(this._willImport()){
-      return <AppImporter ref="appImporter"
+      return <EnvImporter ref="envImporter"
                           environments={this.props.environments}
-                          embeddedInAppForm={true}
+                          embeddedInNewForm={true}
                           onChange={importValid => this.setState({importValid})}/>
     }
   }
 
   _renderSubmit(){
     if(this.props.isSubmitting){
-      return <button disabled={true}> Creating App... </button>
+      return <button disabled={true}> Creating {parentTypeLabel}... </button>
     } else {
       if (!this.props.renderImporter && this.state.importOption == "import"){
         return <button>Next</button>
       } else {
         const disabled = this.state.importOption == "import" && !this.state.importValid
-        return <button disabled={disabled}>Create App</button>
+        return <button disabled={disabled}>Create {parentTypeLabel}</button>
       }
     }
   }
 }
+
+export default EnvParentFormFactory
