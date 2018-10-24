@@ -7,6 +7,7 @@ import pluralize from 'pluralize'
 import {
   SELECTED_OBJECT,
   CREATE_OBJECT_SUCCESS,
+  FETCH_OBJECT_DETAILS_API_SUCCESS,
 
   REMOVE_OBJECT_REQUEST,
   REMOVE_OBJECT_SUCCESS,
@@ -18,10 +19,14 @@ import {
   API_SUCCESS,
   API_FAILED,
 
+  VERIFY_CURRENT_USER_PUBKEY_SUCCESS,
+  VERIFY_TRUSTED_PUBKEYS_SUCCESS,
+
   SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
 
   socketSubscribeObjectChannel,
   generateEnvUpdateId,
+  fetchObjectDetails,
 
   resetSession
 } from "actions"
@@ -29,24 +34,61 @@ import {
   getCurrentOrg,
   getCurrentUser,
   getObject,
-  getEnvUpdateId
+  getEnvUpdateId,
+  getIsFetchingDetails,
+  getTrustedPubkeys,
+  getConfigBlocksForApp
 } from "selectors"
 
 const
-  onSelectedObject = function*({payload: object}){
+  onSelectedObject = function*({payload: {objectType, id}}){
     yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
-    const currentOrg = yield select(getCurrentOrg)
+    const currentOrg = yield select(getCurrentOrg),
+          object = yield select(getObject(objectType, id))
 
-    const isEnvParent = object && ["app", "configBlock", "appUser"].includes(object.objectType)
+    const isEnvParent = ["app", "configBlock", "appUser"].includes(objectType)
 
-    if (isEnvParent && object.broadcastChannel && object.id != currentOrg.id){
+    if (isEnvParent && object.broadcastChannel && id != currentOrg.id){
       yield put(socketSubscribeObjectChannel(object))
     }
 
     if (isEnvParent){
-      const envUpdateId = yield select(getEnvUpdateId(object.id))
+      const envUpdateId = yield select(getEnvUpdateId(id))
       if (!envUpdateId){
-        yield put(generateEnvUpdateId({parentId: object.id, parentType: object.objectType}))
+        yield put(generateEnvUpdateId({parentId: id, parentType: objectType}))
+      }
+    }
+
+    if (isEnvParent || objectType == "user"){
+      const isFetchingDetails = yield select(getIsFetchingDetails(id))
+
+      if (!object.detailsLoadedAt && !isFetchingDetails){
+        yield put(fetchObjectDetails({
+          targetId: id,
+          objectType: objectType,
+          appId: object.appId,
+          decryptEnvs: isEnvParent
+        }))
+
+        if (objectType == "app"){
+          const successAction = yield take(FETCH_OBJECT_DETAILS_API_SUCCESS)
+          if (successAction.meta.targetId == id){
+            const blocks = yield select(getConfigBlocksForApp(id))
+
+            for (let block of blocks){
+              const blockIsFetchingDetails = yield select(getIsFetchingDetails(block.id))
+
+              if (!block.detailsLoadedAt && !blockIsFetchingDetails){
+                yield put(fetchObjectDetails({
+                  targetId: block.id,
+                  objectType: "configBlock",
+                  decryptEnvs: true
+                }))
+              }
+            }
+          }
+
+        }
       }
     }
   },

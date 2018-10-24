@@ -46,7 +46,8 @@ import {
   getIsRebasingOutdatedEnvs,
   getDidOnboardImport,
   getCurrentUserEnvironmentsAssignableForEnvParentUser,
-  getIsImportingAnyEnvironment
+  getIsImportingAnyEnvironment,
+  getHasEnvActionsPending
 } from 'selectors'
 import { allEntries } from "envkey-client-core/dist/lib/env/query"
 import EnvManager from 'components/env_manager'
@@ -89,6 +90,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
         currentOrg: getCurrentOrg(state),
         envsAreDecrypted: getEnvsAreDecrypted(parentId,state),
         envsWithMeta: envsWithMetaWithPending,
+        hasEnvsActionsPending: getHasEnvActionsPending(parentId, state),
         isUpdatingEnv: getIsUpdatingEnv(parentId, state),
         isUpdatingValFn: (entryKey, environment)=> getIsUpdatingEnvVal({parentId, entryKey, environment}, state),
         isUpdatingEntryFn: entryKey => getIsUpdatingEnvEntry({parentId, entryKey}, state),

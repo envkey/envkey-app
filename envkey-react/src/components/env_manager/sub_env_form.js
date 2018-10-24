@@ -13,7 +13,7 @@ export default class SubEnvForm extends React.Component {
   _onAddSubEnv(e){
     e.preventDefault()
     this.props.addSubEnv({
-      ...R.pick(["environment"], this.props),
+      parentEnvironment: this.props.environment,
       name: this.refs.nameInput.value
     })
   }

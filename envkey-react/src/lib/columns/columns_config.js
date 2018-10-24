@@ -293,6 +293,7 @@ export default function({
     case "app-configBlock":
       const appBlocks = getConfigBlocksForApp(parent.id, state),
             orgBlocks = getConfigBlocks(state)
+
       return {
         rowDisplayType: AppConfigBlockRowDisplay,
         // addFormType: ServiceForm,

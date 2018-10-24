@@ -316,6 +316,10 @@ export default class VersionManager extends React.Component {
         <label>Processed At: </label>
         <span>{processedAt ? processedAt.format() : ""}</span>
       </div>
+      <div>
+        <label>Commit Message: </label>
+        <span>{version.message}</span>
+      </div>
     </div>
   }
 

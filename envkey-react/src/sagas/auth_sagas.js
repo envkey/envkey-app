@@ -10,7 +10,7 @@ import {
   APP_LOADED,
   REACTIVATED_BRIEF,
   REACTIVATED_LONG,
-  FETCH_CURRENT_USER_SUCCESS,
+  FETCH_CURRENT_USER_MENU_SUCCESS,
   FETCH_CURRENT_USER_FAILED,
   FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
   FETCH_CURRENT_USER_UPDATES_SUCCESS,
@@ -153,7 +153,7 @@ function* onSelectAccountSuccess(){
 function *onFetchCurrentUserSuccess(action){
   yield put(appLoaded())
   yield [
-    put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL}),
+    // put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL}),
     call(redirectFromOrgIndexIfNeeded)
   ]
 }
@@ -204,7 +204,7 @@ export default function* authSagas(){
     takeLatest(APP_LOADED, onAppLoaded),
     takeLatest(REACTIVATED_BRIEF, onReactivatedBrief),
     takeLatest(REACTIVATED_LONG, onReactivatedLong),
-    takeLatest(FETCH_CURRENT_USER_SUCCESS, onFetchCurrentUserSuccess),
+    takeLatest(FETCH_CURRENT_USER_MENU_SUCCESS, onFetchCurrentUserSuccess),
     takeLatest(FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
     takeLatest(FETCH_CURRENT_USER_UPDATES_API_SUCCESS, onFetchCurrentUserUpdatesApiSuccess),
     takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),

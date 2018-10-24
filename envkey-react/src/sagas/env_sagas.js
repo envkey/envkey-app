@@ -18,16 +18,16 @@ function* onTransformEnv(action){
   }
 }
 
-function* onAddSubEnv({payload: {environment, id}}){
+function* onAddSubEnv({payload: {parentEnvironment, id}}){
   const path = isElectron() ? window.location.hash.replace("#", "") : window.location.href,
-        newPath = path.replace(new RegExp(`/${environment}/add$`), `/${environment}/${id}`)
+        newPath = path.replace(new RegExp(`/${parentEnvironment}/add$`), `/${parentEnvironment}/${id}`)
 
   yield put(push(newPath))
 }
 
-function* onRemoveSubEnv({payload: {environment, id}}){
+function* onRemoveSubEnv({payload: {parentEnvironment, id}}){
   const path = isElectron() ? window.location.hash.replace("#", "") : window.location.href,
-        newPath = path.replace(new RegExp(`/${environment}/${id}$`),`/${environment}/first`)
+        newPath = path.replace(new RegExp(`/${parentEnvironment}/${id}$`),`/${parentEnvironment}/first`)
   if(path != newPath)yield put(push(newPath))
 }
 

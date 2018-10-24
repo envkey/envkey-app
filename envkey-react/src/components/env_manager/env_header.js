@@ -9,7 +9,6 @@ export default function({parentType,
                          emptyOnInit,
                          hideValues,
                          isEmpty,
-                         isUpdatingEnv,
                          entries,
                          onToggleHideValues}) {
 

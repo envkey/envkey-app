@@ -9,6 +9,7 @@ import SmallLoader from 'components/shared/small_loader'
 import Filter from 'components/shared/filter'
 import { allEntries, hasAnyVal } from "envkey-client-core/dist/lib/env/query"
 import traversty from 'traversty'
+import { PendingUpdateContainer } from 'containers'
 
 const canHaveSubEnvs = props => props.parentType == "app",
       subEnvsReadOnly = props => canHaveSubEnvs(props) && props.parent.role == "development",
@@ -116,7 +117,7 @@ export default class EnvManager extends React.Component {
     return [
       "environments",
       [this.props.parentType, "parent"].join("-"),
-      (this.props.isUpdatingEnv ? "updating-env" : ""),
+      (this.props.isRequestingEnvUpdate ? "updating-env" : ""),
       (this._isEmpty() ? "empty" : ""),
       (this.state.hideValues ? "hide-values" : ""),
       (hasAnyVal(this.props.envsWithMeta) ? "" : "has-no-val"),
@@ -145,6 +146,7 @@ export default class EnvManager extends React.Component {
       this._renderHeader(),
       this._renderFilter(),
       (this._subEnvsOpen() ? this._renderSubEnvs() : this._renderGrid()),
+      this._renderPendingUpdate(),
       this._renderSocketUpdate()
     ]
   }
@@ -224,6 +226,10 @@ export default class EnvManager extends React.Component {
       ]),
       h(SmallLoader)
     ])
+  }
+
+  _renderPendingUpdate(){
+    return <PendingUpdateContainer {...this.props} />
   }
 }
 

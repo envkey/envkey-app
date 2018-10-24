@@ -24,7 +24,7 @@ import {
 } from 'selectors'
 import {
   appLoaded,
-  fetchCurrentUser,
+  fetchCurrentUserMenu,
   selectOrg,
   logout,
   billingUpgradeSubscription,
@@ -37,9 +37,7 @@ import {openLinkExternal} from 'lib/ui'
 import Spinner from 'components/shared/spinner'
 
 const appStateLoaded = (props)=>{
-  return !props.isLoadingAppState &&
-         props.currentUser &&
-         props.currentOrg
+  return !props.isLoadingAppState && props.currentUser
 }
 
 const ensureCurrentUser = (props)=>{
@@ -49,6 +47,7 @@ const ensureCurrentUser = (props)=>{
   }
   if(props.isLoadingAppState)return
   const orgSlug = props.params.orgSlug.toLowerCase()
+
   //avoid request loop on failure
   if(props.currentUserErr && orgSlug == props.currentOrgSlug)return
 
@@ -59,7 +58,7 @@ const ensureCurrentUser = (props)=>{
   if(appStateLoaded(props)){
     if(!props.appLoaded)props.onLoad()
   } else if(!appStateLoaded(props)){
-    props.fetchCurrentUser()
+    props.fetchCurrentUserMenu()
   }
 }
 
@@ -194,7 +193,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = dispatch => {
   return {
     onLoad: ()=> dispatch(appLoaded()),
-    fetchCurrentUser: ()=> dispatch(fetchCurrentUser()),
+    fetchCurrentUserMenu: ()=> dispatch(fetchCurrentUserMenu()),
     selectOrg: (slug)=> dispatch(selectOrg(slug)),
     upgradeSubscription: ()=> dispatch(billingUpgradeSubscription()),
     logout: ()=> {

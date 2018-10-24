@@ -16,7 +16,7 @@ import {
 } from 'containers'
 
 const triggerSelected = (props)=> {
-        if(props.decryptedAll && props.appUser){
+        if(props.appUser){
           props.selected(props.appUser)
         }
       }
@@ -30,8 +30,6 @@ class CollaboratorLocals extends React.Component {
 
   componentWillReceiveProps(nextProps){
     if (this.props.appUser.id != nextProps.appUser.id){
-      triggerSelected(nextProps)
-    } else if (!this.props.decryptedAll && nextProps.decryptedAll){
       triggerSelected(nextProps)
     }
   }

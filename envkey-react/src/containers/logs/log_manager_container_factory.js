@@ -8,7 +8,10 @@ import {
   getLogInfo,
   getFetchLogError,
   getIsFetchingLogs,
-  getLogEntries
+  getLogEntries,
+  getUsersById,
+  getServersById,
+  getLocalKeysById
 } from 'selectors'
 import {
   fetchLogs,
@@ -29,7 +32,10 @@ const LogManagerContainerFactory = ({parentType})=> {
         isFetchingLogs: getIsFetchingLogs(state),
         fetchLogError: getFetchLogError(state),
         logEntries: getLogEntries(state),
-        logInfo: getLogInfo(state)
+        logInfo: getLogInfo(state),
+        usersById: getUsersById(state),
+        serversById: getServersById(state),
+        localKeysById: getLocalKeysById(state)
       }
     },
 

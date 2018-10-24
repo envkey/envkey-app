@@ -18,7 +18,9 @@ import {
   getDecryptAllErr,
   getSelectedObjectType,
   getSelectedObjectId,
-  getIsDemo
+  getDidVerifyCurrentUser,
+  getIsDemo,
+  getPrivkey
 } from "selectors"
 import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
@@ -33,8 +35,8 @@ const SelectedObjectContainerFactory = ({
   const idPathFn = R.path([objectType, "id"]),
 
         triggerSelectedObject = (props)=> {
-          if(props.decryptedAll && props[objectType]){
-            props.selectedObject(props[objectType])
+          if(props[objectType]){
+            props.selectedObject(props[objectType].id)
           }
         }
 
@@ -53,8 +55,6 @@ const SelectedObjectContainerFactory = ({
       if (currentId != nextId){
         this.setState({showTransitionOverlay: true})
         setTimeout(()=>{ this.setState({showTransitionOverlay: false}) }, 1)
-        triggerSelectedObject(nextProps)
-      } else if (!this.props.decryptedAll && nextProps.decryptedAll){
         triggerSelectedObject(nextProps)
       }
     }
@@ -94,13 +94,25 @@ const SelectedObjectContainerFactory = ({
     }
 
     _renderContents(){
-      const isAccountMenu = ["currentUser", "currentOrg"].includes(objectType)
+      const isAccountMenu = ["currentUser", "currentOrg"].includes(objectType),
+            obj = this.props[objectType]
 
+      let isLoading
       if (this.props.isDemo && !this.props.decryptedAll){
+        isLoading = true
+      } else if (!isAccountMenu && this.props.didDecryptPrivkey){
+        if (objectType == "user"){
+          isLoading = !obj.detailsLoadedAt
+        } else {
+          isLoading = !obj.decrypted
+        }
+      }
+
+      if (isLoading){
         return [h(DecryptLoader, {isDecrypting: true})]
       }
 
-      if(isAccountMenu || this.props.decryptedAll || this.props.isDecrypting){
+      if(isAccountMenu || (objectType == "user" && obj.detailsLoadedAt) || obj.decrypted || this.props.isDecrypting){
         return [
           this._renderChildren(),
           (isAccountMenu ? null : h(DecryptLoader, this.props))
@@ -142,6 +154,7 @@ const SelectedObjectContainerFactory = ({
         isDemo: getIsDemo(state),
         decryptedAll: getDecryptedAll(state),
         decryptPrivkeyErr: getDecryptPrivkeyErr(state),
+        didDecryptPrivkey: Boolean(getPrivkey(state)),
         decryptAllErr: getDecryptAllErr(state),
         selectedObjectType: getSelectedObjectType(state),
         selectedObjectId: getSelectedObjectId(state)
@@ -150,7 +163,7 @@ const SelectedObjectContainerFactory = ({
 
     mapDispatchToProps = (dispatch, ownProps) => ({
       decrypt: password => dispatch(decryptAll({password})),
-      selectedObject: object => dispatch(selectedObject({...object, objectType}))
+      selectedObject: id => dispatch(selectedObject({id, objectType}))
     })
 
   return connect(mapStateToProps, mapDispatchToProps)(SelectedObjectContainer)

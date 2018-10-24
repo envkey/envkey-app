@@ -1,6 +1,7 @@
 import React from 'react'
 import R from 'ramda'
 import moment from 'moment'
+import LogEntry from './log_entry'
 
 const PAGE_SIZE=50
 
@@ -156,11 +157,7 @@ export default class LogManager extends React.Component {
   }
 
   _renderLogEntry(logEntry){
-    return <div className="log-entry">
-      {JSON.stringify(logEntry)}
-      <br/>
-      <br/>
-    </div>
+    return <LogEntry {...this.props} logEntry={logEntry} />
   }
 
   _renderSpinner(){

@@ -17,7 +17,7 @@ export default class SubEnvsList extends React.Component {
   }
 
   _onDeleteConfirmFn(id){
-    return e => this.props.removeSubEnv({environment: this.props.environment, id})
+    return e => this.props.removeSubEnv({parentEnvironment: this.props.environment, id})
   }
 
   render(){

@@ -30,6 +30,8 @@ import {
   getAuth,
   getCurrentOrg,
   getApp,
+  getEnvParent,
+  getObjectType,
   getSelectedObject,
   getSelectedObjectType,
   getCurrentUser,
@@ -40,7 +42,8 @@ import {
   getAnonSocketEnvsStatus,
   getSelectedObjectId,
   getSubEnvs,
-  getEnvActionsPendingByEnvUpdateId
+  getEnvActionsPendingByEnvUpdateId,
+  getHasEnvActionsPending
 } from 'selectors'
 import {
   UPDATE_ENVS,
@@ -180,44 +183,28 @@ function *onSocketUpdateOrg(action){
   }
 
   // Env update
-  if (actionType == "updated" && targetType == "App" && meta && meta.updateType == "update_envs"){
-    let app = yield select(getApp(appId))
+  if (actionType == "updated" && meta && meta.updateType == "update_envs"){
+    const hasEnvsActionsPending = yield select(getHasEnvActionsPending(targetId))
 
-    if (app){
-      const preUpdateEnvsWithMeta = app.envsWithMeta
+    // only auto-apply env update if no actions are pending
+    if (hasEnvsActionsPending){
+      return
+    }
 
+    // refresh object in background only if details have been fully loaded
+    const parent = yield select(getEnvParent(targetId)),
+          parentType = yield select(getObjectType(targetId))
+
+    if (parent && parent.detailsLoadedAt){
       yield put(fetchObjectDetails({
         targetId,
-        objectType: "app",
+        objectType: parentType,
         decryptEnvs: true,
         socketUpdate: true,
         minDelay: 2000,
         socketActorId: actorId,
         socketEnvUpdateId: envUpdateId
       }))
-
-      yield take(FETCH_OBJECT_DETAILS_SUCCESS)
-
-      app = yield select(getApp(appId))
-      const envActionsPending = yield select(getEnvActionsPendingByEnvUpdateId(appId, envUpdateId)),
-            hasConflict = yield call(resolveEnvUpdateConflicts, {
-              envActionsPending,
-              preUpdateEnvsWithMeta,
-              envUpdateId: envUpdateId,
-              parentId: app.id,
-              postUpdateEnvsWithMeta: app.envsWithMeta
-            })
-
-      if (hasConflict){
-        return
-      }
-
-      yield call(dispatchEnvUpdateRequestIfNeeded, {
-        parent: app,
-        parentType: "app",
-        parentId: targetId,
-        skipDelay: true
-      })
     }
     return
   }
