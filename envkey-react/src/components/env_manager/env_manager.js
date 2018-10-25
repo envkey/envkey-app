@@ -23,17 +23,29 @@ export default class EnvManager extends React.Component {
       filter: "",
       showFilter: false,
       lastSocketUserUpdatingEnvs: null,
+      showSocketUpdating: false,
       editingMultilineEnvironment: null,
       editingMultilineEntryKey: null
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.socketUserUpdatingEnvs){
+      this._clearSocketUpdatingTimeout()
+      this.setState({showSocketUpdating: true})
+    }
+
     if(nextProps.socketUserUpdatingEnvs &&
        nextProps.socketUserUpdatingEnvs != this.state.lastSocketUserUpdatingEnvs){
       this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
     }
 
+    if (this.props.socketUserUpdatingEnvs && !nextProps.socketUserUpdatingEnvs){
+      this._clearSocketUpdatingTimeout()
+      this.socketUpdatingTimeout = setTimeout(()=>{
+        this.setState({showSocketUpdating: false})
+      }, 2000)
+    }
 
     if (R.path(["parent", "id"], this.props) != R.path(["parent", "id"], nextProps) ||
         this._subEnvsOpen(this.props) != this._subEnvsOpen(nextProps) ||
@@ -89,6 +101,13 @@ export default class EnvManager extends React.Component {
 
     if (!isEntryForm){
       this.props.updateEntryVal(entryKey, environment, update, subEnvId)
+    }
+  }
+
+  _clearSocketUpdatingTimeout(){
+    if (this.socketUpdatingTimeout){
+      clearTimeout(this.socketUpdatingTimeout)
+      this.socketUpdatingTimeout = null
     }
   }
 
@@ -216,14 +235,16 @@ export default class EnvManager extends React.Component {
   }
 
   _renderSocketUpdate(){
-    const {firstName, lastName} = (this.state.lastSocketUserUpdatingEnvs || {})
-    return h.div(".socket-update-envs", [
-      h.label([
-        h.span("Receiving update from "),
-        h.span(".name", [firstName, lastName].join(" "))
-      ]),
-      h(SmallLoader)
-    ])
+    if (this.state.showSocketUpdating){
+      const {firstName, lastName} = (this.state.lastSocketUserUpdatingEnvs || {})
+      return h.div(".socket-update-envs", [
+        h.label([
+          h.span("Receiving update from "),
+          h.span(".name", [firstName, lastName].join(" "))
+        ]),
+        h(SmallLoader)
+      ])
+    }
   }
 }
 

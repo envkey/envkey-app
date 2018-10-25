@@ -1,6 +1,9 @@
 #preloader-overlay
   z-index: 999
 
+  &.hide #preloader .spinner
+    display: none
+
 #preloader
   +overlay-embed
   // transition: all 0.2s ease-out
@@ -25,11 +28,12 @@
     margin-top: 20px
 
 .preloader-authenticate
-
-  #preloader span.authenticating
-    display: inline-block
+  #preloader
+    span.authenticating
+      display: inline-block
 
 .preloader-register
-  #preloader span.registering
-    display: inline-block
+  #preloader
+    span.registering
+      display: inline-block
 

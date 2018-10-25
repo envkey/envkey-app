@@ -4,41 +4,64 @@ import h from "lib/ui/hyperscript_with_helpers"
 import { imagePath } from "lib/ui"
 import BroadcastLoader from 'components/shared/broadcast_loader'
 
-export default function({parentType,
-                         parent,
-                         emptyOnInit,
-                         hideValues,
-                         isEmpty,
-                         isUpdatingEnv,
-                         entries,
-                         onToggleHideValues}) {
+export default class EnvHeader extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = { showBroadcastLoader: props.isUpdatingEnv }
+  }
 
-  const
-    renderTitleCell = ()=> h.div(".label-cell.title-cell", {key: "title"}, [
-      h.label(parent.name)
-    ]),
+  componentWillReceiveProps(nextProps){
+    if (this.props.isUpdatingEnv && !nextProps.isUpdatingEnv){
+      this._clearBroadcastLoaderTimeout()
+      this.broadcastLoaderTimeout = setTimeout(()=>{
+        this.setState({showBroadcastLoader: false})
+      }, 2000)
+    }
 
-    renderShowHide = ()=> {
-      return h.label(".show-hide",[
-        h.input({
-          type: "checkbox",
-          checked: hideValues,
-          onClick: onToggleHideValues
-        }),
-        h.img({src: imagePath("hide-white.svg")})
-      ])
-    },
+    if (nextProps.isUpdatingEnv){
+      this._clearBroadcastLoaderTimeout()
+      this.setState({showBroadcastLoader: true})
+    }
+  }
 
-    renderUpdatingEnv = ()=>{
+  _clearBroadcastLoaderTimeout(){
+    if (this.broadcastLoaderTimeout){
+      clearTimeout(this.broadcastLoaderTimeout)
+      this.broadcastLoaderTimeout = null
+    }
+  }
+
+  render(){
+    return h.header(".env-header", [
+      this._renderTitleCell(),
+      this._renderShowHide(),
+      this._renderUpdatingEnv()
+    ])
+  }
+
+  _renderTitleCell(){
+    return h.div(".label-cell.title-cell", {key: "title"}, [
+      h.label(this.props.parent.name)
+    ])
+  }
+
+  _renderShowHide(){
+    return h.label(".show-hide",[
+      h.input({
+        type: "checkbox",
+        checked: this.props.hideValues,
+        onClick: this.props.onToggleHideValues
+      }),
+      h.img({src: imagePath("hide-white.svg")})
+    ])
+  }
+
+  _renderUpdatingEnv(){
+    if (this.state.showBroadcastLoader){
       return h.span(".updating-env-msg", [
         h(BroadcastLoader),
         h.span("Encrypting and syncing")
       ])
     }
-
-  return h.header(".env-header", [
-    renderTitleCell(),
-    renderShowHide(),
-    renderUpdatingEnv()
-  ])
+  }
 }
