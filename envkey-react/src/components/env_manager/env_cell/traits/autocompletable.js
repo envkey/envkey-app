@@ -27,6 +27,16 @@ const Autocompletable = Editable => class extends Editable {
     }
   }
 
+  _editParams(){
+    const fromSuper = super._editParams ? super._editParams() : {},
+          autocompleteProps = this._propsForAutoCompleteOptions()
+
+    return {
+      ...fromSuper,
+      autocompleteOpen: autocompleteProps.opts.length > 0
+    }
+  }
+
   _onAutocompleteSelect({val, selectedInherits}){
     let inputVal = val || ""
 

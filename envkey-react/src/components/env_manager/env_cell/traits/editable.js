@@ -1,4 +1,5 @@
 import React from 'react'
+import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import {isMultiline} from "lib/utils/string"
 
@@ -40,15 +41,23 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
   }
 
   _onEdit(){
-    this.props.onEditCell(this.props.entryKey, this.props.environment, this.props.subEnvId, this._isMultiline())
+    this.props.onEditCell(this._editParams())
   }
 
   _onInputChange(e){
     this.setState({
       inputVal: this._transformInputVal(e.target.value)
     }, ()=> {
-      this._onEdit(false)
+      this._onEdit()
     })
+  }
+
+  _editParams(){
+    const params = {
+      ...R.pick(["entryKey", "environment", "subEnvId"], this.props),
+      isMultiline: this._isMultiline()
+    }
+    return params
   }
 
   _transformInputVal(val){ return val }

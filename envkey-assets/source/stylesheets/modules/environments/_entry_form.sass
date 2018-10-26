@@ -6,6 +6,9 @@
   min-width: $min-width - $sidemenu-width
   background: #fff
 
+  &.autocomplete-open-last-environment
+    z-index: 5
+
   .entry-row
     box-sizing: border-box
     border-top: 1px solid transparent
@@ -97,3 +100,5 @@
   .has-entry.is-editing, .has-entry.not-empty
     .submit-prompt
       opacity: 1
+
+

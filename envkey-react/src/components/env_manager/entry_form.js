@@ -21,9 +21,25 @@ export default class EntryForm extends React.Component {
     }
   }
 
-  render(){
-    return h.div(".entry-form", [
+  _classNames(){
+    const autocompleteOpen = this.props.autocompleteOpenEnvironment &&
+                             this.props.autocompleteOpenEntryKey === null,
 
+          lastEnv = this.props.environments[this.props.environments.length - 1],
+
+          autocompleteLastEnvironmentOpen = autocompleteOpen &&
+                                            lastEnv === this.props.autocompleteOpenEnvironment
+
+    return [
+      "entry-form",
+      (autocompleteLastEnvironmentOpen ? "autocomplete-open-last-environment" : "")
+    ]
+  }
+
+  render(){
+    return h.div({
+      className: this._classNames().join(" ")
+    }, [
       h(EntryFormRow, {
         ...this.props,
         ref: "entryFormRow"

@@ -25,7 +25,9 @@ export default class EnvManager extends React.Component {
       lastSocketUserUpdatingEnvs: null,
       showSocketUpdating: false,
       editingMultilineEnvironment: null,
-      editingMultilineEntryKey: null
+      editingMultilineEntryKey: null,
+      autocompleteOpenEntryKey: null,
+      autocompleteOpenEnvironment: null
     }
   }
 
@@ -65,7 +67,9 @@ export default class EnvManager extends React.Component {
     })
   }
 
-  _onEditCell(entryKey, environment, subEnvId, isMultiline, isEntryForm){
+  _onEditCell(params = {}){
+    const {entryKey, environment, subEnvId, isMultiline, isEntryForm, autocompleteOpen} = params
+
     if (isMultiline){
       this.setState({
         editingMultilineEntryKey: entryKey,
@@ -77,6 +81,19 @@ export default class EnvManager extends React.Component {
         editingMultilineEnvironment: null
       })
     }
+
+    if (autocompleteOpen){
+      this.setState({
+        autocompleteOpenEntryKey: entryKey,
+        autocompleteOpenEnvironment: environment
+      })
+    } else {
+      this.setState({
+        autocompleteOpenEntryKey: null,
+        autocompleteOpenEnvironment: null
+      })
+    }
+
     if (!isEntryForm){
       this.props.editCell(entryKey, environment, subEnvId)
     }
@@ -85,7 +102,9 @@ export default class EnvManager extends React.Component {
   _onStoppedEditing(isEntryForm){
     this.setState({
       editingMultilineEntryKey: null,
-      editingMultilineEnvironment: null
+      editingMultilineEnvironment: null,
+      autocompleteOpenEntryKey: null,
+      autocompleteOpenEnvironment: null
     })
 
     if (!isEntryForm){
@@ -207,7 +226,9 @@ export default class EnvManager extends React.Component {
         "startedOnboarding",
         "filter",
         "editingMultilineEntryKey",
-        "editingMultilineEnvironment"
+        "editingMultilineEnvironment",
+        "autocompleteOpenEntryKey",
+        "autocompleteOpenEnvironment"
       ], this.state),
       editCell: ::this._onEditCell,
       stoppedEditing: ::this._onStoppedEditing,
@@ -223,7 +244,9 @@ export default class EnvManager extends React.Component {
         "hideValues",
         "filter",
         "editingMultilineEntryKey",
-        "editingMultilineEnvironment"
+        "editingMultilineEnvironment",
+        "autocompleteOpenEntryKey",
+        "autocompleteOpenEnvironment"
       ], this.state),
       environment,
       editCell: ::this._onEditCell,
