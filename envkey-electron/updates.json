@@ -1,8 +1,8 @@
 {
   "linux-ia32-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.0/EnvKey-1.4.0-i386.AppImage",
-    "install": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.0/EnvKey-1.4.0-i386.AppImage",
-    "version": "1.4.0"
+    "update": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.1/EnvKey-1.4.1-i386.AppImage",
+    "install": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.1/EnvKey-1.4.1-i386.AppImage",
+    "version": "1.4.1"
   },
   "linux-x64-prod": {
     "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.1/EnvKey-1.4.1-x86_64.AppImage",
