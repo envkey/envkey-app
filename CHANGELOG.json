@@ -73,5 +73,10 @@
     "Fix for auto-caps setting not updating when switching between apps",
     "Better handle account deletion scenarios that involve multiple organizations or an Org Owner deleting their account",
     "Better handle timeouts from the API server caused by patchy network conditions, waking up from sleep, etc. instead of showing an endless spinner"
+  ],
+  "1.4.1": [
+    "Fix for high CPU usage while idling",
+    "Fix for issue that caused sign out when navigating to home screen",
+    "Fix for search icon blocking part of auto-complete options when setting a new variable's production value"
   ]
 }
