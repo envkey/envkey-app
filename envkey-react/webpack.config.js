@@ -41,7 +41,8 @@ module.exports =  {
       "./src/index.js"
     ],
     "stripe_card": "./src/stripe_card.js",
-    "main_updater": "./src/main_updater.js"
+    "main_updater": "./src/main_updater.js",
+    "crypto_worker": "./src/crypto_worker.js"
   },
   resolve: {
     root: path.resolve("./src"),

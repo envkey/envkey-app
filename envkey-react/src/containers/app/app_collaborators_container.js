@@ -71,7 +71,6 @@ class AppCollaborators extends React.Component {
 const
   mapStateToProps = (state, ownProps) => ({
     isOnboarding: getIsOnboarding(state),
-    envsAreDecrypted: getDecryptedAll(state),
     invitingUser: getInvitingUser(ownProps.app.id, state),
     generatedInviteLink: getGeneratedInviteLink(ownProps.app.id, state),
     isDemo: getIsDemo(state)

@@ -148,6 +148,7 @@ const SelectedObjectContainerFactory = ({
 
       return {
         [objectType]: obj,
+        parent: obj,
         currentOrg: getCurrentOrg(state),
         permissions: getPermissions(state),
         isDecrypting: getIsDecryptingAllForeground(state),

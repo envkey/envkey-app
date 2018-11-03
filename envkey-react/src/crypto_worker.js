@@ -1,0 +1,1 @@
+import 'envkey-client-core/dist/lib/crypto/worker'

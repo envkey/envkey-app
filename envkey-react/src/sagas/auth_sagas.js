@@ -133,6 +133,10 @@ function* onSelectOrg({payload: slug}){
   yield put(socketUnsubscribeAll())
   const org = yield select(getOrgBySlug(slug))
 
+  if (!org){
+    return
+  }
+
   if (org.isActive){
     yield put(push(`/${slug}`))
   } else if (org.status == "invited"){

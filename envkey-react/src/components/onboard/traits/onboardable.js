@@ -12,12 +12,15 @@ const Onboardable = (Component, OnboardSlider, {
     this.state = this.state || {}
 
     this.state.startedOnboarding = props.isOnboarding &&
-                                   props.envsAreDecrypted &&
+                                   props.parent &&
+                                   props.parent.decrypted &&
                                    startedOnboardingFn(props, this.state)
 
     this.state.finishedOnboarding = props.isOnboarding &&
-                                    props.envsAreDecrypted &&
+                                    props.parent &&
+                                    props.parent.decrypted &&
                                     finishedOnboardingFn(props, this.state)
+
   }
 
 
@@ -32,7 +35,7 @@ const Onboardable = (Component, OnboardSlider, {
       this.setState({startedOnboarding: false, finishedOnboarding: false})
     }
 
-    if (this.props.isOnboarding && this.props.envsAreDecrypted){
+    if (nextProps.isOnboarding && nextProps.parent.decrypted){
 
       if (startedOnboardingFn(nextProps, this.state)){
         this.setState({startedOnboarding: true})

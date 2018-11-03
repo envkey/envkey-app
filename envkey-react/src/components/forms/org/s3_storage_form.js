@@ -41,14 +41,14 @@ export default class S3StorageForm extends React.Component {
   }
 
   componentDidMount(){
-    Promise.all([
+    const [dev, prod] = [
       secureRandomAlphanumeric(10),
       secureRandomAlphanumeric(10)
-    ]).then(([dev, prod])=>{
-      this.setState({
-        awsBucketDevelopment: `envkey-development-${dev}`,
-        awsBucketProduction: `envkey-production-${prod}`
-      })
+    ]
+
+    this.setState({
+      awsBucketDevelopment: `envkey-development-${dev}`,
+      awsBucketProduction: `envkey-production-${prod}`
     })
   }
 

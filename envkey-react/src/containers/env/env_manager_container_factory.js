@@ -193,6 +193,7 @@ const EnvManagerContainerFactory = ({parentType})=> {
       const
         startedOnboardingFn = (props, state)=> {
           if(!props.parent)return false
+
           return ((props.parent.role == "org_owner" && allEntries(props.envsWithMeta).length == 0) ||
                   (props.parent.role != "org_owner" && props.isInvitee && !props.lastAddedEntry) ||
                   props.didOnboardImport) &&
