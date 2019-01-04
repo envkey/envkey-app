@@ -4,23 +4,15 @@ import R from 'ramda'
 import pluralize from 'pluralize'
 import SelectedTabs from 'components/shared/selected_tabs'
 import {childrenWithProps} from 'lib/ui'
-import {capitalize} from 'envkey-client-core/dist/lib/utils/string'
 import {
   getCurrentOrg,
   getCurrentUser,
   getAppBySlug,
   getConfigBlockBySlug,
   getUserWithOrgUserBySlug,
-  getPermissions,
-  getIsDecryptingAllForeground,
-  getDecryptedAll,
-  getDecryptPrivkeyErr,
-  getDecryptAllErr,
   getSelectedObjectType,
   getSelectedObjectId,
-  getDidVerifyCurrentUser,
-  getIsDemo,
-  getPrivkey
+  getIsDemo
 } from "selectors"
 import { decryptAll, selectedObject } from 'actions'
 import h from "lib/ui/hyperscript_with_helpers"
@@ -147,16 +139,18 @@ const SelectedObjectContainerFactory = ({
       }
 
       return {
+        ...R.pick([
+          "permissions",
+          "isDecrypting",
+          "decryptedAll",
+          "decryptedPrivkeyErr",
+          "decryptAllErr"
+        ], state),
         [objectType]: obj,
         parent: obj,
         currentOrg: getCurrentOrg(state),
-        permissions: getPermissions(state),
-        isDecrypting: getIsDecryptingAllForeground(state),
         isDemo: getIsDemo(state),
-        decryptedAll: getDecryptedAll(state),
-        decryptPrivkeyErr: getDecryptPrivkeyErr(state),
-        didDecryptPrivkey: Boolean(getPrivkey(state)),
-        decryptAllErr: getDecryptAllErr(state),
+        didDecryptPrivkey: Boolean(state.privkey),
         selectedObjectType: getSelectedObjectType(state),
         selectedObjectId: getSelectedObjectId(state)
       }

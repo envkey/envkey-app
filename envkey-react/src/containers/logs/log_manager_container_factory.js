@@ -5,7 +5,6 @@ import LogManager from 'components/logs/log_manager'
 import {
   getCurrentUser,
   getCurrentOrg,
-  getLogInfo,
   getFetchLogError,
   getIsFetchingLogs,
   getLogEntries,
@@ -27,12 +26,14 @@ const LogManagerContainerFactory = ({parentType})=> {
       return {
         parentType,
         parent,
+        ...R.pick([
+          "isFetchingLogs",
+          "fetchLogError",
+          "logInfo",
+        ], state),
         currentUser: getCurrentUser(state),
         currentOrg: getCurrentOrg(state),
-        isFetchingLogs: getIsFetchingLogs(state),
-        fetchLogError: getFetchLogError(state),
         logEntries: getLogEntries(state),
-        logInfo: getLogInfo(state),
         usersById: getUsersById(state),
         serversById: getServersById(state),
         localKeysById: getLocalKeysById(state)

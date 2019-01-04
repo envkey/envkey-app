@@ -3,10 +3,7 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import { revertToVersion } from 'actions'
 import {
-  getRevertPlan,
-  getEnvsWithMetaWithPending,
-  getEnvsWithMetaForVersion,
-  getUser
+  getRevertPlan
 } from 'selectors'
 import {RadioGroup, Radio} from 'react-radio-group'
 

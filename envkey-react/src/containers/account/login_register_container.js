@@ -10,24 +10,13 @@ import {
   login,
   register
 } from 'actions'
-import {
-  getIsAuthenticating,
-  getAuthError,
-  getVerifyingEmail,
-  getEmailVerificationType,
-  getEmailVerificationCode,
-  getIsVerifyingEmail,
-  getIsVerifyingEmailCode,
-  getVerifyEmailError,
-  getVerifyEmailCodeError,
-  getCurrentUser
-} from 'selectors'
+import { getCurrentUser } from 'selectors'
 import VerifyEmailCodeForm from 'components/forms/auth/verify_email_code_form'
 import PasswordInput from 'components/shared/password_input'
 import PasswordCopy from 'components/shared/password_copy'
 import Spinner from 'components/shared/spinner'
-import {imagePath} from 'lib/ui'
 import {OnboardOverlay} from 'components/onboard'
+import { pick } from  'envkey-client-core/dist/lib/utils/object'
 
 const
   shouldShowRegisterForm = props =>{
@@ -303,16 +292,18 @@ class LoginRegister extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    isAuthenticating: getIsAuthenticating(state),
-    currentUser: getCurrentUser(state),
-    authError: getAuthError(state),
-    verifyingEmail: getVerifyingEmail(state),
-    emailVerificationCode: getEmailVerificationCode(state),
-    emailVerificationType: getEmailVerificationType(state),
-    isVerifyingEmail: getIsVerifyingEmail(state),
-    isVerifyingEmailCode: getIsVerifyingEmailCode(state),
-    verifyEmailError: getVerifyEmailError(state),
-    verifyEmailCodeError: getVerifyEmailCodeError(state)
+    ...pick([
+      "isAuthenticating",
+      "authError",
+      "verifyingEmail",
+      "emailVerificationCode",
+      "emailVerificationType",
+      "isVerifyingEmail",
+      "isVerifyingEmailCode",
+      "verifyEmailError",
+      "verifyEmailCodeError",
+    ], state),
+    currentUser: getCurrentUser(state)
   }
 }
 

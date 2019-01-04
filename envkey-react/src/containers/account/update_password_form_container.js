@@ -2,16 +2,13 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
 import { updateEncryptedPrivkey } from 'actions'
 import {
-  getIsUpdatingEncryptedPrivkey,
-  getUpdateEncryptedPrivkeyErr,
   getCurrentUser
 } from 'selectors'
 import PasswordInput from 'components/shared/password_input'
 import SmallLoader from 'components/shared/small_loader'
-import PasswordCopy from 'components/shared/password_copy'
+import { pick } from 'envkey-client-core/dist/lib/utils/object'
 
 const defaultState = {
   oldPassword: "",
@@ -115,8 +112,10 @@ class UpdatePassword extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    isUpdatingEncryptedPrivkey: getIsUpdatingEncryptedPrivkey(state),
-    updateEncryptedPrivkeyErr: getUpdateEncryptedPrivkeyErr(state),
+    ...pick([
+      "isUpdatingEncryptedPrivkey",
+      "updateEncryptedPrivkeyErr"
+    ], state),
     currentUser: getCurrentUser(state)
   }
 }

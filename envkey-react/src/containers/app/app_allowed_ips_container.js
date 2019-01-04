@@ -3,13 +3,11 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import {
   getCurrentOrg,
-  getIsUpdatingNetworkSettings,
   getAllowedIpsMergeStrategies
 } from "selectors"
 import {
   updateNetworkSettings
 } from "actions"
-import SmallLoader from 'components/shared/small_loader'
 import {isValidIPString} from 'envkey-client-core/dist/lib/utils/string'
 
 const
@@ -213,7 +211,7 @@ const mapStateToProps = (state, ownProps) => {
     ...ownProps,
     currentOrg: getCurrentOrg(state),
     isUpdating: getIsUpdatingNetworkSettings(ownProps.app.id, state),
-    allowedIpsMergeStrategies: getAllowedIpsMergeStrategies(state)
+    allowedIpsMergeStrategies: state.allowedIpsMergeStrategies
   }
 }
 

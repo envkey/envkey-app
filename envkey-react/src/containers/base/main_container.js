@@ -11,14 +11,10 @@ import {
   getUserGroupsByRole,
   getIsLoadingAppState,
   getCurrentUser,
-  getAuth,
-  getCurrentUserErr,
-  getPermissions,
   getCurrentOrg,
   getCurrentOrgSlug,
   getIsUpdatingSubscription,
   getStripeFormOpened,
-  getDecryptedAll,
   getIsDemo,
   getDemoDownloadUrl
 } from 'selectors'
@@ -170,19 +166,21 @@ class Main extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     ...R.pick(["route", "params", "location"], ownProps),
+    ...R.pick([
+      "decryptedAll",
+      "currentUserErr",
+      "auth",
+      "permissions"
+    ], state),
     currentOrgSlug: getCurrentOrgSlug(state),
     currentUser: getCurrentUser(state),
-    currentUserErr: getCurrentUserErr(state),
     currentOrg: getCurrentOrg(state),
-    decryptedAll: getDecryptedAll(state),
     numOrgs: getOrgs(state).length,
     apps: getApps(state),
     configBlocks: getConfigBlocks(state),
     users: getUserGroupsByRole(state),
     appLoaded: getAppLoaded(state),
     isLoadingAppState: getIsLoadingAppState(state),
-    permissions: getPermissions(state),
-    auth: getAuth(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
     stripeFormOpened: getStripeFormOpened(state),
     isDemo: getIsDemo(state),

@@ -4,17 +4,6 @@ import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {loadInviteRequest, acceptInvite, resetAcceptInvite} from 'actions'
-import {
-  getIsAuthenticating,
-  getInviteParams,
-  getInviteParamsVerified,
-  getInviteParamsInvalid,
-  getAcceptInviteEmailError,
-  getIsLoadingInvite,
-  getLoadInviteError,
-  getIsInvitee,
-  getInviteExistingUserInvalidPassphraseError
-} from 'selectors'
 import PasswordInput from 'components/shared/password_input'
 import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
@@ -232,15 +221,17 @@ class AcceptInvite extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     params: ownProps.params,
-    inviteParams: getInviteParams(state),
-    inviteParamsVerified: getInviteParamsVerified(state),
-    inviteParamsInvalid: getInviteParamsInvalid(state),
-    acceptInviteEmailError: getAcceptInviteEmailError(state),
-    inviteExistingUserInvalidPassphraseError: getInviteExistingUserInvalidPassphraseError(state),
-    isAuthenticating: getIsAuthenticating(state),
-    isLoadingInvite: getIsLoadingInvite(state),
-    loadInviteError: getLoadInviteError(state),
-    isInvitee: getIsInvitee(state)
+    ...R.pick([
+      "inviteParams",
+      "inviteParamsVerified",
+      "inviteParamsInvalid",
+      "acceptInviteEmailError",
+      "inviteExistingUserInvalidPassphraseError",
+      "isAuthenticating",
+      "isLoadingInvite",
+      "loadInviteError",
+      "isInvitee"
+    ], state)
   }
 }
 

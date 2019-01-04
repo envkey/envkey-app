@@ -4,7 +4,7 @@ import h from "lib/ui/hyperscript_with_helpers"
 import R from 'ramda'
 import moment from 'moment'
 import { getColumnsFlattened } from "lib/columns/helpers"
-import { getIsOnboarding, getDecryptedAll, getInvitingUser, getGeneratedInviteLink, getIsDemo } from 'selectors'
+import { getInvitingUser, getGeneratedInviteLink, getIsDemo } from 'selectors'
 import { closeGeneratedInviteLink } from 'actions'
 import {Onboardable} from 'components/onboard'
 import {AppCollaboratorsSlider} from 'components/onboard'
@@ -70,7 +70,7 @@ class AppCollaborators extends React.Component {
 
 const
   mapStateToProps = (state, ownProps) => ({
-    isOnboarding: getIsOnboarding(state),
+    isOnboarding: state.isOnboarding,
     invitingUser: getInvitingUser(ownProps.app.id, state),
     generatedInviteLink: getGeneratedInviteLink(ownProps.app.id, state),
     isDemo: getIsDemo(state)

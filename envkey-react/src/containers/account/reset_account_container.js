@@ -7,7 +7,6 @@ import {
   removeObject
 } from 'actions'
 import {
-  getResetAccountOptions,
   getCurrentUser,
   getOrgsBySlug,
   getIsRemoving
@@ -98,7 +97,7 @@ const mapStateToProps = (state, ownProps) => {
   const currentUser = getCurrentUser(state)
   return {
     currentUser,
-    accountResetOptions: getResetAccountOptions(state),
+    accountResetOptions: state.accountResetOptions,
     isDeletingAccount: getIsRemoving(currentUser.id, state),
     orgsBySlug: getOrgsBySlug(state)
   }

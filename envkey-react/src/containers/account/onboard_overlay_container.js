@@ -16,7 +16,7 @@ import {OnboardOverlay} from 'components/onboard'
 
 const
   mapStateToProps = (state, ownProps) => {
-    const onboardAppId = getOnboardAppId(state),
+    const onboardAppId = state.onboardAppId,
           apps = getApps(state),
           app = getApp(onboardAppId, state) || (apps.length == 1 ? apps[0] : null),
           currentOrg = getCurrentOrg(state),

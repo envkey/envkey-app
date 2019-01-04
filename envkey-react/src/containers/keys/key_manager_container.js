@@ -6,7 +6,6 @@ import {Link} from "react-router"
 import {
   getIsOnboarding,
   getCurrentAppUserForApp,
-  getDecryptedAll,
   getServersForApp,
   getApps,
   getLocalKeysForAppUser
@@ -83,7 +82,7 @@ const
     return {
       currentAppUser,
       isOnboarding: getIsOnboarding(state),
-      envsAreDecrypted: getDecryptedAll(state),
+      envsAreDecrypted: state.decryptedAll,
       servers: getServersForApp(ownProps.app.id, state),
       localKeys: getLocalKeysForAppUser(currentAppUser.id, state)
     }

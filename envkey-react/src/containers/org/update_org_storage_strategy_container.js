@@ -3,7 +3,7 @@ import R from 'ramda'
 import { connect } from 'react-redux'
 import S3StorageForm from 'components/forms/org/s3_storage_form'
 import SmallLoader from 'components/shared/small_loader'
-import {getCurrentOrg, getIsUpdatingOrgStorageStrategy} from 'selectors'
+import {getCurrentOrg} from 'selectors'
 import {updateOrgStorageStrategy} from 'actions'
 
 class UpdateOrgStorageStrategy extends React.Component {
@@ -118,7 +118,7 @@ class UpdateOrgStorageStrategy extends React.Component {
 const
   mapStateToProps = state => ({
     currentOrg: getCurrentOrg(state),
-    isSubmitting: getIsUpdatingOrgStorageStrategy(state)
+    isSubmitting: state.isUpdatingOrgStorageStrategy
   }),
 
   mapDispatchToProps = dispatch => ({

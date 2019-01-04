@@ -17,16 +17,12 @@ import {
   socketUpdateLocalStatus
 } from 'actions'
 import {
-  getCurrentAppUserForApp,
-  getConfigBlocksForApp,
   getCurrentUser,
   getCurrentOrg,
   getIsUpdatingEnvVal,
   getIsUpdatingEnvEntry,
   getIsCreatingEnvEntry,
   getIsRemovingById,
-  getIsAddingAssoc,
-  getIsCreating,
   getIsUpdatingEnv,
   getEnvsAreDecrypted,
   getEnvsWithMetaWithPending,

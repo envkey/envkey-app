@@ -2,7 +2,7 @@ import React from 'react'
 import R from 'ramda'
 import { connect } from 'react-redux'
 import SmallLoader from 'components/shared/small_loader'
-import {getOrgAdmins, getIsUpdatingOrgOwner, getCurrentOrg} from 'selectors'
+import {getOrgAdmins, getCurrentOrg} from 'selectors'
 import {updateOrgOwner} from 'actions'
 
 class UpdateOwner extends React.Component {
@@ -74,7 +74,7 @@ class UpdateOwner extends React.Component {
 const
   mapStateToProps = state => ({
     currentOrg: getCurrentOrg(state),
-    isUpdatingOrgOwner: getIsUpdatingOrgOwner(state),
+    isUpdatingOrgOwner: state.isUpdatingOrgOwner,
     orgAdmins: getOrgAdmins(state)
   }),
 
