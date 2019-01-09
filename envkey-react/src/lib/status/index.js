@@ -1,6 +1,6 @@
 import {store} from 'init_redux'
 import {getIsUpdatingAnyEnv} from 'selectors'
-import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
+import { ActionType } from 'actions'
 import isElectron from 'is-electron'
 
 window.isUpdatingAnyEnv = ()=> {
@@ -45,7 +45,7 @@ const
     if(!navigator.onLine){
       if (!disconnected){
         console.log("dispatch DISCONNECTED - navigator")
-        store.dispatch({type: DISCONNECTED})
+        store.dispatch({type: ActionType.DISCONNECTED})
       }
 
       setTimeout(checkConnection, 5000)
@@ -60,7 +60,7 @@ const
         }
       } else if (!disconnected) {
         console.log("dispatch DISCONNECTED - isOnline")
-        store.dispatch({type: DISCONNECTED})
+        store.dispatch({type: ActionType.DISCONNECTED})
       }
       setTimeout(checkConnection, 5000)
     })
@@ -72,7 +72,7 @@ const
         store.dispatch({type})
       } else {
         console.log("dispatch DISCONNECTED - reactivateIfConnected")
-        store.dispatch({type: DISCONNECTED})
+        store.dispatch({type: ActionType.DISCONNECTED})
       }
     })
   },
@@ -85,10 +85,10 @@ const
     if (!disconnected){
       if (diff > (1000 * 60)){
         console.log("REACTIVATED_LONG if connected")
-        reactivateIfConnected(REACTIVATED_LONG)
+        reactivateIfConnected(ActionType.REACTIVATED_LONG)
       } else if (diff > (1000 * 20)){
         console.log("REACTIVATED_BRIEF if connected")
-        reactivateIfConnected(REACTIVATED_BRIEF)
+        reactivateIfConnected(ActionType.REACTIVATED_BRIEF)
       }
     }
 

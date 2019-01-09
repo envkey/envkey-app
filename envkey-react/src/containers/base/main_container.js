@@ -9,7 +9,6 @@ import {
   getConfigBlocks,
   getOrgs,
   getUserGroupsByRole,
-  getIsLoadingAppState,
   getCurrentUser,
   getCurrentOrg,
   getCurrentOrgSlug,
@@ -33,7 +32,7 @@ import {openLinkExternal} from 'lib/ui'
 import Spinner from 'components/shared/spinner'
 
 const appStateLoaded = (props)=>{
-  return !props.isLoadingAppState && props.currentUser
+  return !props.isFetchingCurrentUser && props.currentUser
 }
 
 const ensureCurrentUser = (props)=>{
@@ -41,7 +40,7 @@ const ensureCurrentUser = (props)=>{
     props.logout()
     return
   }
-  if(props.isLoadingAppState)return
+  if(props.isFetchingCurrentUser)return
   const orgSlug = props.params.orgSlug.toLowerCase()
 
   //avoid request loop on failure
@@ -170,7 +169,8 @@ const mapStateToProps = (state, ownProps) => {
       "decryptedAll",
       "currentUserErr",
       "auth",
-      "permissions"
+      "permissions",
+      "isFetchingCurrentUser"
     ], state),
     currentOrgSlug: getCurrentOrgSlug(state),
     currentUser: getCurrentUser(state),
@@ -180,7 +180,6 @@ const mapStateToProps = (state, ownProps) => {
     configBlocks: getConfigBlocks(state),
     users: getUserGroupsByRole(state),
     appLoaded: getAppLoaded(state),
-    isLoadingAppState: getIsLoadingAppState(state),
     isUpdatingSubscription: getIsUpdatingSubscription(state),
     stripeFormOpened: getStripeFormOpened(state),
     isDemo: getIsDemo(state),

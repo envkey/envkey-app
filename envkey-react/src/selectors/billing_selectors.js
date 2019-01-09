@@ -11,6 +11,8 @@ db.init("invoices")
 export const
   getStripeFormOpened = db.path("stripeFormOpened"),
 
+  getIsUpdatingSubscription = db.path("isUpdatingSubscription"),
+
   getIsExceedingFreeTier = state => {
     const currentOrg = getCurrentOrg(state)
     if (!currentOrg || !currentOrg.freePlan)return false

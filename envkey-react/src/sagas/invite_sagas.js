@@ -7,25 +7,19 @@ import {
 import {
   redirectFromOrgIndexIfNeeded
 } from './helpers'
-import {
-  SOCKET_SUBSCRIBE_ORG_CHANNEL,
-  ACCEPT_INVITE,
-  ACCEPT_INVITE_SUCCESS,
-  DECRYPT_PRIVKEY_SUCCESS,
-  INVITE_USER_FAILED
-} from 'actions'
+import { ActionType } from 'actions'
 
 function *onAcceptInvite({payload}){
   document.body.className += " preloader-authenticate"
 }
 
 function* onAcceptInviteSuccess({meta: {password, orgSlug}}){
-  yield take(DECRYPT_PRIVKEY_SUCCESS)
+  yield take(ActionType.DECRYPT_PRIVKEY_SUCCESS)
 
   const currentOrg = yield select(getCurrentOrg)
 
   yield put(push(`/${currentOrg.slug}`))
-  yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
+  yield put({ type: ActionType.SOCKET_SUBSCRIBE_ORG_CHANNEL})
   yield call(redirectFromOrgIndexIfNeeded)
 
   const overlay = document.getElementById("preloader-overlay")
@@ -48,8 +42,8 @@ function* onInviteUserFailed(action){
 
 export default function* inviteSagas(){
   yield [
-    takeLatest(ACCEPT_INVITE, onAcceptInvite),
-    takeLatest(ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
-    takeLatest(INVITE_USER_FAILED, onInviteUserFailed)
+    takeLatest(ActionType.ACCEPT_INVITE, onAcceptInvite),
+    takeLatest(ActionType.ACCEPT_INVITE_SUCCESS, onAcceptInviteSuccess),
+    takeLatest(ActionType.INVITE_USER_FAILED, onInviteUserFailed)
   ]
 }

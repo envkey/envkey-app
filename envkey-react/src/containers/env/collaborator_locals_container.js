@@ -4,14 +4,12 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import {
   getCurrentUser,
-  getCurrentOrg,
   getAppBySlug,
   getUserBySlug,
   getAppUserBy
 } from 'selectors'
 import { selectedObject } from 'actions'
 import {
-  CollaboratorLocalsContainer,
   EnvManagerContainerFactory
 } from 'containers'
 

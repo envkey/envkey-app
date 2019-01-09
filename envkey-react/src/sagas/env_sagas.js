@@ -2,13 +2,7 @@ import { take, put, call, select, takeEvery, takeLatest } from 'redux-saga/effec
 import { push } from 'react-router-redux'
 import isElectron from 'is-electron'
 import {
-  CREATE_ENTRY,
-  UPDATE_ENTRY,
-  REMOVE_ENTRY,
-  UPDATE_ENTRY_VAL,
-  ADD_SUB_ENV,
-  REMOVE_SUB_ENV,
-  RENAME_SUB_ENV,
+  ActionType,
   socketBroadcastEnvsStatus
 } from "actions"
 
@@ -34,15 +28,15 @@ function* onRemoveSubEnv({payload: {parentEnvironment, id}}){
 export default function* envSagas(){
   yield [
     takeEvery([
-      CREATE_ENTRY,
-      UPDATE_ENTRY,
-      REMOVE_ENTRY,
-      UPDATE_ENTRY_VAL,
-      ADD_SUB_ENV,
-      REMOVE_SUB_ENV,
-      RENAME_SUB_ENV
+      ActionType.CREATE_ENTRY,
+      ActionType.UPDATE_ENTRY,
+      ActionType.REMOVE_ENTRY,
+      ActionType.UPDATE_ENTRY_VAL,
+      ActionType.ADD_SUB_ENV,
+      ActionType.REMOVE_SUB_ENV,
+      ActionType.RENAME_SUB_ENV
     ], onTransformEnv),
-    takeLatest(ADD_SUB_ENV, onAddSubEnv),
-    takeLatest(REMOVE_SUB_ENV, onRemoveSubEnv)
+    takeLatest(ActionType.ADD_SUB_ENV, onAddSubEnv),
+    takeLatest(ActionType.REMOVE_SUB_ENV, onRemoveSubEnv)
   ]
 }

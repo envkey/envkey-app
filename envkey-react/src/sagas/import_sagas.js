@@ -4,9 +4,7 @@ import {
   getCurrentOrg,
   getObject
 } from 'selectors'
-import {
-  IMPORT_ALL_ENVIRONMENTS_SUCCESS
-} from "actions"
+import { ActionType } from "actions"
 
 import pluralize from 'pluralize'
 
@@ -20,6 +18,6 @@ function* onImportAllEnvironmentsSuccess({meta}){
 
 export default function* importSagas(){
   yield [
-    takeEvery(IMPORT_ALL_ENVIRONMENTS_SUCCESS, onImportAllEnvironmentsSuccess)
+    takeEvery(ActionType.IMPORT_ALL_ENVIRONMENTS_SUCCESS, onImportAllEnvironmentsSuccess)
   ]
 }

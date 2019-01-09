@@ -7,23 +7,18 @@ import {
   removeAssoc,
   generateKey,
   revokeKey,
-  createObject,
   clearGeneratedAssocKey,
   regenInvite,
   revokeInvite
 } from 'actions'
 import {
-  getIsRemovingById,
   getIsGeneratingAssocKeyById,
   getIsRevokingAssocKeyById,
   getUser,
   getOrgUserForUser,
   getOrgUsers,
   getCurrentUser,
-  getCurrentOrg,
-  getGeneratedEnvKeysById,
-  getIsRevokingInviteByUserId,
-  getIsRegeneratingInviteByUserId
+  getCurrentOrg
 } from 'selectors'
 import AssocManager from 'components/assoc_manager'
 import {getTrueParentAssoc, getJoinType} from "envkey-client-core/dist/lib/assoc/helpers"
@@ -47,13 +42,13 @@ export default function({
       currentOrg: getCurrentOrg(state),
       columnsConfig: columnsConfig({parentType, assocType, parent, state}),
       permissions: state.permissions,
-      isRemovingById: getIsRemovingById(state),
+      isRemovingById: state.isRemoving,
       isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
       isRevokingAssocKeyById: getIsRevokingAssocKeyById(state),
-      generatedEnvKeysById: getGeneratedEnvKeysById(state),
+      generatedEnvKeysById: state.generatedEnvkeys,
       orgUsers: getOrgUsers(state),
-      isRevokingInviteByUserId: getIsRevokingInviteByUserId(state),
-      isRegeneratingInviteByUserId: getIsRegeneratingInviteByUserId(state),
+      isRevokingInviteByUserId: state.isRevokingInvite,
+      isRegeneratingInviteByUserId: state.isRegeneratingInvite,
       getUserFn: userId => getUser(userId, state),
       getOrgUserForUserFn: userId => getOrgUserForUser(userId, state)
     }

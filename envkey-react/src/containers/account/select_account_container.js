@@ -1,14 +1,11 @@
 import React from 'react'
 import h from 'lib/ui/hyperscript_with_helpers'
 import { connect } from 'react-redux'
-import { push } from 'react-router-redux'
 import { Link } from 'react-router'
-import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
 import {selectAccount, logout, resetSession} from 'actions'
-import {getAccounts, getAccountPrivkeysById} from 'selectors'
+import {getAccounts} from 'selectors'
 import {imagePath, setAuthenticatingOverlay} from 'lib/ui'
-import R from 'ramda'
 
 const SelectAccount = ({
   accounts,
@@ -62,7 +59,7 @@ const SelectAccount = ({
 const mapStateToProps = state => {
   return {
     accounts: getAccounts(state),
-    accountPrivkeys: getAccountPrivkeysById(state)
+    accountPrivkeys: state.accountPrivkeys
   }
 }
 

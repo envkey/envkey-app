@@ -1,29 +1,21 @@
 import R from 'ramda'
 import { createAction } from 'redux-actions'
-import {
-  APP_LOADED,
-  START_DEMO,
-  SET_DEMO_DOWNLOAD_URL,
-  GENERATE_DEMO_ORG_REQUEST,
-  CLOSE_GENERATED_INVITE_LINK,
-  SELECTED_OBJECT,
-  UPDATE_VERSION_FILTERS
-} from './action_types'
+import { ActionType } from './action_types'
 
 export const
-  appLoaded = createAction(APP_LOADED),
+  appLoaded = createAction(ActionType.APP_LOADED),
 
-  startDemo = createAction(START_DEMO),
+  startDemo = createAction(ActionType.START_DEMO),
 
-  setDemoDownloadUrl = createAction(SET_DEMO_DOWNLOAD_URL),
+  setDemoDownloadUrl = createAction(ActionType.SET_DEMO_DOWNLOAD_URL),
 
-  generateDemoOrg = createAction(GENERATE_DEMO_ORG_REQUEST),
+  generateDemoOrg = createAction(ActionType.GENERATE_DEMO_ORG_REQUEST),
 
-  closeGeneratedInviteLink = createAction(CLOSE_GENERATED_INVITE_LINK, R.always({}), R.pick(["parentId"])),
+  closeGeneratedInviteLink = createAction(ActionType.CLOSE_GENERATED_INVITE_LINK, R.always({}), R.pick(["parentId"])),
 
-  selectedObject = createAction(SELECTED_OBJECT),
+  selectedObject = createAction(ActionType.SELECTED_OBJECT),
 
-  updateVersionFilters = createAction(UPDATE_VERSION_FILTERS)
+  updateVersionFilters = createAction(ActionType.UPDATE_VERSION_FILTERS)
 
 
 

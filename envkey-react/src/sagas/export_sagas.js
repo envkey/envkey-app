@@ -4,9 +4,7 @@ import {
   getApp,
   getRawEnvWithPendingForApp
 } from 'selectors'
-import {
-  EXPORT_ENVIRONMENT
-} from "actions"
+import { ActionType } from "actions"
 import {rawEnvToTxt} from "envkey-client-core/dist/lib/parse"
 import isElectron from 'is-electron'
 
@@ -32,6 +30,6 @@ function* onExportEnvironment({meta: {parentId}, payload: {environment, format, 
 
 export default function* exportSagas(){
   yield [
-    takeEvery(EXPORT_ENVIRONMENT, onExportEnvironment)
+    takeEvery(ActionType.EXPORT_ENVIRONMENT, onExportEnvironment)
   ]
 }

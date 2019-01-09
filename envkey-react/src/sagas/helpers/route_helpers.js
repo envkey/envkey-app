@@ -15,7 +15,8 @@ export function *redirectFromOrgIndexIfNeeded(){
 
   if (isOrgIndex){
     const apps = yield select(getAppsSortedByUpdatedAt),
-          permissions = yield select(getPermissions)
+          state = yield select(),
+          permissions = state.permissions
 
     if (apps.length){
       yield put(replace(`/${orgSlug}/apps/${apps[0].slug}`))

@@ -1,68 +1,44 @@
 import { takeLatest, takeEvery, take, put, select, call } from 'redux-saga/effects'
 import {push } from 'react-router-redux'
+import { redirectFromOrgIndexIfNeeded } from './helpers'
 import {
-  redirectFromOrgIndexIfNeeded,
-  resolveEnvUpdateConflicts
-} from './helpers'
-import {
-  SOCKET_SUBSCRIBE_ORG_CHANNEL,
-  SOCKET_SUBSCRIBE_ORG_USER_CHANNEL,
-  SOCKET_SUBSCRIBE_OBJECT_CHANNEL,
-  SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
-  SOCKET_ORG_UPDATE,
-  SOCKET_BROADCAST_ENVS_STATUS,
-  SOCKET_UPDATE_ENVS_STATUS,
-  SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL,
-  PROCESSED_SOCKET_UPDATE_ENVS_STATUS,
-  SOCKET_UPDATE_LOCAL_STATUS,
-  SOCKET_UNSUBSCRIBE_ALL,
-  FETCH_OBJECT_DETAILS_SUCCESS,
-  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
+  ActionType,
   fetchObjectDetails,
-  fetchCurrentUser,
   fetchCurrentUserUpdates,
   socketBroadcastEnvsStatus,
   processedSocketUpdateEnvStatus,
-  resetSession,
-  selectOrg
+  resetSession
 } from 'actions'
 import {
-  getAuth,
   getCurrentOrg,
-  getApp,
   getEnvParent,
   getObjectType,
   getSelectedObject,
   getSelectedObjectType,
   getCurrentUser,
   getCurrentOrgUser,
-  getCurrentAppUserForApp,
-  getLocalSocketEnvsStatus,
   getEnvironmentLabelsWithSubEnvIds,
   getAnonSocketEnvsStatus,
   getSelectedObjectId,
   getSubEnvs,
-  getEnvActionsPendingByEnvUpdateId,
   getHasEnvActionsPending
 } from 'selectors'
 import {
-  UPDATE_ENVS,
   UPDATE_ENVS_STATUS,
   ensureSocket,
   unsubscribeOrgChannels,
   subscribeOrgChannels,
   unsubscribeObjectChannel,
   subscribeObjectChannel,
-  broadcastOrgChannel,
   broadcastObjectChannel
 } from 'lib/socket'
 import { allEntriesWithSubEnvs } from "envkey-client-core/dist/lib/env/query"
 import { deanonymizeEnvStatus } from 'lib/env/update_status'
-import {dispatchEnvUpdateRequestIfNeeded} from './helpers'
 import isElectron from 'is-electron'
 
 function *ensureSocketReady(){
-  const auth = yield select(getAuth),
+  const state = yield select(),
+        auth = state.auth,
         currentOrg = yield select(getCurrentOrg)
   ensureSocket(auth, currentOrg.slug)
 }
@@ -91,7 +67,8 @@ function *onSubscribeObjectChannel({payload: object}){
 }
 
 function *onSocketUpdateOrg(action){
-  const auth = yield select(getAuth),
+  const state = yield select(),
+        auth = state.auth,
         currentOrg = yield select(getCurrentOrg)
 
   // Cancel if not logged in / org selected
@@ -139,7 +116,7 @@ function *onSocketUpdateOrg(action){
       (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "update_owner" && meta.userId == auth.id) ){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your organization access level has been updated by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+    yield take(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -149,7 +126,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "App" && targetId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This app has been deleted by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+    yield take(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -159,7 +136,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your access to this app has been removed by an app admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+    yield take(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -176,7 +153,7 @@ function *onSocketUpdateOrg(action){
   if (actionType == "deleted" && targetType == "OrgUser" && meta && meta.userId == selectedObjectId){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This user has been removed from the organization by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
+    yield take(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
     yield call(redirectFromOrgIndexIfNeeded)
     return
@@ -246,7 +223,8 @@ function *onSocketUpdateEnvsStatus(action){
 }
 
 function *onSocketBroadcastEnvsStatus(action){
-  const {id: userId} = yield select(getAuth),
+  const state = yield select(),
+        {id: userId} = state.auth,
         anonStatus = yield select(getAnonSocketEnvsStatus)
 
   broadcastObjectChannel(userId, UPDATE_ENVS_STATUS, {status: anonStatus})
@@ -265,22 +243,22 @@ function *onSocketUpdateLocalStatus(action){
 
 export default function* socketSagas(){
   yield [
-    takeLatest(SOCKET_SUBSCRIBE_ORG_CHANNEL, onSubscribeOrgChannel),
+    takeLatest(ActionType.SOCKET_SUBSCRIBE_ORG_CHANNEL, onSubscribeOrgChannel),
 
-    takeLatest(SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL, onUnsubscribeObjectChannel),
+    takeLatest(ActionType.SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL, onUnsubscribeObjectChannel),
 
-    takeLatest(SOCKET_UNSUBSCRIBE_ALL, onUnsubscribeAll),
+    takeLatest(ActionType.SOCKET_UNSUBSCRIBE_ALL, onUnsubscribeAll),
 
-    takeLatest(SOCKET_SUBSCRIBE_OBJECT_CHANNEL, onSubscribeObjectChannel),
+    takeLatest(ActionType.SOCKET_SUBSCRIBE_OBJECT_CHANNEL, onSubscribeObjectChannel),
 
-    takeEvery(SOCKET_ORG_UPDATE, onSocketUpdateOrg),
+    takeEvery(ActionType.SOCKET_ORG_UPDATE, onSocketUpdateOrg),
 
-    takeEvery(SOCKET_UPDATE_ENVS_STATUS, onSocketUpdateEnvsStatus),
+    takeEvery(ActionType.SOCKET_UPDATE_ENVS_STATUS, onSocketUpdateEnvsStatus),
 
-    takeEvery(SOCKET_UPDATE_LOCAL_STATUS, onSocketUpdateLocalStatus),
+    takeEvery(ActionType.SOCKET_UPDATE_LOCAL_STATUS, onSocketUpdateLocalStatus),
 
-    takeEvery(SOCKET_BROADCAST_ENVS_STATUS, onSocketBroadcastEnvsStatus),
+    takeEvery(ActionType.SOCKET_BROADCAST_ENVS_STATUS, onSocketBroadcastEnvsStatus),
 
-    takeEvery(SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL, onSocketUserSubscribedObjectChannel)
+    takeEvery(ActionType.SOCKET_USER_SUBSCRIBED_OBJECT_CHANNEL, onSocketUserSubscribedObjectChannel)
   ]
 }

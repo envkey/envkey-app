@@ -5,25 +5,7 @@ import {
 } from './helpers'
 import pluralize from 'pluralize'
 import {
-  SELECTED_OBJECT,
-  CREATE_OBJECT_SUCCESS,
-  FETCH_OBJECT_DETAILS_API_SUCCESS,
-
-  REMOVE_OBJECT_REQUEST,
-  REMOVE_OBJECT_SUCCESS,
-  REMOVE_OBJECT_FAILED,
-
-  UPDATE_OBJECT_SETTINGS_FAILED,
-  UPDATE_NETWORK_SETTINGS_FAILED,
-
-  API_SUCCESS,
-  API_FAILED,
-
-  VERIFY_CURRENT_USER_PUBKEY_SUCCESS,
-  VERIFY_TRUSTED_PUBKEYS_SUCCESS,
-
-  SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL,
-
+  ActionType,
   socketSubscribeObjectChannel,
   generateEnvUpdateId,
   fetchObjectDetails,
@@ -42,7 +24,7 @@ import {
 
 const
   onSelectedObject = function*({payload: {objectType, id}}){
-    yield put({type: SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
+    yield put({ type: ActionType.SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
     const currentOrg = yield select(getCurrentOrg),
           object = yield select(getObject(objectType, id))
 
@@ -71,7 +53,7 @@ const
         }))
 
         if (objectType == "app"){
-          const successAction = yield take(FETCH_OBJECT_DETAILS_API_SUCCESS)
+          const successAction = yield take(ActionType.FETCH_OBJECT_DETAILS_API_SUCCESS)
           if (successAction.meta.targetId == id){
             const blocks = yield select(getConfigBlocksForApp(id))
 
@@ -101,16 +83,16 @@ const
           shouldClearSession = ((objectType == "user" && targetId == currentUser.id) ||
                                 (objectType == "org" && targetId == currentOrg.id))
 
-    const {type: apiResultType} = yield take([API_SUCCESS, API_FAILED])
+    const { type: apiResultType } = yield take([ActionType.API_SUCCESS, ActionType.API_FAILED])
 
     if(!isOnboardAction){
-      if (apiResultType == API_SUCCESS) {
+      if (apiResultType == ActionType.API_SUCCESS) {
         // If user just deleted their account or organization, log them out and return
         if (shouldClearSession){
           yield put(push("/home"))
           yield put(resetSession())
         } else if (!noRedirect){
-          yield take(REMOVE_OBJECT_SUCCESS)
+          yield take(ActionType.REMOVE_OBJECT_SUCCESS)
           yield put(push(`/${currentOrg.slug}`))
           yield call(redirectFromOrgIndexIfNeeded)
         }
@@ -149,10 +131,10 @@ ${payload.toString()}`)
 
 export default function* objectSagas(){
   yield [
-    takeLatest(SELECTED_OBJECT, onSelectedObject),
-    takeEvery(REMOVE_OBJECT_REQUEST, onRemoveObject),
-    takeEvery(CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
-    takeLatest(UPDATE_OBJECT_SETTINGS_FAILED, onUpdateObjectSettingsFailed),
-    takeLatest(UPDATE_NETWORK_SETTINGS_FAILED, onUpdateNetworkSettingsFailed)
+    takeLatest(ActionType.SELECTED_OBJECT, onSelectedObject),
+    takeEvery(ActionType.REMOVE_OBJECT_REQUEST, onRemoveObject),
+    takeEvery(ActionType.CREATE_OBJECT_SUCCESS, onCreateObjectSuccess),
+    takeLatest(ActionType.UPDATE_OBJECT_SETTINGS_FAILED, onUpdateObjectSettingsFailed),
+    takeLatest(ActionType.UPDATE_NETWORK_SETTINGS_FAILED, onUpdateNetworkSettingsFailed)
   ]
 }

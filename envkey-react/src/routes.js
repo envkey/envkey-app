@@ -6,14 +6,10 @@ import { routerActions, replace, push } from 'react-router-redux'
 import { UserAuthWrapper } from 'redux-auth-wrapper'
 import {history, store} from 'init_redux'
 import {
-  getAuth,
   getCurrentOrgSlug,
   getOrgsLoaded,
-  getPermissions,
   getApps,
-  getDisconnected,
-  getAccounts,
-  getLastFetchAt
+  getAccounts
 } from 'selectors'
 import {
   MainContainer,
@@ -49,7 +45,7 @@ import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
 const
   UserAuthenticated = UserAuthWrapper({
-    authSelector: getAuth,
+    authSelector: state => state.auth,
     failureRedirectPath: "/home",
     redirectAction: routerActions.replace,
     wrapperDisplayName: 'UserAuthenticated'
@@ -90,13 +86,13 @@ export default class Routes extends React.Component {
 
   _redirectOrgIndex(){
     const state = store.getState(),
-          lastFetchAt = getLastFetchAt(state)
+          lastFetchAt = state.lastFetchAt
 
     // If no fetch yet, don't redirect
     if(!lastFetchAt)return
 
     const orgSlug = getCurrentOrgSlug(state),
-          permissions = getPermissions(state),
+          permissions = state.permissions,
           apps = getApps(state)
 
     if (apps.length){

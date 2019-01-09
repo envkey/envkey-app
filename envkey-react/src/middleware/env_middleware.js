@@ -1,9 +1,8 @@
 import R from 'ramda'
 import {
-  UPDATE_ENV_STATUS,
   TRANSFORM_ENV_ACTION_TYPES,
   ATTACH_ENV_UPDATE_ID_TYPES
-} from 'actions'
+} from 'envkey-client-core/dist/types'
 import {
   UPDATE_ENVS_STATUS
 } from 'lib/socket'

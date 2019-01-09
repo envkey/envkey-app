@@ -12,35 +12,7 @@ import {
   getInvoice
 } from 'selectors'
 import {
-  APP_LOADED,
-  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
-
-  BILLING_UPGRADE_SUBSCRIPTION,
-  BILLING_CANCEL_SUBSCRIPTION,
-  BILLING_UPDATE_CARD,
-
-  BILLING_STRIPE_FORM_SUBMITTED,
-  BILLING_STRIPE_FORM_CLOSED,
-
-  BILLING_UPDATE_SUBSCRIPTION_REQUEST,
-  BILLING_UPDATE_SUBSCRIPTION_SUCCESS,
-  BILLING_UPDATE_SUBSCRIPTION_FAILED,
-
-  BILLING_UPDATE_CARD_REQUEST,
-  BILLING_UPDATE_CARD_SUCCESS,
-  BILLING_UPDATE_CARD_FAILED,
-
-  BILLING_FETCH_INVOICE_LIST_REQUEST,
-  BILLING_FETCH_INVOICE_LIST_SUCCESS,
-  BILLING_FETCH_INVOICE_LIST_FAILED,
-
-  BILLING_FETCH_INVOICE_PDF,
-  BILLING_FETCH_INVOICE_PDF_REQUEST,
-  BILLING_FETCH_INVOICE_PDF_SUCCESS,
-  BILLING_FETCH_INVOICE_PDF_FAILED,
-
-  BILLING_SAVE_INVOICE_PDF_SUCCESS,
-  BILLING_SAVE_INVOICE_PDF_FAILED,
+  ActionType,
 
   billingUpdateSubscriptionRequest,
   billingUpdateCardRequest,
@@ -56,7 +28,7 @@ const
   onBillingUpdateSubscriptionRequest = apiSaga({
     authenticated: true,
     method: "patch",
-    actionTypes: [BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED],
+    actionTypes: [ActionType.BILLING_UPDATE_SUBSCRIPTION_SUCCESS, ActionType.BILLING_UPDATE_SUBSCRIPTION_FAILED],
     urlSelector: getCurrentOrg,
     urlFn: (action, currentOrg)=> `/orgs/${currentOrg.id}/update_subscription.json`
   }),
@@ -64,7 +36,7 @@ const
   onBillingUpdateCardRequest = apiSaga({
     authenticated: true,
     method: "patch",
-    actionTypes: [BILLING_UPDATE_CARD_SUCCESS, BILLING_UPDATE_CARD_FAILED],
+    actionTypes: [ActionType.BILLING_UPDATE_CARD_SUCCESS, ActionType.BILLING_UPDATE_CARD_FAILED],
     urlSelector: getCurrentOrg,
     urlFn: (action, currentOrg)=> `/orgs/${currentOrg.id}/update_stripe_card.json`
   }),
@@ -72,7 +44,7 @@ const
   onBillingFetchInvoiceListRequest = apiSaga({
     authenticated: true,
     method: "get",
-    actionTypes: [BILLING_FETCH_INVOICE_LIST_SUCCESS, BILLING_FETCH_INVOICE_LIST_FAILED],
+    actionTypes: [ActionType.BILLING_FETCH_INVOICE_LIST_SUCCESS, ActionType.BILLING_FETCH_INVOICE_LIST_FAILED],
     urlFn: R.always('/invoices.json')
   }),
 
@@ -80,7 +52,7 @@ const
     authenticated: true,
     method: "get",
     responseType: "blob",
-    actionTypes: [BILLING_FETCH_INVOICE_PDF_SUCCESS, BILLING_FETCH_INVOICE_PDF_FAILED],
+    actionTypes: [ActionType.BILLING_FETCH_INVOICE_PDF_SUCCESS, ActionType.BILLING_FETCH_INVOICE_PDF_FAILED],
     urlFn: ({payload: {id}})=> `/invoices/${id}.pdf`
   })
 
@@ -111,12 +83,12 @@ function *onBillingUpgradeSubscription(){
       plan
     })
 
-    let formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
-    if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
+    let formResult = yield take([ActionType.BILLING_STRIPE_FORM_SUBMITTED, ActionType.BILLING_STRIPE_FORM_CLOSED])
+    if (formResult.type == ActionType.BILLING_STRIPE_FORM_SUBMITTED){
       yield put(billingUpdateSubscriptionRequest({...formResult.payload, planId: currentOrg.businessPlan.id, updateType: "upgrade"}))
     }
 
-    let res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
+    let res = yield take([ActionType.BILLING_UPDATE_SUBSCRIPTION_SUCCESS, ActionType.BILLING_UPDATE_SUBSCRIPTION_FAILED])
 
     if (res.error){
       error = R.path(["payload", "response", "data", "message"], res)
@@ -138,7 +110,7 @@ function* onBillingCancelSubscription({payload}){
 
   yield put(billingUpdateSubscriptionRequest({...payload, planId, updateType: "cancel"}))
 
-  const res = yield take([BILLING_UPDATE_SUBSCRIPTION_SUCCESS, BILLING_UPDATE_SUBSCRIPTION_FAILED])
+  const res = yield take([ActionType.BILLING_UPDATE_SUBSCRIPTION_SUCCESS, ActionType.BILLING_UPDATE_SUBSCRIPTION_FAILED])
 
   if (!res.error){
     yield put(push(`/${currentOrg.slug}/my_org/billing`))
@@ -153,13 +125,13 @@ function* onBillingUpdateCard(){
   while (true){
     openCardForm("update_payment", {error})
 
-    let formResult = yield take([BILLING_STRIPE_FORM_SUBMITTED, BILLING_STRIPE_FORM_CLOSED])
-    if (formResult.type == BILLING_STRIPE_FORM_SUBMITTED){
+    let formResult = yield take([ActionType.BILLING_STRIPE_FORM_SUBMITTED, ActionType.BILLING_STRIPE_FORM_CLOSED])
+    if (formResult.type == ActionType.BILLING_STRIPE_FORM_SUBMITTED){
       let currentOrg = yield select(getCurrentOrg)
       yield put(billingUpdateCardRequest(formResult.payload))
     }
 
-    let res = yield take([BILLING_UPDATE_CARD_SUCCESS, BILLING_UPDATE_CARD_FAILED])
+    let res = yield take([ActionType.BILLING_UPDATE_CARD_SUCCESS, ActionType.BILLING_UPDATE_CARD_FAILED])
 
     if (res.error){
       error = R.path(["payload", "response", "data", "message"], res)
@@ -205,7 +177,7 @@ function* onBillingFetchPdf(action){
 
   const [filename, fetchRes] = yield [
     saveFile(invoice),
-    take([BILLING_FETCH_INVOICE_PDF_SUCCESS, BILLING_FETCH_INVOICE_PDF_FAILED])
+    take([ActionType.BILLING_FETCH_INVOICE_PDF_SUCCESS, ActionType.BILLING_FETCH_INVOICE_PDF_FAILED])
   ]
 
   if (fetchRes.error){
@@ -217,14 +189,14 @@ function* onBillingFetchPdf(action){
   if(writeErr){
     alert(`An error ocurred saving ${filename}: ${writeErr.message}`)
     yield put({
-      type: BILLING_SAVE_INVOICE_PDF_FAILED,
+      type: ActionType.BILLING_SAVE_INVOICE_PDF_FAILED,
       error: true,
       payload: writeErr,
       meta: fetchRes.meta
     })
   } else {
     yield put({
-      type: BILLING_SAVE_INVOICE_PDF_SUCCESS,
+      type: ActionType.BILLING_SAVE_INVOICE_PDF_SUCCESS,
       meta: fetchRes.meta
     })
   }
@@ -233,15 +205,15 @@ function* onBillingFetchPdf(action){
 
 export default function* billingSagas(){
   yield [
-    takeLatest(APP_LOADED, onAppLoaded),
-    takeLatest(BILLING_UPDATE_CARD, onBillingUpdateCard),
-    takeLatest(BILLING_UPGRADE_SUBSCRIPTION, onBillingUpgradeSubscription),
-    takeLatest(BILLING_CANCEL_SUBSCRIPTION, onBillingCancelSubscription),
-    takeLatest(BILLING_UPDATE_SUBSCRIPTION_REQUEST, onBillingUpdateSubscriptionRequest),
-    takeLatest(BILLING_UPDATE_CARD_REQUEST, onBillingUpdateCardRequest),
-    takeLatest(BILLING_FETCH_INVOICE_LIST_REQUEST, onBillingFetchInvoiceListRequest),
-    takeLatest(BILLING_FETCH_INVOICE_PDF, onBillingFetchPdf),
-    takeLatest(BILLING_FETCH_INVOICE_PDF_REQUEST, onBillingFetchPdfRequest)
+    takeLatest(ActionType.APP_LOADED, onAppLoaded),
+    takeLatest(ActionType.BILLING_UPDATE_CARD, onBillingUpdateCard),
+    takeLatest(ActionType.BILLING_UPGRADE_SUBSCRIPTION, onBillingUpgradeSubscription),
+    takeLatest(ActionType.BILLING_CANCEL_SUBSCRIPTION, onBillingCancelSubscription),
+    takeLatest(ActionType.BILLING_UPDATE_SUBSCRIPTION_REQUEST, onBillingUpdateSubscriptionRequest),
+    takeLatest(ActionType.BILLING_UPDATE_CARD_REQUEST, onBillingUpdateCardRequest),
+    takeLatest(ActionType.BILLING_FETCH_INVOICE_LIST_REQUEST, onBillingFetchInvoiceListRequest),
+    takeLatest(ActionType.BILLING_FETCH_INVOICE_PDF, onBillingFetchPdf),
+    takeLatest(ActionType.BILLING_FETCH_INVOICE_PDF_REQUEST, onBillingFetchPdfRequest)
   ]
 }
 

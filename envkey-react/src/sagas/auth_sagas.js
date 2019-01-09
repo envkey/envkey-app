@@ -7,33 +7,7 @@ import {
   apiSaga
 } from './helpers'
 import {
-  APP_LOADED,
-  REACTIVATED_BRIEF,
-  REACTIVATED_LONG,
-  FETCH_CURRENT_USER_MENU_SUCCESS,
-  FETCH_CURRENT_USER_FAILED,
-  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
-  FETCH_CURRENT_USER_UPDATES_SUCCESS,
-  FETCH_CURRENT_USER_UPDATES_FAILED,
-  VERIFY_EMAIL_FAILED,
-  LOGIN,
-  LOGIN_SUCCESS,
-  LOGIN_FAILED,
-  SELECT_ACCOUNT_SUCCESS,
-  SELECT_ACCOUNT_FAILED,
-  ACCOUNT_RESET_OPTIONS_REQUEST,
-  ACCOUNT_RESET_OPTIONS_SUCCESS,
-  ACCOUNT_RESET_OPTIONS_FAILED,
-  LOGOUT,
-  RESET_SESSION,
-  REGISTER,
-  REGISTER_SUCCESS,
-  REGISTER_FAILED,
-  SELECT_ORG,
-  SOCKET_SUBSCRIBE_ORG_CHANNEL,
-  START_DEMO,
-  UPDATE_TRUSTED_PUBKEYS_SUCCESS,
-  API_FAILED,
+  ActionType,
   appLoaded,
   login,
   socketUnsubscribeAll,
@@ -43,9 +17,8 @@ import {
   getCurrentOrg,
   getOrgs,
   getOrgBySlug,
-  getLastFetchAt
+  getAppLoaded
 } from "selectors"
-
 import {setAuthenticatingOverlay, clearAuthenticatingOverlay} from 'lib/ui'
 import { isTimeout } from 'envkey-client-core/dist/lib/actions'
 
@@ -54,7 +27,7 @@ const
     authenticated: true,
     method: "get",
     skipOrg: true,
-    actionTypes: [ACCOUNT_RESET_OPTIONS_SUCCESS, ACCOUNT_RESET_OPTIONS_FAILED],
+    actionTypes: [ActionType.ACCOUNT_RESET_OPTIONS_SUCCESS, ActionType.ACCOUNT_RESET_OPTIONS_FAILED],
     urlFn: action => "/users/reset_options.json"
   })
 
@@ -69,7 +42,9 @@ function *onAppLoaded(){
 
 function *onReactivatedBrief(){
   // assuming we've already done a fetch, get updates in background since we were supsended less than a minute
-  const lastFetchAt = yield select(getLastFetchAt)
+  const
+    state = yield select(),
+    lastFetchAt = state.lastFetchAt
 
   if (lastFetchAt){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
@@ -78,7 +53,9 @@ function *onReactivatedBrief(){
 
 function *onReactivatedLong(){
   // assuming we've already done a fetch, since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
-  const lastFetchAt = yield select(getLastFetchAt)
+  const
+    state = yield select(),
+    lastFetchAt = state.lastFetchAt
 
   if (lastFetchAt){
     window.location.reload()
@@ -112,9 +89,9 @@ function *onRegister({payload}){
 function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
   const currentOrg = yield select(getCurrentOrg)
 
-  yield take(UPDATE_TRUSTED_PUBKEYS_SUCCESS)
+  yield take(ActionType.UPDATE_TRUSTED_PUBKEYS_SUCCESS)
   yield put(push(`/${currentOrg.slug}`))
-  yield put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL})
+  yield put({ type: ActionType.SOCKET_SUBSCRIBE_ORG_CHANNEL})
   yield call(redirectFromOrgIndexIfNeeded)
 }
 
@@ -122,9 +99,9 @@ function* onStartDemo({payload: {email, token, password}}){
   // 'password' below is stored in action.meta, not sent to server -- allows decryption after login
   yield put(login({email, emailVerificationCode: token, password}))
 
-  const res = yield take([LOGIN_SUCCESS, LOGIN_FAILED])
+  const res = yield take([ActionType.LOGIN_SUCCESS, ActionType.LOGIN_FAILED])
 
-  if (res.type == LOGIN_FAILED){
+  if (res.type == ActionType.LOGIN_FAILED){
     yield put(push("/home"))
   }
 }
@@ -155,7 +132,10 @@ function* onSelectAccountSuccess(){
 }
 
 function *onFetchCurrentUserSuccess(action){
-  yield put(appLoaded())
+  const appAlreadyLoaded = yield select(getAppLoaded)
+  if (!appAlreadyLoaded){
+    yield put(appLoaded())
+  }
   yield [
     // put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL}),
     call(redirectFromOrgIndexIfNeeded)
@@ -205,25 +185,25 @@ function *onApiFailed({payload, meta}){
 
 export default function* authSagas(){
   yield [
-    takeLatest(APP_LOADED, onAppLoaded),
-    takeLatest(REACTIVATED_BRIEF, onReactivatedBrief),
-    takeLatest(REACTIVATED_LONG, onReactivatedLong),
-    takeLatest(FETCH_CURRENT_USER_MENU_SUCCESS, onFetchCurrentUserSuccess),
-    takeLatest(FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
-    takeLatest(FETCH_CURRENT_USER_UPDATES_API_SUCCESS, onFetchCurrentUserUpdatesApiSuccess),
-    takeLatest(VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
-    takeLatest(LOGIN, onLogin),
-    takeLatest(LOGIN_SUCCESS, onLoginSuccess),
-    takeLatest(REGISTER, onRegister),
-    takeLatest(REGISTER_SUCCESS, onRegisterSuccess),
-    takeLatest(SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
-    takeLatest(SELECT_ORG, onSelectOrg),
-    takeLatest(ACCOUNT_RESET_OPTIONS_REQUEST, onAccountResetOptionsRequest),
-    takeLatest(START_DEMO, onStartDemo),
-    takeLatest(SELECT_ACCOUNT_FAILED, onSelectAccountFailed),
-    takeLatest([LOGOUT, RESET_SESSION], onResetSession),
-    takeLatest([SELECT_ACCOUNT_FAILED, LOGIN_FAILED, REGISTER_FAILED], onAuthFailed),
-    takeLatest(API_FAILED, onApiFailed)
+    takeLatest(ActionType.APP_LOADED, onAppLoaded),
+    takeLatest(ActionType.REACTIVATED_BRIEF, onReactivatedBrief),
+    takeLatest(ActionType.REACTIVATED_LONG, onReactivatedLong),
+    takeLatest(ActionType.FETCH_CURRENT_USER_MENU_SUCCESS, onFetchCurrentUserSuccess),
+    takeLatest(ActionType.FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
+    takeLatest(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS, onFetchCurrentUserUpdatesApiSuccess),
+    takeLatest(ActionType.VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
+    takeLatest(ActionType.LOGIN, onLogin),
+    takeLatest(ActionType.LOGIN_SUCCESS, onLoginSuccess),
+    takeLatest(ActionType.REGISTER, onRegister),
+    takeLatest(ActionType.REGISTER_SUCCESS, onRegisterSuccess),
+    takeLatest(ActionType.SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),
+    takeLatest(ActionType.SELECT_ORG, onSelectOrg),
+    takeLatest(ActionType.ACCOUNT_RESET_OPTIONS_REQUEST, onAccountResetOptionsRequest),
+    takeLatest(ActionType.START_DEMO, onStartDemo),
+    takeLatest(ActionType.SELECT_ACCOUNT_FAILED, onSelectAccountFailed),
+    takeLatest([ActionType.LOGOUT, ActionType.RESET_SESSION], onResetSession),
+    takeLatest([ActionType.SELECT_ACCOUNT_FAILED, ActionType.LOGIN_FAILED, ActionType.REGISTER_FAILED], onAuthFailed),
+    takeLatest(ActionType.API_FAILED, onApiFailed)
   ]
 }
 
