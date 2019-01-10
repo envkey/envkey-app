@@ -78,5 +78,15 @@
     "Fix for high CPU usage while idling",
     "Fix for issue that caused sign out when navigating to home screen",
     "Fix for search icon blocking part of auto-complete options when setting a new variable's production value"
+  ],
+  "1.4.2": [
+    "Confirmation when deleting a value",
+    "Warning to prevent clearing of uncommitted value when clicking away",
+    "Variables filter now case insensitive",
+    "Fix bug that prevented commit prompt (clarifying ESC for cancel, ENTER for commit) from correctly showing on edit",
+    "Fix for rare data integrity issues during simulataneous updates",
+    "Fix for occasional bug when updating billing email",
+    "Fix sort order for updater CHANGELOG when updating multiple versions",
+    "Update electron and related packages"
   ]
 }
