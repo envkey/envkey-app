@@ -178,7 +178,15 @@ export const
 
   updateEntry = subEnvUpdatable(({envsWithMeta, entryKey, newKey})=>{
     return R.mapObjIndexed(
-      (env)=> ({...R.dissoc(entryKey, env), [newKey]: env[entryKey]}),
+      (env)=> {
+        if (env[entryKey]){
+          return {
+            ...R.dissoc(entryKey, env), [newKey]: env[entryKey]
+          }
+        } else {
+          return env
+        }
+      },
       envsWithMeta
     )
   }),
@@ -188,7 +196,15 @@ export const
   }),
 
   updateEntryVal = subEnvUpdatable(({envsWithMeta, entryKey, environment, update})=>{
-    let updated = R.assocPath([environment, entryKey], update, envsWithMeta)
+    const
+      path = [environment, entryKey],
+      existing = R.path(path, envsWithMeta)
+
+    if (!existing){
+      return envsWithMeta
+    }
+
+    let updated = R.assocPath(path, update, envsWithMeta)
     const inheriting = inheritingEnvironments({environment, entryKey, envsWithMeta})
 
     if (inheriting.length){
@@ -221,6 +237,13 @@ export const
     return R.assocPath(path, name, envsWithMeta)
   },
 
+  clearOrphans = envsWithMeta => {
+    return R.mapObjIndexed((env => {
+      const toOmit = Object.keys(env).filter(k => !k || !env[k])
+      return R.omit(toOmit, env)
+    }), envsWithMeta)
+  },
+
   transformEnv = (envsWithMeta, {type, payload})=> {
     const updateEnvFn = {
             [CREATE_ENTRY]: createEntry,
@@ -234,6 +257,7 @@ export const
 
     return R.pipe(
       updateEnvFn,
+      clearOrphans,
       withProductionMetaOnly,
       withLockedProduction
     )({envsWithMeta, ...payload})
