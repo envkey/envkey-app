@@ -1,5 +1,6 @@
 import traversty from 'traversty'
 import h from "lib/ui/hyperscript_with_helpers"
+import {envCellDomId} from "lib/ui"
 
 const EditableCellsParent = CellsParent => class extends CellsParent {
 
@@ -20,10 +21,25 @@ const EditableCellsParent = CellsParent => class extends CellsParent {
   }
 
   _onBodyClick(e){
-    const tg = traversty(e.target)
-    if ((this.state.editing.entryKey) &&
-        !tg.closest(this._preventClearEditingSelector()).length){
-      this._deselect()
+    const
+      tg = traversty(e.target),
+      cell = (tg.is(".cell") ? tg : tg.closest(".cell")).get(0),
+      domId = envCellDomId(this.state.editing)
+
+
+    if (this.state.editing.entryKey){
+      const
+        noValNoChange = !this.state.editing.inputVal && !this.state.editing.defaultInputVal,
+        noChange = this.state.editing.inputVal == this.state.editing.defaultInputVal,
+        isCurrentCell = cell && cell.id == domId
+
+      if (!(noValNoChange || noChange) && !isCurrentCell){
+        alert(`You're still editing '${this.state.editing.entryKey.toUpperCase()}'. Use ESCAPE to cancel or ENTER to commit.`)
+        e.preventDefault()
+        e.stopPropagation()
+      } else if(!tg.closest(this._preventClearEditingSelector()).length){
+        this._deselect()
+      }
     }
   }
 

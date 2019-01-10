@@ -29,8 +29,12 @@ export default class EnvCell extends React.Component {
     ]
   }
 
+  _domId(){
+    return ""
+  }
+
   render(){
-    return h.div({className: this._classNames().join(" ")},
+    return h.div({id: this._domId(), className: this._classNames().join(" ")},
       this._renderCell()
     )
   }

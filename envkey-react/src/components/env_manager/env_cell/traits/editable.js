@@ -2,6 +2,7 @@ import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import {isMultiline} from "lib/utils/string"
+import {envCellDomId} from "lib/ui"
 
 const defaultInputVal = props => props.inherits || props.val || ""
 
@@ -48,14 +49,17 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
     this.setState({
       inputVal: this._transformInputVal(e.target.value)
     }, ()=> {
-      this._onEdit()
+      this._onEdit(false)
     })
   }
 
   _editParams(){
     const params = {
       ...R.pick(["entryKey", "environment", "subEnvId"], this.props),
-      isMultiline: this._isMultiline()
+      isMultiline: this._isMultiline(),
+      inputVal: this.state.inputVal,
+      domId: this._domId(),
+      defaultInputVal: defaultInputVal(this.props)
     }
     return params
   }
@@ -104,6 +108,10 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
     ])
   }
 
+  _domId(){
+    return envCellDomId(this.props)
+  }
+
   _renderCellContents(){
     return this.props.isEditing ? [this._renderInput()] : super._renderCellContents()
   }
@@ -115,7 +123,12 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
             placeholder: this._inputPlaceholder(),
             value: this.state.inputVal,
             onChange: ::this._onInputChange,
-            onKeyDown: ::this._onInputKeydown
+            onKeyDown: ::this._onInputKeydown,
+            onClick: (e)=> {
+              if (this.props.isEditing){
+                e.stopPropagation()
+              }
+            }
           },
           component = editableOpts.multiline ? h.textarea : h.input
 

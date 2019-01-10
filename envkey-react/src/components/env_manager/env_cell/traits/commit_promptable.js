@@ -18,6 +18,7 @@ const CommitPromptable = Editable => class extends Editable {
   _onEdit(isInitialEdit=true){
     super._onEdit()
     if (isInitialEdit || (this._isMultiline && this._isMultiline())){
+      console.log("_onEdit clear commit prompt")
       this.setState({showCommitPrompt: false, showedPrompt: false})
     }
   }
@@ -32,8 +33,16 @@ const CommitPromptable = Editable => class extends Editable {
       return
     }
 
+    console.log("_flashCommitPrompt")
+    console.log("state: ", this.state)
+
     this.setState({showCommitPrompt: true, showedPrompt: true}, ()=>{
-      setTimeout(this.setState.bind(this, {showCommitPrompt: false}), PROMPT_FADE_DELAY)
+      setTimeout(()=>{
+        console.log("fade commit prompt")
+        console.log("state: ", this.state)
+
+        this.setState({showCommitPrompt: false})
+      }, PROMPT_FADE_DELAY)
     })
   }
 
