@@ -15,7 +15,23 @@ const OnRemoveConfirmable = Editable => class extends Editable {
   }
 
   _onRemove(){
-    this.setState({showConfirm: true})
+    if (this._shouldConfirm()){
+      this.setState({showConfirm: true})
+    } else {
+      super._onRemove()
+    }
+  }
+
+  _shouldConfirm(){
+    return true
+  }
+
+  _confirmText(){
+    return "Remove var?"
+  }
+
+  _confirmButtonLabel(){
+    return "Remove"
   }
 
   _classNames(){
@@ -32,8 +48,8 @@ const OnRemoveConfirmable = Editable => class extends Editable {
 
   _renderConfirm(){
     return h(ConfirmAction, {
-      confirmText: "Remove var?",
-      confirmLabel: "Remove",
+      confirmText: this._confirmText(),
+      confirmLabel: this._confirmButtonLabel(),
       onCancel: ()=> this.setState({showConfirm: false}),
       onConfirm: ::this._onConfirmRemove
     })

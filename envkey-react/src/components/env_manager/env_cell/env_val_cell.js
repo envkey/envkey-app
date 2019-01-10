@@ -6,13 +6,15 @@ import Autocompletable from './traits/autocompletable'
 import CopyableCell from './traits/copyable_cell'
 import CommitPromptable from './traits/commit_promptable'
 import SocketEditable from './traits/socket_editable'
+import OnRemoveConfirmable from './traits/on_remove_confirmable'
 
 const EnvValCellBaseClass = R.pipe(
   CopyableCell,
   Removable,
   Autocompletable,
   CommitPromptable,
-  SocketEditable
+  SocketEditable,
+  OnRemoveConfirmable
 )(EditableValCell)
 
 export default class EnvValCell extends EnvValCellBaseClass {
@@ -23,4 +25,18 @@ export default class EnvValCell extends EnvValCellBaseClass {
       (update || {val: this.state.inputVal})
     )
   }
+
+  _shouldConfirm(){
+    return Boolean(this.props.val)
+  }
+
+  _confirmText(){
+    return "Delete value?"
+  }
+
+  _confirmButtonLabel(){
+    return "Delete"
+  }
+
+
 }
