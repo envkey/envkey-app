@@ -1,7 +1,7 @@
 import React from 'react'
 import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
-import {isMultiline} from "lib/utils/string"
+import {isMultiline} from "envkey-client-core/dist/lib/utils/string"
 import {envCellDomId} from "lib/ui"
 
 const defaultInputVal = props => props.inherits || props.val || ""
