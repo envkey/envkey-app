@@ -24,17 +24,31 @@ export default class EnvManager extends React.Component {
       filter: "",
       showFilter: false,
       lastSocketUserUpdatingEnvs: null,
+      showSocketUpdating: false,
       editingMultilineEnvironment: null,
-      editingMultilineEntryKey: null
+      editingMultilineEntryKey: null,
+      autocompleteOpenEntryKey: null,
+      autocompleteOpenEnvironment: null
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.socketUserUpdatingEnvs){
+      this._clearSocketUpdatingTimeout()
+      this.setState({showSocketUpdating: true})
+    }
+
     if(nextProps.socketUserUpdatingEnvs &&
        nextProps.socketUserUpdatingEnvs != this.state.lastSocketUserUpdatingEnvs){
       this.setState({lastSocketUserUpdatingEnvs: nextProps.socketUserUpdatingEnvs})
     }
 
+    if (this.props.socketUserUpdatingEnvs && !nextProps.socketUserUpdatingEnvs){
+      this._clearSocketUpdatingTimeout()
+      this.socketUpdatingTimeout = setTimeout(()=>{
+        this.setState({showSocketUpdating: false})
+      }, 2000)
+    }
 
     if (R.path(["parent", "id"], this.props) != R.path(["parent", "id"], nextProps) ||
         this._subEnvsOpen(this.props) != this._subEnvsOpen(nextProps) ||
@@ -54,7 +68,9 @@ export default class EnvManager extends React.Component {
     })
   }
 
-  _onEditCell(entryKey, environment, subEnvId, isMultiline, isEntryForm){
+  _onEditCell(params = {}){
+    const {entryKey, environment, subEnvId, isMultiline, isEntryForm, autocompleteOpen} = params
+
     if (isMultiline){
       this.setState({
         editingMultilineEntryKey: entryKey,
@@ -66,6 +82,19 @@ export default class EnvManager extends React.Component {
         editingMultilineEnvironment: null
       })
     }
+
+    if (autocompleteOpen){
+      this.setState({
+        autocompleteOpenEntryKey: entryKey,
+        autocompleteOpenEnvironment: environment
+      })
+    } else {
+      this.setState({
+        autocompleteOpenEntryKey: null,
+        autocompleteOpenEnvironment: null
+      })
+    }
+
     if (!isEntryForm){
       this.props.editCell(entryKey, environment, subEnvId)
     }
@@ -74,7 +103,9 @@ export default class EnvManager extends React.Component {
   _onStoppedEditing(isEntryForm){
     this.setState({
       editingMultilineEntryKey: null,
-      editingMultilineEnvironment: null
+      editingMultilineEnvironment: null,
+      autocompleteOpenEntryKey: null,
+      autocompleteOpenEnvironment: null
     })
 
     if (!isEntryForm){
@@ -90,6 +121,13 @@ export default class EnvManager extends React.Component {
 
     if (!params.isEntryForm){
       this.props.updateEntryVal(params)
+    }
+  }
+
+  _clearSocketUpdatingTimeout(){
+    if (this.socketUpdatingTimeout){
+      clearTimeout(this.socketUpdatingTimeout)
+      this.socketUpdatingTimeout = null
     }
   }
 
@@ -190,7 +228,9 @@ export default class EnvManager extends React.Component {
         "startedOnboarding",
         "filter",
         "editingMultilineEntryKey",
-        "editingMultilineEnvironment"
+        "editingMultilineEnvironment",
+        "autocompleteOpenEntryKey",
+        "autocompleteOpenEnvironment"
       ], this.state),
       editCell: ::this._onEditCell,
       stoppedEditing: ::this._onStoppedEditing,
@@ -206,7 +246,9 @@ export default class EnvManager extends React.Component {
         "hideValues",
         "filter",
         "editingMultilineEntryKey",
-        "editingMultilineEnvironment"
+        "editingMultilineEnvironment",
+        "autocompleteOpenEntryKey",
+        "autocompleteOpenEnvironment"
       ], this.state),
       environment,
       editCell: ::this._onEditCell,
@@ -218,14 +260,16 @@ export default class EnvManager extends React.Component {
   }
 
   _renderSocketUpdate(){
-    const {firstName, lastName} = (this.state.lastSocketUserUpdatingEnvs || {})
-    return h.div(".socket-update-envs", [
-      h.label([
-        h.span("Receiving update from "),
-        h.span(".name", [firstName, lastName].join(" "))
-      ]),
-      h(SmallLoader)
-    ])
+    if (this.state.showSocketUpdating){
+      const {firstName, lastName} = (this.state.lastSocketUserUpdatingEnvs || {})
+      return h.div(".socket-update-envs", [
+        h.label([
+          h.span("Receiving update from "),
+          h.span(".name", [firstName, lastName].join(" "))
+        ]),
+        h(SmallLoader)
+      ])
+    }
   }
 
   _renderPendingUpdate(){

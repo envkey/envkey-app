@@ -5,6 +5,7 @@
     border: 1px solid rgba(#fff, 0.0)
     position: relative
     box-sizing: border-box
+    overflow: hidden
     // padding: 0 15px
 
     &, span, input, textarea
@@ -158,6 +159,8 @@
       padding-left: 15px
 
   .cell.editing
+    overflow: visible
+
     .actions-overlay
       opacity: 0
       pointer-events: none
@@ -201,7 +204,7 @@
     visibility: hidden
 
   .cell.confirming
-    overflow-x: hidden
+    overflow: hidden
 
     .cell-contents
       right: calc(100% + 10px)
@@ -211,6 +214,10 @@
       visibility: visible
       left: 15px
       transition: left 0.1s linear 0.05s
+
+    &.val-cell .confirm-action span
+      left: 0
+
 
   .cell small
     font-family: $default-font

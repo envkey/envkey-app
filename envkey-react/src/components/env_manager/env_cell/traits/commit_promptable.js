@@ -33,7 +33,9 @@ const CommitPromptable = Editable => class extends Editable {
     }
 
     this.setState({showCommitPrompt: true, showedPrompt: true}, ()=>{
-      setTimeout(this.setState.bind(this, {showCommitPrompt: false}), PROMPT_FADE_DELAY)
+      setTimeout(()=>{
+        this.setState({showCommitPrompt: false})
+      }, PROMPT_FADE_DELAY)
     })
   }
 

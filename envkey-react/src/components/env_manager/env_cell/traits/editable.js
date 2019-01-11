@@ -1,6 +1,8 @@
 import React from 'react'
+import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
-import {isMultiline} from "envkey-client-core/dist/lib/utils/string"
+import {isMultiline} from "lib/utils/string"
+import {envCellDomId} from "lib/ui"
 
 const defaultInputVal = props => props.inherits || props.val || ""
 
@@ -40,7 +42,7 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
   }
 
   _onEdit(){
-    this.props.onEditCell(this.props.entryKey, this.props.environment, this.props.subEnvId, this._isMultiline())
+    this.props.onEditCell(this._editParams())
   }
 
   _onInputChange(e){
@@ -49,6 +51,17 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
     }, ()=> {
       this._onEdit(false)
     })
+  }
+
+  _editParams(){
+    const params = {
+      ...R.pick(["entryKey", "environment", "subEnvId"], this.props),
+      isMultiline: this._isMultiline(),
+      inputVal: this.state.inputVal,
+      domId: this._domId(),
+      defaultInputVal: defaultInputVal(this.props)
+    }
+    return params
   }
 
   _transformInputVal(val){ return val }
@@ -95,6 +108,10 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
     ])
   }
 
+  _domId(){
+    return envCellDomId(this.props)
+  }
+
   _renderCellContents(){
     return this.props.isEditing ? [this._renderInput()] : super._renderCellContents()
   }
@@ -106,7 +123,12 @@ const Editable = (Cell, editableOpts={}) => class extends Cell {
             placeholder: this._inputPlaceholder(),
             value: this.state.inputVal,
             onChange: ::this._onInputChange,
-            onKeyDown: ::this._onInputKeydown
+            onKeyDown: ::this._onInputKeydown,
+            onClick: (e)=> {
+              if (this.props.isEditing){
+                e.stopPropagation()
+              }
+            }
           },
           component = editableOpts.multiline ? h.textarea : h.input
 

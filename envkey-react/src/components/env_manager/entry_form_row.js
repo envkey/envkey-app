@@ -99,9 +99,16 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
   }
 
   _getOnEditCell(environment){
-    return (entryKey, editEnvironment, subEnvId, isMultiline)=>{
+    return ({entryKey, editEnvironment, subEnvId, isMultiline, autocompleteOpen})=>{
       this.setState({editing: {entryKey: "entry",environment}})
-      this.props.editCell(null, environment, subEnvId, isMultiline, true)
+      this.props.editCell({
+        environment,
+        subEnvId,
+        isMultiline,
+        autocompleteOpen,
+        entryKey: null,
+        isEntryForm: true
+      })
     }
   }
 

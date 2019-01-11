@@ -18,7 +18,7 @@ const
       return Promise.resolve(true)
     }
 
-    const url = isElectron() ? "http://www.msftconnecttest.com/connecttest.txt" : "https://ipv4.icanhazip.com/"
+    const url = "http://www.msftconnecttest.com/connecttest.txt"
 
     return fetch((url + "?" + Date.now().toString()), {
       mode: "no-cors",

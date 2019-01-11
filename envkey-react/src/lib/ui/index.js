@@ -75,4 +75,10 @@ export const
 
   appRoleGroupLabel = role => appRoleGroupLabels[role] || orgRoleGroupLabels[role],
 
-  appRoleIndex = role => R.keys(appRoleLabels).indexOf(role)
+  appRoleIndex = role => R.keys(appRoleLabels).indexOf(role),
+
+  envCellDomId = R.pipe(
+    R.props(["entryKey", "environment", "subEnvId"]),
+    R.filter(Boolean),
+    R.join("-")
+  )
