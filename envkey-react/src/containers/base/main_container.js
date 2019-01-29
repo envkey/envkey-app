@@ -40,6 +40,7 @@ const ensureCurrentUser = (props)=>{
     props.logout()
     return
   }
+
   if(props.isFetchingCurrentUser)return
   const orgSlug = props.params.orgSlug.toLowerCase()
 
@@ -51,7 +52,9 @@ const ensureCurrentUser = (props)=>{
   }
 
   if(appStateLoaded(props)){
-    if(!props.appLoaded)props.onLoad()
+    if(!props.appLoaded){
+      props.onLoad()
+    }
   } else if(!appStateLoaded(props)){
     props.fetchCurrentUserMenu()
   }

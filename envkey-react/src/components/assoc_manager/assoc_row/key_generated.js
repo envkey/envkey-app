@@ -11,7 +11,7 @@ export default class KeyGenerated extends React.Component {
   }
 
   _kvPair(){
-    return `ENVKEY=${[this.props.envkey, this.props.passphrase].join("-")}`
+    return `ENVKEY=${[this.props.envkey, this.props.encryptionKey].join("-")}`
   }
 
   _kvTruncated(){

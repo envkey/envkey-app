@@ -73,7 +73,7 @@ function *onLogin(action){
   setAuthenticatingOverlay()
 }
 
-function* onLoginSuccess({meta: {password, orgSlug}}){
+function* onLoginSuccess({meta: {orgSlug}}){
   if (!orgSlug){
     const orgs = yield select(getOrgs)
     if (!(orgs.length == 1 && orgs[0].isActive)){
@@ -86,7 +86,7 @@ function *onRegister({payload}){
   yield call(delay, 500)
 }
 
-function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
+function* onRegisterSuccess({meta: {requestPayload: {pubkey}}}){
   const currentOrg = yield select(getCurrentOrg)
 
   yield take(ActionType.UPDATE_TRUSTED_PUBKEYS_SUCCESS)
@@ -95,9 +95,9 @@ function* onRegisterSuccess({meta: {password, requestPayload: {pubkey}}}){
   yield call(redirectFromOrgIndexIfNeeded)
 }
 
-function* onStartDemo({payload: {email, token, password}}){
-  // 'password' below is stored in action.meta, not sent to server -- allows decryption after login
-  yield put(login({email, emailVerificationCode: token, password}))
+function* onStartDemo({payload: {email, token, passphrase}}){
+  // 'passphrase' below is stored in action.meta, not sent to server -- allows decryption after login
+  yield put(login({email, emailVerificationCode: token, passphrase}))
 
   const res = yield take([ActionType.LOGIN_SUCCESS, ActionType.LOGIN_FAILED])
 
@@ -133,7 +133,9 @@ function* onSelectAccountSuccess(){
 
 function *onFetchCurrentUserSuccess(action){
   const appAlreadyLoaded = yield select(getAppLoaded)
-  if (!appAlreadyLoaded){
+  if (appAlreadyLoaded){
+    clearAuthenticatingOverlay()
+  } else {
     yield put(appLoaded())
   }
   yield [

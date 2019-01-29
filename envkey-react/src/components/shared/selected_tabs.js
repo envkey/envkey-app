@@ -22,6 +22,10 @@ const SelectedTabs = (props)=>{
   const {tabs, path, selectedTab, permissions, objectPermissions, isDemo} = props
 
   const renderTab = ([action, label, imgW, imgH, {permissionPath, objectPermissionPath, permissionFn}={}], i)=>{
+    if (!objectPermissions){
+      return
+    }
+
     const selected = selectedTab.indexOf(action) == 0,
           className = [("tab-" + action), (selected ? "selected" : "")].join(" ")
 

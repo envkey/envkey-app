@@ -45,7 +45,7 @@ export default function({
       isRemovingById: state.isRemoving,
       isGeneratingAssocKeyById: getIsGeneratingAssocKeyById(state),
       isRevokingAssocKeyById: getIsRevokingAssocKeyById(state),
-      generatedEnvKeysById: state.generatedEnvkeys,
+      generatedEnvKeysById: state.generatedEnvKeys,
       orgUsers: getOrgUsers(state),
       isRevokingInviteByUserId: state.isRevokingInvite,
       isRegeneratingInviteByUserId: state.isRegeneratingInvite,

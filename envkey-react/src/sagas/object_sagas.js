@@ -18,14 +18,15 @@ import {
   getObject,
   getEnvUpdateId,
   getIsFetchingDetails,
-  getTrustedPubkeys,
   getConfigBlocksForApp
 } from "selectors"
 
 const
   onSelectedObject = function*({payload: {objectType, id}}){
     yield put({ type: ActionType.SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
-    const currentOrg = yield select(getCurrentOrg),
+    const state = yield select(),
+          privkey = state.privkey,
+          currentOrg = yield select(getCurrentOrg),
           object = yield select(getObject(objectType, id))
 
     const isEnvParent = ["app", "configBlock", "appUser"].includes(objectType)
@@ -42,9 +43,12 @@ const
     }
 
     if (isEnvParent || objectType == "user"){
-      const isFetchingDetails = yield select(getIsFetchingDetails(id))
+      const
+        isFetchingDetails = yield select(getIsFetchingDetails(id)),
+        shouldFetch = (!object.detailsLoadedAt && !isFetchingDetails) ||
+                      (privkey && object.detailsLoadedAt && !object.graphUpdatedAt)
 
-      if (!object.detailsLoadedAt && !isFetchingDetails){
+      if (shouldFetch){
         yield put(fetchObjectDetails({
           targetId: id,
           objectType: objectType,
@@ -79,14 +83,13 @@ const
     const {meta: {objectType, targetId, isOnboardAction, noRedirect}} = action,
           currentOrg = yield select(getCurrentOrg),
           currentUser = yield select(getCurrentUser),
-          target = yield select(getObject(objectType, targetId)),
           shouldClearSession = ((objectType == "user" && targetId == currentUser.id) ||
                                 (objectType == "org" && targetId == currentOrg.id))
 
-    const { type: apiResultType } = yield take([ActionType.API_SUCCESS, ActionType.API_FAILED])
+    const { type: resultType } = yield take([ActionType.STORAGE_GATEWAY_SUCCESS, ActionType.STORAGE_GATEWAY_SUCCESS, ActionType.API_FAILED])
 
     if(!isOnboardAction){
-      if (apiResultType == ActionType.API_SUCCESS) {
+      if (resultType == ActionType.STORAGE_GATEWAY_SUCCESS) {
         // If user just deleted their account or organization, log them out and return
         if (shouldClearSession){
           yield put(push("/home"))

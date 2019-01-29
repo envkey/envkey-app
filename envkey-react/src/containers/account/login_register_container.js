@@ -73,7 +73,8 @@ class LoginRegister extends React.Component {
   _onRegister(e){
     e.preventDefault()
     this.props.onRegister({
-      ...R.pick(["firstName", "lastName", "email", "emailVerificationCode", "password"], this.state),
+      ...R.pick(["firstName", "lastName", "email", "emailVerificationCode"], this.state),
+      passphrase: this.state.password,
       org: {name: this.state.orgName, heardAbout: this.state.heardAbout},
     })
   }

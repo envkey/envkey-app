@@ -28,7 +28,6 @@ import {
   getConfigBlocksForApp,
   getConfigBlocks,
   getAppsForUser,
-  getOrgRolesInvitable,
   getCurrentUserLocalKeysForApp,
   getCurrentUserAppsWithMinRole,
   getCurrentOrg,
@@ -85,7 +84,7 @@ export default function({
             sectionTitleFn: appRoleGroupLabel,
             permissionCopyLines: adminUserPermissions,
             keyLabel: "development",
-            orgRolesInvitable: getOrgRolesInvitable(state),
+            orgRolesInvitable: state.orgRolesInvitable,
             isAddingAssoc: (getIsAddingAssoc({assocType, parentId: parent.id, role: "admin"}, state) ||
                             getIsAddingAssoc({assocType, parentId: parent.id, role: "org_admin"}, state)),
             isCreating: (getIsCreating({assocType, parentId: parent.id, role: "admin"}, state) ||

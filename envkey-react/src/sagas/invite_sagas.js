@@ -13,11 +13,8 @@ function *onAcceptInvite({payload}){
   document.body.className += " preloader-authenticate"
 }
 
-function* onAcceptInviteSuccess({meta: {password, orgSlug}}){
-  yield take(ActionType.DECRYPT_PRIVKEY_SUCCESS)
-
+function* onAcceptInviteSuccess({meta: {orgSlug}}){
   const currentOrg = yield select(getCurrentOrg)
-
   yield put(push(`/${currentOrg.slug}`))
   yield put({ type: ActionType.SOCKET_SUBSCRIBE_ORG_CHANNEL})
   yield call(redirectFromOrgIndexIfNeeded)

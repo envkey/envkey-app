@@ -10,8 +10,8 @@ export default class InviteUserOverlay extends React.Component {
   }
 
   _onCopy(){
-    const {identityHash, passphrase} = this.props.generatedInviteLink,
-          encryptionToken = [identityHash, passphrase].join("_"),
+    const {identityHash, encryptionKey} = this.props.generatedInviteLink,
+          encryptionToken = [identityHash, encryptionKey].join("_"),
           res = copy(encryptionToken, {message: "Copy the text below with #{key}"})
     if (res){
       this.setState({copied: true})
@@ -67,8 +67,8 @@ export default class InviteUserOverlay extends React.Component {
   }
 
   _renderGeneratedInviteLink(){
-    const {identityHash, passphrase, user: {email, firstName, lastName}} = this.props.generatedInviteLink,
-          encryptionToken = [identityHash, passphrase].join("_")
+    const {identityHash, encryptionKey, user: {email, firstName, lastName}} = this.props.generatedInviteLink,
+          encryptionToken = [identityHash, encryptionKey].join("_")
 
     return h.div([
       h.h2("Invitation Generated"),

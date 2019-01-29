@@ -41,12 +41,18 @@ const SelectedObjectContainerFactory = ({
     }
 
     componentWillReceiveProps(nextProps){
-      const currentId = idPathFn(this.props),
-            nextId = idPathFn(nextProps)
+      const
+        isEnvParent = ["app", "configBlock", "appUser"].includes(objectType),
+        currentId = idPathFn(this.props),
+        nextId = idPathFn(nextProps),
+        obj = nextProps[objectType],
+        shouldTrigger = currentId != nextId || (
+          obj && isEnvParent && obj.detailsLoadedAt && !obj.decrypted
+        )
 
-      if (currentId != nextId){
-        this.setState({showTransitionOverlay: true})
-        setTimeout(()=>{ this.setState({showTransitionOverlay: false}) }, 1)
+      if (shouldTrigger){
+        this.setState({ showTransitionOverlay: true })
+        setTimeout(() => { this.setState({ showTransitionOverlay: false }) }, 1)
         triggerSelectedObject(nextProps)
       }
     }
@@ -143,7 +149,7 @@ const SelectedObjectContainerFactory = ({
           "permissions",
           "isDecrypting",
           "decryptedAll",
-          "decryptedPrivkeyErr",
+          "decryptPrivkeyErr",
           "decryptAllErr"
         ], state),
         [objectType]: obj,
@@ -157,7 +163,7 @@ const SelectedObjectContainerFactory = ({
     },
 
     mapDispatchToProps = (dispatch, ownProps) => ({
-      decrypt: password => dispatch(decryptAll({password})),
+      decrypt: passphrase => dispatch(decryptAll({passphrase})),
       selectedObject: id => dispatch(selectedObject({id, objectType}))
     })
 

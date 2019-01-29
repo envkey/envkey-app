@@ -11,12 +11,12 @@ import SmallLoader from 'components/shared/small_loader'
 import { pick } from 'envkey-client-core/dist/lib/utils/object'
 
 const defaultState = {
-  oldPassword: "",
-  newPassword: "",
-  passwordValid: false,
-  passwordScore: null,
-  passwordFeedback: null,
-  passwordUpdated: false
+  oldPassphrase: "",
+  newPassphrase: "",
+  passphraseValid: false,
+  passphraseScore: null,
+  passphraseFeedback: null,
+  passphraseUpdated: false
 }
 
 class UpdatePassword extends React.Component {
@@ -30,14 +30,14 @@ class UpdatePassword extends React.Component {
     if (this.props.isUpdatingEncryptedPrivkey && !nextProps.isUpdatingEncryptedPrivkey){
       this.setState({
         ...defaultState,
-        passwordUpdated: !nextProps.updateEncryptedPrivkeyErr
+        passphraseUpdated: !nextProps.updateEncryptedPrivkeyErr
       })
     }
   }
 
   _onSubmit(e){
     e.preventDefault()
-    this.props.onSubmit(R.pick(["oldPassword", "newPassword"], this.state))
+    this.props.onSubmit(R.pick(["oldPassphrase", "newPassphrase"], this.state))
   }
 
   render(){
@@ -51,27 +51,27 @@ class UpdatePassword extends React.Component {
 
         h(PasswordInput, {
           disabled: this.props.isUpdatingEncryptedPrivkey,
-          value: this.state.oldPassword,
+          value: this.state.oldPassphrase,
           placeholder: "CURRENT passphrase (10-256 characters)",
-          onChange: (val) => this.setState({oldPassword: val})
+          onChange: (val) => this.setState({oldPassphrase: val})
         }),
 
         h(PasswordInput, {
           confirm: true,
           disabled: this.props.isUpdatingEncryptedPrivkey,
-          value: this.state.newPassword,
+          value: this.state.newPassphrase,
           placeholder: "NEW passphrase (10-256 characters)",
           validateStrength: true,
-          valid: this.state.passwordValid,
-          score: this.state.passwordScore,
-          feedback: this.state.passwordFeedback,
+          valid: this.state.passphraseValid,
+          score: this.state.passphraseScore,
+          feedback: this.state.passphraseFeedback,
           strengthUserInputs: R.values(R.pick(["email", "firstName", "lastName"], this.props.currentUser)),
           onChange: (val, valid, score, feedback) => {
             this.setState({
-              newPassword: val,
-              passwordValid: valid,
-              passwordScore: score,
-              passwordFeedback: feedback
+              newPassphrase: val,
+              passphraseValid: valid,
+              passphraseScore: score,
+              passphraseFeedback: feedback
             })
           }
         }),
@@ -82,7 +82,7 @@ class UpdatePassword extends React.Component {
   }
 
   _renderSuccess(){
-    if(this.state.passwordUpdated){
+    if(this.state.passphraseUpdated){
       return h.div(".msg", "Passphrase updated.")
     }
   }
@@ -102,8 +102,8 @@ class UpdatePassword extends React.Component {
     if(this.props.isUpdatingEncryptedPrivkey){
       return h(SmallLoader)
     } else {
-      const enabled = (this.state.passwordValid && this.state.oldPassword && this.state.oldPassword.length >= 10) ||
-                      (!this.state.oldPassword && !this.state.newPassword)
+      const enabled = (this.state.passphraseValid && this.state.oldPassphrase && this.state.oldPassphrase.length >= 10) ||
+                      (!this.state.oldPassphrase && !this.state.newPassphrase)
       return <button disabled={!enabled}>Update Passphrase</button>
     }
   }

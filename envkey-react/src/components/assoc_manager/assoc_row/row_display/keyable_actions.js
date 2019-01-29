@@ -16,9 +16,7 @@ export default function ({
   isRevokingAssocKey,
   keyGeneratedAt,
   keyGeneratedById,
-  envkey,
   envkeyShort,
-  passphrase,
   permissions,
   isCurrentUser=false,
   currentUser

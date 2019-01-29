@@ -11,10 +11,10 @@ import PasswordCopy from 'components/shared/password_copy'
 
 const
   initialPasswordState = ()=> ({
-    password: "",
-    passwordValid: false,
-    passwordScore: null,
-    passwordFeedback: null
+    passphrase: "",
+    passphraseValid: false,
+    passphraseScore: null,
+    passphraseFeedback: null
   }),
   initialState = ()=> ({
     emailVerificationCode: "",
@@ -48,18 +48,18 @@ class AcceptInvite extends React.Component {
     }
   }
 
-  _onSubmitPassword(e){
+  _onSubmitPassphrase(e){
     e.preventDefault()
-    this.props.onSubmitPassword(R.pick(["password"], this.state))
+    this.props.onSubmitPassphrase({passphrase: this.state.passphrase})
   }
 
   _onLoadInvite(e){
     e.preventDefault()
-    const [identityHash, passphrase] = this.state.encryptionCode.split("_")
+    const [identityHash, encryptionKey] = this.state.encryptionCode.split("_")
     this.props.onLoadInvite({
       emailVerificationCode: this.state.emailVerificationCode,
       identityHash,
-      passphrase
+      encryptionKey
     })
   }
 
@@ -165,7 +165,7 @@ class AcceptInvite extends React.Component {
     }
   }
 
-  _passwordPrompt(){
+  _passphrasePrompt(){
     if (this._isNewUser()){
       return "Invite verified. To sign in, set a strong master encryption passphrase."
     } else {
@@ -180,24 +180,24 @@ class AcceptInvite extends React.Component {
   _renderPasswordForm(){
     return h.div([
       h.form(".password-form", {
-        onSubmit: ::this._onSubmitPassword,
+        onSubmit: ::this._onSubmitPassphrase,
       }, [
-        h.p(".copy", this._passwordPrompt()),
+        h.p(".copy", this._passphrasePrompt()),
         h.fieldset([
           h(PasswordInput, {
             confirm: this._isNewUser(),
             disabled: this.props.isAuthenticating || this.props.isInvitee,
-            value: this.state.password,
+            value: this.state.passphrase,
             validateStrength: this._isNewUser(),
-            valid: this.state.passwordValid,
-            score: this.state.passwordScore,
-            feedback: this.state.passwordFeedback,
+            valid: this.state.passphraseValid,
+            score: this.state.passphraseScore,
+            feedback: this.state.passphraseFeedback,
             strengthUserInputs: R.values(R.pick(["email", "firstName", "lastName"], this.props.inviteParams.invitee)),
             onChange: (val, valid, score, feedback) => this.setState({
-              password: val,
-              passwordValid: valid,
-              passwordScore: score,
-              passwordFeedback: feedback
+              passphrase: val,
+              passphraseValid: valid,
+              passphraseScore: score,
+              passphraseFeedback: feedback
             })
           })
         ]),
@@ -213,7 +213,7 @@ class AcceptInvite extends React.Component {
     if(this.props.isAuthenticating || this.props.isInvitee){
       return h(Spinner)
     } else {
-      return <button disabled={!this.state.passwordValid}>Sign In</button>
+      return <button disabled={!this.state.passphraseValid}>Sign In</button>
     }
   }
 }
@@ -238,7 +238,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = dispatch => {
   return {
     onLoadInvite: p => dispatch(loadInviteRequest(p)),
-    onSubmitPassword: p => dispatch(acceptInvite(p)),
+    onSubmitPassphrase: p => dispatch(acceptInvite(p)),
     onReset: ()=> dispatch(resetAcceptInvite())
   }
 }
