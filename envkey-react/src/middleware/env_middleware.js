@@ -19,23 +19,6 @@ import {
 
 export const
 
-  attachEnvUpdateId = store => next => action => {
-    if (attachEnvUpdateIdTypes.includes(action.type) && !R.path(["meta", "envUpdateId"], action)){
-      const state = store.getState(),
-            selectedObject = getSelectedObject(state)
-
-      if (!selectedObject){
-        return next(action)
-      }
-
-      const envUpdateId = R.path(["envUpdateId", selectedObject.id], state)
-
-      return next(R.assocPath(["meta", "envUpdateId"], envUpdateId, action))
-    }
-
-    return next(action)
-  },
-
   resolveEnvsCommitLocked = store => next => action => {
     if (TRANSFORM_ENV_ACTION_TYPES.includes(action.type) && !R.path(["meta", "envsCommitLocked"], action)){
       const state = store.getState(),

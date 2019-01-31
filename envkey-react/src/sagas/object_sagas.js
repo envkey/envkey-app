@@ -9,7 +9,6 @@ import {
   socketSubscribeObjectChannel,
   generateEnvUpdateId,
   fetchObjectDetails,
-
   resetSession
 } from "actions"
 import {
@@ -17,8 +16,7 @@ import {
   getCurrentUser,
   getObject,
   getEnvUpdateId,
-  getIsFetchingDetails,
-  getConfigBlocksForApp
+  getIsFetchingDetails
 } from "selectors"
 
 const
@@ -55,26 +53,6 @@ const
           appId: object.appId,
           decryptEnvs: isEnvParent
         }))
-
-        if (objectType == "app"){
-          const successAction = yield take(ActionType.FETCH_OBJECT_DETAILS_API_SUCCESS)
-          if (successAction.meta.targetId == id){
-            const blocks = yield select(getConfigBlocksForApp(id))
-
-            for (let block of blocks){
-              const blockIsFetchingDetails = yield select(getIsFetchingDetails(block.id))
-
-              if (!block.detailsLoadedAt && !blockIsFetchingDetails){
-                yield put(fetchObjectDetails({
-                  targetId: block.id,
-                  objectType: "configBlock",
-                  decryptEnvs: true
-                }))
-              }
-            }
-          }
-
-        }
       }
     }
   },

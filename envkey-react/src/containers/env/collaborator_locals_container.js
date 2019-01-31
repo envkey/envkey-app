@@ -15,7 +15,7 @@ import {
 
 const triggerSelected = (props)=> {
         if(props.appUser){
-          props.selected(props.appUser)
+          props.selected(props.appUser.id)
         }
       }
 
@@ -81,7 +81,7 @@ const
 
   mapDispatchToProps = (dispatch, ownProps) => {
     return {
-      selected: appUser => dispatch(selectedObject({...appUser, objectType: "appUser"}))
+      selected: id => dispatch(selectedObject({id, objectType: "appUser"}))
     }
   }
 

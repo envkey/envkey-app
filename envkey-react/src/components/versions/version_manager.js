@@ -50,7 +50,7 @@ export default class VersionManager extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      selectedEnvUpdateId: null,
+      selectedEnvUpdateId: R.path(["versions", 0, "envUpdateId"], props),
       revertPreview: false
     }
   }

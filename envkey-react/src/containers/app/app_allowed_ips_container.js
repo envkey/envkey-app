@@ -135,8 +135,6 @@ class AppAllowedIps extends React.Component {
   }
 
   _renderIPField(field){
-    console.log(this.props.currentOrg)
-
     const strategy = this._mergeStrategyForField(field)
 
     if (strategy == "inherit"){
