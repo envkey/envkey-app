@@ -1,7 +1,6 @@
 import R from 'ramda'
 import { browserHistory, hashHistory } from 'react-router'
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux'
-import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly'
 import persistState, {mergePersistedState} from 'redux-localstorage'
 import localStorageAdapter from 'redux-localstorage/lib/adapters/localStorage'
 import sessionStorageAdapter from 'redux-localstorage/lib/adapters/sessionStorage'
@@ -60,16 +59,19 @@ const
 
   accountsPersistence = compose(filter(["accounts", "accountPrivkeys"]))(storageAdapter),
 
-  sessionPersistence = compose(filter(["auth", "privkey", "currentOrgSlug"]))(storageAdapter),
+  sessionPersistence = compose(filter(["auth", "privkey", "currentOrgSlug"]))(storageAdapter)
 
-  enhancerCompose = devMode ? composeWithDevTools : compose,
+let enhancer = compose(
+  applyMiddleware(...middlewares),
+  persistState(accountsPersistence, 'accounts'),
+  persistState(sessionPersistence, 'ui-session')
+)
 
-  enhancer =  enhancerCompose(
-    applyMiddleware(...middlewares),
-    persistState(accountsPersistence, 'accounts'),
-    persistState(sessionPersistence, 'ui-session')
-  ),
+if (devMode && window.__REDUX_DEVTOOLS_EXTENSION__){
+  enhancer = compose(enhancer, window.__REDUX_DEVTOOLS_EXTENSION__())
+}
 
+const
   store = createStore(reducer, enhancer),
 
   history = syncHistoryWithStore(historyType, store)

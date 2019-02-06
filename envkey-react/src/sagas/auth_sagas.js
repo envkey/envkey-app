@@ -131,7 +131,7 @@ function* onSelectAccountSuccess(){
   }
 }
 
-function *onFetchCurrentUserSuccess(action){
+function *onFetchCurrentUserMenuSuccess(action){
   const appAlreadyLoaded = yield select(getAppLoaded)
   if (appAlreadyLoaded){
     clearAuthenticatingOverlay()
@@ -144,7 +144,7 @@ function *onFetchCurrentUserSuccess(action){
   ]
 }
 
-function *onFetchCurrentUserFailed(action){
+function *onFetchCurrentUserMenuFailed(action){
   const status = R.path(["payload", "response", "status"], action)
 
   if (isTimeout(action)){
@@ -158,12 +158,6 @@ function *onFetchCurrentUserFailed(action){
     window.location.reload()
   } else {
     yield put(push("/home"))
-  }
-}
-
-function *onFetchCurrentUserUpdatesApiSuccess({payload}){
-  if (payload.apps && payload.apps.length > 0){
-    yield call(delay, 100)
   }
 }
 
@@ -190,9 +184,8 @@ export default function* authSagas(){
     takeLatest(ActionType.APP_LOADED, onAppLoaded),
     takeLatest(ActionType.REACTIVATED_BRIEF, onReactivatedBrief),
     takeLatest(ActionType.REACTIVATED_LONG, onReactivatedLong),
-    takeLatest(ActionType.FETCH_CURRENT_USER_MENU_SUCCESS, onFetchCurrentUserSuccess),
-    takeLatest(ActionType.FETCH_CURRENT_USER_FAILED, onFetchCurrentUserFailed),
-    takeLatest(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS, onFetchCurrentUserUpdatesApiSuccess),
+    takeLatest(ActionType.FETCH_CURRENT_USER_MENU_SUCCESS, onFetchCurrentUserMenuSuccess),
+    takeLatest(ActionType.FETCH_CURRENT_USER_MENU_FAILED, onFetchCurrentUserMenuFailed),
     takeLatest(ActionType.VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
     takeLatest(ActionType.LOGIN, onLogin),
     takeLatest(ActionType.LOGIN_SUCCESS, onLoginSuccess),

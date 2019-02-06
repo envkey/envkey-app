@@ -46,6 +46,7 @@
     "electron": "2.0.14",
     "electron-builder": "^20.15.1",
     "electron-builder-squirrel-windows": "^20.15.0",
+    "electron-devtools-installer": "^2.2.4",
     "electron-download-tf": "^4.3.4",
     "electron-simple-publisher": "envkey/electron-simple-publisher",
     "envkey": "^1.1.2",

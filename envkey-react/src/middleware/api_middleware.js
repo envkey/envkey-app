@@ -1,4 +1,3 @@
-import R from 'ramda'
 import isElectron from 'is-electron'
 
 export const

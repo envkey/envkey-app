@@ -47,7 +47,9 @@ const SelectedObjectContainerFactory = ({
         nextId = idPathFn(nextProps),
         obj = nextProps[objectType],
         shouldTrigger = currentId != nextId || (
-          obj && isEnvParent && obj.detailsLoadedAt && !obj.decrypted
+          obj && isEnvParent && !obj.detailsLoadedAt
+        ) || (
+          obj && isEnvParent && obj.detailsLoadedAt && !obj.loadedFromStorage
         )
 
       if (shouldTrigger){
@@ -96,7 +98,7 @@ const SelectedObjectContainerFactory = ({
             obj = this.props[objectType]
 
       let isLoading
-      if (this.props.isDemo && !this.props.decryptedAll){
+      if (this.props.isDemo && !obj.decrypted){
         isLoading = true
       } else if (!isAccountMenu && this.props.didDecryptPrivkey){
         if (objectType == "user"){
@@ -148,7 +150,6 @@ const SelectedObjectContainerFactory = ({
         ...R.pick([
           "permissions",
           "isDecrypting",
-          "decryptedAll",
           "decryptPrivkeyErr",
           "decryptAllErr"
         ], state),

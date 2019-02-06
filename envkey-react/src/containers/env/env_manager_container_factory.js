@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import R from 'ramda'
 import moment from 'moment'
 import columnsConfig from 'lib/columns/columns_config'
 import {
@@ -10,10 +9,7 @@ import {
   updateEntryVal,
   addSubEnv,
   removeSubEnv,
-  renameSubEnv,
-  addAssoc,
   removeAssoc,
-  createAssoc,
   socketUpdateLocalStatus
 } from 'actions'
 import {
@@ -22,9 +18,7 @@ import {
   getIsUpdatingEnvVal,
   getIsUpdatingEnvEntry,
   getIsCreatingEnvEntry,
-  getIsRemovingById,
   getIsUpdatingEnv,
-  getEnvsAreDecrypted,
   getEnvsWithMetaWithPending,
   getIsOnboarding,
   getLastAddedEntry,
@@ -50,7 +44,7 @@ import {
   NonAdminAppEnvSlider
 } from 'components/onboard'
 import {Onboardable} from 'components/onboard'
-import {orgRoleIsAdmin, appRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
+import {appRoleIsAdmin} from "envkey-client-core/dist/lib/roles"
 
 const EnvManagerContainerFactory = ({parentType})=> {
 
@@ -80,7 +74,6 @@ const EnvManagerContainerFactory = ({parentType})=> {
 
       let props = {
         currentOrg: getCurrentOrg(state),
-        envsAreDecrypted: getEnvsAreDecrypted(parentId,state),
         envsWithMeta: envsWithMetaWithPending,
         hasEnvsActionsPending: getHasEnvActionsPending(parentId, state),
         isUpdatingEnv: getIsUpdatingEnv(parentId, state),

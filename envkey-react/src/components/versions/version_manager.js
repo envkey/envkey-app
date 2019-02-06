@@ -120,7 +120,7 @@ export default class VersionManager extends React.Component {
   }
 
   render(){
-    if (!this.props.parent || !this.props.decryptedAll){
+    if (!this.props.parent || !('versions' in this.props)){
       return <div></div>
     }
 

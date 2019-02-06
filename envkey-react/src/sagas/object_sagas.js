@@ -22,6 +22,11 @@ import {
 const
   onSelectedObject = function*({payload: {objectType, id}}){
     yield put({ type: ActionType.SOCKET_UNSUBSCRIBE_OBJECT_CHANNEL})
+
+    if (objectType == "currentUser"){
+      return
+    }
+
     const state = yield select(),
           privkey = state.privkey,
           currentOrg = yield select(getCurrentOrg),

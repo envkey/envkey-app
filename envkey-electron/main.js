@@ -14,6 +14,13 @@ let win, stripeWin, updaterWin
 let appReady = false,
     forceClose = false
 
+if (isDev){
+  // Open the DevTools.
+  const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
+  installExtension(REACT_DEVELOPER_TOOLS)
+  installExtension(REDUX_DEVTOOLS)
+}
+
 function onAppReady(){
   appReady = true
   createWindow()
@@ -110,11 +117,6 @@ function createStripeWindow(json){
     slashes: true,
     search: qs
   }))
-
-  if (isDev){
-    // Open the DevTools.
-    // stripeWin.webContents.openDevTools()
-  }
 
   stripeWin.on('closed', () => {
     if(win)win.webContents.send("stripeFormClosed")

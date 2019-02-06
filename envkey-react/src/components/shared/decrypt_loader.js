@@ -42,7 +42,7 @@ export default class DecryptLoader extends React.Component {
       className: (isDecrypting ? "" : "hide")
     }, [
       h.div(".overlay-loader.decrypt-loader", [
-        h.span(".label", "Decrypting config..."),
+        h.span(".label", "Loading and decrypting..."),
         (this.state.showSpinner ? h(Spinner) : "")
       ])
     ])

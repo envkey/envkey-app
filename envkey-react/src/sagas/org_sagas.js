@@ -33,10 +33,7 @@ function *onCreateOrgSuccess(action){
 }
 
 function *onUpdateOrgOwnerSuccess(action){
-  const currentOrg = yield select(getCurrentOrg)
-  yield take(ActionType.FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
-  yield put(push(`/${currentOrg.slug}`))
-  yield call(redirectFromOrgIndexIfNeeded)
+  window.location.reload()
 }
 
 function *onGenerateDemoOrgSuccess({payload: {path}}){

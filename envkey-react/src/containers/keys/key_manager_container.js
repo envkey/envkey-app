@@ -82,7 +82,6 @@ const
     return {
       currentAppUser,
       isOnboarding: getIsOnboarding(state),
-      envsAreDecrypted: state.decryptedAll,
       servers: getServersForApp(ownProps.app.id, state),
       localKeys: getLocalKeysForAppUser(currentAppUser.id, state)
     }

@@ -169,7 +169,6 @@ const mapStateToProps = (state, ownProps) => {
   return {
     ...R.pick(["route", "params", "location"], ownProps),
     ...R.pick([
-      "decryptedAll",
       "currentUserErr",
       "auth",
       "permissions",

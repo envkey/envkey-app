@@ -269,8 +269,8 @@ export default function({
 
     case "configBlock-app":
       const blockApps = getAppsForConfigBlock(parent.id, state),
-            blockAppsWithoutRelations = dissocRelations(blockApps),
-            blockAppCandidates = R.without(blockAppsWithoutRelations, getCurrentUserAppsWithMinRole("production", state))
+            appIds = new Set(blockApps.map(R.prop('id'))),
+            blockAppCandidates = getCurrentUserAppsWithMinRole("production", state).filter(({id})=> !appIds.has(id))
 
       let configBlockAppColumns = [{
         title: "Connected Apps",
