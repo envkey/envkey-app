@@ -153,11 +153,13 @@ function *onFetchCurrentUserMenuFailed(action){
   } else if (status == 500){
     console.log("Server error...")
     window.alert("A server error prevented EnvKey from loading your data. If the problem persists, please contact support@envkey.com")
-  } else if (!([404,403,401].includes(status))){
+  } else if (status && !([404,403,401].includes(status))){
     console.log("API call failed. Refreshing...")
     window.location.reload()
-  } else {
+  } else if (status) {
     yield put(push("/home"))
+  } else {
+    window.alert(`There was an error rendering your data. Please contact support@envkey.com. Error:\n${payload}`)
   }
 }
 
