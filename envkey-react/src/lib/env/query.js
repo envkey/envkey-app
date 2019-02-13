@@ -17,6 +17,10 @@ export const
     R.filter(k => k.indexOf("@@__") != 0)
   )),
 
+  subEnvEntries = (envsWithMeta, subEnvId)=> allEntries({
+    [subEnvId]: findSubEnv(subEnvId, envsWithMeta)
+  }),
+
   allSubEnvsSorted = defaultMemoize(R.pipe(
     R.values,
     R.map(R.pipe(

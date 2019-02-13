@@ -12,7 +12,7 @@ import {
   getObject,
   getEnvironmentsAccessible
 } from 'selectors'
-import { allEntries } from 'lib/env/query'
+import { allEntries, subEnvEntries } from 'lib/env/query'
 import {
   QUEUE_ENVIRONMENT_IMPORT,
   QUEUE_ENVIRONMENT_IMPORT_SUCCESS,
@@ -76,7 +76,7 @@ function* onImportEnvironment({
 
   const {parentType, parentId} = meta,
         envsWithMeta = yield select(getEnvsWithMetaWithPendingWithImports(parentType, parentId)),
-        entries = new Set(allEntries(envsWithMeta)),
+        entries = new Set(subEnvId ? subEnvEntries(envsWithMeta, subEnvId) : allEntries(envsWithMeta)),
         environments = subEnvId ? [subEnvId] : (yield select(getEnvironmentsAccessible(parentId)))
 
   for (let entryKey in parsed){
