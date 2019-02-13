@@ -12,7 +12,7 @@ import {
   getObject,
   getEnvironmentsAccessible
 } from 'selectors'
-import { allEntries, subEnvEntries } from 'lib/env/query'
+import { allEntries, subEnvEntries, allEntriesWithSubEnvs } from 'lib/env/query'
 import {
   QUEUE_ENVIRONMENT_IMPORT,
   QUEUE_ENVIRONMENT_IMPORT_SUCCESS,
@@ -39,12 +39,12 @@ function* resolveAutoCaps(meta){
   const {parentType, parentId} = meta,
         object = yield select(getObject(parentType, parentId))
 
-  if (object.autoCaps == false){
+  if (object.autoCaps == false || !object.permissions.updateSettings){
     return
   }
 
   const envsWithMeta = yield select(getEnvsWithMetaWithPending(parentType, parentId)),
-        entries = allEntries(envsWithMeta),
+        entries = allEntriesWithSubEnvs(envsWithMeta),
         allCaps = R.all(s => s.toUpperCase() == s)(entries)
 
   if (!allCaps){

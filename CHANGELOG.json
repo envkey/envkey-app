@@ -88,5 +88,8 @@
     "Fix for occasional bug when updating billing email",
     "Fix sort order for updater CHANGELOG when updating multiple versions",
     "Update electron and related packages"
+  ],
+  "1.4.3": [
+    "Fix bug that prevents importing into sub-environments when the import includes an override of a variable from the base environment"
   ]
 }
