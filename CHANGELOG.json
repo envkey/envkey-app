@@ -91,5 +91,8 @@
   ],
   "1.4.3": [
     "Fix bug that prevents importing into sub-environments when the import includes an override of a variable from the base environment"
+  ],
+  "1.4.4": [
+    "Fix for web of trust verification bug that could prevent decryption in some circumstances after a user has delete their account"
   ]
 }

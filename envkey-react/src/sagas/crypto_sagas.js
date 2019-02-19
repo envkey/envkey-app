@@ -47,7 +47,7 @@ import {
   getCurrentUser,
   getAuth,
   getCurrentOrg,
-  getUsers,
+  getUsersWithDeleted,
   getUsersById,
   getServers,
   getLocalKeys
@@ -86,7 +86,7 @@ function *onVerifyOrgPubkeys(){
   const {id: orgId} = yield select(getCurrentOrg),
         auth = yield select(getAuth),
         trustedPubkeys = yield select(getTrustedPubkeys),
-        users = yield select(getUsers),
+        users = yield select(getUsersWithDeleted),
         usersById = yield select(getUsersById),
         localKeys = yield select(getLocalKeys),
         servers = yield select(getServers),
