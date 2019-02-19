@@ -9,7 +9,6 @@ import {imagePath, setAuthenticatingOverlay} from 'lib/ui'
 
 const SelectAccount = ({
   accounts,
-  accountPrivkeys,
   onSelect,
   onRemove,
   onResetSession
@@ -17,7 +16,7 @@ const SelectAccount = ({
 
   const
     renderSelectButton = (auth)=>{
-      return <button onClick={e => onSelect({auth, privkey: accountPrivkeys[auth.id]})}> Sign In </button>
+      return <button onClick={e => onSelect({auth})}> Sign In </button>
     },
 
     renderAccount = (account, i)=> {
@@ -58,8 +57,7 @@ const SelectAccount = ({
 
 const mapStateToProps = state => {
   return {
-    accounts: getAccounts(state),
-    accountPrivkeys: state.accountPrivkeys
+    accounts: getAccounts(state)
   }
 }
 

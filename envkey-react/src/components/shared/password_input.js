@@ -28,14 +28,13 @@ export default class PasswordInput extends React.Component {
       return
     }
 
-    const {score, feedback} = zxcvbn(val.substr(0,20), [...this.props.strengthUserInputs, "envkey", "passphrase"])
+    const {score, feedback} = zxcvbn(val.substr(0,20), [...(this.props.strengthUserInputs || []), "envkey", "passphrase"])
 
     if(this.props.onChange){
       this.props.onChange(val, (scoreValid(score) && confirmValid), score, feedback)
       return
     }
   }
-
 
   render(){
     return <div className="password-input">

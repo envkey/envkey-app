@@ -3,7 +3,6 @@ import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import {Link} from 'react-router'
 import { createOrg } from 'actions'
-import { getIsCreatingOrg } from 'selectors'
 import {OnboardOverlay} from 'components/onboard'
 import OrgForm from 'components/forms/org/org_form'
 
@@ -24,7 +23,7 @@ const CreateOrg = (props)=>{
 
 const
   mapStateToProps = (state, ownProps) => ({
-    isSubmitting: getIsCreatingOrg(state)
+    isSubmitting: state.isCreatingOrg
   }),
 
   mapDispatchToProps = dispatch => ({

@@ -1,13 +1,11 @@
 import { connect } from 'react-redux'
-import { push } from 'react-router-redux'
 import SelectOrg from 'components/shared/select_org'
 import {selectOrg} from 'actions'
-import {getCurrentOrg, getOrgs, getIsFetchingOrg} from 'selectors'
-import R from 'ramda'
+import {getCurrentOrg, getOrgs} from 'selectors'
 
 const mapStateToProps = state => {
   return {
-    isFetchingOrg: getIsFetchingOrg(state),
+    isFetchingOrg: state.isFetchingOrg,
     currentOrg: getCurrentOrg(state),
     orgs: getOrgs(state)
   }
