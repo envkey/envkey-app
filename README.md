@@ -1,6 +1,6 @@
 # EnvKey App
 
-This is [EnvKey](https://www.envkey.com)'s cross-platform native application. It supports Mac, Windows, and Linux. 
+This is [EnvKey](https://www.envkey.com)'s cross-platform native application. It supports Mac, Windows, and Linux.
 
 EnvKey is an end-to-end encrypted secrets and configuration management tool. It keeps your configuration securely and automatically in sync for all your developers and servers.
 
@@ -22,5 +22,6 @@ Read the [security and cryptography overview](https://security.envkey.com).
 
 Post an [issue](https://github.com/envkey/envkey-app/issues) or email us: [support@envkey.com](mailto:support@envkey.com).
 
+## Contributing
 
- 
+Run `./setup.sh` to install the correct versions of Node, Ruby, npm packages, and Ruby gems.
