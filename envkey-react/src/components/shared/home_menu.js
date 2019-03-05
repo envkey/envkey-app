@@ -16,13 +16,13 @@ export default class HomeMenu extends React.Component {
         h.h1(".welcome", ["Welcome! ", h.em("Let's get started.")]),
 
         h.div(".home-menu", [
-          h(Link, {className: "sign-in", to: (this.props.hasAccount ? "/select_account" : "/login")}, [
-            h.span(".img", [h.img({src: imagePath("signin-blue.svg")})]),
-            h.label([
-              "Sign In",
-              h.small(" / "),
-              "Sign Up"
-            ])
+          h(Link, { className: "sign-in", to: (this.props.hasAccount ? "/select_account" : "/auth_methods/sign_in") }, [
+            h.span(".img", [h.img({ src: imagePath("signin-blue.svg") })]),
+            h.label("Sign In")
+          ]),
+          h(Link, { className: "sign-in", to: "/auth_methods/sign_up"}, [
+            h.span(".img", [h.img({ src: imagePath("signin-blue.svg") })]),
+            h.label("Sign Up")
           ]),
           h(Link, {className: "accept-invite", to: "/accept_invite"}, [
             h.span(".img", [h.img({src: imagePath("airplane-blue.svg")})]),

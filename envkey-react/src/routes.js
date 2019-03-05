@@ -23,7 +23,7 @@ import {
   KeyManagerContainer,
   OnboardOverlayContainer,
   AppCollaboratorsContainer,
-  LoginRegisterContainer,
+  EmailAuthContainer,
   InviteFailedContainer,
   BillingContainer,
   HomeMenuContainer,
@@ -39,7 +39,10 @@ import {
   OrgAllowedIpsContainer,
   VersionManagerContainerFactory,
   LogManagerContainerFactory,
-  CollaboratorLocalsContainer
+  CollaboratorLocalsContainer,
+  AuthMethodsContainer,
+  ExternalAuthHandlerContainer,
+  RegisterContainer
 } from 'containers'
 import {OnboardAppForm, OnboardAppImporter} from 'components/onboard'
 
@@ -114,7 +117,13 @@ export default class Routes extends React.Component {
 
         <Route path="/home" component={RequiresConnection(BaseRoute(HomeMenuContainer))} />
 
-        <Route path="/login" component={RequiresConnection(BaseRoute(LoginRegisterContainer))} />
+        <Route path="/email_auth" component={RequiresConnection(BaseRoute(EmailAuthContainer))} />
+
+        <Route path="/auth_methods/:authType" component={RequiresConnection(BaseRoute(AuthMethodsContainer))} />
+
+        <Route path="/external_auth/:authData" component={RequiresConnection(BaseRoute(ExternalAuthHandlerContainer))} />
+
+        <Route path="/register" component={RequiresConnection(BaseRoute(RegisterContainer))} />
 
         <Route path="/demo/:bs64props" component={RequiresConnection(BaseRoute(DemoLoginContainer))} />
 

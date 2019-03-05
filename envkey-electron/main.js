@@ -10,12 +10,12 @@ const
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win, stripeWin, updaterWin
+let win, stripeWin, updaterWin, authWin
 let appReady = false,
     forceClose = false
 
 if (isDev){
-  // Open the DevTools.
+  // install react/redux devtool extensions
   const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
   installExtension(REACT_DEVELOPER_TOOLS)
   installExtension(REDUX_DEVTOOLS)
@@ -124,6 +124,29 @@ function createStripeWindow(json){
   })
 }
 
+function createAuthWindow(params){
+  authWin = new BrowserWindow({
+    width: 600,
+    height: 800,
+    parent: win,
+    alwaysOnTop: true,
+    center: true,
+    title: "Authenticate EnvKey",
+    webPreferences: {
+      nodeIntegration: false
+    }
+  })
+
+  authWin.on('page-title-updated', e => e.preventDefault())
+
+  authWin.loadURL(params.url)
+
+  authWin.on('closed', () => {
+    if (win) win.webContents.send("authWindowClosed")
+    authWin = null
+  })
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -154,3 +177,10 @@ ipcMain.on("openStripeForm", (e, json)=>{
   if(stripeWin)stripeWin.close()
   createStripeWindow(json)
 })
+
+ipcMain.on("focusMainWindow", (e, params)=>{
+  if (win){
+    win.show()
+  }
+})
+

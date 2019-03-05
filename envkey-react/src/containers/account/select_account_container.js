@@ -22,7 +22,7 @@ const SelectAccount = ({
     renderAccount = (account, i)=> {
       return <div key={i || false} className={i % 2 == 0 ? "even" : "odd"}>
         <img className="remove" src={imagePath("remove-circle-black.png")} onClick={()=> onRemove(account.id)}/>
-        <label>{account.uid}</label>
+        <label>{(account.provider == "email" ? "" : account.provider + " - ") + account.email}</label>
         {renderSelectButton(account)}
       </div>
     },
@@ -32,7 +32,7 @@ const SelectAccount = ({
     },
 
     renderAddAccount = ()=> {
-      return <Link to="/login" className="button secondary-button add-account" onClick={()=> onResetSession()}>
+      return <Link to="/auth_methods/sign_up" className="button secondary-button add-account" onClick={()=> onResetSession()}>
           <img src={imagePath("plus-sign-blue.svg")} />
           <label>Add An Account</label>
         </Link>

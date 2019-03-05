@@ -69,7 +69,7 @@ export default function({
         addLabel: "+",
         addExistingLabel: "Add Existing Users",
         addExistingSubmitLabelFn: (n)=> "Add Users",
-        addNewLabel: "Invite New User",
+        addNewLabel: "Invite New Users",
         addExistingTextFn: ({firstName, lastName}) => [firstName, lastName].join(" "),
         addExistingLabelFn: ({firstName, lastName}) => h.span([h.span([firstName, " "]), h.strong(lastName)]),
         currentOrg: getCurrentOrg(state),

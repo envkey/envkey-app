@@ -7,6 +7,7 @@ var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.IgnorePlugin(/openpgp/),
   new webpack.IgnorePlugin(/webworker-threads/),
+  new webpack.IgnorePlugin(/opn/),
   new webpack.IgnorePlugin(/^os$/),
   new EnvkeyWebpackPlugin({
     dotEnvFile: '.env.development',

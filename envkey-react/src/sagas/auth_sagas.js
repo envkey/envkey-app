@@ -51,6 +51,10 @@ function *onReactivatedBrief(){
   }
 }
 
+function *onVerifyEmailCodeSuccess(){
+  yield put(push("/register"))
+}
+
 function *onReactivatedLong(){
   // assuming we've already done a fetch, since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
   const
@@ -82,6 +86,13 @@ function* onLoginSuccess({meta: {orgSlug}}){
   }
 }
 
+function* onFetchVerifiedExternalAuthSessionSuccess(action){
+  if (action.payload.authType == "sign_up"){
+    yield put(push("/register"))
+  }
+  window.ipc.send("focusMainWindow")
+}
+
 function *onRegister({payload}){
   yield call(delay, 500)
 }
@@ -89,11 +100,11 @@ function *onRegister({payload}){
 function* onRegisterSuccess({meta: {requestPayload: {pubkey}}}){
   const currentOrg = yield select(getCurrentOrg)
 
-  yield take(ActionType.UPDATE_TRUSTED_PUBKEYS_SUCCESS)
   yield put(push(`/${currentOrg.slug}`))
   yield put({ type: ActionType.SOCKET_SUBSCRIBE_ORG_CHANNEL})
   yield call(redirectFromOrgIndexIfNeeded)
 }
+
 
 function* onStartDemo({payload: {email, token, passphrase}}){
   // 'passphrase' below is stored in action.meta, not sent to server -- allows decryption after login
@@ -191,6 +202,8 @@ export default function* authSagas(){
     takeLatest(ActionType.VERIFY_EMAIL_FAILED, onVerifyEmailFailed),
     takeLatest(ActionType.LOGIN, onLogin),
     takeLatest(ActionType.LOGIN_SUCCESS, onLoginSuccess),
+    takeLatest(ActionType.FETCH_VERIFIED_EXTERNAL_AUTH_SESSION_SUCCESS, onFetchVerifiedExternalAuthSessionSuccess),
+    takeLatest(ActionType.VERIFY_EMAIL_CODE_SUCCESS, onVerifyEmailCodeSuccess),
     takeLatest(ActionType.REGISTER, onRegister),
     takeLatest(ActionType.REGISTER_SUCCESS, onRegisterSuccess),
     takeLatest(ActionType.SELECT_ACCOUNT_SUCCESS, onSelectAccountSuccess),

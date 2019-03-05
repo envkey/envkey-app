@@ -18,7 +18,6 @@ const onGenerateDemoOrgRequest = apiSaga({
 
 function *onCreateOrgSuccess(action){
   const currentOrg = yield select(getCurrentOrg)
-  yield take(ActionType.UPDATE_TRUSTED_PUBKEYS_SUCCESS)
 
   yield put(push(`/${currentOrg.slug}`))
   yield put({ type: ActionType.SOCKET_SUBSCRIBE_ORG_CHANNEL})
