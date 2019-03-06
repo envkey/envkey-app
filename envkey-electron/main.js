@@ -14,17 +14,17 @@ let win, stripeWin, updaterWin, authWin
 let appReady = false,
     forceClose = false
 
-if (isDev){
-  // install react/redux devtool extensions
-  const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
-  installExtension(REACT_DEVELOPER_TOOLS)
-  installExtension(REDUX_DEVTOOLS)
-}
-
 function onAppReady(){
   appReady = true
   createWindow()
   createMenu()
+
+  if (isDev){
+    // install react/redux devtool extensions
+    const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
+    installExtension(REACT_DEVELOPER_TOOLS)
+    installExtension(REDUX_DEVTOOLS)
+  }
 }
 
 function createWindow () {
