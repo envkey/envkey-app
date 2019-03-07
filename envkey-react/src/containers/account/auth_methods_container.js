@@ -71,19 +71,19 @@ class AuthMethods extends React.Component {
       </div>
     } else {
       return <div>
-        <div className="email" onClick={this._getOnSelect("email", "email")}>Email</div>
+        <div className="auth-method email" onClick={this._getOnSelect("email", "email")}>Email</div>
 
-        <div className="github" onClick={this._getOnSelect("oauth_cloud", "github")}>Github Cloud</div>
-        <div className="gitlab" onClick={this._getOnSelect("oauth_cloud", "gitlab")}>Gitlab Cloud</div>
-        <div className="google" onClick={this._getOnSelect("oauth_cloud", "google")}>Google</div>
-        <div className="okta" onClick={this._getOnSelect("oauth_cloud", "okta")}>Okta</div>
+        <div className="auth-method github" onClick={this._getOnSelect("oauth_cloud", "github")}>Github Cloud</div>
+        <div className="auth-method gitlab" onClick={this._getOnSelect("oauth_cloud", "gitlab")}>Gitlab Cloud</div>
+        <div className="auth-method google" onClick={this._getOnSelect("oauth_cloud", "google")}>Google</div>
+        <div className="auth-method okta" onClick={this._getOnSelect("oauth_cloud", "okta")}>Okta</div>
 
-        <div className="github-hosted" onClick={this._getOnSelect("oauth_hosted", "github_hosted")}>Github Enterprise</div>
-        <div className="gitlab-hosted" onClick={this._getOnSelect("oauth_hosted", "gitlab_hosted")}>Gitlab Self-Hosted</div>
-        <div className="azure" onClick={this._getOnSelect("oauth_azure", "azure")}>Azure AD</div>
+        <div className="auth-method github-hosted" onClick={this._getOnSelect("oauth_hosted", "github_hosted")}>Github Enterprise</div>
+        <div className="auth-method gitlab-hosted" onClick={this._getOnSelect("oauth_hosted", "gitlab_hosted")}>Gitlab Self-Hosted</div>
+        <div className="auth-method azure" onClick={this._getOnSelect("oauth_azure", "azure")}>Azure AD</div>
 
-        <div className="saml" onClick={this._getOnSelect("saml", "saml")}>SAML 2.0</div>
-        <div className="ldap" onClick={this._getOnSelect("ldap", "ldap")}>LDAP</div>
+        <div className="auth-method saml" onClick={this._getOnSelect("saml", "saml")}>SAML 2.0</div>
+        <div className="auth-method ldap" onClick={this._getOnSelect("ldap", "ldap")}>LDAP</div>
       </div>
     }
 
