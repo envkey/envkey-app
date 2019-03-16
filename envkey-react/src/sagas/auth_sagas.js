@@ -78,7 +78,18 @@ function *onLogin(action){
 }
 
 function* onLoginSuccess({meta: {orgSlug}}){
-  if (!orgSlug){
+  // When trying to sign up via OAuth with an existing user, userId will be present.
+  // Ask the user to select the organization (or create a new one.)
+  const authSession = yield select(state => state.verifiedExternalAuthSession)
+  if (authSession &&
+    authSession.authType === "sign_up" &&
+    authSession.userId
+  ) {
+    yield call(loginSelectOrg)
+    return
+  }
+
+  if (!orgSlug) {
     const orgs = yield select(getOrgs)
     if (!(orgs.length == 1 && orgs[0].isActive)){
       yield call(loginSelectOrg)
@@ -86,11 +97,27 @@ function* onLoginSuccess({meta: {orgSlug}}){
   }
 }
 
-function* onFetchVerifiedExternalAuthSessionSuccess(action){
-  if (action.payload.authType == "sign_up"){
+function* onFetchVerifiedExternalAuthSessionSuccess(action) {
+  window.ipc.send("focusMainWindow")
+
+  if (action.payload.authType == "sign_up") {
+    // If there was an existing user for this OAuth account, we login first
+    // (in envkey-client-core / auth_sagas.ts / onStartExternalAuthSessionSuccess)
+    // Then we skip the default org selection in onLoginSuccess,
+    // and redirect to /select_org.
+    if (action.payload.userId != null) {
+      return
+    }
+
     yield put(push("/register"))
   }
-  window.ipc.send("focusMainWindow")
+}
+
+// Focus the app when showing an external auth error
+function* onFetchVerifiedExternalAuthSessionFailed(action) {
+  if (action.meta.status != 404) {
+    window.ipc.send("focusMainWindow")
+  }
 }
 
 function *onRegister({payload}){
@@ -203,6 +230,7 @@ export default function* authSagas(){
     takeLatest(ActionType.LOGIN, onLogin),
     takeLatest(ActionType.LOGIN_SUCCESS, onLoginSuccess),
     takeLatest(ActionType.FETCH_VERIFIED_EXTERNAL_AUTH_SESSION_SUCCESS, onFetchVerifiedExternalAuthSessionSuccess),
+    takeLatest(ActionType.FETCH_VERIFIED_EXTERNAL_AUTH_SESSION_FAILED, onFetchVerifiedExternalAuthSessionFailed),
     takeLatest(ActionType.VERIFY_EMAIL_CODE_SUCCESS, onVerifyEmailCodeSuccess),
     takeLatest(ActionType.REGISTER, onRegister),
     takeLatest(ActionType.REGISTER_SUCCESS, onRegisterSuccess),

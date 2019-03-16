@@ -1,9 +1,12 @@
 import React from 'react'
+import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { push } from 'react-router-redux'
 import {
-  startExternalAuthSession
+  verifyEmailRequest,
+  startExternalAuthSession,
+  login,
 } from 'actions'
 import {
 
@@ -11,20 +14,14 @@ import {
 import Spinner from 'components/shared/spinner'
 import { OnboardOverlay } from 'components/onboard'
 
+import { AUTH_PROVIDERS } from 'components/shared/i18n'
 
 class AuthMethods extends React.Component {
 
   constructor(props){
     super(props)
     this.state = {
-      authenticating: false,
       selectedProvider: null
-    }
-  }
-
-  componentWillReceiveProps(nextProps){
-    if (this.state.authenticating && nextProps.fetchVerifiedExternalAuthSessionErr){
-      this.setState({authenticating: false})
     }
   }
 
@@ -32,9 +29,6 @@ class AuthMethods extends React.Component {
     return e => {
       if (["email", "oauth_cloud"].includes(authMethod)){
         this.props.onSubmit({authMethod, provider, authType: this.props.params.authType})
-        if (authMethod != "email"){
-          this.setState({authenticating: true})
-        }
       } else {
         this.setState({selectedProvider: provider})
       }
@@ -45,7 +39,7 @@ class AuthMethods extends React.Component {
 
   }
 
-  _title(){
+  _title() {
     return this.props.params.authType == "sign_in" ? "Sign In" : "Sign Up"
   }
 
@@ -53,8 +47,9 @@ class AuthMethods extends React.Component {
     return <OnboardOverlay>
       <div>
         <h1><em>{this._title()}</em></h1>
+        {this._renderFetchVerifiedExternalAuthSessionErr()}
         <p className="small">
-          {this.state.authenticating ? "Authenticating..." : "Choose an authentication method." }
+          {this.props.isVerifyingExternalAuth ? "Authenticating..." : "Choose an authentication method." }
         </p>
         <div className="onboard-auth-form auth-methods">
           {this._renderContent()}
@@ -64,8 +59,81 @@ class AuthMethods extends React.Component {
     </OnboardOverlay>
   }
 
+
+  _authLink(data) {
+    const { id, uid, provider, userProvider, userId, email, verifiedAt } = data
+
+    const newProvider = userProvider || provider || 'email'
+    const authType = userProvider == null ? 'sign_up' : 'sign_in'
+    const verificationType = userProvider == null ? 'registration' : 'sign_in'
+
+    const providerTitle = AUTH_PROVIDERS[newProvider || 'email'] || '[unknown provider]'
+    const actionTitle = authType === 'sign_in' ? 'In' : 'Up'
+    const linkTextHTML = `Sign ${actionTitle} Via ${providerTitle}`.replace(/ /g, '&nbsp;')
+
+    let linkURL
+    if (verifiedAt && !userId) {
+      linkURL = '/register'
+    } else {
+      const linkPrefix = newProvider === 'email' ? 'email_auth' : 'auth_methods'
+      linkURL = `/${linkPrefix}/${authType}`
+    }
+
+    return h(Link, {
+      to: linkURL,
+      dangerouslySetInnerHTML: {__html: linkTextHTML},
+      onClick: () => {
+        if (newProvider === 'email') {
+          // Start the email verification request and redirect to email auth
+          this.props.onVerifyEmail({ email, verificationType })
+          return
+        }
+
+        if (verifiedAt) {
+          // If the current external auth session is already verified and there is a user,
+          // then we can login.
+          if (userId) {
+            this.props.onLogin({
+              externalAuthSessionId: id,
+              provider,
+              uid
+            })
+          }
+
+          // If no user id, then the link URL is /register
+          return
+        }
+
+        // If there is no verified OAuth session, then fall back to the default
+        // onSubmit handler to start a new session.
+        this.props.onSubmit({
+          authType,
+          authMethod: newProvider === 'email' ? 'email' : "oauth_cloud",
+          provider: newProvider })
+      }
+    })
+  }
+
+  _renderFetchVerifiedExternalAuthSessionErr() {
+    const { fetchVerifiedExternalAuthSessionErr: error } = this.props
+    if (!error) return null
+
+    if (error.response && error.response.data) {
+      const { data } = error.response
+      if (data.errorReason) {
+        return h.p(".error", [h.span(data.errorReason), ' ', this._authLink(data)])
+      }
+    }
+
+    return h.p(".error", [
+      "Oops! The request failed. Check your internet connection and try again. " +
+      "If it's still not working, contact support: support@envkey.com"
+    ])
+  }
+
+
   _renderContent() {
-    if (this.state.authenticating){
+    if (this.props.isVerifyingExternalAuth){
       return <div>
         <Spinner />
       </div>
@@ -99,22 +167,29 @@ class AuthMethods extends React.Component {
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    isVerifyingExternalAuth: state.isVerifyingExternalAuth,
     fetchVerifiedExternalAuthSessionErr: state.fetchVerifiedExternalAuthSessionErr
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    onSubmit: (props)=>{
+    onVerifyEmail: (p) => {
+      dispatch(verifyEmailRequest(p))
+      dispatch(push(`/email_auth/${authType}`))
+    },
+    onSubmit: (props) => {
       const { authType, authMethod, provider, providerSettings } = props
       if (authMethod == "email"){
-        dispatch(push("/email_auth"))
+        dispatch(push(`/email_auth/${authType}`))
       } else {
         dispatch(startExternalAuthSession(props))
       }
+    },
+    onLogin: (p) => {
+      dispatch(login(p))
     }
   }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuthMethods)
-

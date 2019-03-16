@@ -106,7 +106,7 @@ const mapDispatchToProps = dispatch => {
     onSubmit: (props) => {
       const { authType, authMethod, provider, providerSettings } = props
       if (authMethod == "email") {
-        dispatch(push("/email_auth"))
+        dispatch(push(`/email_auth/${authType}`))
       } else {
         dispatch(startExternalAuthSession(props))
       }

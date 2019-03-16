@@ -117,7 +117,7 @@ export default class Routes extends React.Component {
 
         <Route path="/home" component={RequiresConnection(BaseRoute(HomeMenuContainer))} />
 
-        <Route path="/email_auth" component={RequiresConnection(BaseRoute(EmailAuthContainer))} />
+        <Route path="/email_auth/:authType" component={RequiresConnection(BaseRoute(EmailAuthContainer))} />
 
         <Route path="/auth_methods/:authType" component={RequiresConnection(BaseRoute(AuthMethodsContainer))} />
 

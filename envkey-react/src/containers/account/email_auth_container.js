@@ -3,16 +3,20 @@ import R from 'ramda'
 import h from "lib/ui/hyperscript_with_helpers"
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
+import { push } from 'react-router-redux'
 import {
   verifyEmailRequest,
   verifyEmailCodeRequest,
   resetVerifyEmail,
+  startExternalAuthSession,
   login
 } from 'actions'
 import VerifyEmailCodeForm from 'components/forms/auth/verify_email_code_form'
 import Spinner from 'components/shared/spinner'
 import {OnboardOverlay} from 'components/onboard'
-import { pick } from  'envkey-client-core/dist/lib/utils/object'
+import { pick } from 'envkey-client-core/dist/lib/utils/object'
+
+import { AUTH_PROVIDERS } from 'components/shared/i18n'
 
 const
   shouldShowVerifyEmailCodeForm = props =>{
@@ -38,9 +42,22 @@ class EmailAuth extends React.Component {
     this.refs.email.focus()
   }
 
+  componentWillReceiveProps(nextProps) {
+    // The email verification flow can be triggered from auth_methods_container,
+    // so we need to update the email state here.
+    if (this.props.verifyingEmail !== nextProps.verifyingEmail &&
+        nextProps.verifyingEmail !== this.state.email
+    ) {
+      this.setState({ email: nextProps.verifyingEmail })
+    }
+  }
+
   _onVerifyEmail(e){
     e.preventDefault()
-    this.props.onVerifyEmail(R.pick(["email"], this.state))
+    this.props.onVerifyEmail({
+      ...R.pick(["email"], this.state),
+      verificationType: (this.props.params.authType == "sign_in" ? "sign_in" : "registration"),
+    })
   }
 
   _onVerifyEmailCode(e){
@@ -64,12 +81,16 @@ class EmailAuth extends React.Component {
     return h(OnboardOverlay, [
       h.div([
         h.div(".onboard-auth-form.login-register", [
-          h.h1(["Authenticate By ", h.em("Email")]),
+          h.h1([this._title(), " Via ", h.em("Email")]),
           this._renderContent(),
           this._renderBackLink()
         ])
       ])
     ])
+  }
+
+  _title() {
+    return this.props.params.authType == "sign_in" ? "Sign In" : "Sign Up"
   }
 
   _renderContent(){
@@ -126,10 +147,51 @@ class EmailAuth extends React.Component {
     }
   }
 
-  _renderVerifyEmailError(){
-    if (this.props.verifyEmailError){
-      return h.p(".error", ["Oops! The request failed. Check your internet connection, ensure you entered a valid email address, and try again. If it's still not working, contact support: support@envkey.com"])
+  _authLink(existingProvider) {
+    const newProvider = existingProvider || 'email'
+    const authType = existingProvider == null ? 'sign_up' : 'sign_in'
+    const verificationType = existingProvider == null ? 'registration' : 'sign_in'
+    const providerTitle = AUTH_PROVIDERS[existingProvider || 'email'] || '[unknown provider]'
+    const actionTitle = authType === 'sign_in' ? 'In' : 'Up'
+    const linkTextHTML = `Sign ${actionTitle} Via ${providerTitle}`.replace(/ /g, '&nbsp;')
+
+    const linkPrefix = newProvider === 'email' ? 'email_auth' : 'auth_methods'
+    const linkURL = `/${linkPrefix}/${authType}`
+
+    return h(Link, {
+      to: linkURL,
+      dangerouslySetInnerHTML: {__html: linkTextHTML},
+      onClick: () => {
+        if (newProvider === 'email') {
+          this.props.onVerifyEmail({
+            ...R.pick(["email"], this.state),
+            verificationType
+          })
+          return
+        }
+        this.props.onStartExternalAuthSession({
+          authType,
+          provider: newProvider,
+          authMethod: "oauth_cloud",
+        })
+      }
+    })
+  }
+
+  _renderVerifyEmailError() {
+    if (!this.props.verifyEmailError) return null
+
+    const emailError = R.path(['response', 'data', 'errors', 'email', 0], this.props.verifyEmailError)
+    if (emailError) {
+      // const verificationType = R.path(['response', 'data', 'verificationType'], this.props.verifyEmailError)
+      const existingProvider = R.path(['response', 'data', 'existingProvider'], this.props.verifyEmailError)
+      return h.p(".error", [h.span(emailError), ' ', this._authLink(existingProvider)])
     }
+    return h.p(".error", [
+      "Oops! The request failed. Check your internet connection, " +
+      "ensure you entered a valid email address, and try again. " +
+      "If it's still not working, contact support: support@envkey.com"
+    ])
   }
 
   _renderVerifyEmailCode(){
@@ -147,10 +209,10 @@ class EmailAuth extends React.Component {
       copy,
       codeName,
       onSubmit: ::this._onVerifyEmailCode,
+      emailVerificationCode: this.state.emailVerificationCode,
       onInputChange: (e)=> this.setState({emailVerificationCode: e.target.value})
     })
   }
-
 }
 
 const mapStateToProps = state => {
@@ -169,8 +231,15 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onVerifyEmail: p => dispatch(verifyEmailRequest(p)),
+    onVerifyEmail: (p) => {
+      dispatch(verifyEmailRequest(p))
+    },
     onVerifyEmailCode: p => dispatch(verifyEmailCodeRequest(p)),
+    onStartExternalAuthSession: (props) => {
+      const { authType } = props
+      dispatch(startExternalAuthSession(props))
+      dispatch(push(`/email_auth/${authType}`))
+    },
     onReset: ()=> dispatch(resetVerifyEmail()),
     onLogin: p => dispatch(login(p))
   }
