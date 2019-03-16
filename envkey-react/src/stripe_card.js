@@ -149,17 +149,16 @@ class StripeCardForm extends React.Component {
 
   _renderError(){
     const {error} = this._formData()
+    if (!error) return null
 
-    if (error){
-      return h.section(".error", [
-        h.div(".top", [
-          h.span(".error-message", error)
-        ]),
-        h.div(".bottom", [
-          h.span("Please re-enter your card details.")
-        ])
+    return h.section(".error", [
+      h.div(".top", [
+        h.span(".error-message", error)
+      ]),
+      h.div(".bottom", [
+        h.span("Please re-enter your card details.")
       ])
-    }
+    ])
   }
 }
 
