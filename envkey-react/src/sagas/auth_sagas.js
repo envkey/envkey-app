@@ -164,6 +164,7 @@ function *onFetchCurrentUserMenuFailed(action){
   } else if (status == 500){
     console.log("Server error...")
     window.alert("A server error prevented EnvKey from loading your data. If the problem persists, please contact support@envkey.com")
+    yield put(push("/home"))
   } else if (status && !([404,403,401].includes(status))){
     console.log("API call failed. Refreshing...")
     window.location.reload()
