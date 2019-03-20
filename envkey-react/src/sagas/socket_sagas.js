@@ -251,7 +251,7 @@ export default function* socketSagas(){
 
     takeLatest(ActionType.SOCKET_SUBSCRIBE_OBJECT_CHANNEL, onSubscribeObjectChannel),
 
-    takeEvery(ActionType.SOCKET_ORG_UPDATE, onSocketUpdateOrg),
+    // takeEvery(ActionType.SOCKET_ORG_UPDATE, onSocketUpdateOrg),
 
     takeEvery(ActionType.SOCKET_UPDATE_ENVS_STATUS, onSocketUpdateEnvsStatus),
 
