@@ -93,6 +93,11 @@
     "Fix bug that prevents importing into sub-environments when the import includes an override of a variable from the base environment"
   ],
   "1.4.4": [
-    "Fix for web of trust verification bug that could prevent decryption in some circumstances after a user has delete their account"
+    "Fix for web of trust verification bug that could prevent decryption in some circumstances after a user has deleted their account"
+  ],
+  "1.4.5": [
+    "Fix for real-time updates bug that could in some circumstances cause an inconsistent state and corrupted data when app access levels are changed",
+    "Darken text of values and placeholders to improve readability"
+
   ]
 }

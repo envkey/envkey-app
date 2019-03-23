@@ -105,6 +105,7 @@ function *onSocketUpdateOrg(action){
     alert("This organization has been deleted by the owner.")
     yield put(push("/home"))
     yield put(resetSession())
+    window.location.reload()
     return
   }
 
@@ -113,54 +114,50 @@ function *onSocketUpdateOrg(action){
     alert("Your access to this organization has been removed by an org admin.")
     yield put(push("/home"))
     yield put(resetSession())
+    window.location.reload()
     return
   }
 
   // Handle org access change
   if ((actionType == "created" && targetType == "OrgUser" && meta && meta.userId == auth.id) ||
       (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "update_owner" && meta.userId == auth.id) ){
-    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your organization access level has been updated by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
-    yield call(redirectFromOrgIndexIfNeeded)
+    window.location.reload()
     return
   }
 
   // Current app deleted
   if (actionType == "deleted" && targetType == "App" && targetId == selectedObjectId){
-    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This app has been deleted by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
-    yield call(redirectFromOrgIndexIfNeeded)
+    window.location.reload()
     return
   }
 
   // Current app access removed
   if (actionType == "deleted" && targetType == "AppUser" && appId == selectedObjectId && meta && meta.userId == auth.id){
-    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("Your access to this app has been removed by an app admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
-    yield call(redirectFromOrgIndexIfNeeded)
+    window.location.reload()
     return
   }
 
   // Current app access changed
   if (actionType == "created" && targetType == "AppUser" && meta && meta.userId == auth.id){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
-    if(appId == selectedObjectId)alert("Your app access level has been updated by an app admin.")
+    if(appId == selectedObjectId){
+      alert("Your app access level has been updated by an app admin.")
+      window.location.reload()
+    }
     return
   }
 
   // Selected user deleted
   if (actionType == "deleted" && targetType == "OrgUser" && meta && meta.userId == selectedObjectId){
-    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     alert("This user has been removed from the organization by an org admin.")
-    yield take(FETCH_CURRENT_USER_UPDATES_API_SUCCESS)
     yield put(push(`/${currentOrg.slug}`))
-    yield call(redirectFromOrgIndexIfNeeded)
+    window.location.reload()
     return
   }
 
