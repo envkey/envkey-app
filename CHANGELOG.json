@@ -97,7 +97,6 @@
   ],
   "1.4.5": [
     "Fix for real-time updates bug that could in some circumstances cause an inconsistent state and corrupted data when app access levels are changed",
-    "Darken text of values and placeholders to improve readability"
-
+    "Readability improvements for environment values and placeholders"
   ]
 }

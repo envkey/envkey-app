@@ -34,7 +34,7 @@ export default class ValCell extends EnvCell {
     }
 
     if(this.props.locked || (!this.props.isUpdating && this.props.hideValues)){
-      return "●●●●●●●●●●●●";
+      return h.span({className: "mask-dots"}, "●●●●●●●●●●●●");
     } else {
       return super._valDisplay()
     }

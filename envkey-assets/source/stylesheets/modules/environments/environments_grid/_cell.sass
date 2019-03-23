@@ -74,7 +74,7 @@
       +cell-glow($light-blue)
 
     &, span, input, textarea
-      font-size: 11px
+      font-size: 11.5px
 
     .val
       margin: 0 15px
@@ -93,7 +93,7 @@
         position: relative
 
       &, span, input, textarea
-        font-size: 11px
+        font-size: 11.5px
 
     &:last-of-type
       border-bottom: 1px solid #fff
@@ -103,7 +103,7 @@
           border-bottom: 1px solid rgba(hsl(0,0,75), 0.6)
 
     &, span, input, textarea
-      font-size: 10px
+      font-size: 11px
 
   &.vals-masked .val-cols .cell
     color: hsl(0,0,75)
@@ -148,6 +148,9 @@
         text-align: left
         padding-top: 8px
         line-height: 1.4
+
+    span.mask-dots
+      color: lighten($dark-text, 25%)
 
   .entry-form .cell.multiline.editing
     top: $env-grid-header-height
@@ -221,10 +224,10 @@
 
   .cell small
     font-family: $default-font
+    font-weight: 400
     color: hsl(0,0,70)
 
     +safari-only
-      font-weight: 300
       color: hsl(0,0,70)
 
     em
@@ -232,7 +235,7 @@
 
     .optional
       margin-left: 5px
-      font-size: 9.5px
+      font-size: 10px
       opacity: 0.9
 
   .highlight-row
