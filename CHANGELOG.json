@@ -97,6 +97,7 @@
   ],
   "1.4.5": [
     "Fix for real-time updates bug that could in some circumstances cause an inconsistent state and corrupted data when app access levels are changed",
-    "Readability improvements for environment values and placeholders"
+    "Readability improvements for environment values and placeholders",
+    "Fix for missing tray icon on Linux"
   ]
 }

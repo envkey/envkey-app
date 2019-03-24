@@ -32,7 +32,7 @@ function createWindow () {
     center: true,
     backgroundColor: "#333333",
     title: "EnvKey " + updater.version,
-    icon: path.join(__dirname, 'assets/icons/png/64x64.png')
+    icon: path.join(__dirname, 'icon/64x64.png')
   })
 
   // and load the index.html of the app.
