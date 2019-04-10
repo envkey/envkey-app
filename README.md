@@ -10,6 +10,8 @@ The EnvKey App enforces a zero-knowledge protocol. The server never sees configu
 
 Head over to [releases](https://github.com/envkey/envkey-app/releases) and download the latest release for your platform and architecture.
 
+On **linux**, EnvKey uses the AppImage format. [Go here](https://appimage.org/) for full instructions on running an AppImage.
+
 ## Docs and Info
 
 Read the [docs](https://docs.envkey.com).
