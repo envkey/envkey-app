@@ -66,7 +66,7 @@ import * as crypto from 'lib/crypto'
 const
   devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
 
-  doLogging = false, //devMode,
+  doLogging = true,
 
   onUpdateTrustedPubkeysRequest = apiSaga({
     authenticated: true,

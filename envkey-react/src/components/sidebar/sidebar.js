@@ -141,10 +141,4 @@ export default class Sidebar extends React.Component {
     }
   }
 
-  // _renderVersion(){
-  //   if (window.updater){
-  //     return <div className="version"><small>v{window.updater.version}</small></div>
-  //   }
-  // }
-
 }

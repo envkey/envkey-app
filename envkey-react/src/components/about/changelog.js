@@ -37,7 +37,7 @@ export default class Changelog extends React.Component {
     if (this.state.changes && this.props.version){
       return R.pipe(
         R.keys,
-        R.filter(v => semver.gt(v, window.updater.version)),
+        R.filter(v => semver.gt(v, window.updaterVersion)),
         R.sort((k1,k2) => semver.gt(k1,k2) ? -1 : 1),
         R.map(::this._renderChangeList)
       )(this.state.changes)

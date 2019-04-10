@@ -11,9 +11,15 @@ window.copy = s => {
 }
 
 window.ipc = ipcRenderer
-window.updater = updater
-window.shell = shell
-window.dialog = dialog
-window.fs = fs
+
+window.updaterVersion = updater.version
+
+window.openExternal = (url)=> shell.openExternal(url)
+
+window.saveFile = (title, defaultPath, data, cb)=> dialog.showSaveDialog({title, defaultPath}, (filename)=>{
+  if(!filename)return
+  fs.writeFile(filename, data, cb)
+})
+
 window.electronStore = new Store()
 

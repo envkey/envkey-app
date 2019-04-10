@@ -59,9 +59,9 @@ export const
   },
 
   openLinkExternal = e => {
-    if(window.shell){
+    if(window.openExternal){
       e.preventDefault()
-      window.shell.openExternal(e.target.href)
+      window.openExternal(e.target.href)
     }
   },
 

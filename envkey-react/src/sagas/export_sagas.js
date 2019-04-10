@@ -27,18 +27,14 @@ function* onExportEnvironment({meta: {parentId}, payload: {environment, format, 
         rawEnv = yield select(getRawEnvWithPendingForApp({appId: parentId, environment, subEnvId}))
 
   if (isElectron()){
-    window.dialog.showSaveDialog({
-      title: `Export ${app.name} - ${environment}`,
-      defaultPath: `${subEnvName || environment}.${format}`
-    }, (filename)=> {
-      if(!filename)return
-      window.fs.writeFile(filename, rawEnvToTxt(rawEnv, format), (err) => {
-        if(err){
-          alert("An error ocurred saving the file "+ err.message)
-        }
-      })
-    })
-
+    window.saveFile(
+      `Export ${app.name} - ${environment}`,
+      `${subEnvName || environment}.${format}`,
+      rawEnvToTxt(rawEnv, format),
+      err => {
+        if(err) alert("An error ocurred saving the file "+ err.message)
+      }
+    )
   }
 }
 

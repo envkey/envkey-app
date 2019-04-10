@@ -169,22 +169,14 @@ function* onBillingUpdateCard(){
   }
 }
 
-function saveFile(invoice){
-  return new Promise(resolve => {
-    window.dialog.showSaveDialog({
-      title: 'Save Invoice',
-      defaultPath: `envkey-invoice-${moment(invoice.createdAt).format("YYYY-MM-DD")}.pdf`
-    }, resolve)
-  })
-}
-
-function writeFile(filename, data){
+function saveFile(invoice, data){
   const fileReader = new FileReader()
 
   return new Promise(resolve => {
     fileReader.onload = function() {
-      fs.writeFile(
-        filename,
+      window.saveFile(
+        'Save Invoice',
+        `envkey-invoice-${moment(invoice.createdAt).format("YYYY-MM-DD")}.pdf`,
         Buffer.from(new Uint8Array(this.result)),
         resolve
       )
@@ -193,6 +185,7 @@ function writeFile(filename, data){
   })
 }
 
+
 function* onBillingFetchPdf(action){
   if (!isElectron()){
     return
@@ -200,26 +193,22 @@ function* onBillingFetchPdf(action){
 
   yield put(billingFetchInvoicePdfRequest(action.payload))
 
-  const invoice = yield select(getInvoice(action.payload.id))
-
-
-  const [filename, fetchRes] = yield [
-    saveFile(invoice),
-    take([BILLING_FETCH_INVOICE_PDF_SUCCESS, BILLING_FETCH_INVOICE_PDF_FAILED])
-  ]
+  const
+    invoice = yield select(getInvoice(action.payload.id)),
+    fetchRes = yield take([BILLING_FETCH_INVOICE_PDF_SUCCESS, BILLING_FETCH_INVOICE_PDF_FAILED])
 
   if (fetchRes.error){
     return
   }
 
-  const writeErr = yield writeFile(filename, fetchRes.payload)
+  const saveErr = yield saveFile(invoice, fetchRes.payload)
 
-  if(writeErr){
-    alert(`An error ocurred saving ${filename}: ${writeErr.message}`)
+  if(saveErr){
+    alert(`An error ocurred saving ${filename}: ${saveErr.message}`)
     yield put({
       type: BILLING_SAVE_INVOICE_PDF_FAILED,
       error: true,
-      payload: writeErr,
+      payload: saveErr,
       meta: fetchRes.meta
     })
   } else {
