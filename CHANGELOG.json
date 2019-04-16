@@ -99,5 +99,9 @@
     "Fix for real-time updates bug that could in some circumstances cause an inconsistent state and corrupted data when app access levels are changed",
     "Readability improvements for environment values and placeholders",
     "Fix for missing tray icon on Linux"
+  ],
+  "1.4.6": [
+    "Improved Electron sandboxing in preload.js script",
+    "Sanitized client-side log collection for faster debugging of client issues (only non-sensitive metadata is included via explicit whitelisting)"
   ]
 }

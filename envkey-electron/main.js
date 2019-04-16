@@ -62,7 +62,10 @@ function createWindow () {
         })
       } else {
         forceClose = true
-        win.close()
+        win.webContents.executeJavaScript("beforeClose()").then(res => {
+          win.close()
+        })
+
       }
     }).catch(err => {
       forceClose = true

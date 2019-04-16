@@ -11,7 +11,8 @@ const sagaFiles = [
   "import",
   "invite",
   "billing",
-  "export"
+  "export",
+  "session"
 ]
 
 export default function* rootSaga(){

@@ -1,6 +1,6 @@
 import {store} from 'init_redux'
 import {getIsUpdatingAnyEnv} from 'selectors'
-import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG} from 'actions'
+import {DISCONNECTED, REACTIVATED_BRIEF, REACTIVATED_LONG, commitSanitizedActionLog} from 'actions'
 import isElectron from 'is-electron'
 
 window.isUpdatingAnyEnv = ()=> {
@@ -9,6 +9,7 @@ window.isUpdatingAnyEnv = ()=> {
 
 let isCheckingConnection = false,
     isCheckingActive = false,
+    isWatchingSessionLogs = false,
     lastActiveAt,
     lastUserActionAt
 
@@ -98,7 +99,23 @@ const
     setTimeout(checkReactivated, 4000)
   }
 
+
 export const
+  checkSessionLogs = (repeat=false, initialDelay=0, interval=1000*60)=> {
+    isWatchingSessionLogs = true
+    if (initialDelay){
+      setTimeout(()=> checkSessionLogs(repeat), initialDelay)
+      return
+    }
+
+    const sanitizedActionLog = store.getState().sanitizedActionLog
+    if (Object.keys(sanitizedActionLog).length > 0){
+      store.dispatch(commitSanitizedActionLog())
+    }
+
+    setTimeout(()=> checkSessionLogs(repeat), interval)
+  },
+
   startConnectionWatcher = ()=> {
     if(!isCheckingConnection)checkConnection()
   },
@@ -107,6 +124,12 @@ export const
     if (!lastActiveAt){
       lastActiveAt = Date.now()
       checkReactivated()
+    }
+  },
+
+  startSessionLogWatcher = ()=> {
+    if(!isWatchingSessionLogs){
+      checkSessionLogs(true, 1000 * 60)
     }
   }
 

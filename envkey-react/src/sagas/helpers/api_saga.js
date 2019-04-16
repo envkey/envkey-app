@@ -67,7 +67,7 @@ export default function apiSaga({
       }
     }
 
-    const auth = yield select(getAuth),
+    const auth = (requestAction.meta && requestAction.meta.overrideAuth) || (yield select(getAuth)),
           orgSlug = R.path(["meta", "orgSlug"], requestAction) || (yield select(getCurrentOrgSlug)),
           client = authenticated ? authenticatedClient(auth) : api,
           urlArg = urlSelector ? (yield select(urlSelector)) : null,
