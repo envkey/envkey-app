@@ -110,4 +110,7 @@
   "1.4.8": [
     "Fix for client-side logs performance issue"
   ],
+  "1.4.9": [
+    "Enable console logging for web of trust verification steps"
+  ]
 }
