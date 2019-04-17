@@ -106,5 +106,8 @@
   ],
   "1.4.7": [
     "Minor improvements to client-side log collection"
-  ]
+  ],
+  "1.4.8": [
+    "Fix for client-side logs performance issue"
+  ],
 }

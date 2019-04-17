@@ -53,7 +53,7 @@ export function* signTrustedPubkeyChain(signWithPrivkey=null){
 }
 
 export function* keyableIsTrusted(keyable){
-   yield put(logToSession(`keyableIsTrusted: checking keyable: ${keyable.id}`))
+   console.log(`keyableIsTrusted: checking keyable: ${keyable.id}`)
 
   const {id: keyableId, pubkey, invitePubkey} = keyable,
         {id: orgId} = yield select(getCurrentOrg),
@@ -61,17 +61,17 @@ export function* keyableIsTrusted(keyable){
         trusted = R.prop(keyableId, trustedPubkeys)
 
   if (!(pubkey || invitePubkey)){
-    yield put(logToSession("keyableIsTrusted: Missing either pubkey or invitePubkey. Not trusted."))
+    console.log("keyableIsTrusted: Missing either pubkey or invitePubkey. Not trusted.")
     return false
   }
 
   if (!trusted){
-    yield put(logToSession("keyableIsTrusted: Not trusted."))
+    console.log("keyableIsTrusted: Not trusted.")
     return false
   }
 
   if((pubkey && !trusted.pubkeyFingerprint) || (invitePubkey && !trusted.invitePubkeyFingerprint)){
-    yield put(logToSession("keyableIsTrusted: Trusted keyable is missing either pubkeyFingerprint or invitePubkeyFingerprint."))
+    console.log("keyableIsTrusted: Trusted keyable is missing either pubkeyFingerprint or invitePubkeyFingerprint.")
     return false
   }
 
@@ -79,21 +79,21 @@ export function* keyableIsTrusted(keyable){
         trustedProps = R.pick(TRUSTED_PUBKEY_PROPS, trusted)
 
   if (!R.equals(keyableProps, trustedProps)){
-    yield put(logToSession("keyableIsTrusted: keyable props do not match trusted keyable props."))
+    console.log("keyableIsTrusted: keyable props do not match trusted keyable props.")
     return false
   }
 
   if(pubkey && crypto.getPubkeyFingerprint(pubkey) != trusted.pubkeyFingerprint){
-    yield put(logToSession("keyableIsTrusted: pubkeyFingerprint does not match pubkey"))
+    console.log("keyableIsTrusted: pubkeyFingerprint does not match pubkey")
     return false
   }
 
   if(invitePubkey && crypto.getPubkeyFingerprint(invitePubkey) != trusted.invitePubkeyFingerprint){
-    yield put(logToSession("keyableIsTrusted: invitePubkeyFingerprint does not match invitePubkey"))
+    console.log("keyableIsTrusted: invitePubkeyFingerprint does not match invitePubkey")
     return false
   }
 
-  yield put(logToSession(`keyableIsTrusted: ${keyable.id}`))
+  console.log(`keyableIsTrusted: ${keyable.id}`)
 
   return true
 }
