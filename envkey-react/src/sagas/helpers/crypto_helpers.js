@@ -18,7 +18,8 @@ import {
   verifyTrustedPubkeys,
   verifyCurrentUserPubkey,
   verifyOrgPubkeys,
-  updateTrustedPubkeys
+  updateTrustedPubkeys,
+  logToSession
 } from 'actions'
 import {
   getPrivkey,
@@ -34,11 +35,6 @@ import {
 } from "selectors"
 import { normalizeEnvsWithMeta } from 'lib/env/transform'
 import { TRUSTED_PUBKEY_PROPS } from 'constants'
-
-const
-  devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
-
-  doLogging = false
 
 export function* signTrustedPubkeys(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),
@@ -57,10 +53,7 @@ export function* signTrustedPubkeyChain(signWithPrivkey=null){
 }
 
 export function* keyableIsTrusted(keyable){
-  if(doLogging){
-    console.log("keyableIsTrusted: checking keyable")
-    console.log(keyable)
-  }
+   yield put(logToSession(`keyableIsTrusted: checking keyable: ${keyable.id}`))
 
   const {id: keyableId, pubkey, invitePubkey} = keyable,
         {id: orgId} = yield select(getCurrentOrg),
@@ -68,44 +61,39 @@ export function* keyableIsTrusted(keyable){
         trusted = R.prop(keyableId, trustedPubkeys)
 
   if (!(pubkey || invitePubkey)){
-    if(doLogging)console.log("keyableIsTrusted: Missing either pubkey or invitePubkey. Not trusted.")
+    yield put(logToSession("keyableIsTrusted: Missing either pubkey or invitePubkey. Not trusted."))
     return false
   }
 
   if (!trusted){
-    if(doLogging)console.log("keyableIsTrusted: Not trusted.")
+    yield put(logToSession("keyableIsTrusted: Not trusted."))
     return false
   }
 
   if((pubkey && !trusted.pubkeyFingerprint) || (invitePubkey && !trusted.invitePubkeyFingerprint)){
-    if(doLogging)console.log("keyableIsTrusted: Trusted keyable is missing either pubkeyFingerprint or invitePubkeyFingerprint.")
+    yield put(logToSession("keyableIsTrusted: Trusted keyable is missing either pubkeyFingerprint or invitePubkeyFingerprint."))
     return false
   }
 
   const keyableProps = R.pick(TRUSTED_PUBKEY_PROPS, keyable),
         trustedProps = R.pick(TRUSTED_PUBKEY_PROPS, trusted)
 
-  if(doLogging){
-    console.log("keyableIsTrusted: keyableProps -- ", keyableProps)
-    console.log("keyableIsTrusted: trustedProps -- ", trustedProps)
-  }
-
   if (!R.equals(keyableProps, trustedProps)){
-    if(doLogging)console.log("keyableIsTrusted: keyable props do not match trusted keyable props.")
+    yield put(logToSession("keyableIsTrusted: keyable props do not match trusted keyable props."))
     return false
   }
 
   if(pubkey && crypto.getPubkeyFingerprint(pubkey) != trusted.pubkeyFingerprint){
-    if(doLogging)console.log("keyableIsTrusted: pubkeyFingerprint does not match pubkey")
+    yield put(logToSession("keyableIsTrusted: pubkeyFingerprint does not match pubkey"))
     return false
   }
 
   if(invitePubkey && crypto.getPubkeyFingerprint(invitePubkey) != trusted.invitePubkeyFingerprint){
-    if(doLogging)console.log("keyableIsTrusted: invitePubkeyFingerprint does not match invitePubkey")
+    yield put(logToSession("keyableIsTrusted: invitePubkeyFingerprint does not match invitePubkey"))
     return false
   }
 
-  if(doLogging)console.log("keyableIsTrusted: trusted.")
+  yield put(logToSession(`keyableIsTrusted: ${keyable.id}`))
 
   return true
 }

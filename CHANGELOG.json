@@ -103,5 +103,8 @@
   "1.4.6": [
     "Improved Electron sandboxing in preload.js script",
     "Sanitized client-side log collection for faster debugging of client issues (only non-sensitive metadata is included via explicit whitelisting)"
+  ],
+  "1.4.7": [
+    "Minor improvements to client-side log collection"
   ]
 }

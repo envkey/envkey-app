@@ -67,8 +67,6 @@ import * as crypto from 'lib/crypto'
 import {sanitizeError} from 'lib/log'
 
 const
-  devMode = process.env.NODE_ENV == "development" || process.env.BUILD_ENV == "staging",
-
   onUpdateTrustedPubkeysRequest = apiSaga({
     authenticated: true,
     method: "post",
@@ -109,6 +107,7 @@ function *onVerifyOrgPubkeys(){
     "active",
     "createdAt",
     "keyGeneratedById",
+    "signedById",
     "keyGeneratedAt",
     "invitedById",
     "undeletable",
@@ -119,10 +118,10 @@ function *onVerifyOrgPubkeys(){
     for (let keyable of keyables){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
 
-      toLog = toLog.concat(
+      yield put(logToSession(
         "Checking keyable: ",
         R.pick(logKeyableProps, keyable)
-      )
+      ))
 
       // keyGeneratedById for servers, userId (via appUserId) for localKeys
       let initialSignedById
@@ -130,11 +129,11 @@ function *onVerifyOrgPubkeys(){
         initialSignedById = keyable.keyGeneratedById
       }
 
-      toLog = toLog.concat("initialSignedById: ", initialSignedById, "initialInvitedById: ", initialInvitedById)
+      yield put(logToSession("initialSignedById: ", initialSignedById, "initialInvitedById: ", initialInvitedById))
 
       // Only consider keyables with public keys generated
       if (!(pubkey || invitePubkey)){
-        toLog = toLog.concat("No pubkey or invitePubkey, skipping...")
+        yield put(logToSession("No pubkey or invitePubkey, skipping..."))
         continue
       }
 
@@ -144,16 +143,16 @@ function *onVerifyOrgPubkeys(){
           keyableTrusted = yield call(keyableIsTrusted, keyable)
 
       if(trusted && keyableTrusted){
-        toLog = toLog.concat("Keyable ", keyableId, "is trusted, continuing...")
+        yield put(logToSession("Keyable ", keyableId, "is trusted, continuing..."))
         continue
       } else if (!(initialSignedById || initialInvitedById)){
-        toLog = toLog.concat("Keyable ", keyableId, "has no initialSignedById or initialInvitedById--marking unverified...")
+        yield put(logToSession("Keyable ", keyableId, "has no initialSignedById or initialInvitedById--marking unverified..."))
         unverifiedKeyables[keyableId] = keyable
         continue
       }
 
       // Otherwise, attempt to verify signature chain back to a trusted key
-      toLog = toLog.concat("Verifying to trusted root...")
+      yield put(logToSession("Verifying to trusted root..."))
 
       let trustedRoot,
           signedById = initialSignedById,
@@ -161,22 +160,22 @@ function *onVerifyOrgPubkeys(){
           checkingKeyable = keyable
 
       while (!trustedRoot){
-        toLog = toLog.concat(
+        yield put(logToSession(
           "Starting loop.",
           "Checking keyable: ",
           R.pick(logKeyableProps, checkingKeyable),
           `signedById: ${signedById}, invitedById: ${invitedById}`,
-        )
+        ))
 
         let signingId = invitedById || signedById
         if (!signingId){
-          toLog = toLog.concat("No signing id... breaking")
+          yield put(logToSession("No signing id... breaking"))
           break
         }
 
         // If signing user has already been marked unverified, break
         if (unverifiedKeyables[signingId]){
-          toLog = toLog.concat("signing user marked unverified... breaking")
+          yield put(logToSession("signing user marked unverified... breaking"))
           break
         }
 
@@ -184,43 +183,43 @@ function *onVerifyOrgPubkeys(){
         // If not verified or user not found, break
         let signingUser = usersById[signingId]
 
-        toLog = toLog.concat(
+        yield put(logToSession(
           "signingUser: ",
           R.pick(logKeyableProps, signingUser)
-        )
+        ))
 
         if(signingUser && signingUser.pubkey){
           let signedKey = invitedById ? checkingKeyable.invitePubkey : checkingKeyable.pubkey,
               verified
 
-          toLog = toLog.concat("Verifying signed key.")
+          yield put(logToSession("Verifying signed key."))
           try {
             verified = crypto.verifyPublicKeySignature({signedKey, signerKey: signingUser.pubkey})
           } catch (e) {
-            toLog = toLog.concat("Verification error: ", sanitizeError(e))
+            yield put(logToSession("Verification error: ", sanitizeError(e)))
           }
 
           if(!verified){
-            toLog = toLog.concat("Signature invalid, breaking...")
+            yield put(logToSession("Signature invalid, breaking..."))
             break
           }
 
         } else {
-          toLog = toLog.concat("Signing user null or has no pubkey, breaking...")
+          yield put(logToSession("Signing user null or has no pubkey, breaking..."))
           break
         }
 
         // If user and user has accepted invite / generated pubkey, further verify that pubkey was signed by invite key
         if (checkingKeyable.invitePubkey && checkingKeyable.pubkey){
-          toLog = toLog.concat("Verifying invite signature on user key.")
+          yield put(logToSession("Verifying invite signature on user key."))
           let verified
           try {
             verified = crypto.verifyPublicKeySignature({signedKey: checkingKeyable.pubkey, signerKey: checkingKeyable.invitePubkey})
           } catch(e){
-            toLog = toLog.concat("Verification error: ", sanitizeError(e))
+            yield put(logToSession("Verification error: ", sanitizeError(e)))
           }
           if(!verified){
-            toLog = toLog.concat("Invite signature on user key invalid... breaking")
+            yield put(logToSession("Invite signature on user key invalid... breaking"))
             break
           }
         }
@@ -228,45 +227,45 @@ function *onVerifyOrgPubkeys(){
         // Check if signing user is trusted
         if (newlyTrustedKeyables[signingId]){
         // if already verified signing user in earlier pass, set trusted root
-          toLog = toLog.concat("Signing id already verified... set trustedRoot")
+          yield put(logToSession("Signing id already verified... set trustedRoot"))
           trustedRoot = newlyTrustedKeyables[signingId]
         } else {
         // otherwise try to look up in trusted pubkeys
-          toLog = toLog.concat("Signing id not yet verified... looking in trustedPubkeys")
+          yield put(logToSession("Signing id not yet verified... looking in trustedPubkeys"))
           trustedRoot = yield call(keyableIsTrusted, signingUser) ? trustedPubkeys[signingId] : null
         }
 
-        toLog = toLog.concat("trustedRoot: ", R.pick(logKeyableProps, trustedRoot))
+        yield put(logToSession("trustedRoot: ", R.pick(logKeyableProps, trustedRoot)))
 
         // If signer isn't trusted, continue checking chain
         if (!trustedRoot){
-          toLog = toLog.concat("Signer not trusted, continue chain...")
+          yield put(logToSession("Signer not trusted, continue chain..."))
           invitedById = signingUser.invitedById
           signedById = null
           checkingKeyable = signingUser
         }
       }
 
-      toLog = toLog.concat("Loop complete.")
+      yield put(logToSession("Loop complete."))
 
       // If a trusted root was found, mark key trusted
       // Else, mark unverified
       if (trustedRoot){
-        toLog = toLog.concat("trustedRoot found: ", R.pick(logKeyableProps, trustedRoot))
+        yield put(logToSession("trustedRoot found: ", R.pick(logKeyableProps, trustedRoot)))
         newlyTrustedKeyables[keyableId] = keyable
       } else {
-        toLog = toLog.concat("no trustedRoot found.")
+        yield put(logToSession("no trustedRoot found."))
         unverifiedKeyables[keyableId] = keyable
       }
     }
   }
 
   if (R.isEmpty(unverifiedKeyables)){
-    toLog = toLog.concat(
+    yield put(logToSession(
       "No unverifiedKeyables... success!",
       "newlyTrustedKeyables:",
       R.map(R.pick(logKeyableProps), newlyTrustedKeyables)
-    )
+    ))
     if (!R.isEmpty(newlyTrustedKeyables)){
       for (let kid in newlyTrustedKeyables){
         let keyable = newlyTrustedKeyables[kid]
@@ -280,15 +279,13 @@ function *onVerifyOrgPubkeys(){
 
     yield put({type: VERIFY_ORG_PUBKEYS_SUCCESS, payload: R.values(newlyTrustedKeyables)})
   } else {
-    toLog = toLog.concat(
+    yield put(logToSession(
       "Has unverifiedKeyables... failure :(",
       R.map(R.pick(logKeyableProps), unverifiedKeyables)
-    )
+    ))
 
     yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: R.values(unverifiedKeyables)})
   }
-
-  yield put(logToSession("Verify org pubkeys log.", toLog))
 }
 
 function *onUpdateTrustedPubkeys({meta}){

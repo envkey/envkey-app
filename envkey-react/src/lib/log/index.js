@@ -82,8 +82,8 @@ const
       users: R.map(R.pick(["id", "deleted", "active", "pubkeyFingerprint", "invitePubkeyFingerprint", "email", "firstName", "lastName", "role"])),
       apps: R.map(R.pick(["id", "name", "role", "envsUpdatedAt", "keyablesUpdatedAt"])),
       appUsers: R.map(R.pick(["id", "userId", "appId", "role"])),
-      servers: R.map(R.pick(["id", "name", "role", "subEnvId", "deleted", "active", "pubkeyFingerprint", "keyGeneratedById", "keyGeneratedAt"])),
-      localKeys: R.map(R.pick(["id", "pubkeyFingerprint", "deleted", "active", "keyGeneratedAt"]))
+      servers: R.map(R.pick(["id", "name", "role", "subEnvId", "deleted", "active", "pubkeyFingerprint", "keyGeneratedById", "keyGeneratedAt", "signedById"])),
+      localKeys: R.map(R.pick(["id", "pubkeyFingerprint", "deleted", "active", "keyGeneratedAt", "signedById"]))
     },
 
     // org reducers
