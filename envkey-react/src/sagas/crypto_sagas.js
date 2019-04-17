@@ -59,11 +59,11 @@ import {
   decryptEnvParent,
   decryptAllEnvParents,
   signTrustedPubkeys,
-  keyableIsTrusted,
   checkPubkeyIsValid,
   verifyCurrentUser
 } from './helpers'
 import * as crypto from 'lib/crypto'
+import {keyableIsTrusted} from 'lib/trust'
 import {sanitizeError} from 'lib/log'
 
 const
@@ -115,12 +115,12 @@ function *onVerifyOrgPubkeys(){
    ]
 
   for (let keyables of [users, localKeys, servers]){
-    for (let keyable of keyables){
+    for (let keyable of keyables ){
       let {pubkey, invitePubkey, id: keyableId, invitedById: initialInvitedById} = keyable
 
       console.log(
         "Checking keyable: ",
-        R.pick(logKeyableProps, keyable)
+        JSON.stringify(R.pick(logKeyableProps, keyable), null, 2)
       )
 
       // keyGeneratedById for servers, userId (via appUserId) for localKeys
@@ -140,7 +140,7 @@ function *onVerifyOrgPubkeys(){
       // Continue if pubkey is already trusted
       // Mark unverified and continue if signedById not set for a non-owner (owner should already be trusted)
       let trusted = trustedPubkeys[keyableId],
-          keyableTrusted = yield call(keyableIsTrusted, keyable)
+          keyableTrusted = keyableIsTrusted(keyable, trustedPubkeys)
 
       if(trusted && keyableTrusted){
         console.log("Keyable ", keyableId, "is trusted, continuing...")
@@ -163,7 +163,7 @@ function *onVerifyOrgPubkeys(){
         console.log(
           "Starting loop.",
           "Checking keyable: ",
-          R.pick(logKeyableProps, checkingKeyable),
+          JSON.stringify(R.pick(logKeyableProps, checkingKeyable), null, 2),
           `signedById: ${signedById}, invitedById: ${invitedById}`,
         )
 
@@ -185,7 +185,7 @@ function *onVerifyOrgPubkeys(){
 
         console.log(
           "signingUser: ",
-          R.pick(logKeyableProps, signingUser)
+          JSON.stringify(R.pick(logKeyableProps, signingUser), null, 2)
         )
 
         if(signingUser && signingUser.pubkey){
@@ -232,10 +232,10 @@ function *onVerifyOrgPubkeys(){
         } else {
         // otherwise try to look up in trusted pubkeys
           console.log("Signing id not yet verified... looking in trustedPubkeys")
-          trustedRoot = yield call(keyableIsTrusted, signingUser) ? trustedPubkeys[signingId] : null
+          trustedRoot = keyableIsTrusted(signingUser, trustedPubkeys) ? trustedPubkeys[signingId] : null
         }
 
-        console.log("trustedRoot: ", R.pick(logKeyableProps, trustedRoot))
+        console.log("trustedRoot: ", JSON.stringify(R.pick(logKeyableProps, trustedRoot), null, 2))
 
         // If signer isn't trusted, continue checking chain
         if (!trustedRoot){
@@ -251,7 +251,7 @@ function *onVerifyOrgPubkeys(){
       // If a trusted root was found, mark key trusted
       // Else, mark unverified
       if (trustedRoot){
-        console.log("trustedRoot found: ", R.pick(logKeyableProps, trustedRoot))
+        console.log("trustedRoot found: ", JSON.stringify(R.pick(logKeyableProps, trustedRoot), null, 2))
         newlyTrustedKeyables[keyableId] = keyable
       } else {
         console.log("no trustedRoot found.")
@@ -264,7 +264,7 @@ function *onVerifyOrgPubkeys(){
     console.log(
       "No unverifiedKeyables... success!",
       "newlyTrustedKeyables:",
-      R.map(R.pick(logKeyableProps), newlyTrustedKeyables)
+      JSON.stringify(R.map(R.pick(logKeyableProps), newlyTrustedKeyables), null, 2)
     )
     if (!R.isEmpty(newlyTrustedKeyables)){
       for (let kid in newlyTrustedKeyables){
@@ -281,7 +281,7 @@ function *onVerifyOrgPubkeys(){
   } else {
     console.log(
       "Has unverifiedKeyables... failure :(",
-      R.map(R.pick(logKeyableProps), unverifiedKeyables)
+      JSON.stringify(R.map(R.pick(logKeyableProps), unverifiedKeyables), null, 2)
     )
 
     yield put({type: VERIFY_ORG_PUBKEYS_FAILED, error: true, payload: R.values(unverifiedKeyables)})

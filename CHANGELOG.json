@@ -112,5 +112,8 @@
   ],
   "1.4.9": [
     "Enable console logging for web of trust verification steps"
+  ],
+  "1.4.10": [
+    "Fix for redux-saga issue that could cause decryption to hang while verifying a large number of public keys in the web of trust"
   ]
 }

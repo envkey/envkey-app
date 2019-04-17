@@ -1,8 +1,8 @@
 import R from 'ramda'
 import { select, call } from 'redux-saga/effects'
 import {encryptJson, signPublicKey} from 'lib/crypto'
+import {keyableIsTrusted} from 'lib/trust'
 import {orgRoleIsAdmin} from 'lib/roles'
-import {keyableIsTrusted} from './crypto_helpers'
 import {
   getUser,
   getApp,
@@ -18,7 +18,8 @@ import {
   getRawEnvWithPendingForApp,
   getAppUserBy,
   getApps,
-  getPrivkey
+  getPrivkey,
+  getTrustedPubkeys
 } from 'selectors'
 import {productionInheritanceOverrides} from 'lib/env/inheritance'
 import {
@@ -41,6 +42,7 @@ export function* envParamsWithAppUser({
         pubkey = withTrustedPubkey || user.pubkey || user.invitePubkey,
         environments = yield select(getCurrentUserEnvironmentsAssignableToAppUser({appId, userId, role})),
         targetAppUser = yield select(getAppUserBy({appId, userId})),
+        trustedPubkeys = yield select(getTrustedPubkeys),
         envs = {}
 
   // Make productionMetaOnly assignable for a dev user when accepting an invitation
@@ -48,7 +50,7 @@ export function* envParamsWithAppUser({
     environments.push("productionMetaOnly")
   }
 
-  if(pubkey && (withTrustedPubkey || (yield call(keyableIsTrusted, user)))){
+  if(pubkey && (withTrustedPubkey || keyableIsTrusted(user, trustedPubkeys))){
     const app = yield select(getApp(appId)),
           envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
           encryptedEnvs = yield environments.map(environment => encryptJson({data: envsWithMeta[environment], pubkey, privkey}))
@@ -63,10 +65,11 @@ export function* envParamsWithAppUser({
 export function* envParamsWithServer({appId, serverId}, envParams={}){
   const privkey = yield select(getPrivkey),
         server = yield select(getServer(serverId)),
+        trustedPubkeys = yield select(getTrustedPubkeys),
         {pubkey, subEnvId, role: serverRole} = server,
         environment = yield select(getCurrentUserEnvironmentAssignableToServer({appId, serverId}))
 
-  if(!(yield call(keyableIsTrusted, server))) return envParams
+  if(!keyableIsTrusted(server, trustedPubkeys)) return envParams
 
   if (environment){
     const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment, subEnvId}))
@@ -96,10 +99,11 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
 export function* envParamsWithLocalKey({appId, localKeyId}, envParams={}){
   const privkey = yield select(getPrivkey),
         localKey = yield select(getLocalKey(localKeyId)),
+        trustedPubkeys = yield select(getTrustedPubkeys),
         {pubkey, role: localKeyRole} = localKey,
         environment = "development"
 
-  if(!(yield call(keyableIsTrusted, localKey))) return envParams
+  if(!keyableIsTrusted(localKey, trustedPubkeys)) return envParams
 
   const rawEnv = yield select(getRawEnvWithPendingForApp({appId, environment}))
   return R.assocPath(["localKeys", localKeyId], {

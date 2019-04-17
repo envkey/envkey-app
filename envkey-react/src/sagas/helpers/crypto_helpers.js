@@ -1,6 +1,7 @@
 import { put, select, call, take } from 'redux-saga/effects'
 import R from 'ramda'
 import * as crypto from 'lib/crypto'
+import {keyableIsTrusted} from 'lib/trust'
 import {
   VERIFY_TRUSTED_PUBKEYS_SUCCESS,
   VERIFY_TRUSTED_PUBKEYS_FAILED,
@@ -34,7 +35,6 @@ import {
   getTrustedPubkeyChain
 } from "selectors"
 import { normalizeEnvsWithMeta } from 'lib/env/transform'
-import { TRUSTED_PUBKEY_PROPS } from 'constants'
 
 export function* signTrustedPubkeys(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),
@@ -52,55 +52,10 @@ export function* signTrustedPubkeyChain(signWithPrivkey=null){
   return signed
 }
 
-export function* keyableIsTrusted(keyable){
-   console.log(`keyableIsTrusted: checking keyable: ${keyable.id}`)
-
-  const {id: keyableId, pubkey, invitePubkey} = keyable,
-        {id: orgId} = yield select(getCurrentOrg),
-        trustedPubkeys = yield select(getTrustedPubkeys),
-        trusted = R.prop(keyableId, trustedPubkeys)
-
-  if (!(pubkey || invitePubkey)){
-    console.log("keyableIsTrusted: Missing either pubkey or invitePubkey. Not trusted.")
-    return false
-  }
-
-  if (!trusted){
-    console.log("keyableIsTrusted: Not trusted.")
-    return false
-  }
-
-  if((pubkey && !trusted.pubkeyFingerprint) || (invitePubkey && !trusted.invitePubkeyFingerprint)){
-    console.log("keyableIsTrusted: Trusted keyable is missing either pubkeyFingerprint or invitePubkeyFingerprint.")
-    return false
-  }
-
-  const keyableProps = R.pick(TRUSTED_PUBKEY_PROPS, keyable),
-        trustedProps = R.pick(TRUSTED_PUBKEY_PROPS, trusted)
-
-  if (!R.equals(keyableProps, trustedProps)){
-    console.log("keyableIsTrusted: keyable props do not match trusted keyable props.")
-    return false
-  }
-
-  if(pubkey && crypto.getPubkeyFingerprint(pubkey) != trusted.pubkeyFingerprint){
-    console.log("keyableIsTrusted: pubkeyFingerprint does not match pubkey")
-    return false
-  }
-
-  if(invitePubkey && crypto.getPubkeyFingerprint(invitePubkey) != trusted.invitePubkeyFingerprint){
-    console.log("keyableIsTrusted: invitePubkeyFingerprint does not match invitePubkey")
-    return false
-  }
-
-  console.log(`keyableIsTrusted: ${keyable.id}`)
-
-  return true
-}
-
 export function* decryptEnvParent(parent){
   const privkey = yield select(getPrivkey),
-        {id: orgId} = yield select(getCurrentOrg)
+        {id: orgId} = yield select(getCurrentOrg),
+        trustedPubkeys = yield select(getTrustedPubkeys)
 
   if (parent.encryptedEnvsWithMeta){
     const decrypted = {}
@@ -116,7 +71,7 @@ export function* decryptEnvParent(parent){
 
         let signedByUser = yield select(getUser(signedById)),
 
-            trusted = yield call(keyableIsTrusted, signedByUser)
+            trusted = keyableIsTrusted(signedByUser, trustedPubkeys)
 
         if (!trusted) throw new Error(`Signing user ${signedById} not trusted.`)
 
