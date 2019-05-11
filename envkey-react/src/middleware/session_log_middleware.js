@@ -8,15 +8,23 @@ import {
   APP_LOADED,
   SELECT_ORG,
   TOKEN_INVALID,
+  COMMIT_SANITIZED_ACTION_LOG,
+  COMMIT_SANITIZED_ACTION_LOG_REQUEST,
+  COMMIT_SANITIZED_ACTION_LOG_FAILED,
+  COMMIT_SANITIZED_ACTION_LOG_SUCCESS,
+  REPORT_SANITIZED_ERROR,
+  REPORT_SANITIZED_ERROR_REQUEST,
+  REPORT_SANITIZED_ERROR_SUCCESS,
+  REPORT_SANITIZED_ERROR_FAILED,
   reportSanitizedError,
   commitSanitizedActionLog
 } from "actions"
 import uuid from 'uuid'
 import { RESET_SESSION_ACTION_TYPES } from 'constants'
 
-let numErrorsReportedInLastMinuteInLastMinute = 0
+let numErrorsReportedInLastMinute = 0
 
-setInterval(()=> numErrorsReportedInLastMinuteInLastMinute = 0, 1000 * 60)
+setInterval(()=> numErrorsReportedInLastMinute = 0, 1000 * 60)
 
 export const
   processSessionLogs = store => next => action => {
@@ -53,10 +61,26 @@ export const
         store.dispatch(commitSanitizedActionLog({overrideAuth: state.auth}))
       }
     } catch (err){
-      if (state.sessionId && state.auth && numErrorsReportedInLastMinute < 5){
-        store.dispatch(commitSanitizedActionLog({overrideAuth: state.auth}))
-        store.dispatch(reportSanitizedError({ sessionId: state.sessionId, error: err, overrideAuth: state.auth }))
-        numErrorsReportedInLastMinute++
+      if (![
+        COMMIT_SANITIZED_ACTION_LOG,
+        COMMIT_SANITIZED_ACTION_LOG_REQUEST,
+        COMMIT_SANITIZED_ACTION_LOG_FAILED,
+        COMMIT_SANITIZED_ACTION_LOG_SUCCESS,
+        REPORT_SANITIZED_ERROR,
+        REPORT_SANITIZED_ERROR_REQUEST,
+        REPORT_SANITIZED_ERROR_SUCCESS,
+        REPORT_SANITIZED_ERROR_FAILED,
+      ].includes(resAction.type)){
+        try {
+          if (state.sessionId && state.auth && numErrorsReportedInLastMinute < 5) {
+            store.dispatch(commitSanitizedActionLog({ overrideAuth: state.auth }))
+          }
+        } catch (err2) {}
+
+        if (state.sessionId && state.auth && numErrorsReportedInLastMinute < 5) {
+          store.dispatch(reportSanitizedError({ sessionId: state.sessionId, error: err, overrideAuth: state.auth }))
+          numErrorsReportedInLastMinute++
+        }
       }
 
       throw(err)

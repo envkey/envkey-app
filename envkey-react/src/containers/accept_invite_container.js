@@ -67,11 +67,18 @@ class AcceptInvite extends React.Component {
   _onLoadInvite(e){
     e.preventDefault()
     const [identityHash, passphrase] = this.state.encryptionCode.split("_")
-    this.props.onLoadInvite({
-      emailVerificationCode: this.state.emailVerificationCode,
-      identityHash,
-      passphrase
-    })
+
+    if (identityHash && passphrase){
+      this.props.onLoadInvite({
+        emailVerificationCode: this.state.emailVerificationCode,
+        identityHash,
+        passphrase
+      })
+    } else {
+      alert("Your Encryption Code is invalid. Please ensure you're using the correct code and that no part of it got cut off. Contact support@envkey.com if the problem persists.")
+      this.setState({encryptionCode: ""})
+    }
+
   }
 
   _isNewUser(){

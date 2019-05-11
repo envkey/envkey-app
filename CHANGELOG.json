@@ -115,5 +115,10 @@
   ],
   "1.4.10": [
     "Fix for redux-saga issue that could cause decryption to hang while verifying a large number of public keys in the web of trust"
+  ],
+  "1.4.11": [
+    "Fix for web of trust verification bug that could cause decryption to fail in some circumstances",
+    "Ensure sanitized error logging cannot trigger infinite request loop",
+    "Improved error message when attempting to accept an invitation with a misformed Encryption Code"
   ]
 }

@@ -91,28 +91,26 @@ function *onVerifyOrgPubkeys(){
         servers = yield select(getServers),
         keyables = R.flatten([users, localKeys, servers]),
         newlyTrustedKeyables = {},
-        unverifiedKeyables = {}
-
-  let toLog = []
-  const logKeyableProps = [
-    "id",
-    "name",
-    "email",
-    "firstName",
-    "lastName",
-    "pubkeyFingerprint",
-    "invitePubkeyFingerprint",
-    "role",
-    "deleted",
-    "active",
-    "createdAt",
-    "keyGeneratedById",
-    "signedById",
-    "keyGeneratedAt",
-    "invitedById",
-    "undeletable",
-    "subEnvId"
-   ]
+        unverifiedKeyables = {},
+        logKeyableProps = [
+          "id",
+          "name",
+          "email",
+          "firstName",
+          "lastName",
+          "pubkeyFingerprint",
+          "invitePubkeyFingerprint",
+          "role",
+          "deleted",
+          "active",
+          "createdAt",
+          "keyGeneratedById",
+          "signedById",
+          "keyGeneratedAt",
+          "invitedById",
+          "undeletable",
+          "subEnvId"
+         ]
 
   for (let keyables of [users, localKeys, servers]){
     for (let keyable of keyables ){
@@ -235,7 +233,7 @@ function *onVerifyOrgPubkeys(){
           trustedRoot = keyableIsTrusted(signingUser, trustedPubkeys) ? trustedPubkeys[signingId] : null
         }
 
-        console.log("trustedRoot: ", JSON.stringify(R.pick(logKeyableProps, trustedRoot), null, 2))
+        console.log("trustedRoot: ", trustedRoot ? JSON.stringify(R.pick(logKeyableProps, trustedRoot), null, 2) : "")
 
         // If signer isn't trusted, continue checking chain
         if (!trustedRoot){
