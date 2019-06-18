@@ -120,5 +120,8 @@
     "Fix for web of trust verification bug that could cause decryption to fail in some circumstances",
     "Ensure sanitized error logging cannot trigger infinite request loop",
     "Improved error message when attempting to accept an invitation with a misformed Encryption Code"
-  ]
+  ],
+  "1.4.12": [
+    "Fix for issue that could cause variable updates to fail for users with Developer role in some circumstances"
+  ],
 }

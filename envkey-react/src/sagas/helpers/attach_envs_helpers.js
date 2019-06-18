@@ -79,7 +79,6 @@ export function* envParamsWithServer({appId, serverId}, envParams={}){
   } else {
     const {role: appRole} =  yield select(getApp(appId))
     if (appRole == "development" && serverRole == "production"){
-
       const envsWithMeta = yield select(getEnvsWithMetaWithPending("app", appId)),
             inheritanceOverrides = productionInheritanceOverrides(envsWithMeta)
 

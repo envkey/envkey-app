@@ -44,7 +44,7 @@ export const
   productionInheritanceOverrides = envsWithMeta => R.pipe(
     R.propOr({}, "production"),
 
-    R.filter(({inherits, locked})=> inherits && locked),
+    R.filter((props)=> props && props.inherits && props.locked),
 
     R.mapObjIndexed(({inherits}, entryKey)=> inheritedVal({inherits, entryKey, envsWithMeta}))
   )(envsWithMeta)
