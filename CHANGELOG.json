@@ -123,5 +123,5 @@
   ],
   "1.4.12": [
     "Fix for issue that could cause variable updates to fail for users with Developer role in some circumstances"
-  ],
+  ]
 }
