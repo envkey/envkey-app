@@ -220,10 +220,14 @@ export const
     return updated
   }),
 
-  addSubEnv = ({envsWithMeta, environment, name, id})=>{
+  addSubEnv = ({envsWithMeta, environment, name, cloneSubEnvId, id})=>{
     const
-      subEnv = {"@@__name__": name},
-      path = [environment, "@@__sub__", id]
+      path = [environment, "@@__sub__", id],
+      toClone = cloneSubEnvId ? findSubEnv(cloneSubEnvId, envsWithMeta) : null,
+      subEnv = {
+        ...(toClone || {}),
+        "@@__name__": name
+      }
 
     return R.assocPath(path, subEnv, envsWithMeta)
   },

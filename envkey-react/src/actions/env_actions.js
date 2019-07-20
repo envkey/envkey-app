@@ -50,7 +50,7 @@ export const
   addSubEnv = createAction(
     ADD_SUB_ENV,
     R.pipe(
-      R.pick(["environment", "name"]),
+      R.pick(["environment", "name", "cloneSubEnvId"]),
       R.over(R.lensProp("id"), uuid)
     ),
     pickMeta

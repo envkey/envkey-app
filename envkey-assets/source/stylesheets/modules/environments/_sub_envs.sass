@@ -69,6 +69,12 @@
     .sub-env-form
       margin: 30px auto 0
 
+      input[type="text"]
+        margin-bottom: 15px
+
+      .clone-toggle
+        display: none
+
     .subscription-wall
       margin: 20px auto
 
@@ -78,7 +84,7 @@
     max-width: 600px
     text-align: center
 
-    textarea, input, button
+    textarea, input[type=text], button
       width: 100%
       max-width: 350px
       margin: 0 auto
@@ -92,8 +98,39 @@
     input, textarea
       margin-bottom: 15px
 
+    .clone-toggle
+      margin: 15px 0
+      border: 1px solid hsl(0,0,90)
+      border-radius: 4px
+      padding: 2.5px 7.5px
+
+      input
+        margin: 10px 10px 10px 0
+
+      label
+        font-size: 13px
+        font-weight: 500
+        font-family: $condensed-font
+        color: $dark-blue
+        text-transform: uppercase
+
+      &.selected
+        background: rgba($dark-blue, 0.1)
+
+      &, *
+        cursor: pointer
+
+    .clone-select
+      width: 100%
+      margin-bottom: 15px
+
+      select
+        width: 100%
+        padding: 5px
+
     .small-loader
       display: block
+
 
   .add-sub-env-form
     position: absolute
@@ -108,6 +145,12 @@
     position: fixed
     left: $sidemenu-width
     text-transform: uppercase
+
+    ul
+      max-height: calc(100% - #{$env-grid-header-height * 2})
+      overflow: auto
+      padding-bottom: #{$env-grid-header-height * 2}
+      box-sizing: border-box
 
     li, header
       box-sizing: border-box

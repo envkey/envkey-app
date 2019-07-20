@@ -48,11 +48,14 @@ export const
   serverSubEnvOptsByRole = defaultMemoize(envsWithMeta => {
     return R.pipe(
       R.map(role => ({
-        [role]: allSubEnvsSorted(R.pick([role], (envsWithMeta || {}))).map(
-          subEnvId => {
-            const {"@@__name__": name} = findSubEnv(subEnvId, envsWithMeta)
-            return {name, id: subEnvId}
-          }
+        [role]: R.sortBy(
+          R.pipe(R.prop('name'), R.toLower),
+          allSubEnvsSorted(R.pick([role], (envsWithMeta || {}))).map(
+            subEnvId => {
+              const {"@@__name__": name} = findSubEnv(subEnvId, envsWithMeta)
+              return {name, id: subEnvId}
+            }
+          )
         )
       })),
       R.mergeAll

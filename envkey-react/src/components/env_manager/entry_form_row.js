@@ -72,10 +72,12 @@ export default class EntryFormRow extends EditableCellsParent(React.Component) {
 
   _deselect(isEscapeKey){
     if (isEscapeKey){
-      const environment = this.state.editing.environment,
-            defaultVal = defaultState(this.props).envsWithMeta[environment].entry
+      const environment = this.state.editing.environment
 
-      this.setState(R.assocPath(["envsWithMeta", environment, "entry"], defaultVal))
+      if (environment && defaultState(this.props).envsWithMeta[environment]){
+        defaultVal = defaultState(this.props).envsWithMeta[environment].entry
+        this.setState(R.assocPath(["envsWithMeta", environment, "entry"], defaultVal))
+      }
     }
 
     super._deselect()
