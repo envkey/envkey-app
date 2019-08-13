@@ -127,5 +127,8 @@
   "1.4.13": [
     "Fix vertical scrolling of sub-environments list",
     "Add an option to clone an existing sub-environment when creating a new one"
+  ],
+  "1.4.14": [
+    "Fix for issue that could cause sub-environment values to be incorrectly overriden in some circumstances"
   ]
 }

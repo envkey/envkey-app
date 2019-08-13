@@ -1,4 +1,5 @@
 import R from 'ramda'
+import { findSubEnv } from './transform'
 
 export const
   inheritedShallow = ({entryKey, inherits, envsWithMeta})=> envsWithMeta[inherits][entryKey],
@@ -41,10 +42,28 @@ export const
     })
   },
 
-  productionInheritanceOverrides = envsWithMeta => R.pipe(
+  productionInheritanceOverrides = (envsWithMeta, subEnvId) => R.pipe(
     R.propOr({}, "production"),
 
-    R.filter((props)=> props && props.inherits && props.locked),
+    R.filter((envsWithMetaCell)=> envsWithMetaCell && envsWithMetaCell.inherits && envsWithMetaCell.locked),
 
-    R.mapObjIndexed(({inherits}, entryKey)=> inheritedVal({inherits, entryKey, envsWithMeta}))
+    R.mapObjIndexed(({inherits}, entryKey)=> {
+      const metaSubEnv = R.path([
+        "productionMetaOnly",
+        "@@__sub__",
+        subEnvId
+      ], envsWithMeta)
+
+      if (metaSubEnv &&
+          metaSubEnv[entryKey] &&
+          metaSubEnv[entryKey].hasVal){
+        return undefined
+      }
+
+      return inheritedVal({inherits, entryKey, envsWithMeta})
+    }),
+
+
+    R.filter(Boolean)
+
   )(envsWithMeta)
