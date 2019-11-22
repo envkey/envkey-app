@@ -130,5 +130,8 @@
   ],
   "1.4.14": [
     "Fix for issue that could cause sub-environment values to be incorrectly overriden in some circumstances"
+  ],
+  "1.4.15": [
+    "Bump up api request timeout from 30 seconds to 2 minutes to avoid failures with large responses and/or slow network conditions--should improve resiliency for orgs with many apps"
   ]
 }
