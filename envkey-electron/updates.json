@@ -5,8 +5,8 @@
     "version": "1.4.16"
   },
   "linux-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.16/EnvKey-1.4.16-x86_64.AppImage",
-    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.16/EnvKey-1.4.16-x86_64.AppImage",
+    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.16/EnvKey-1.4.16.AppImage",
+    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.16/EnvKey-1.4.16.AppImage",
     "version": "1.4.16"
   },
   "win32-x64-prod": {
