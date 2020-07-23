@@ -137,5 +137,8 @@
   "1.4.16": [
     "Add Apple app notarization to deployment process (fixes DMG-blocking on OSX Catalina)",
     "Update electron"
+  ],
+  "1.4.17": [
+    "Update OpenPGP.js to fix 'Random number buffer depleted' error with many concurrent encryption operations"
   ]
 }

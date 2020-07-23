@@ -192,7 +192,7 @@ function *onVerifyOrgPubkeys(){
 
           console.log("Verifying signed key.")
           try {
-            verified = crypto.verifyPublicKeySignature({signedKey, signerKey: signingUser.pubkey})
+            verified = yield crypto.verifyPublicKeySignature({signedKey, signerKey: signingUser.pubkey})
           } catch (e) {
             console.log("Verification error: ", sanitizeError(e))
           }
@@ -212,7 +212,7 @@ function *onVerifyOrgPubkeys(){
           console.log("Verifying invite signature on user key.")
           let verified
           try {
-            verified = crypto.verifyPublicKeySignature({signedKey: checkingKeyable.pubkey, signerKey: checkingKeyable.invitePubkey})
+            verified = yield crypto.verifyPublicKeySignature({signedKey: checkingKeyable.pubkey, signerKey: checkingKeyable.invitePubkey})
           } catch(e){
             console.log("Verification error: ", sanitizeError(e))
           }

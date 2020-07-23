@@ -14,8 +14,7 @@ cp envkey-assets/build/javascripts/* envkey-assets/build/*.js envkey-electron/as
 echo "Building and signing apps"
 export WIN_CSC_LINK=~/envkey-digicert.p12
 export WIN_CSC_KEY_PASSWORD=$(cat .wincertpw)
-# (cd envkey-electron && npm run dist && npm run publish)
-(cd envkey-electron && npm run dist)
+(cd envkey-electron && npm run dist && npm run publish)
 
 echo "Clearing middleman build and electron assets"
 rm -rf envkey-assets/build/*

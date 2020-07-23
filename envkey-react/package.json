@@ -19,7 +19,7 @@
     ]
   },
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": "^0.19.2",
     "axios-retry": "^3.0.1",
     "babel-plugin-transform-function-bind": "^6.8.0",
     "babel-polyfill": "^6.16.0",
@@ -36,7 +36,7 @@
     "is-electron": "^2.1.0",
     "js-base64": "^2.1.9",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "moment": "^2.22.2",
     "moment-twitter": "^0.2.0",
     "pluralize": "^3.1.0",

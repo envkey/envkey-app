@@ -38,10 +38,10 @@ export const
   },
 
   secureRandomAlphanumeric = (len)=> {
+    const buf = new Uint8Array(Math.ceil(len * 0.75));
+
     return bs58.encode(
-      openpgp.crypto.random.getRandomBytes(
-        Math.ceil(len * 0.75)
-      )
+      window.crypto.getRandomValues(buf)
     ).slice(0,len)
   },
 
@@ -62,7 +62,9 @@ export const
     return worker ? proxy().delegate('generateKey', opts) : openpgp.generateKey(opts)
   },
 
-  getPubkeyFingerprint = pubkey => openpgp.key.readArmored(pubkey).keys[0].primaryKey.fingerprint,
+  getPubkeyFingerprint = pubkey => {
+    return openpgp.key.readArmored(pubkey).keys[0].primaryKey.getFingerprint();
+  },
 
   encryptJson = ({data, pubkey, privkey=null})=>{
     const opts = {
@@ -74,9 +76,10 @@ export const
   },
 
   decryptJson = ({encrypted, privkey, pubkey=null})=>{
-    const opts = {
+    const privkeyObj = openpgp.key.readArmored(privkey).keys[0],
+      opts = {
             message: openpgp.message.readArmored(encrypted),
-            privateKey: openpgp.key.readArmored(privkey).keys[0],
+            privateKeys: [privkeyObj],
             publicKeys: (pubkey ? openpgp.key.readArmored(pubkey).keys : undefined)
           }
 
@@ -118,18 +121,18 @@ export const
     const pubkey = openpgp.key.readArmored(pubkeyArmored).keys[0],
           privkey = openpgp.key.readArmored(privkeyArmored).keys[0]
 
-    return pubkey.signPrimaryUser([privkey]).armor()
+    return pubkey.signPrimaryUser([privkey]).then(signed => signed.armor())
   },
 
-  // NOTE that this one doesn't return a promise... verifies synchronously
   verifyPublicKeySignature = ({signedKey: signedKeyArmored, signerKey: signerKeyArmored})=>{
     const signedKey = openpgp.key.readArmored(signedKeyArmored).keys[0],
-          signerKey = openpgp.key.readArmored(signerKeyArmored).keys[0],
-          signatures = signedKey.verifyPrimaryUser([signerKey])
+          signerKey = openpgp.key.readArmored(signerKeyArmored).keys[0]
 
-    return signatures[0].valid === null &&
-           signatures[0].keyid.toHex() == signedKey.primaryKey.getKeyId().toHex() &&
-           signatures[1].valid === true &&
-           signatures[1].keyid.toHex() == signerKey.primaryKey.getKeyId().toHex()
+    return signedKey.verifyPrimaryUser([signerKey]).then(signatures => {
+      return signatures[0].valid === null &&
+        signatures[0].keyid.toHex() == signedKey.primaryKey.getKeyId().toHex() &&
+        signatures[1].valid === true &&
+        signatures[1].keyid.toHex() == signerKey.primaryKey.getKeyId().toHex();
+    })
 
   }
