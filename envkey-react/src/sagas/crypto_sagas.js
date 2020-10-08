@@ -287,10 +287,22 @@ function *onVerifyOrgPubkeys(){
 }
 
 function *onUpdateTrustedPubkeys({meta}){
-  const signedTrustedPubkeys = yield call(signTrustedPubkeys),
-        payload = {signedTrustedPubkeys}
+  const signedTrustedPubkeys = yield call(signTrustedPubkeys);
+  const {pubkey} = yield select(getCurrentUser);
 
-  yield put({type: UPDATE_TRUSTED_PUBKEYS_REQUEST, payload, meta})
+  try {
+    yield crypto.verifyCleartextJson({
+      pubkey,
+      signed: signedTrustedPubkeys
+    })
+
+    const payload = {signedTrustedPubkeys};
+
+    yield put({type: UPDATE_TRUSTED_PUBKEYS_REQUEST, payload, meta});
+
+  } catch (err){
+    console.log("Could not verify trusted pubkeys after signing. Aborting UPDATE_TRUSTED_PUBKEYS.")
+  }
 }
 
 function *onUpdateEncryptedPrivkey({payload: {oldPassword, newPassword}}){

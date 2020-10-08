@@ -2,6 +2,7 @@ import { put, select, call, take } from 'redux-saga/effects'
 import R from 'ramda'
 import * as crypto from 'lib/crypto'
 import {keyableIsTrusted} from 'lib/trust'
+import { delay } from 'redux-saga'
 import {
   VERIFY_TRUSTED_PUBKEYS_SUCCESS,
   VERIFY_TRUSTED_PUBKEYS_FAILED,
@@ -38,16 +39,69 @@ import { normalizeEnvsWithMeta } from 'lib/env/transform'
 
 export function* signTrustedPubkeys(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),
-        trustedPubkeys = yield select(getTrustedPubkeys),
-        signed = yield crypto.signCleartextJson({privkey, data: trustedPubkeys})
+        {pubkey} = yield select(getCurrentUser),
+        trustedPubkeys = yield select(getTrustedPubkeys);
+
+  let signed;
+  let numRetries = 0;
+  while (!signed && numRetries < 10){
+    signed = yield crypto.signCleartextJson({privkey, data: trustedPubkeys})
+
+    try {
+      yield crypto.verifyCleartextJson({
+        pubkey,
+        signed: signed
+      })
+      break;
+    } catch (err){
+      signed = null;
+      numRetries++;
+      yield call(delay, 10 * numRetries);
+    }
+
+  }
+
+  if (!signed){
+    alert("There was an error signing the trust chain. Please try again. If the problem persists, please email support@envkey.com")
+    window.location.reload();
+    throw new Error("Error signing trusted pubkeys.")
+  }
+
 
   return signed
 }
 
 export function* signTrustedPubkeyChain(signWithPrivkey=null){
   const privkey = signWithPrivkey || (yield select(getPrivkey)),
-        trustedPubkeys = yield select(getTrustedPubkeyChain),
-        signed = yield crypto.signCleartextJson({privkey, data: trustedPubkeys})
+        {pubkey} = yield select(getCurrentUser),
+        trustedPubkeys = yield select(getTrustedPubkeyChain);
+
+
+  let signed;
+  let numRetries = 0;
+  while (!signed && numRetries < 10){
+    signed = yield crypto.signCleartextJson({privkey, data: trustedPubkeys})
+
+    try {
+      yield crypto.verifyCleartextJson({
+        pubkey,
+        signed: signed
+      })
+      break;
+    } catch (err){
+      signed = null;
+      numRetries++;
+      yield call(delay, 10 * numRetries);
+    }
+
+  }
+
+  if (!signed){
+    alert("There was an error signing the trust chain. Please try again. If the problem persists, please email support@envkey.com")
+    window.location.reload();
+    throw new Error("Error signing trusted pubkeys.")
+  }
+
 
   return signed
 }
