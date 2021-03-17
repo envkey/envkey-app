@@ -317,7 +317,7 @@ function *onUpdateEncryptedPrivkey({payload: {oldPassword, newPassword}}){
 
     const privkey = yield select(getPrivkey),
 
-          encryptedPrivkey = crypto.encryptPrivateKey({privkey, passphrase: newPassword})
+          encryptedPrivkey = yield crypto.encryptPrivateKey({privkey, passphrase: newPassword})
 
 
     yield put({type: UPDATE_ENCRYPTED_PRIVKEY_REQUEST, payload: {encryptedPrivkey}})

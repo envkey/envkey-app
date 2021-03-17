@@ -142,6 +142,9 @@
     "Update OpenPGP.js to fix 'Random number buffer depleted' error with many concurrent encryption operations"
   ],
   "1.4.18": [
-    "Workaround for rare OpenPGP.js signature truncation bug."
+    "Workaround for rare OpenPGP.js signature truncation bug"
+  ],
+  "1.4.19": [
+    "Fix issue causing update of master passphrase to fail"
   ]
 }

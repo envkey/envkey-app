@@ -215,7 +215,12 @@ export const
     let sanitized = {type: action.type}
     if (action.error === true){
       sanitized.error = true
-      sanitized.payload = sanitizeError(action.payload)
+      if (typeof action.payload == "string"){
+        sanitized.payload = {stack: "[sanitized error message]"};
+      } else {
+        sanitized.payload = sanitizeError(action.payload);
+      }
+
     }
 
     for (let keyOrArrayOrObject of ACTION_WHITELIST){

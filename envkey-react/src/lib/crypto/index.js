@@ -113,8 +113,7 @@ export const
 
   encryptPrivateKey = ({privkey, passphrase})=>{
     const key = openpgp.key.readArmored(privkey).keys[0]
-    key.encrypt(passphrase)
-    return key.armor()
+    return key.encrypt(passphrase).then( () => key.armor())
   },
 
   signPublicKey = ({privkey: privkeyArmored, pubkey: pubkeyArmored})=>{
