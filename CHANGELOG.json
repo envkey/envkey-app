@@ -146,5 +146,8 @@
   ],
   "1.4.19": [
     "Fix issue causing update of master passphrase to fail"
+  ],
+  "1.4.20": [
+    "Make internet connectivity test more robust to resolve rare firewall issues"
   ]
 }
