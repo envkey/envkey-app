@@ -1,3 +1,4 @@
+import {isClearSessionAction} from './helpers'
 import {
   SELECT_ORG,
   SELECT_ACCOUNT,
@@ -39,7 +40,10 @@ import {
   BILLING_SAVE_INVOICE_PDF_SUCCESS,
   BILLING_SAVE_INVOICE_PDF_FAILED,
   UPDATE_OBJECT_SETTINGS_SUCCESS,
-  UPDATE_NETWORK_SETTINGS_SUCCESS
+  UPDATE_NETWORK_SETTINGS_SUCCESS,
+  EXPORT_ORG,
+  EXPORT_ORG_SUCCESS,
+  EXPORT_ORG_FAILED
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
@@ -255,6 +259,37 @@ export const
       case BILLING_SAVE_INVOICE_PDF_FAILED:
       case BILLING_FETCH_INVOICE_PDF_FAILED:
         return R.dissoc(action.meta.requestPayload.id, state)
+
+      default:
+        return state
+    }
+  },
+
+  isExportingOrg = (state = false, action)=> {
+    switch(action.type){
+      case EXPORT_ORG:
+        return true
+
+      case EXPORT_ORG_SUCCESS:
+      case EXPORT_ORG_FAILED:
+        return false
+
+      default:
+        return state
+    }
+  },
+
+  exportOrgErr = (state=null, action)=> {
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    switch(action.type){
+      case EXPORT_ORG:
+        return null
+
+      case EXPORT_ORG_FAILED:
+        return action.payload
 
       default:
         return state

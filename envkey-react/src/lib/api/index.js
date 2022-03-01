@@ -7,7 +7,7 @@ export const API_VERSION = "v1"
 const
   opts =  {
     baseURL: [process.env.API_HOST, API_VERSION].join("/"),
-    timeout: 120000
+    timeout: 60000 * 4
   },
 
   defaultClient = axios.create(opts)

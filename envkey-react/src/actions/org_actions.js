@@ -7,6 +7,7 @@ import {
   // REMOVE_SELF_FROM_ORG,
   CREATE_ORG_REQUEST,
   GENERATE_DEMO_ORG_REQUEST,
+  EXPORT_ORG
 } from './action_types'
 import { createAction } from 'redux-actions'
 
@@ -28,4 +29,8 @@ export const
 
   createOrg = createAction(CREATE_ORG_REQUEST, (params)=> ({org: params}) ),
 
-  generateDemoOrg = createAction(GENERATE_DEMO_ORG_REQUEST)
+  generateDemoOrg = createAction(GENERATE_DEMO_ORG_REQUEST),
+
+  exportOrg = createAction(EXPORT_ORG)
+
+

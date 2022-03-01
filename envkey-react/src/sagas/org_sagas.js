@@ -38,13 +38,36 @@ import {
   GENERATE_DEMO_ORG_SUCCESS,
   GENERATE_DEMO_ORG_FAILED,
 
+  EXPORT_ORG,
+  EXPORT_ORG_SUCCESS,
+  EXPORT_ORG_FAILED,
+
   updateOrgRoleRequest,
   updateOrgOwner,
   addTrustedPubkey,
   removeObject,
   fetchCurrentUserUpdates
 } from 'actions'
-import { getCurrentOrg, getCurrentUser, getOrgUserForUser } from 'selectors'
+import {
+  getCurrentOrg,
+  getCurrentUser,
+  getOrgUserForUser,
+  getOrgUsers,
+  getUsersById,
+  getApps,
+  getAppUsers,
+  getServers,
+  getEnvsWithMetaWithPending,
+  getActiveUsers,
+  getPendingUsers
+} from 'selectors'
+import { allEntries, subEnvEntries } from 'lib/env/query'
+import { secureRandomAlphanumeric } from 'lib/crypto'
+import { secretbox, randomBytes } from 'tweetnacl'
+import { encodeBase64, decodeUTF8, decodeBase64 } from 'tweetnacl-util'
+import { codec, hash } from 'sjcl'
+import uuid from 'uuid'
+import isElectron from 'is-electron'
 
 const
   onUpdateOrgRoleRequest = apiSaga({
@@ -150,6 +173,315 @@ function *onGenerateDemoOrgSuccess({payload: {path}}){
   yield put(push(path))
 }
 
+function *onExportOrg(action){
+  if (!isElectron()){
+    return
+  }
+
+  yield call(delay, 50)
+
+  try {
+    const currentOrg = yield select(getCurrentOrg)
+    const apps = yield select(getApps)
+    const activeUsers = yield select(getActiveUsers)
+    const pendingUsers = yield select(getPendingUsers)
+    const appUsers = yield select(getAppUsers)
+    const servers = yield select(getServers)
+    const usersById = yield select(getUsersById)
+
+    const ownerOrgRole = {
+      id: uuid(),
+      defaultName: "Org Owner"
+    }
+
+    const adminOrgRole = {
+      id: uuid(),
+      defaultName: "Org Admin"
+    }
+
+    const basicUserOrgRole = {
+      id: uuid(),
+      defaultName: "Basic User"
+    }
+
+    const orgOwnerAppRole = {
+      id: uuid(),
+      defaultName: "Org Owner"
+    }
+
+    const orgAdminAppRole = {
+      id: uuid(),
+      defaultName: "Org Admin"
+    }
+
+    const appAdminAppRole = {
+      id: uuid(),
+      defaultName: "Admin"
+    }
+
+    const devopsAppRole = {
+      id: uuid(),
+      defaultName: "DevOps"
+    }
+
+    const developerAppRole = {
+      id: uuid(),
+      defaultName: "Developer"
+    }
+
+    const developmentEnvironmentRole = {
+      id: uuid(),
+      defaultName: "Development",
+      settings: {
+        autoCommit: false
+      }
+    }
+
+    const stagingEnvironmentRole = {
+      id: uuid(),
+      defaultName: "Staging",
+      settings: {
+        autoCommit: false
+      }
+    }
+
+    const productionEnvironmentRole = {
+       id: uuid(),
+       defaultName: "Production",
+       settings: {
+         autoCommit: false
+       }
+    }
+
+    const environmentRoleIdsByRole = {
+      "development": developmentEnvironmentRole.id,
+      "staging": stagingEnvironmentRole.id,
+      "production": productionEnvironmentRole.id
+    }
+
+    const baseEnvironments = [];
+    const subEnvironmentsById = {};
+    const baseEnvironmentIdsByAppIdByRole = {};
+    const envs = {};
+
+    for (let app of apps){
+      const envsWithMeta = yield select(getEnvsWithMetaWithPending("app", app.id))
+
+      const baseEnvironmentIdsByRole = {}
+
+      const baseEnvEntries = allEntries(envsWithMeta)
+
+      for (let role in envsWithMeta){
+        const environmentRoleId = environmentRoleIdsByRole[role]
+        if (!environmentRoleId){
+          continue
+        }
+
+        const environment = {
+          id: uuid(),
+          envParentId: app.id,
+          environmentRoleId,
+          settings: {
+            autoCommit: false
+          }
+        }
+        baseEnvironmentIdsByRole[role] = environment.id
+        baseEnvironments.push(environment)
+
+        const env = envsWithMeta[role]
+        const subEnvs = env["@@__sub__"]
+
+        if (subEnvs){
+          for (let id in subEnvs){
+            const subEnv = subEnvs[id]
+
+            const name = subEnv["@@__name__"]
+
+            subEnvironmentsById[id] = {
+              id,
+              isSub: true,
+              envParentId: app.id,
+              environmentRoleId: environmentRoleIdsByRole[role],
+              subName: name,
+              parentEnvironmentId: baseEnvironmentIdsByRole[role]
+            }
+
+            const entries = subEnvEntries(envsWithMeta, id)
+            const vars = {}
+            for (let k of entries){
+              const cell = subEnv[k];
+              vars[k] = {
+                isEmpty: cell.val == "",
+                isUndefined: cell.val == null || typeof cell.val == "undefined",
+                val: cell == "" ? "" : (cell.val || undefined)
+              }
+            }
+
+            envs[id] = {
+              inherits: {},
+              variables: vars
+            }
+          }
+        }
+      }
+
+      for (let role in envsWithMeta){
+        const environmentRoleId = environmentRoleIdsByRole[role]
+        if (!environmentRoleId){
+          continue
+        }
+
+        const environmentId = baseEnvironmentIdsByRole[role]
+
+        const env = envsWithMeta[role]
+        const inherits = {}
+        const vars = {}
+        for (let k of baseEnvEntries){
+          const cell = env[k];
+          vars[k] = {
+            isEmpty: cell.val == "",
+            isUndefined: !cell.inherits && (cell.val == null || typeof cell.val == "undefined"),
+            val: cell == "" ? "" : (cell.val || undefined),
+            inheritsEnvironmentId: cell.inherits ? baseEnvironmentIdsByRole[cell.inherits] : undefined
+          }
+        }
+
+        envs[environmentId] = {
+          inherits: {},
+          variables: vars
+        }
+      }
+
+      baseEnvironmentIdsByAppIdByRole[app.id] = baseEnvironmentIdsByRole
+    }
+
+    const archive = {
+      schemaVersion: "1",
+      org: {
+        id: currentOrg.id,
+        name: currentOrg.name,
+        settings: {
+          crypto: {
+            requiresPassphrase: false,
+            requiresLockout: false,
+          },
+          auth: {
+            inviteExpirationMs: 1000 * 60 * 60 * 24,
+            deviceGrantExpirationMs: 1000 * 60 * 60 * 24,
+            tokenExpirationMs: 1000 * 60 * 60 * 24 * 7 * 4
+          },
+          envs: {
+            autoCaps: true,
+            autoCommitLocals: false
+          }
+        }
+      },
+      apps: apps.map(app => ({
+        id: app.id,
+        name: app.name,
+        settings: {
+          autoCaps: app.autoCaps || false,
+          autoCommitLocals: false
+        }
+      })),
+      blocks: [],
+      appBlocks: [],
+      defaultOrgRoles: [
+        ownerOrgRole,
+        adminOrgRole,
+        basicUserOrgRole
+      ],
+      defaultAppRoles: [
+        orgOwnerAppRole,
+        orgAdminAppRole,
+        appAdminAppRole,
+        devopsAppRole,
+        developerAppRole
+      ],
+      defaultEnvironmentRoles: [
+        developmentEnvironmentRole,
+        stagingEnvironmentRole,
+        productionEnvironmentRole
+      ],
+      nonDefaultEnvironmentRoles: [],
+      nonDefaultAppRoleEnvironmentRoles: [],
+      baseEnvironments,
+      subEnvironments: R.values(subEnvironmentsById),
+      servers: servers.filter(
+        server => server.pubkey
+      ).map(
+        server => ({
+          appId: server.appId,
+          environmentId: server.subEnvId ?
+            subEnvironmentsById[server.subEnvId].id :
+            baseEnvironmentIdsByAppIdByRole[server.appId][server.role],
+          name: server.name
+        })
+      ),
+      orgUsers: [...activeUsers, ...pendingUsers].map(
+        user => ({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          provider: "email",
+          uid: user.email,
+          orgRoleId: {
+            "org_owner": ownerOrgRole.id,
+            "org_admin": adminOrgRole.id,
+            "basic": basicUserOrgRole.id
+          }[user.role]
+        })
+       ),
+      cliUsers: [],
+      appUserGrants: appUsers.filter(
+        appUser => appUser.role != "org_owner" && appUser.role != "org_admin"
+      ).map(
+        appUser => ({
+          appId: appUser.appId,
+          userId: appUser.userId,
+          appRoleId: {
+            admin: appAdminAppRole.id,
+            production: devopsAppRole.id,
+            development: developerAppRole.id
+          }[appUser.role]
+        })
+      ),
+      envs
+    }
+
+    const encryptionKey = secureRandomAlphanumeric(25)
+    const json = JSON.stringify(archive)
+    const key = decodeBase64(codec.base64.fromBits(hash.sha256.hash(encryptionKey)))
+    const nonce = randomBytes(24)
+
+    const encrypted = {
+      nonce: encodeBase64(nonce),
+      data: encodeBase64(secretbox(decodeUTF8(json), nonce, key))
+    }
+
+    const res = yield new Promise((resolve)=> {
+       window.saveFile(
+        `Export EnvKey Archive`,
+        `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`,
+        JSON.stringify(encrypted),
+        err => resolve(err || null)
+      )
+    })
+
+    if (res == null){
+      yield put({type: EXPORT_ORG_SUCCESS})
+      alert(`Encrypted archive saved. It can be re-imported into a fresh organization in EnvKey v2 using the following Encryption Key:\n\n${encryptionKey}`)
+    } else {
+      yield put({type: EXPORT_ORG_FAILED, payload: res})
+    }
+
+
+  } catch (err){
+    yield put({type: EXPORT_ORG_FAILED, payload: err})
+  }
+}
+
 export default function* orgSagas(){
   yield [
     takeLatest(UPDATE_ORG_ROLE, onUpdateOrgRole),
@@ -159,7 +491,8 @@ export default function* orgSagas(){
     takeLatest(UPDATE_ORG_OWNER_REQUEST, onUpdateOrgOwnerRequest),
     takeLatest(UPDATE_ORG_OWNER_SUCCESS, onUpdateOrgOwnerSuccess),
     takeLatest(GENERATE_DEMO_ORG_REQUEST, onGenerateDemoOrgRequest),
-    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess)
+    takeLatest(GENERATE_DEMO_ORG_SUCCESS, onGenerateDemoOrgSuccess),
+    takeLatest(EXPORT_ORG, onExportOrg)
     // takeLatest(REMOVE_SELF_FROM_ORG, onRemoveSelfFromOrg)
   ]
 }

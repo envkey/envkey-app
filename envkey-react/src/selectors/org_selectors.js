@@ -60,4 +60,8 @@ export const
 
   getIsLoadingInvoices = db.path("isLoadingInvoices"),
 
-  getIsLoadingInvoicePdf = db.path("isLoadingInvoicePdf")
+  getIsLoadingInvoicePdf = db.path("isLoadingInvoicePdf"),
+
+  getIsExportingOrg = db.path("isExportingOrg"),
+
+  getExportOrgError = db.path("exportOrgError")
