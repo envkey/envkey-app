@@ -149,5 +149,9 @@
   ],
   "1.4.20": [
     "Make internet connectivity test more robust to resolve rare firewall issues"
+  ],
+  "1.4.21": [
+    "Export Org functionality for Org Owner (for import into v2)",
+    "Further increase request timeout for large organizations"
   ]
 }
