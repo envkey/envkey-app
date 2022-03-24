@@ -153,5 +153,8 @@
   "1.4.21": [
     "Export Org functionality for Org Owner (for import into v2)",
     "Further increase request timeout for large organizations"
+  ],
+  "1.4.22": [
+    "Fix URL and Content-Security Policy entry for AWS status page used in connection check"
   ]
 }

@@ -21,7 +21,7 @@ const
     // }
 
     const urls = isElectron() ?
-      ["http://www.msftconnecttest.com/connecttest.txt", "https://status.aws.amazon.com"] :
+      ["http://www.msftconnecttest.com/connecttest.txt", "https://health.aws.amazon.com/health/status"] :
       ["https://icanhazip.com/"]
 
     return Promise.all(
