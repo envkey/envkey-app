@@ -6,6 +6,12 @@ EnvKey is an end-to-end encrypted secrets and configuration management tool. It 
 
 The EnvKey App enforces a zero-knowledge protocol. The server never sees configuration in plain text, and never sees encryption passphrases.
 
+# v2
+
+Now that [EnvKey v2](https://v2.envkey.com) has been released, this repo is in maintenance mode. EnvKey v2 brings together all its public code in [a single monorepo](https://github.com/envkey/envkey).
+
+[Here's a guide on migrating from v1 to v2.](https://docs-v2.envkey.com/docs/migrating-from-v1)
+
 ## Installation
 
 Head over to [releases](https://github.com/envkey/envkey-app/releases) and download the latest release for your platform and architecture.
