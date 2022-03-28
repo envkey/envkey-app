@@ -156,5 +156,8 @@
   ],
   "1.4.22": [
     "Fix URL and Content-Security Policy entry for AWS status page used in connection check"
+  ],
+  "1.4.23": [
+    "Fix for restart loop during decryption that can affect large organizations"
   ]
 }

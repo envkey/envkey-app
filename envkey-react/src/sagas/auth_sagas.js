@@ -162,8 +162,11 @@ function *onAppLoaded(){
 function *onReactivatedBrief(){
   // assuming we've already done a fetch, get updates in background since we were supsended less than a minute
   const lastFetchAt = yield select(getLastFetchAt)
+  const isDecrypting = yield select(getIsDecryptingEnvs)
+  const decrypted = yield select(getEnvsAreDecrypted)
 
-  if (lastFetchAt){
+
+  if (lastFetchAt && decrypted && !isDecrypting){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
   }
 }
@@ -171,8 +174,10 @@ function *onReactivatedBrief(){
 function *onReactivatedLong(){
   // assuming we've already done a fetch, since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
   const lastFetchAt = yield select(getLastFetchAt)
+  const isDecrypting = yield select(getIsDecryptingEnvs)
+  const decrypted = yield select(getEnvsAreDecrypted)
 
-  if (lastFetchAt){
+  if (lastFetchAt && decrypted && !isDecrypting){
     window.location.reload()
   }
 }
