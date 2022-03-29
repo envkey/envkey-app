@@ -76,8 +76,9 @@ import {
   getPassword,
   getPrivkey,
   getEncryptedPrivkey,
-  getIsDecryptingEnvs,
-  getEnvsAreDecrypted,
+  getIsDecryptingAll,
+  getIsDecrypting,
+  getDecryptedAll,
   getInviteesNeedingAccess,
   getInviteesPendingAcceptance,
   getUser,
@@ -162,11 +163,12 @@ function *onAppLoaded(){
 function *onReactivatedBrief(){
   // assuming we've already done a fetch, get updates in background since we were supsended less than a minute
   const lastFetchAt = yield select(getLastFetchAt)
-  const isDecrypting = yield select(getIsDecryptingEnvs)
-  const decrypted = yield select(getEnvsAreDecrypted)
+  const isDecrypting = yield select(getIsDecrypting)
+  const isDecryptingAll = yield select(getIsDecryptingAll)
+  const decrypted = yield select(getDecryptedAll)
 
 
-  if (lastFetchAt && decrypted && !isDecrypting){
+  if (lastFetchAt && decrypted && !isDecrypting && !isDecryptingAll){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
   }
 }
@@ -174,10 +176,11 @@ function *onReactivatedBrief(){
 function *onReactivatedLong(){
   // assuming we've already done a fetch, since we were suspended for more than a minute, do a hard refresh here to ensure we're fully updated before taking any action
   const lastFetchAt = yield select(getLastFetchAt)
-  const isDecrypting = yield select(getIsDecryptingEnvs)
-  const decrypted = yield select(getEnvsAreDecrypted)
+  const isDecrypting = yield select(getIsDecrypting)
+  const isDecryptingAll = yield select(getIsDecryptingAll)
+  const decrypted = yield select(getDecryptedAll)
 
-  if (lastFetchAt && decrypted && !isDecrypting){
+  if (lastFetchAt && decrypted && !isDecrypting && !isDecryptingAll){
     window.location.reload()
   }
 }

@@ -159,5 +159,8 @@
   ],
   "1.4.23": [
     "Fix for restart loop during decryption that can affect large organizations"
+  ],
+  "1.4.24": [
+    "Fix for error on decryption and reactivation introduced in previous release"
   ]
 }
