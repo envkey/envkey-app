@@ -461,11 +461,18 @@ function *onExportOrg(action){
     }
 
     const res = yield new Promise((resolve)=> {
+      const fileName = `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`
+
        window.saveFile(
         `Export EnvKey Archive`,
-        `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`,
+        fileName,
         JSON.stringify(encrypted),
-        err => resolve(err || null)
+        err => {
+          if (err){
+            console.log("Error saving Org Archive file", {fileName, err})
+          }
+          resolve(err || null)
+        }
       )
     })
 
@@ -478,6 +485,10 @@ function *onExportOrg(action){
 
 
   } catch (err){
+    console.log("EXPORT ORG error:")
+    console.log(err)
+    console.trace()
+
     yield put({type: EXPORT_ORG_FAILED, payload: err})
   }
 }
