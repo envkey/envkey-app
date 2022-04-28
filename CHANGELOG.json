@@ -165,5 +165,8 @@
   ],
   "1.4.25": [
     "Improved logging for Export Org functionality to debug rare error cases"
+  ],
+  "1.4.26": [
+    "Fix for broken build in previous release"
   ]
 }
