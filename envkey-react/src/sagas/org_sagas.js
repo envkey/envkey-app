@@ -53,7 +53,6 @@ import {
   getCurrentUser,
   getOrgUserForUser,
   getOrgUsers,
-  getUsersById,
   getApps,
   getAppUsers,
   getServers,
@@ -187,7 +186,8 @@ function *onExportOrg(action){
     const pendingUsers = yield select(getPendingUsers)
     const appUsers = yield select(getAppUsers)
     const servers = yield select(getServers)
-    const usersById = yield select(getUsersById)
+
+    console.log("yielded initial selects...")
 
     const ownerOrgRole = {
       id: uuid(),
@@ -264,16 +264,27 @@ function *onExportOrg(action){
     const baseEnvironmentIdsByAppIdByRole = {};
     const envs = {};
 
+    console.log("exporting apps...");
+
     for (let app of apps){
-      const envsWithMeta = yield select(getEnvsWithMetaWithPending("app", app.id))
+      console.log("exporting app:", app.name);
+
+      const envsWithMeta = yield select(getEnvsWithMetaWithPending("app", app.id));
+
+      console.log("got envsWithMeta.");
 
       const baseEnvironmentIdsByRole = {}
 
       const baseEnvEntries = allEntries(envsWithMeta)
 
+      console.log("got baseEnvEntries.");
+
       for (let role in envsWithMeta){
+        console.log("exporting role:", role);
+
         const environmentRoleId = environmentRoleIdsByRole[role]
         if (!environmentRoleId){
+          console.log("No environmentRoleId, skipping...");
           continue
         }
 
@@ -293,6 +304,8 @@ function *onExportOrg(action){
 
         if (subEnvs){
           for (let id in subEnvs){
+            console.log("Exporting subEnv:", id);
+
             const subEnv = subEnvs[id]
 
             const name = subEnv["@@__name__"]
@@ -306,14 +319,22 @@ function *onExportOrg(action){
               parentEnvironmentId: baseEnvironmentIdsByRole[role]
             }
 
+            console.log("set subEnvironmentsById.")
+
             const entries = subEnvEntries(envsWithMeta, id)
+
+            console.log("get subEnvEntries.")
+
             const vars = {}
             for (let k of entries){
               const cell = subEnv[k];
-              vars[k] = {
+              vars[k] = cell ? {
                 isEmpty: cell.val == "",
                 isUndefined: cell.val == null || typeof cell.val == "undefined",
                 val: cell == "" ? "" : (cell.val || undefined)
+              } : {
+                isUndefined: true,
+                val: undefined
               }
             }
 
@@ -321,13 +342,20 @@ function *onExportOrg(action){
               inherits: {},
               variables: vars
             }
+
+            console.log("finished subEnv.")
           }
         }
+
+        console.log("finished role:", role);
       }
 
       for (let role in envsWithMeta){
+        console.log("exporting role second pass:", role);
+
         const environmentRoleId = environmentRoleIdsByRole[role]
         if (!environmentRoleId){
+          console.log("No environmentRoleId, skipping...");
           continue
         }
 
@@ -338,11 +366,14 @@ function *onExportOrg(action){
         const vars = {}
         for (let k of baseEnvEntries){
           const cell = env[k];
-          vars[k] = {
+          vars[k] = cell ? {
             isEmpty: cell.val == "",
             isUndefined: !cell.inherits && (cell.val == null || typeof cell.val == "undefined"),
             val: cell == "" ? "" : (cell.val || undefined),
             inheritsEnvironmentId: cell.inherits ? baseEnvironmentIdsByRole[cell.inherits] : undefined
+          } : {
+            isUndefined: true,
+            val: undefined
           }
         }
 
@@ -350,10 +381,77 @@ function *onExportOrg(action){
           inherits: {},
           variables: vars
         }
+
+        console.log("finished role second pass:", role);
       }
 
       baseEnvironmentIdsByAppIdByRole[app.id] = baseEnvironmentIdsByRole
     }
+
+    const archiveApps = apps.map(app => ({
+      id: app.id,
+      name: app.name,
+      settings: {
+        autoCaps: app.autoCaps || false,
+        autoCommitLocals: false
+      }
+    }));
+
+    console.log("finished archiveApps")
+
+    const archiveServers = servers.filter(
+      server => server.pubkey
+    ).map(
+      server => {
+        return {
+          appId: server.appId,
+          environmentId: server.subEnvId ?
+            subEnvironmentsById[server.subEnvId].id :
+            baseEnvironmentIdsByAppIdByRole[server.appId][server.role],
+          name: server.name
+        }
+      }
+    );
+
+    console.log("finished archiveServers")
+
+    const archiveOrgUsers = [...activeUsers, ...pendingUsers].map(
+      user => {
+        return {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          provider: "email",
+          uid: user.email,
+          orgRoleId: {
+            "org_owner": ownerOrgRole.id,
+            "org_admin": adminOrgRole.id,
+            "basic": basicUserOrgRole.id
+          }[user.role]
+        }
+      }
+     );
+
+   console.log("finished archiveOrgUsers")
+
+    const archiveAppUserGrants = appUsers.filter(
+      appUser => appUser.role != "org_owner" && appUser.role != "org_admin"
+    ).map(
+      appUser => {
+        return {
+          appId: appUser.appId,
+          userId: appUser.userId,
+          appRoleId: {
+            admin: appAdminAppRole.id,
+            production: devopsAppRole.id,
+            development: developerAppRole.id
+          }[appUser.role]
+        }
+      }
+    );
+
+    console.log("finished archiveAppUserGrants");
 
     const archive = {
       schemaVersion: "1",
@@ -376,14 +474,7 @@ function *onExportOrg(action){
           }
         }
       },
-      apps: apps.map(app => ({
-        id: app.id,
-        name: app.name,
-        settings: {
-          autoCaps: app.autoCaps || false,
-          autoCommitLocals: false
-        }
-      })),
+      apps: archiveApps,
       blocks: [],
       appBlocks: [],
       defaultOrgRoles: [
@@ -407,48 +498,14 @@ function *onExportOrg(action){
       nonDefaultAppRoleEnvironmentRoles: [],
       baseEnvironments,
       subEnvironments: R.values(subEnvironmentsById),
-      servers: servers.filter(
-        server => server.pubkey
-      ).map(
-        server => ({
-          appId: server.appId,
-          environmentId: server.subEnvId ?
-            subEnvironmentsById[server.subEnvId].id :
-            baseEnvironmentIdsByAppIdByRole[server.appId][server.role],
-          name: server.name
-        })
-      ),
-      orgUsers: [...activeUsers, ...pendingUsers].map(
-        user => ({
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          provider: "email",
-          uid: user.email,
-          orgRoleId: {
-            "org_owner": ownerOrgRole.id,
-            "org_admin": adminOrgRole.id,
-            "basic": basicUserOrgRole.id
-          }[user.role]
-        })
-       ),
+      servers: archiveServers,
+      orgUsers: archiveOrgUsers,
       cliUsers: [],
-      appUserGrants: appUsers.filter(
-        appUser => appUser.role != "org_owner" && appUser.role != "org_admin"
-      ).map(
-        appUser => ({
-          appId: appUser.appId,
-          userId: appUser.userId,
-          appRoleId: {
-            admin: appAdminAppRole.id,
-            production: devopsAppRole.id,
-            development: developerAppRole.id
-          }[appUser.role]
-        })
-      ),
+      appUserGrants: archiveAppUserGrants,
       envs
     }
+
+    console.log("finished archive")
 
     const encryptionKey = secureRandomAlphanumeric(25)
     const json = JSON.stringify(archive)
@@ -460,6 +517,8 @@ function *onExportOrg(action){
       data: encodeBase64(secretbox(decodeUTF8(json), nonce, key))
     }
 
+    console.log("encrypted archive")
+
     const res = yield new Promise((resolve)=> {
       const fileName = `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`
 
@@ -469,7 +528,8 @@ function *onExportOrg(action){
         JSON.stringify(encrypted),
         err => {
           if (err){
-            console.log("Error saving Org Archive file", {fileName, err})
+            console.log("Error saving Org Archive file", {fileName, err});
+            console.trace();
           }
           resolve(err || null)
         }

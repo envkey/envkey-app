@@ -162,5 +162,8 @@
   ],
   "1.4.24": [
     "Fix for error on decryption and reactivation introduced in previous release"
+  ],
+  "1.4.25": [
+    "Improved logging for Export Org functionality to debug rare error cases"
   ]
 }
