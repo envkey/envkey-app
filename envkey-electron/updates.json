@@ -1,13 +1,13 @@
 {
   "linux-ia32-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.24/EnvKey-1.4.24-i386.AppImage",
-    "install": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.24/EnvKey-1.4.24-i386.AppImage",
-    "version": "1.4.24"
+    "update": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.26/EnvKey-1.4.26-i386.AppImage",
+    "install": "https://github.com/envkey/envkey-app/releases/download/linux-ia32-prod-v1.4.26/EnvKey-1.4.26-i386.AppImage",
+    "version": "1.4.26"
   },
   "linux-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.26/EnvKey-1.4.26.AppImage",
-    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.26/EnvKey-1.4.26.AppImage",
-    "version": "1.4.26"
+    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.24/EnvKey-1.4.24.AppImage",
+    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.24/EnvKey-1.4.24.AppImage",
+    "version": "1.4.24"
   },
   "win32-x64-prod": {
     "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.4.24",
