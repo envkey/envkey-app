@@ -20,8 +20,8 @@
     "version": "1.4.24"
   },
   "darwin-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.4.24/release.json",
-    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.4.24/EnvKey-1.4.24.dmg",
-    "version": "1.4.24"
+    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.4.25/release.json",
+    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.4.25/EnvKey-1.4.25.dmg",
+    "version": "1.4.25"
   }
 }
