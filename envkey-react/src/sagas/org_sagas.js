@@ -400,7 +400,11 @@ function *onExportOrg(action){
     console.log("finished archiveApps")
 
     const archiveServers = servers.filter(
-      server => server.pubkey
+      server => server.pubkey && (
+        server.subEnvId ?
+            subEnvironmentsById[server.subEnvId] :
+            (baseEnvironmentIdsByAppIdByRole[server.appId] && baseEnvironmentIdsByAppIdByRole[server.appId][server.role])
+      )
     ).map(
       server => {
         return {

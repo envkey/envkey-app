@@ -168,5 +168,8 @@
   ],
   "1.4.26": [
     "Fix for broken build in previous release"
+  ],
+  "1.4.27": [
+    "Fix for rare error in Export Org functionality"
   ]
 }
