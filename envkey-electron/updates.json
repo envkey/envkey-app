@@ -5,9 +5,9 @@
     "version": "1.4.27"
   },
   "linux-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.27/EnvKey-1.4.27.AppImage",
-    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.27/EnvKey-1.4.27.AppImage",
-    "version": "1.4.27"
+    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.28/EnvKey-1.4.28.AppImage",
+    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.4.28/EnvKey-1.4.28.AppImage",
+    "version": "1.4.28"
   },
   "win32-x64-prod": {
     "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.4.27",
@@ -15,9 +15,9 @@
     "version": "1.4.27"
   },
   "win32-ia32-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.4.28",
-    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.4.28/EnvKey.Setup.1.4.28.exe",
-    "version": "1.4.28"
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.4.27",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.4.27/EnvKey.Setup.1.4.27.exe",
+    "version": "1.4.27"
   },
   "darwin-x64-prod": {
     "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.4.27/release.json",
