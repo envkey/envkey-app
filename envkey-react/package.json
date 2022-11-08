@@ -75,7 +75,7 @@
   "devDependencies": {
     "babel-core": "^6.14.0",
     "babel-jest": "^18.0.0",
-    "babel-loader": "^6.2.5",
+    "babel-loader": "^9.1.0",
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-es2015-loose": "^8.0.0",
     "babel-preset-react": "^6.11.1",
@@ -87,6 +87,6 @@
     "redux-logger": "^2.7.4",
     "sockjs-client": "^1.3.0",
     "source-map-support": "^0.4.2",
-    "webpack": "^1.13.2"
+    "webpack": "^5.74.0"
   }
 }
