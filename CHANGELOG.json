@@ -174,5 +174,8 @@
   ],
   "1.4.28": [
     "Further increase request timeout for large organizations"
-  ]
+  ],
+  "1.4.29": [
+    "Disable automatic collection of client session logs to improve performance"
+  ],
 }

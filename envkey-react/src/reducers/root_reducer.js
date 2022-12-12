@@ -8,10 +8,10 @@ import * as cryptoReducers from './crypto_reducers'
 import * as importReducers from './import_reducers'
 import * as inviteReducers from './invite_reducers'
 import objectReducers from './object_reducers'
-import sessionLogWrapper from './session_log_wrapper'
+// import sessionLogWrapper from './session_log_wrapper'
 import { routerReducer } from 'react-router-redux'
 
-export default sessionLogWrapper(combineReducers({
+export default combineReducers({
   ...authReducers,
   ...orgReducers,
   ...objectReducers,
@@ -22,4 +22,4 @@ export default sessionLogWrapper(combineReducers({
   ...importReducers,
   ...inviteReducers,
   routing: routerReducer
-}))
+})
