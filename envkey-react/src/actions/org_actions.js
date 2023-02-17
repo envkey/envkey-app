@@ -31,6 +31,6 @@ export const
 
   generateDemoOrg = createAction(GENERATE_DEMO_ORG_REQUEST),
 
-  exportOrg = createAction(EXPORT_ORG)
+  exportOrg = createAction(EXPORT_ORG, params => params ? R.pick(["isV2Upgrade"], params) : {})
 
 

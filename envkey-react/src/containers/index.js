@@ -32,3 +32,6 @@ export {default as OrgAllowedIpsContainer} from './org_allowed_ips_container'
 export {default as AppAllowedIpsContainer} from './app_allowed_ips_container'
 export {default as ResetAccountContainer} from  './reset_account_container'
 export {default as ExportOrgContainer} from "./export_org_container"
+export {default as UpgradeOrgContainer} from "./v2_upgrade_container"
+export {default as UpgradeOrgStatusContainer} from "./v2_upgrade_status_container"
+export {default as V2UpgradeAcceptInviteContainer} from "./v2_upgrade_accept_invite_container"

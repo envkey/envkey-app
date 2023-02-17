@@ -56,9 +56,12 @@ import {
   getApps,
   getAppUsers,
   getServers,
+  getLocalKeys,
   getEnvsWithMetaWithPending,
   getActiveUsers,
-  getPendingUsers
+  getPendingUsers,
+  getV2UpgradeData,
+  getV2UpgradeEnvkeys
 } from 'selectors'
 import { allEntries, subEnvEntries } from 'lib/env/query'
 import { secureRandomAlphanumeric } from 'lib/crypto'
@@ -67,6 +70,7 @@ import { encodeBase64, decodeUTF8, decodeBase64 } from 'tweetnacl-util'
 import { codec, hash } from 'sjcl'
 import uuid from 'uuid'
 import isElectron from 'is-electron'
+import { camelizeKeys } from 'xcase'
 
 const
   onUpdateOrgRoleRequest = apiSaga({
@@ -177,6 +181,10 @@ function *onExportOrg(action){
     return
   }
 
+  const isV2Upgrade = action.payload.isV2Upgrade;
+
+  const v2UpgradeData = isV2Upgrade ? yield select(getV2UpgradeData) : null;
+
   yield call(delay, 50)
 
   try {
@@ -186,6 +194,8 @@ function *onExportOrg(action){
     const pendingUsers = yield select(getPendingUsers)
     const appUsers = yield select(getAppUsers)
     const servers = yield select(getServers)
+    const localKeys = yield select(getLocalKeys)
+    const upgradeEnvkeys = yield select(getV2UpgradeEnvkeys)
 
     console.log("yielded initial selects...")
 
@@ -412,12 +422,46 @@ function *onExportOrg(action){
           environmentId: server.subEnvId ?
             subEnvironmentsById[server.subEnvId].id :
             baseEnvironmentIdsByAppIdByRole[server.appId][server.role],
-          name: server.name
+          name: server.name,
+          v1Payload: isV2Upgrade ? {
+            ...R.omit(["envkey"], camelizeKeys(JSON.parse(v2UpgradeData.serversById[server.id]))),
+            encryptedV2Key: upgradeEnvkeys[server.id].encryptedV2Key
+          } : undefined,
+          v1EnkeyIdPart: isV2Upgrade ? v2UpgradeData.serversById[server.id].envkey : undefined,
+          v1EncryptionKey: isV2Upgrade ? upgradeEnvkeys[server.id].v2Key : undefined
         }
       }
     );
 
     console.log("finished archiveServers")
+
+    let archiveLocalKeys;
+    if (isV2Upgrade){
+      const archiveLocalKeys = localKeys.filter(
+        localKey => localKey.pubkey && (
+          localKey.subEnvId ?
+              subEnvironmentsById[localKey.subEnvId] :
+              (baseEnvironmentIdsByAppIdByRole[localKey.appId] && baseEnvironmentIdsByAppIdByRole[localKey.appId][localKey.role])
+        )
+      ).map(
+        localKey => {
+          return {
+            userId: localKey.userId,
+            appId: localKey.appId,
+            environmentId: baseEnvironmentIdsByAppIdByRole[localKey.appId][localKey.role],
+            name: localKey.name,
+            v1Payload: isV2Upgrade ? {
+              ...R.omit(["envkey"], camelizeKeys(JSON.parse(v2UpgradeData.localKeysById[localKey.id]))),
+              encryptedV2Key: upgradeEnvkeys[localKey.id].encryptedV2Key
+            } : undefined,
+            v1EnkeyIdPart: isV2Upgrade ? v2UpgradeData.localKeysById[localKey.id].envkey : undefined,
+            v1EncryptionKey: isV2Upgrade ? upgradeEnvkeys[localKey.id].v2Key : undefined
+          }
+        }
+      );
+
+      console.log("finished archiveLocalKeys")
+    }
 
     const archiveOrgUsers = [...activeUsers, ...pendingUsers].map(
       user => {
@@ -432,7 +476,8 @@ function *onExportOrg(action){
             "org_owner": ownerOrgRole.id,
             "org_admin": adminOrgRole.id,
             "basic": basicUserOrgRole.id
-          }[user.role]
+          }[user.role],
+          v1Token: isV2Upgrade ? v2UpgradeData.orgUserUpgradeTokensById[user.id] : undefined
         }
       }
      );
@@ -459,6 +504,7 @@ function *onExportOrg(action){
 
     const archive = {
       schemaVersion: "1",
+      isV1Upgrade: isV2Upgrade ? true : undefined,
       org: {
         id: currentOrg.id,
         name: currentOrg.name,
@@ -503,6 +549,7 @@ function *onExportOrg(action){
       baseEnvironments,
       subEnvironments: R.values(subEnvironmentsById),
       servers: archiveServers,
+      localKeys: archiveLocalKeys,
       orgUsers: archiveOrgUsers,
       cliUsers: [],
       appUserGrants: archiveAppUserGrants,
@@ -522,27 +569,42 @@ function *onExportOrg(action){
     }
 
     console.log("encrypted archive")
+    const fileName = `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`
 
     const res = yield new Promise((resolve)=> {
-      const fileName = `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`
 
-       window.saveFile(
-        `Export EnvKey Archive`,
-        fileName,
-        JSON.stringify(encrypted),
-        err => {
-          if (err){
-            console.log("Error saving Org Archive file", {fileName, err});
-            console.trace();
+      isV2Upgrade ?
+        window.writeUpgradeArchive(
+          fileName,
+          JSON.stringify(encrypted),
+          err => {
+            if (err){
+              console.log("Error saving Org Archive file", {fileName, err});
+              console.trace();
+            }
+            resolve(err || null)
           }
-          resolve(err || null)
-        }
-      )
+        )
+        :
+        window.saveFile(
+          `Export EnvKey Archive`,
+          fileName,
+          JSON.stringify(encrypted),
+          err => {
+            if (err){
+              console.log("Error saving Org Archive file", {fileName, err});
+              console.trace();
+            }
+            resolve(err || null)
+          }
+        )
     })
 
     if (res == null){
-      yield put({type: EXPORT_ORG_SUCCESS})
-      alert(`Encrypted archive saved. It can be re-imported into a fresh organization in EnvKey v2 using the following Encryption Key:\n\n${encryptionKey}`)
+      yield put({type: EXPORT_ORG_SUCCESS, payload: { isV2Upgrade, fileName, encryptionKey }})
+      if (!isV2Upgrade){
+        alert(`Encrypted archive saved. It can be re-imported into a fresh organization in EnvKey v2 using the following Encryption Key:\n\n${encryptionKey}`)
+      }
     } else {
       yield put({type: EXPORT_ORG_FAILED, payload: res})
     }

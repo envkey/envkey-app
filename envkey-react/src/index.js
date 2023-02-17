@@ -6,9 +6,7 @@ import R from 'ramda'
 import * as crypto from 'lib/crypto'
 import {
   startConnectionWatcher,
-  startReactivatedWatcher,
-  startSessionLogWatcher,
-  checkSessionLogs
+  startReactivatedWatcher
 } from 'lib/status'
 
 ReactDOM.render(<Routes />, document.getElementById('wrap'))
@@ -19,8 +17,3 @@ document.body.className += " react-loaded"
 
 startConnectionWatcher()
 startReactivatedWatcher()
-startSessionLogWatcher()
-
-window.beforeClose = ()=> {
-  checkSessionLogs()
-}

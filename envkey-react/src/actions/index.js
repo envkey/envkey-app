@@ -11,3 +11,4 @@ export * from './export_actions'
 export * from './invite_actions'
 export * from './billing_actions'
 export * from './session_actions'
+export * from "./v2_upgrade_actions"

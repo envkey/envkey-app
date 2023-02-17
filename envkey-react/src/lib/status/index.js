@@ -113,20 +113,6 @@ const
 
 
 export const
-  checkSessionLogs = (repeat=false, initialDelay=0, interval=1000*60)=> {
-    isWatchingSessionLogs = true
-    if (initialDelay){
-      setTimeout(()=> checkSessionLogs(repeat), initialDelay)
-      return
-    }
-
-    const sanitizedActionLog = store.getState().sanitizedActionLog
-    if (Object.keys(sanitizedActionLog).length > 0){
-      store.dispatch(commitSanitizedActionLog())
-    }
-
-    setTimeout(()=> checkSessionLogs(repeat), interval)
-  },
 
   startConnectionWatcher = ()=> {
     if(!isCheckingConnection)checkConnection()
@@ -136,12 +122,6 @@ export const
     if (!lastActiveAt){
       lastActiveAt = Date.now()
       checkReactivated()
-    }
-  },
-
-  startSessionLogWatcher = ()=> {
-    if(!isWatchingSessionLogs){
-      checkSessionLogs(true, 1000 * 60)
     }
   }
 

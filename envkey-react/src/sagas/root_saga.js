@@ -12,7 +12,8 @@ const sagaFiles = [
   "invite",
   "billing",
   "export",
-  "session"
+  "session",
+  "v2_upgrade"
 ]
 
 export default function* rootSaga(){

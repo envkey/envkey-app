@@ -12,7 +12,6 @@ class ExportOrg extends React.Component {
     super(props)
   }
 
-
   _onSubmit(e){
     e.preventDefault()
     this.props.onSubmit()
@@ -25,14 +24,6 @@ class ExportOrg extends React.Component {
       </fieldset>
       {this._renderSubmit()}
     </form>
-  }
-
-  _renderContent(){
-    if (this.props.orgAdmins.length){
-      return this._renderSelectAdmin()
-    } else {
-      return this._renderNoAdmins()
-    }
   }
 
   _renderSubmit(){

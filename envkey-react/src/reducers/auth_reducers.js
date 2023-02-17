@@ -428,6 +428,34 @@ export const
     }
   },
 
+  upgradeToken = (state = null, action)=>{
+    if (isFetchCurrentUserAction(action, {
+      except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+    })){
+      return action.payload.upgradeToken
+    }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
+  },
+
+  encryptedV2InviteToken = (state = null, action)=>{
+    if (isFetchCurrentUserAction(action, {
+      except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+    })){
+      return action.payload.encryptedV2InviteToken
+    }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
+  },
+
   isDemo = (state = false, {type})=> type == START_DEMO ? true : state,
 
   demoDownloadUrl = (state = null, {type, payload})=> {

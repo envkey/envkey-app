@@ -19,7 +19,10 @@ import {
   getStripeFormOpened,
   getDecryptedAll,
   getIsDemo,
-  getDemoDownloadUrl
+  getDemoDownloadUrl,
+  getIsStartingV2Upgrade,
+  getUpgradeToken,
+  getEncryptedV2InviteToken
 } from 'selectors'
 import {
   appLoaded,
@@ -29,7 +32,7 @@ import {
   billingUpgradeSubscription,
   resetSession
 } from 'actions'
-import { TrialOverdueContainer } from 'containers'
+import { TrialOverdueContainer, UpgradeOrgStatusContainer } from 'containers'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
 import {openLinkExternal} from 'lib/ui'
@@ -130,7 +133,18 @@ class Main extends React.Component {
         {this._renderTrialAlert()}
 
         {this._renderDemoCTA()}
+
+        {this._renderV2UpgradeOverlay()}
       </div>
+    }
+  }
+
+  _renderV2UpgradeOverlay(){
+    if (this.props.isStartingV2Upgrade ||
+        (this.props.upgradeToken &&
+         this.props.encryptedV2InviteToken)
+       ){
+      return <UpgradeOrgStatusContainer />
     }
   }
 
@@ -185,7 +199,10 @@ const mapStateToProps = (state, ownProps) => {
     isUpdatingSubscription: getIsUpdatingSubscription(state),
     stripeFormOpened: getStripeFormOpened(state),
     isDemo: getIsDemo(state),
-    demoDownloadUrl: getDemoDownloadUrl(state)
+    demoDownloadUrl: getDemoDownloadUrl(state),
+    isStartingV2Upgrade: getIsStartingV2Upgrade(state),
+    upgradeToken: getUpgradeToken(state),
+    encryptedV2InviteToken: getEncryptedV2InviteToken(state)
   }
 }
 

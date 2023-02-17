@@ -3,7 +3,9 @@ const electron = require("electron"),
       {dialog} = electron.remote,
       updater = remote.require("electron-simple-updater"),
       fs = require('fs'),
-      Store = require('electron-store')
+      Store = require('electron-store'),
+      path = require('path'),
+      os = require('os')
 
 window.copy = s => {
   clipboard.writeText(s)
@@ -20,6 +22,21 @@ window.saveFile = (title, defaultPath, data, cb)=> dialog.showSaveDialog({title,
   if(!filename)return
   fs.writeFile(filename, data, cb)
 })
+
+window.writeUpgradeArchive = (filename, data, cb)=> {
+  const dirParts = [os.homedir(), 'Library', 'Mobile Documents', 'com~apple~CloudDocs','.envkey', 'archives']
+  const dir = path.join.apply(null, dirParts)
+
+  let d = ""
+  for (let part of dirParts){
+    d = path.join(d, part)
+    if (!fs.existsSync(d)){
+      fs.mkdirSync(d);
+    }
+  }
+
+  fs.writeFile(path.join(dir, filename), data, cb)
+}
 
 window.electronStore = new Store()
 

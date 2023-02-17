@@ -159,6 +159,10 @@ export const
 
   getResetAccountOptions = db.path("resetAccountOptions"),
 
+  getUpgradeToken = db.path("upgradeToken"),
+
+  getEncryptedV2InviteToken = db.path("encryptedV2InviteToken"),
+
   getIsDemo = R.anyPass([
     db.path("isDemo"),
     R.pipe(getCurrentUser, R.path(['demo'])),
