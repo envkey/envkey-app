@@ -35,14 +35,17 @@ import {
   CHECK_V2_UPGRADE_STATUS,
   CHECK_V2_UPGRADE_STATUS_SUCCESS,
   CHECK_V2_UPGRADE_STATUS_FAILED,
-  STORE_V2_UPGRADE_TOKENS,
-  STORE_V2_UPGRADE_TOKENS_SUCCESS,
-  STORE_V2_UPGRADE_TOKENS_FAILED,
   V2_UPGRADE_ACCEPT_INVITE,
   V2_UPGRADE_ACCEPT_INVITE_SUCCESS,
   V2_UPGRADE_ACCEPT_INVITE_FAILED,
   V2_WAIT_FOR_CORE_PROC_ALIVE,
-  V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS
+  V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS,
+  START_V2_ORG_USER_UPGRADE,
+  START_V2_ORG_USER_UPGRADE_SUCCESS,
+  START_V2_ORG_USER_UPGRADE_FAILED,
+  FINISH_V2_ORG_USER_UPGRADE,
+  FINISH_V2_ORG_USER_UPGRADE_SUCCESS,
+  FINISH_V2_ORG_USER_UPGRADE_FAILED
 } from 'actions'
 import {
   getCurrentOrg,
@@ -58,14 +61,16 @@ import {
   getServer,
   getLocalKey,
   getUpgradeToken,
-  getEncryptedV2InviteToken
+  getEncryptedV2InviteToken,
+  getCanceledV2Upgrade
 } from 'selectors'
 import axios from 'axios'
 import semver from 'semver'
 import * as crypto from 'lib/crypto'
+import {signTrustedPubkeyChain} from "./helpers/crypto_helpers"
 
-const V2_BASE_URL = "https://56d6-2601-646-c300-5a90-fcfe-ef8e-e914-4ac.ngrok.io"
-const V2_REQUEST_HEADERS = {"ngrok-skip-browser-warning": 1}
+const V2_BASE_URL = "http://localhost:19047"
+const V2_REQUEST_HEADERS = {}
 
 const onStartV2UpgradeRequest = apiSaga({
   authenticated: true,
@@ -75,27 +80,38 @@ const onStartV2UpgradeRequest = apiSaga({
   urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/start_v2_upgrade.json`
 })
 
-const onStoreUpgradeTokens = apiSaga({
-  authenticated: true,
-  method: "patch",
-  urlSelector: getCurrentOrg,
-  actionTypes: [STORE_V2_UPGRADE_TOKENS_SUCCESS, STORE_V2_UPGRADE_TOKENS_FAILED],
-  urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/store_v2_upgrade_tokens.json`
-})
-
 const onCancelV2UpgradeRequest = apiSaga({
   authenticated: true,
   method: "patch",
   actionTypes: [CANCEL_V2_UPGRADE_SUCCESS, CANCEL_V2_UPGRADE_FAILED],
-  urlFn: (action)=> `/cancel_v2_upgrade.json`
+  urlSelector: getCurrentOrg,
+  urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/cancel_v2_upgrade.json`
 })
 
 const onFinishV2UpgradeRequest = apiSaga({
   authenticated: true,
   method: "patch",
   actionTypes: [FINISH_V2_UPGRADE_SUCCESS, FINISH_V2_UPGRADE_FAILED],
-  urlFn: (action)=> `/finish_v2_upgrade.json`
+  urlSelector: getCurrentOrg,
+  urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/finish_v2_upgrade.json`
 })
+
+const onStartV2OrgUserUpgradeRequest = apiSaga({
+  authenticated: true,
+  method: "patch",
+  actionTypes: [START_V2_ORG_USER_UPGRADE_SUCCESS, START_V2_ORG_USER_UPGRADE_FAILED],
+  urlSelector: getCurrentOrg,
+  urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/start_v2_org_user_upgrade.json`
+})
+
+const onFinishV2OrgUserUpgradeRequest = apiSaga({
+  authenticated: true,
+  method: "patch",
+  actionTypes: [FINISH_V2_ORG_USER_UPGRADE_SUCCESS, FINISH_V2_ORG_USER_UPGRADE_FAILED],
+  urlSelector: getCurrentOrg,
+  urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/finish_v2_org_user_upgrade.json`
+})
+
 
 function *onCheckV2CoreProcAlive(action){
   let res
@@ -124,9 +140,26 @@ function *onV2WaitForCoreProcAlive(action){
   let coreProcAlive = false;
 
   while (!coreProcAlive){
+    let canceled = yield select(getCanceledV2Upgrade)
+    if (canceled){
+      console.log("canceled upgrade, returning from alive check loop")
+      return;
+    }
+
     yield put({type: CHECK_V2_CORE_PROC_ALIVE});
 
-    const aliveCheckRes = yield take([CHECK_V2_CORE_PROC_ALIVE_SUCCESS, CHECK_V2_CORE_PROC_ALIVE_FAILED])
+    const aliveCheckRes = yield take([
+      CHECK_V2_CORE_PROC_ALIVE_SUCCESS,
+      CHECK_V2_CORE_PROC_ALIVE_FAILED,
+      CANCEL_V2_UPGRADE
+    ])
+
+    canceled = yield select(getCanceledV2Upgrade)
+
+    if (aliveCheckRes.type == CANCEL_V2_UPGRADE || canceled){
+      console.log("canceled upgrade, returning from alive check loop")
+      return;
+    }
 
     if (aliveCheckRes.type == CHECK_V2_CORE_PROC_ALIVE_SUCCESS){
       coreProcAlive = true;
@@ -139,14 +172,21 @@ function *onV2WaitForCoreProcAlive(action){
 }
 
 function *onCheckV2UpgradeStatus(action){
+  const v2UpgradeData = yield select(getV2UpgradeData)
+
   let res
+
+  const headers = v2UpgradeData ? {...V2_REQUEST_HEADERS, authorization: JSON.stringify({
+    ts: v2UpgradeData.ts,
+    signature: v2UpgradeData.signature
+  })} : V2_REQUEST_HEADERS
 
   try {
     res = yield axios({
       method: "get",
       url: `${V2_BASE_URL}/v1-upgrade-status`,
       timeout: 3000,
-      headers: V2_REQUEST_HEADERS,
+      headers
     })
   } catch (err) {
     yield put({type: CHECK_V2_UPGRADE_STATUS_FAILED, payload: err})
@@ -157,41 +197,77 @@ function *onCheckV2UpgradeStatus(action){
 }
 
 function *onV2CoreProcLoadUpgrade(action){
-  const v2UpgradeData = yield select(getV2UpgradeData)
-  const {fileName, encryptionKey} = yield select(getV2UpgradeArchive)
   const currentOrg = yield select(getCurrentOrg)
   const currentUser = yield select(getCurrentUser)
+  const upgradeToken = yield select(getUpgradeToken)
+  const encryptedV2InviteToken = yield select(getEncryptedV2InviteToken)
 
   let res
+  let data
 
-  const data = {
-    action: {
-      type: "envkey/client/LOAD_V1_UPGRADE",
-      payload: {
-        fileName,
-        encryptionKey,
-        orgName: currentOrg.name,
-        creator: {
-          firstName: currentUser.firstName,
-          lastName: currentUser.lastName,
-          email: currentUser.email
-        },
-        ts: v2UpgradeData.ts,
-        signature: v2UpgradeData.signature,
-        stripeCustomerId: v2UpgradeData.stripeCustomerId,
-        stripeSubscriptionId: v2UpgradeData.stripeSubscriptionId,
-        numUsers: v2UpgradeData.numUsers,
-      }
-    },
-    context: {
-      client: {
-        clientName: "v1",
-        clienVersion: "1.4.0"
+  if (upgradeToken && encryptedV2InviteToken){
+    const privkey = yield select(getPrivkey)
+    const owner = yield select(getUser(currentOrg.ownerId))
+    const {identityHash, encryptionKey} = yield crypto.decryptJson({
+      encrypted: encryptedV2InviteToken,
+      privkey,
+      pubkey: owner.pubkey
+    })
+
+    data = {
+      action: {
+        type: "envkey/client/LOAD_V1_UPGRADE_INVITE",
+        payload: {
+          upgradeToken,
+          encryptionToken: [identityHash, encryptionKey].join("_")
+        }
       },
-      clientId: "v1",
-      accountIdOrCliKey: undefined
+      context: {
+        client: {
+          clientName: "v1",
+          clienVersion: "1.4.0"
+        },
+        clientId: "v1",
+        accountIdOrCliKey: undefined
+      }
     }
-   }
+
+  } else {
+    const v2UpgradeData = yield select(getV2UpgradeData)
+    const {fileName, encryptionKey} = yield select(getV2UpgradeArchive)
+
+    data = {
+      action: {
+        type: "envkey/client/LOAD_V1_UPGRADE",
+        payload: {
+          fileName,
+          encryptionKey,
+          orgName: currentOrg.name,
+          creator: {
+            firstName: currentUser.firstName,
+            lastName: currentUser.lastName,
+            email: currentUser.email
+          },
+          ts: v2UpgradeData.ts,
+          signature: v2UpgradeData.signature,
+          stripeCustomerId: v2UpgradeData.stripeCustomerId,
+          stripeSubscriptionId: v2UpgradeData.stripeSubscriptionId,
+          numUsers: v2UpgradeData.numUsers,
+          signedPresetBilling: v2UpgradeData.signedPresetBilling || undefined
+        }
+      },
+      context: {
+        client: {
+          clientName: "v1",
+          clienVersion: "1.4.0"
+        },
+        clientId: "v1",
+        accountIdOrCliKey: undefined
+      }
+    }
+  }
+
+
 
   try {
     res = yield axios({
@@ -206,22 +282,35 @@ function *onV2CoreProcLoadUpgrade(action){
     return
   }
 
+  yield delay(2000)
+
   yield put({type: V2_CORE_PROC_LOAD_UPGRADE_SUCCESS})
 
 }
 
 function *onStartV2Upgrade(action){
   yield put({type: START_V2_UPGRADE_REQUEST})
-  const startUpgradeRes = yield take([START_V2_UPGRADE_REQUEST_SUCCESS, START_V2_UPGRADE_REQUEST_FAILED])
+  const startUpgradeRes = yield take([START_V2_UPGRADE_REQUEST_SUCCESS, START_V2_UPGRADE_REQUEST_FAILED, CANCEL_V2_UPGRADE])
   if (startUpgradeRes.type == START_V2_UPGRADE_REQUEST_FAILED){
     yield put({type: START_V2_UPGRADE_FAILED, payload: startUpgradeRes.payload})
     return
   }
+  let canceled = yield select(getCanceledV2Upgrade)
+  if (startUpgradeRes.type == CANCEL_V2_UPGRADE || canceled){
+    console.log("Upgrade canceled, returning")
+    return
+  }
 
   yield put({type: V2_UPGRADE_GENERATE_ENVKEYS})
-  const generateEnvkeysRes = yield take([V2_UPGRADE_GENERATE_ENVKEYS_SUCCESS, V2_UPGRADE_GENERATE_ENVKEYS_FAILED])
+  const generateEnvkeysRes = yield take([V2_UPGRADE_GENERATE_ENVKEYS_SUCCESS, V2_UPGRADE_GENERATE_ENVKEYS_FAILED, CANCEL_V2_UPGRADE])
   if (generateEnvkeysRes.type == V2_UPGRADE_GENERATE_ENVKEYS_FAILED){
     yield put({type: START_V2_UPGRADE_FAILED, payload: generateEnvkeysRes.payload})
+    return
+  }
+
+  canceled = yield select(getCanceledV2Upgrade)
+  if (generateEnvkeysRes.type == CANCEL_V2_UPGRADE || canceled){
+    console.log("Upgrade canceled, returning")
     return
   }
 
@@ -229,30 +318,53 @@ function *onStartV2Upgrade(action){
   yield put({type: EXPORT_ORG, payload: {
     isV2Upgrade: true
   }})
-  const exportOrgRes = yield take([EXPORT_ORG_SUCCESS, EXPORT_ORG_FAILED])
+  const exportOrgRes = yield take([EXPORT_ORG_SUCCESS, EXPORT_ORG_FAILED, CANCEL_V2_UPGRADE])
   if (exportOrgRes.type == EXPORT_ORG_FAILED){
     yield put({type: START_V2_UPGRADE_FAILED, payload: exportOrgRes.payload})
     return
   }
+  canceled = yield select(getCanceledV2Upgrade)
+  if (exportOrgRes.type == CANCEL_V2_UPGRADE || canceled){
+    console.log("Upgrade canceled, returning")
+    return
+  }
 
   yield put({type: V2_WAIT_FOR_CORE_PROC_ALIVE})
-  yield take(V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS)
+  const waitForAliveRes = yield take([V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS, CANCEL_V2_UPGRADE])
+
+  canceled = yield select(getCanceledV2Upgrade)
+  if (waitForAliveRes.type == CANCEL_V2_UPGRADE || canceled){
+    console.log("Upgrade canceled, returning")
+    return
+  }
 
   yield put({type: V2_CORE_PROC_LOAD_UPGRADE})
 
 
-  const loadUpgradeRes = yield take([V2_CORE_PROC_LOAD_UPGRADE_SUCCESS, V2_CORE_PROC_LOAD_UPGRADE_FAILED])
+  const loadUpgradeRes = yield take([V2_CORE_PROC_LOAD_UPGRADE_SUCCESS, V2_CORE_PROC_LOAD_UPGRADE_FAILED, CANCEL_V2_UPGRADE])
   if (loadUpgradeRes.type == V2_CORE_PROC_LOAD_UPGRADE_FAILED){
     yield put({type: START_V2_UPGRADE_FAILED, payload: loadUpgradeRes.payload})
+    return
+  }
+  canceled = yield select(getCanceledV2Upgrade)
+  if (loadUpgradeRes.type == CANCEL_V2_UPGRADE || canceled){
+    console.log("Upgrade canceled, returning")
     return
   }
 
   while (true){
     yield put({type: CHECK_V2_UPGRADE_STATUS})
-    const checkUpgradeStatusRes = yield take([CHECK_V2_UPGRADE_STATUS_SUCCESS, CHECK_V2_UPGRADE_STATUS_FAILED])
+    const checkUpgradeStatusRes = yield take([CHECK_V2_UPGRADE_STATUS_SUCCESS, CHECK_V2_UPGRADE_STATUS_FAILED, CANCEL_V2_UPGRADE])
+
 
     if (checkUpgradeStatusRes.type == CHECK_V2_UPGRADE_STATUS_FAILED){
       yield put({type: START_V2_UPGRADE_FAILED, payload: checkUpgradeStatusRes.payload})
+      return
+    }
+
+    canceled = yield select(getCanceledV2Upgrade)
+    if (checkUpgradeStatusRes.type == CANCEL_V2_UPGRADE || canceled){
+      console.log("Upgrade canceled, returning")
       return
     }
 
@@ -260,6 +372,17 @@ function *onStartV2Upgrade(action){
 
     if (status == "error"){
       yield put({type: START_V2_UPGRADE_FAILED, payload: checkUpgradeStatusRes.payload})
+      return;
+    }
+
+    if (status == "canceled"){
+      yield put({type: CANCEL_V2_UPGRADE})
+
+      const cancelRes = yield take([CANCEL_V2_UPGRADE_SUCCESS, CANCEL_V2_UPGRADE_FAILED])
+      if (cancelRes.type == CANCEL_V2_UPGRADE_FAILED){
+        yield put({type: START_V2_UPGRADE_FAILED, payload: cancelRes.payload})
+      }
+
       return
     }
 
@@ -270,6 +393,11 @@ function *onStartV2Upgrade(action){
     yield delay(2000)
   }
 
+  canceled = yield select(getCanceledV2Upgrade)
+  if ( canceled){
+    console.log("Upgrade canceled, returning")
+    return
+  }
 
   const inviteTokensById = yield select(getV2CoreProcInviteTokensById)
   const promises = []
@@ -281,7 +409,11 @@ function *onStartV2Upgrade(action){
     const {identityHash, encryptionKey} = inviteTokensById[user.id]
 
     promises.push(
-      crypto.encryptJson({data: {identityHash, encryptionKey}, pubkey: user.pubkey, privkey }).then(encrypted => {
+      crypto.encryptJson({
+        data: {identityHash, encryptionKey},
+        pubkey: user.pubkey,
+        privkey
+      }).then(encrypted => {
         return {
           [orgUser.id]: encrypted
         }
@@ -289,32 +421,38 @@ function *onStartV2Upgrade(action){
     )
   }
 
+  let encryptedInviteTokensByOrgUserId = {}
   if (promises.length > 0){
     const res = yield Promise.all(promises)
     const merged = res.reduce(R.mergeDeepRight)
 
-    yield put({type: STORE_V2_UPGRADE_TOKENS, payload: {encryptedInviteTokensByOrgUserId: merged}})
+    encryptedInviteTokensByOrgUserId = merged
 
-    const storeUpgradeTokensRes = yield take([STORE_V2_UPGRADE_TOKENS_SUCCESS, STORE_V2_UPGRADE_TOKENS_FAILED])
-
-    if (storeUpgradeTokensRes.type == STORE_V2_UPGRADE_TOKENS_FAILED){
-      yield put({type: START_V2_UPGRADE_FAILED, payload: storeUpgradeTokensRes.payload})
+    canceled = yield select(getCanceledV2Upgrade)
+    if ( canceled){
+      console.log("Upgrade canceled, returning")
       return
     }
   }
-}
 
-function *onCancelV2Upgrade(action){
+  yield put({type: FINISH_V2_UPGRADE, payload: {encryptedInviteTokensByOrgUserId}})
 
-}
+  const finishRes = yield take([FINISH_V2_UPGRADE_SUCCESS, FINISH_V2_UPGRADE_FAILED])
 
-function *onFinishV2Upgrade(action){
+  if (finishRes.type == FINISH_V2_UPGRADE_FAILED){
+    yield put({type: START_V2_UPGRADE_FAILED, payload: finishRes.payload})
+    return
+  }
 
+  yield put({type: START_V2_UPGRADE_SUCCESS})
 }
 
 function *onV2UpgradeGenerateEnvkeys(action){
   const v2UpgradeData = yield select(getV2UpgradeData)
   const privkey = yield select(getPrivkey)
+  const currentUser = yield select(getCurrentUser)
+
+  const signedByTrustedPubkeys = yield call(signTrustedPubkeyChain)
 
 
   try {
@@ -331,7 +469,10 @@ function *onV2UpgradeGenerateEnvkeys(action){
             return {
               [id]: {
                 encryptedV2Key: encrypted,
-                v2Key: key
+                v2Key: key,
+                signedByTrustedPubkeys,
+                signedByPubkey: currentUser.pubkey,
+                signedById: currentUser.id
               }
             }
           })
@@ -358,48 +499,52 @@ function *onV2UpgradeGenerateEnvkeys(action){
 }
 
 function* onV2UpgradeAcceptInvite(action){
-  const privkey = yield select(getPrivkey)
-  const upgradeToken = yield select(getUpgradeToken)
-  const encryptedV2InviteToken = yield select(getEncryptedV2InviteToken)
-  const currentUser = yield select(getCurrentUser)
-  const currentOrg = yield select(getCurrentOrg)
-  const owner = yield select(getUser(currentOrg.ownerId))
-  const {identityHash, encryptionKey} = yield crypto.decryptJson({
-    encrypted: encryptedV2InviteToken,
-    privkey,
-    pubkey: owner.pubkey
-  })
+  yield put({type: START_V2_ORG_USER_UPGRADE})
+  const startUpgradeRes = yield take([START_V2_ORG_USER_UPGRADE_SUCCESS, START_V2_ORG_USER_UPGRADE_FAILED, CANCEL_V2_UPGRADE])
+  if (startUpgradeRes.type == START_V2_ORG_USER_UPGRADE_FAILED){
+    yield put({type: V2_UPGRADE_ACCEPT_INVITE_FAILED, payload: startUpgradeRes.payload})
+    return
+  }
 
-  let res
+  yield put({type: V2_WAIT_FOR_CORE_PROC_ALIVE})
+  yield take(V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS)
 
-  const data = {
-    action: {
-      type: "envkey/client/LOAD_V1_UPGRADE_INVITE",
-      payload: {
-        upgradeToken,
-        encryptionToken: [identityHash, encryptionKey].join("_")
-      }
-    },
-    context: {
-      client: {
-        clientName: "v1",
-        clienVersion: "1.4.0"
-      },
-      clientId: "v1",
-      accountIdOrCliKey: undefined
+  yield put({type: V2_CORE_PROC_LOAD_UPGRADE})
+  const loadUpgradeRes = yield take([V2_CORE_PROC_LOAD_UPGRADE_SUCCESS, V2_CORE_PROC_LOAD_UPGRADE_FAILED])
+
+  if (loadUpgradeRes.type == V2_CORE_PROC_LOAD_UPGRADE_FAILED){
+    yield put({type: V2_UPGRADE_ACCEPT_INVITE_FAILED, payload: loadUpgradeRes.payload})
+    return
+  }
+
+  while (true){
+    yield put({type: CHECK_V2_UPGRADE_STATUS})
+    const checkUpgradeStatusRes = yield take([CHECK_V2_UPGRADE_STATUS_SUCCESS, CHECK_V2_UPGRADE_STATUS_FAILED])
+
+    if (checkUpgradeStatusRes.type == CHECK_V2_UPGRADE_STATUS_FAILED){
+      yield put({type: V2_UPGRADE_ACCEPT_INVITE_FAILED, payload: checkUpgradeStatusRes.payload})
+      return
     }
-   }
 
-  try {
-    res = yield axios({
-      method: "post",
-      url: `${V2_BASE_URL}/action`,
-      timeout: 5000,
-      headers: V2_REQUEST_HEADERS,
-      data
-    })
-  } catch (err) {
-    yield put({type: V2_UPGRADE_ACCEPT_INVITE_FAILED, payload: err})
+    const status = yield select(getV2CoreProcUpgradeStatus)
+
+    if (status == "error"){
+      yield put({type: V2_UPGRADE_ACCEPT_INVITE_FAILED, payload: checkUpgradeStatusRes.payload})
+      return;
+    }
+
+    if (status == "finished"){
+      break;
+    }
+
+    yield delay(2000)
+  }
+
+  yield put({type: FINISH_V2_ORG_USER_UPGRADE, payload: {}})
+  const finishRes = yield take([FINISH_V2_ORG_USER_UPGRADE_SUCCESS, FINISH_V2_ORG_USER_UPGRADE_FAILED])
+
+  if (finishRes.type == FINISH_V2_ORG_USER_UPGRADE_FAILED){
+    yield put({type: V2_UPGRADE_ACCEPT_INVITE_FAILED, payload: finishRes.payload})
     return
   }
 
@@ -409,16 +554,17 @@ function* onV2UpgradeAcceptInvite(action){
 export default function* orgSagas(){
   yield [
     takeLatest(START_V2_UPGRADE_REQUEST, onStartV2UpgradeRequest),
-    takeLatest(CANCEL_V2_UPGRADE_REQUEST, onCancelV2UpgradeRequest),
-    takeLatest(FINISH_V2_UPGRADE_REQUEST, onFinishV2UpgradeRequest),
+    takeLatest(CANCEL_V2_UPGRADE, onCancelV2UpgradeRequest),
+    takeLatest(FINISH_V2_UPGRADE, onFinishV2UpgradeRequest),
+
+    takeLatest(START_V2_ORG_USER_UPGRADE, onStartV2OrgUserUpgradeRequest),
+    takeLatest(FINISH_V2_ORG_USER_UPGRADE, onFinishV2OrgUserUpgradeRequest),
+
     takeLatest(START_V2_UPGRADE, onStartV2Upgrade),
-    takeLatest(CANCEL_V2_UPGRADE, onCancelV2Upgrade),
-    takeLatest(FINISH_V2_UPGRADE, onFinishV2Upgrade),
     takeLatest(CHECK_V2_CORE_PROC_ALIVE, onCheckV2CoreProcAlive),
     takeLatest(V2_CORE_PROC_LOAD_UPGRADE, onV2CoreProcLoadUpgrade),
     takeLatest(V2_UPGRADE_GENERATE_ENVKEYS, onV2UpgradeGenerateEnvkeys),
     takeLatest(CHECK_V2_UPGRADE_STATUS, onCheckV2UpgradeStatus),
-    takeLatest(STORE_V2_UPGRADE_TOKENS, onStoreUpgradeTokens),
     takeLatest(V2_UPGRADE_ACCEPT_INVITE, onV2UpgradeAcceptInvite),
     takeLatest(V2_WAIT_FOR_CORE_PROC_ALIVE, onV2WaitForCoreProcAlive)
   ]

@@ -34,4 +34,5 @@ export {default as ResetAccountContainer} from  './reset_account_container'
 export {default as ExportOrgContainer} from "./export_org_container"
 export {default as UpgradeOrgContainer} from "./v2_upgrade_container"
 export {default as UpgradeOrgStatusContainer} from "./v2_upgrade_status_container"
-export {default as V2UpgradeAcceptInviteContainer} from "./v2_upgrade_accept_invite_container"
+export {default as UpgradedOrgContainer} from "./v2_upgraded_org"
+export {default as UpgradePromptContainer} from "./v2_upgrade_prompt"

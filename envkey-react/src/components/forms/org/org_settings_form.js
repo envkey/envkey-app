@@ -35,7 +35,7 @@ const label = "Organization",
 
     h(UpdateOwnerContainer),
 
-    // h(ExportOrgContainer),
+    h(ExportOrgContainer),
 
     h(UpgradeOrgContainer),
 

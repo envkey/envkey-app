@@ -27,7 +27,7 @@ class UpgradeOrg extends React.Component {
   }
 
   _renderSubmit(){
-    if (this.props.isStartingV2Upgrade){
+    if (this.props.isStartingV2Upgrade || this.props.isCancelingV2Upgrade){
       return <SmallLoader />
     } else if (this.props.upgradeV2Error){
       return <p class="error">
@@ -37,7 +37,7 @@ class UpgradeOrg extends React.Component {
       </p>
     }
     return <fieldset>
-      <button onClick={::this._onSubmit}>Upgrade Org</button>
+    <button onClick={::this._onSubmit}>Upgrade Org</button>
     </fieldset>
   }
 }

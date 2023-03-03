@@ -210,6 +210,13 @@ function *onSocketUpdateOrg(action){
     return
   }
 
+  // v2 upgrade
+  if (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "upgraded_v2"){
+    yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
+    return
+  }
+
+
   if (actionType == "deleted" && !(meta && meta.bulkAction)){
     // Other deletes that are not bulk actions
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))

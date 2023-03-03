@@ -61,7 +61,8 @@ import {
   getActiveUsers,
   getPendingUsers,
   getV2UpgradeData,
-  getV2UpgradeEnvkeys
+  getV2UpgradeEnvkeys,
+  getAllowedIpsMergeStrategies
 } from 'selectors'
 import { allEntries, subEnvEntries } from 'lib/env/query'
 import { secureRandomAlphanumeric } from 'lib/crypto'
@@ -176,6 +177,7 @@ function *onGenerateDemoOrgSuccess({payload: {path}}){
   yield put(push(path))
 }
 
+const IP_LIST_SPLIT_REGEX = /[,;\n\r]\s*/
 function *onExportOrg(action){
   if (!isElectron()){
     return
@@ -198,6 +200,7 @@ function *onExportOrg(action){
     const upgradeEnvkeys = yield select(getV2UpgradeEnvkeys)
 
     console.log("yielded initial selects...")
+    console.log("isV2Upgrade", isV2Upgrade)
 
     const ownerOrgRole = {
       id: uuid(),
@@ -398,12 +401,31 @@ function *onExportOrg(action){
       baseEnvironmentIdsByAppIdByRole[app.id] = baseEnvironmentIdsByRole
     }
 
+    const allowedIpsMergeStrategies = yield select(getAllowedIpsMergeStrategies)
+    const strategiesByInt = R.invertObj(allowedIpsMergeStrategies)
+
     const archiveApps = apps.map(app => ({
       id: app.id,
       name: app.name,
       settings: {
         autoCaps: app.autoCaps || false,
         autoCommitLocals: false
+      },
+      environmentRoleIpsAllowed: {
+        [developmentEnvironmentRole.id]: [
+          ...(app.allowedIps.allowedIpsTest || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+          ...(app.allowedIps.allowedIpsLocal || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean)
+        ],
+        [stagingEnvironmentRole.id]: (app.allowedIps.allowedIpsStaging || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+        [productionEnvironmentRole.id]: (app.allowedIps.allowedIpsProduction || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+      },
+      environmentRoleIpsMergeStrategies: {
+        [developmentEnvironmentRole.id]:
+          app.allowedIps.allowedIpsTestMergeStrategy || app.allowedIps.allowedIpsLocalMergeStrategy ?
+            strategiesByInt[app.allowedIps.allowedIpsTestMergeStrategy || app.allowedIps.allowedIpsLocalMergeStrategy] :
+            undefined,
+        [stagingEnvironmentRole.id]: app.allowedIps.allowedIpsStagingMergeStrategy ?  strategiesByInt[app.allowedIps.allowedIpsStagingMergeStrategy] : undefined,
+        [productionEnvironmentRole.id]: app.allowedIps.allowedIpsProductionMergeStrategy ? strategiesByInt[app.allowedIps.allowedIpsProductionMergeStrategy] : undefined,
       }
     }));
 
@@ -424,10 +446,13 @@ function *onExportOrg(action){
             baseEnvironmentIdsByAppIdByRole[server.appId][server.role],
           name: server.name,
           v1Payload: isV2Upgrade ? {
-            ...R.omit(["envkey"], camelizeKeys(JSON.parse(v2UpgradeData.serversById[server.id]))),
-            encryptedV2Key: upgradeEnvkeys[server.id].encryptedV2Key
+            ...R.omit(["envkey"], v2UpgradeData.serversById[server.id]),
+            encryptedV2Key: upgradeEnvkeys[server.id].encryptedV2Key,
+            signedByPubkey: upgradeEnvkeys[server.id].signedByPubkey,
+            signedById: upgradeEnvkeys[server.id].signedById,
+            signedByTrustedPubkeys: upgradeEnvkeys[server.id].signedByTrustedPubkeys,
           } : undefined,
-          v1EnkeyIdPart: isV2Upgrade ? v2UpgradeData.serversById[server.id].envkey : undefined,
+          v1EnvkeyIdPart: isV2Upgrade ? v2UpgradeData.serversById[server.id].envkey : undefined,
           v1EncryptionKey: isV2Upgrade ? upgradeEnvkeys[server.id].v2Key : undefined
         }
       }
@@ -437,7 +462,7 @@ function *onExportOrg(action){
 
     let archiveLocalKeys;
     if (isV2Upgrade){
-      const archiveLocalKeys = localKeys.filter(
+      archiveLocalKeys = localKeys.filter(
         localKey => localKey.pubkey && (
           localKey.subEnvId ?
               subEnvironmentsById[localKey.subEnvId] :
@@ -446,15 +471,18 @@ function *onExportOrg(action){
       ).map(
         localKey => {
           return {
-            userId: localKey.userId,
+            userId: localKey.keyGeneratedById,
             appId: localKey.appId,
             environmentId: baseEnvironmentIdsByAppIdByRole[localKey.appId][localKey.role],
             name: localKey.name,
             v1Payload: isV2Upgrade ? {
-              ...R.omit(["envkey"], camelizeKeys(JSON.parse(v2UpgradeData.localKeysById[localKey.id]))),
-              encryptedV2Key: upgradeEnvkeys[localKey.id].encryptedV2Key
+              ...R.omit(["envkey"], v2UpgradeData.localKeysById[localKey.id]),
+              encryptedV2Key: upgradeEnvkeys[localKey.id].encryptedV2Key,
+              signedByPubkey: upgradeEnvkeys[localKey.id].signedByPubkey,
+              signedById: upgradeEnvkeys[localKey.id].signedById,
+              signedByTrustedPubkeys: upgradeEnvkeys[localKey.id].signedByTrustedPubkeys,
             } : undefined,
-            v1EnkeyIdPart: isV2Upgrade ? v2UpgradeData.localKeysById[localKey.id].envkey : undefined,
+            v1EnvkeyIdPart: isV2Upgrade ? v2UpgradeData.localKeysById[localKey.id].envkey : undefined,
             v1EncryptionKey: isV2Upgrade ? upgradeEnvkeys[localKey.id].v2Key : undefined
           }
         }
@@ -477,7 +505,7 @@ function *onExportOrg(action){
             "org_admin": adminOrgRole.id,
             "basic": basicUserOrgRole.id
           }[user.role],
-          v1Token: isV2Upgrade ? v2UpgradeData.orgUserUpgradeTokensById[user.id] : undefined
+          v1Token: isV2Upgrade ? v2UpgradeData.upgradeTokensByUserId[user.id] : undefined
         }
       }
      );
@@ -504,7 +532,7 @@ function *onExportOrg(action){
 
     const archive = {
       schemaVersion: "1",
-      isV1Upgrade: isV2Upgrade ? true : undefined,
+      isV1Upgrade: true,
       org: {
         id: currentOrg.id,
         name: currentOrg.name,
@@ -522,7 +550,15 @@ function *onExportOrg(action){
             autoCaps: true,
             autoCommitLocals: false
           }
-        }
+        },
+        environmentRoleIpsAllowed: {
+          [developmentEnvironmentRole.id]: [
+            ...(currentOrg.allowedIps.allowedIpsLocal || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+            ...(currentOrg.allowedIps.allowedIpsTest || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+          ],
+          [stagingEnvironmentRole.id]: (currentOrg.allowedIps.allowedIpsStaging || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+          [productionEnvironmentRole.id]: (currentOrg.allowedIps.allowedIpsProduction || "").split(IP_LIST_SPLIT_REGEX).filter(Boolean),
+        },
       },
       apps: archiveApps,
       blocks: [],
@@ -569,7 +605,10 @@ function *onExportOrg(action){
     }
 
     console.log("encrypted archive")
-    const fileName = `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`
+    let fileName = `${currentOrg.name.split(" ").join("-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.envkey-archive`
+    if (isV2Upgrade){
+      fileName = secureRandomAlphanumeric(10) + "-" + fileName
+    }
 
     const res = yield new Promise((resolve)=> {
 

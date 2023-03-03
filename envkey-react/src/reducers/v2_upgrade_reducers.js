@@ -6,11 +6,9 @@ import {
   START_V2_UPGRADE_SUCCESS,
   START_V2_UPGRADE_FAILED,
   CANCEL_V2_UPGRADE,
-  CANCEL_V2_UPGRADE_REQUEST,
   CANCEL_V2_UPGRADE_SUCCESS,
   CANCEL_V2_UPGRADE_FAILED,
   FINISH_V2_UPGRADE,
-  FINISH_V2_UPGRADE_REQUEST,
   FINISH_V2_UPGRADE_SUCCESS,
   FINISH_V2_UPGRADE_FAILED,
   EXPORT_ORG_SUCCESS,
@@ -24,8 +22,19 @@ import {
   V2_UPGRADE_GENERATE_ENVKEYS_FAILED,
   CHECK_V2_UPGRADE_STATUS,
   CHECK_V2_UPGRADE_STATUS_SUCCESS,
-  CHECK_V2_UPGRADE_STATUS_FAILED
+  CHECK_V2_UPGRADE_STATUS_FAILED,
+  START_V2_ORG_USER_UPGRADE,
+  START_V2_ORG_USER_UPGRADE_SUCCESS,
+  START_V2_ORG_USER_UPGRADE_FAILED,
+  FINISH_V2_ORG_USER_UPGRADE,
+  FINISH_V2_ORG_USER_UPGRADE_SUCCESS,
+  FINISH_V2_ORG_USER_UPGRADE_FAILED,
+  V2_UPGRADE_ACCEPT_INVITE,
+  V2_UPGRADE_ACCEPT_INVITE_SUCCESS,
+  V2_UPGRADE_ACCEPT_INVITE_FAILED,
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS
 } from "actions"
+import {isFetchCurrentUserAction, isClearSessionAction} from './helpers'
 import { camelizeKeys } from 'xcase'
 
 export const
@@ -34,10 +43,94 @@ export const
      switch(action.type){
 
        case START_V2_UPGRADE:
+       case START_V2_ORG_USER_UPGRADE:
          return true
 
        case START_V2_UPGRADE_SUCCESS:
        case START_V2_UPGRADE_FAILED:
+       case START_V2_ORG_USER_UPGRADE_SUCCESS:
+       case START_V2_ORG_USER_UPGRADE_FAILED:
+       case CANCEL_V2_UPGRADE:
+         return false
+
+       default:
+         return state
+
+     }
+   },
+
+   isCancelingV2Upgrade = (state=false, action)=>{
+     switch(action.type){
+
+       case CANCEL_V2_UPGRADE:
+         return true
+
+       case CANCEL_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE_FAILED:
+         return false
+
+       default:
+         return state
+
+     }
+   },
+
+   canceledV2Upgrade = (state=false, action)=>{
+     switch(action.type){
+
+       case CANCEL_V2_UPGRADE:
+         return true
+
+       case START_V2_UPGRADE:
+       case START_V2_ORG_USER_UPGRADE:
+         return false
+
+       default:
+         return state
+
+     }
+   },
+
+   isFinishingV2Upgrade = (state=false, action)=>{
+     switch(action.type){
+
+       case FINISH_V2_UPGRADE:
+         return true
+
+       case FINISH_V2_UPGRADE_SUCCESS:
+       case FINISH_V2_UPGRADE_FAILED:
+         return false
+
+       default:
+         return state
+
+     }
+   },
+
+   didFinishV2Upgrade = (state=false, action)=>{
+     switch(action.type){
+
+       case FINISH_V2_UPGRADE_SUCCESS:
+         return true
+
+       case FINISH_V2_UPGRADE:
+       case FINISH_V2_UPGRADE_FAILED:
+         return false
+
+       default:
+         return state
+
+     }
+   },
+
+   didFinishV2OrgUserUpgrade = (state=false, action)=>{
+     switch(action.type){
+
+       case FINISH_V2_ORG_USER_UPGRADE_SUCCESS:
+         return true
+
+       case FINISH_V2_ORG_USER_UPGRADE:
+       case FINISH_V2_ORG_USER_UPGRADE_FAILED:
          return false
 
        default:
@@ -50,9 +143,12 @@ export const
      switch(action.type){
 
        case START_V2_UPGRADE_FAILED:
+       case START_V2_ORG_USER_UPGRADE_FAILED:
          return action.payload
 
        case START_V2_UPGRADE:
+       case START_V2_ORG_USER_UPGRADE:
+       case CANCEL_V2_UPGRADE_SUCCESS:
          return null
 
        default:
@@ -61,12 +157,53 @@ export const
      }
    },
 
+   isAcceptingV2UpgradeInvite = (state=false, action)=>{
+     switch(action.type){
+
+       case V2_UPGRADE_ACCEPT_INVITE:
+         return true
+
+       case V2_UPGRADE_ACCEPT_INVITE_SUCCESS:
+       case V2_UPGRADE_ACCEPT_INVITE_FAILED:
+         return false
+
+       default:
+         return state
+     }
+   },
+
+   didAcceptV2UpgradeInvite = (state=false, action)=>{
+     switch(action.type){
+       case V2_UPGRADE_ACCEPT_INVITE_SUCCESS:
+         return true
+
+       case V2_UPGRADE_ACCEPT_INVITE:
+         return false
+
+       default:
+         return state
+     }
+   },
+
+   acceptV2UpgradeInviteErr = (state=null, action)=>{
+     switch(action.type){
+       case V2_UPGRADE_ACCEPT_INVITE_FAILED:
+         return action.payload
+
+       case V2_UPGRADE_ACCEPT_INVITE:
+         return null
+
+       default:
+         return state
+     }
+   },
+
    v2UpgradeData = (state=null, action)=> {
      switch(action.type){
        case START_V2_UPGRADE_REQUEST_SUCCESS:
          return camelizeKeys(action.payload)
 
-       case CANCEL_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
        case FINISH_V2_UPGRADE_SUCCESS:
          return null
 
@@ -82,7 +219,7 @@ export const
          return action.payload
 
        case START_V2_UPGRADE:
-       case CANCEL_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
        case FINISH_V2_UPGRADE_SUCCESS:
          return null
 
@@ -98,6 +235,7 @@ export const
          return action.payload.isV2Upgrade ? action.payload : state
 
        case FINISH_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
          return null
 
        default:
@@ -112,6 +250,9 @@ export const
          return true
 
        case CHECK_V2_CORE_PROC_ALIVE_FAILED:
+       case FINISH_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
+       case FINISH_V2_ORG_USER_UPGRADE_SUCCESS:
          return false
 
        default:
@@ -140,6 +281,8 @@ export const
          return false
 
        case V2_CORE_PROC_LOAD_UPGRADE_SUCCESS:
+       case FINISH_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
          return true
 
        default:
@@ -150,10 +293,12 @@ export const
    v2CoreProcUpgradeStatus = (state=null, action)=> {
      switch(action.type){
        case V2_CORE_PROC_LOAD_UPGRADE:
+       case FINISH_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
          return null
 
        case CHECK_V2_UPGRADE_STATUS_SUCCESS:
-         return action.payload.upgradeStatus
+         return action.payload.upgradeStatus || null
 
        default:
          return state
@@ -163,13 +308,57 @@ export const
    v2CoreProcInviteTokensById = (state=null, action)=> {
      switch(action.type){
        case V2_CORE_PROC_LOAD_UPGRADE:
+       case FINISH_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
          return null
 
        case CHECK_V2_UPGRADE_STATUS_SUCCESS:
-         return action.payload.upgradeStatus == "finished" ? action.payload.inviteTokensById : null
+         return action.payload.upgradeStatus == "finished" ? action.payload.inviteTokensById || null : null
 
        default:
          return state
      }
-   }
+   },
+
+   upgradeToken = (state = null, action)=>{
+    if (isFetchCurrentUserAction(action, {
+      except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+    })){
+      return action.payload.upgradeToken
+    }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
+  },
+
+  encryptedV2InviteToken = (state = null, action)=>{
+    if (isFetchCurrentUserAction(action, {
+      except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+    })){
+      return action.payload.encryptedV2InviteToken
+    }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
+  },
+
+  didUpgradeV2At = (state = null, action)=>{
+    if (isFetchCurrentUserAction(action, {
+      except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+    })){
+      return action.payload.didUpgradeV2At
+    }
+
+    if (isClearSessionAction(action)){
+      return null
+    }
+
+    return state
+  }
 

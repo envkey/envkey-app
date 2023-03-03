@@ -22,7 +22,10 @@ import {
   getDemoDownloadUrl,
   getIsStartingV2Upgrade,
   getUpgradeToken,
-  getEncryptedV2InviteToken
+  getEncryptedV2InviteToken,
+  getDidFinishV2Upgrade,
+  getDidFinishV2OrgUserUpgrade,
+  getDidUpgradeV2At
 } from 'selectors'
 import {
   appLoaded,
@@ -30,9 +33,10 @@ import {
   selectOrg,
   logout,
   billingUpgradeSubscription,
-  resetSession
+  resetSession,
+  startV2Upgrade
 } from 'actions'
-import { TrialOverdueContainer, UpgradeOrgStatusContainer } from 'containers'
+import { TrialOverdueContainer, UpgradeOrgStatusContainer, UpgradedOrgContainer } from 'containers'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
 import {openLinkExternal} from 'lib/ui'
@@ -135,11 +139,20 @@ class Main extends React.Component {
         {this._renderDemoCTA()}
 
         {this._renderV2UpgradeOverlay()}
+
+        {this._renderV2UpgradeAlert()}
       </div>
     }
   }
 
   _renderV2UpgradeOverlay(){
+    if (this.props.didUpgradeV2At ||
+        this.props.didFinishV2Upgrade ||
+        this.props.didFinishV2OrgUserUpgrade){
+      return <UpgradedOrgContainer />
+    }
+
+
     if (this.props.isStartingV2Upgrade ||
         (this.props.upgradeToken &&
          this.props.encryptedV2InviteToken)
@@ -179,6 +192,23 @@ class Main extends React.Component {
       return <span> {this.props.currentOrg.name}'s <strong>Free Trial</strong> has <strong>{this.props.currentOrg.trialDaysRemaining} days</strong> left. </span>
     }
   }
+
+  _renderV2UpgradeAlert(){
+    if (
+        this.props.currentUser.role == "org_owner" &&
+        !(this.props.didUpgradeV2At ||
+          this.props.didFinishV2Upgrade ||
+          this.props.didFinishV2OrgUserUpgrade ||
+          this.props.isStartingV2Upgrade ||
+          this._shouldShowTrialAlert())
+       ){
+      return <div className="bottom-alert trial-alert">
+        <div>Your organization can be automatically upgraded to EnvKey v2.</div>
+
+        <button onClick={()=> this.props.startV2Upgrade()}>Upgrade Org</button>
+      </div>
+    }
+  }
 }
 
 const mapStateToProps = (state, ownProps) => {
@@ -202,7 +232,10 @@ const mapStateToProps = (state, ownProps) => {
     demoDownloadUrl: getDemoDownloadUrl(state),
     isStartingV2Upgrade: getIsStartingV2Upgrade(state),
     upgradeToken: getUpgradeToken(state),
-    encryptedV2InviteToken: getEncryptedV2InviteToken(state)
+    encryptedV2InviteToken: getEncryptedV2InviteToken(state),
+    didFinishV2Upgrade: getDidFinishV2Upgrade(state),
+    didFinishV2OrgUserUpgrade: getDidFinishV2OrgUserUpgrade(state),
+    didUpgradeV2At: getDidUpgradeV2At(state)
   }
 }
 
@@ -216,7 +249,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(push("/home"))
       dispatch(logout())
     },
-    resetSession: ()=> dispatch(resetSession())
+    resetSession: ()=> dispatch(resetSession()),
+    startV2Upgrade: ()=> dispatch(startV2Upgrade())
   }
 }
 
