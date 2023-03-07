@@ -267,8 +267,6 @@ function *onV2CoreProcLoadUpgrade(action){
     }
   }
 
-
-
   try {
     res = yield axios({
       method: "post",

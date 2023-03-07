@@ -25,7 +25,9 @@ import {
   getEncryptedV2InviteToken,
   getDidFinishV2Upgrade,
   getDidFinishV2OrgUserUpgrade,
-  getDidUpgradeV2At
+  getDidUpgradeV2At,
+  getUpgradeV2Error,
+  getAcceptV2UpgradeInviteError
 } from 'selectors'
 import {
   appLoaded,
@@ -155,7 +157,9 @@ class Main extends React.Component {
 
     if (this.props.isStartingV2Upgrade ||
         (this.props.upgradeToken &&
-         this.props.encryptedV2InviteToken)
+         this.props.encryptedV2InviteToken) ||
+        this.props.upgradeV2Error ||
+        this.props.acceptV2UpgradeInviteError
        ){
       return <UpgradeOrgStatusContainer />
     }
@@ -235,7 +239,9 @@ const mapStateToProps = (state, ownProps) => {
     encryptedV2InviteToken: getEncryptedV2InviteToken(state),
     didFinishV2Upgrade: getDidFinishV2Upgrade(state),
     didFinishV2OrgUserUpgrade: getDidFinishV2OrgUserUpgrade(state),
-    didUpgradeV2At: getDidUpgradeV2At(state)
+    didUpgradeV2At: getDidUpgradeV2At(state),
+    upgradeV2Error: getUpgradeV2Error(state),
+    acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state)
   }
 }
 

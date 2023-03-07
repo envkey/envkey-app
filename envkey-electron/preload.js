@@ -24,7 +24,7 @@ window.saveFile = (title, defaultPath, data, cb)=> dialog.showSaveDialog({title,
 })
 
 window.writeUpgradeArchive = (filename, data, cb)=> {
-  const dirParts = [os.homedir(), 'Library', 'Mobile Documents', 'com~apple~CloudDocs','.envkey', 'archives']
+  const dirParts = [os.homedir(), '.envkey', 'archives']
   const dir = path.join.apply(null, dirParts)
 
   let d = ""

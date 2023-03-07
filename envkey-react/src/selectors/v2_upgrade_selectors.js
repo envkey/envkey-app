@@ -32,7 +32,7 @@ export const
 
   getDidAcceptV2UpgradeInvite = db.path("didAcceptV2UpgradeInvite"),
 
-  getAcceptV2UpgradeInviteErr = db.path("acceptV2UpgradeInviteErr"),
+  getAcceptV2UpgradeInviteError = db.path("acceptV2UpgradeInviteError"),
 
   getDidFinishV2Upgrade = db.path("didFinishV2Upgrade"),
 

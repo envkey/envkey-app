@@ -15,7 +15,8 @@ import {
   getEncryptedV2InviteToken,
   getIsAcceptingV2UpgradeInvite,
   getDidAcceptV2UpgradeInvite,
-  getAcceptV2UpgradeInviteErr
+  getUpgradeV2Error,
+  getAcceptV2UpgradeInviteError
 } from 'selectors'
 import SmallLoader from 'components/shared/small_loader'
 import {OnboardOverlay} from 'components/onboard'
@@ -34,6 +35,28 @@ class UpgradeOrgStatus extends React.Component {
   }
 
   render(){
+
+    if (this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError){
+      return <OnboardOverlay>
+        <div className="v2-upgrade-status">
+          <h1>V2 Upgrade</h1>
+
+          <p>There was an error finishing your upgrade. Please contact <strong>support@envkey.com</strong> for help.</p>
+
+          { (this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError).message ?
+          <p>Error message: {(this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError).message}</p> :
+          "" }
+
+          <fieldset><button className="cancel" onClick={()=>{
+              if (this.props.upgradeV2Error){
+                this.props.cancelV2Upgrade()
+              } else if (this.props.acceptV2UpgradeInviteError) {
+                window.location.reload()
+              }
+           }} >Go Back</button></fieldset>
+        </div>
+       </OnboardOverlay>
+    }
 
     return <OnboardOverlay>
       <div className="v2-upgrade-status">
@@ -89,7 +112,8 @@ const
     encryptedV2InviteToken: getEncryptedV2InviteToken(state),
     isAcceptingV2UpgradeInvite: getIsAcceptingV2UpgradeInvite(state),
     didAcceptV2UpgradeInvite: getDidAcceptV2UpgradeInvite(state),
-    acceptV2UpgradeInviteErr: getAcceptV2UpgradeInviteErr(state)
+    upgradeV2Error: getUpgradeV2Error(state),
+    acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state)
   }),
 
   mapDispatchToProps = dispatch => ({

@@ -40,6 +40,12 @@ import { camelizeKeys } from 'xcase'
 export const
 
    isStartingV2Upgrade = (state=false, action)=>{
+
+
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case START_V2_UPGRADE:
@@ -60,6 +66,12 @@ export const
    },
 
    isCancelingV2Upgrade = (state=false, action)=>{
+
+
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case CANCEL_V2_UPGRADE:
@@ -76,6 +88,11 @@ export const
    },
 
    canceledV2Upgrade = (state=false, action)=>{
+
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case CANCEL_V2_UPGRADE:
@@ -92,6 +109,10 @@ export const
    },
 
    isFinishingV2Upgrade = (state=false, action)=>{
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case FINISH_V2_UPGRADE:
@@ -108,6 +129,16 @@ export const
    },
 
    didFinishV2Upgrade = (state=false, action)=>{
+     if (isFetchCurrentUserAction(action, {
+        except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+      })){
+        return false
+      }
+
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case FINISH_V2_UPGRADE_SUCCESS:
@@ -124,6 +155,16 @@ export const
    },
 
    didFinishV2OrgUserUpgrade = (state=false, action)=>{
+      if (isFetchCurrentUserAction(action, {
+        except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+      })){
+        return false
+      }
+
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case FINISH_V2_ORG_USER_UPGRADE_SUCCESS:
@@ -140,6 +181,10 @@ export const
    },
 
    upgradeV2Error = (state=null, action)=>{
+      if (isClearSessionAction(action)){
+        return null
+      }
+
      switch(action.type){
 
        case START_V2_UPGRADE_FAILED:
@@ -148,7 +193,7 @@ export const
 
        case START_V2_UPGRADE:
        case START_V2_ORG_USER_UPGRADE:
-       case CANCEL_V2_UPGRADE_SUCCESS:
+       case CANCEL_V2_UPGRADE:
          return null
 
        default:
@@ -158,6 +203,10 @@ export const
    },
 
    isAcceptingV2UpgradeInvite = (state=false, action)=>{
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
 
        case V2_UPGRADE_ACCEPT_INVITE:
@@ -173,6 +222,16 @@ export const
    },
 
    didAcceptV2UpgradeInvite = (state=false, action)=>{
+      if (isFetchCurrentUserAction(action, {
+        except: [FETCH_CURRENT_USER_UPDATES_API_SUCCESS]
+      })){
+        return false
+      }
+
+      if (isClearSessionAction(action)){
+        return false
+      }
+
      switch(action.type){
        case V2_UPGRADE_ACCEPT_INVITE_SUCCESS:
          return true
@@ -185,7 +244,11 @@ export const
      }
    },
 
-   acceptV2UpgradeInviteErr = (state=null, action)=>{
+   acceptV2UpgradeInviteError = (state=null, action)=>{
+      if (isClearSessionAction(action)){
+        return null
+      }
+
      switch(action.type){
        case V2_UPGRADE_ACCEPT_INVITE_FAILED:
          return action.payload

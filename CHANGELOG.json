@@ -178,4 +178,7 @@
   "1.4.29": [
     "Disable automatic collection of client session logs to improve performance"
   ],
+  "1.5.0": [
+    "Seamless upgrades to EnvKey v2"
+  ]
 }
