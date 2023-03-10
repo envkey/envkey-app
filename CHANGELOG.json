@@ -180,5 +180,8 @@
   ],
   "1.5.0": [
     "Seamless upgrades to EnvKey v2"
+  ],
+  "1.5.1": [
+    "Fix for v2 upgrade timeout issue"
   ]
 }

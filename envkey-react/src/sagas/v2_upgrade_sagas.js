@@ -71,6 +71,7 @@ import {signTrustedPubkeyChain} from "./helpers/crypto_helpers"
 
 const V2_BASE_URL = "http://localhost:19047"
 const V2_REQUEST_HEADERS = {}
+const V2_CORE_PROC_TIMEOUT = 30000
 
 const onStartV2UpgradeRequest = apiSaga({
   authenticated: true,
@@ -120,7 +121,7 @@ function *onCheckV2CoreProcAlive(action){
     res = yield axios({
       method: "get",
       url: `${V2_BASE_URL}/alive`,
-      timeout: 3000,
+      timeout: V2_CORE_PROC_TIMEOUT,
       headers: V2_REQUEST_HEADERS,
     })
   } catch (err) {
@@ -185,7 +186,7 @@ function *onCheckV2UpgradeStatus(action){
     res = yield axios({
       method: "get",
       url: `${V2_BASE_URL}/v1-upgrade-status`,
-      timeout: 3000,
+      timeout: V2_CORE_PROC_TIMEOUT,
       headers
     })
   } catch (err) {
