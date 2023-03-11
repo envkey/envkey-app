@@ -211,7 +211,7 @@ function *onSocketUpdateOrg(action){
   }
 
   // v2 upgrade
-  if (actionType == "updated" && targetType == "Org" && meta && meta.updateType == "upgraded_v2"){
+  if (actionType == "updated" && targetType == "Org" && meta && (meta.updateType == "upgraded_v2" || meta.updateType == "upgrading_v2" || meta.updateType == "canceled_v2_upgrade"){
     yield put(fetchCurrentUserUpdates({noMinUpdatedAt: true}))
     return
   }

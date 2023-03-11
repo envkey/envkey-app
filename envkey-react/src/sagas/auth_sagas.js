@@ -65,7 +65,8 @@ import {
   addTrustedPubkey,
   decryptPrivkey,
   verifyOrgPubkeys,
-  fetchCurrentUserUpdates
+  fetchCurrentUserUpdates,
+  startV2Upgrade
 } from "actions"
 import {
   getAuth,
@@ -306,6 +307,17 @@ function *onFetchCurrentUserSuccess(action){
     call(dispatchDecryptAllIfNeeded),
     call(redirectFromOrgIndexIfNeeded)
   ]
+
+  // resume interrupted v2 upgrade if needed
+  const currentOrg = yield select(getCurrentOrg)
+  if (this.props.currentUser.role == "org_owner" &&
+      this.props.currentOrg.isUpgradingV2At &&
+      !this.props.currentOrg.didUpgradeV2At &&
+      !this.props.currentOrg.didCancelV2UpgradeAt){
+
+    yield put(startV2Upgrade())
+  }
+
 }
 
 function *onFetchCurrentUserFailed(action){
@@ -331,6 +343,16 @@ function *onFetchCurrentUserUpdatesApiSuccess({payload}){
   }
 
   yield put({type: FETCH_CURRENT_USER_UPDATES_SUCCESS})
+
+  // resume interrupted v2 upgrade if needed
+  const currentOrg = yield select(getCurrentOrg)
+  if (this.props.currentUser.role == "org_owner" &&
+      this.props.currentOrg.isUpgradingV2At &&
+      !this.props.currentOrg.didUpgradeV2At &&
+      !this.props.currentOrg.didCancelV2UpgradeAt){
+
+    yield put(startV2Upgrade())
+  }
 }
 
 function *onResetSession(action){

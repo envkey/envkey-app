@@ -532,7 +532,7 @@ function *onExportOrg(action){
 
     const archive = {
       schemaVersion: "1",
-      isV1Upgrade: true,
+      isV1Upgrade: isV2Upgrade,
       org: {
         id: currentOrg.id,
         name: currentOrg.name,

@@ -38,7 +38,7 @@ import {
   resetSession,
   startV2Upgrade
 } from 'actions'
-import { TrialOverdueContainer, UpgradeOrgStatusContainer, UpgradedOrgContainer } from 'containers'
+import { TrialOverdueContainer, UpgradeOrgStatusContainer, UpgradedOrgContainer, UpgradingOrgContainer } from 'containers'
 import {orgRoleIsAdmin} from 'lib/roles'
 import R from 'ramda'
 import {openLinkExternal} from 'lib/ui'
@@ -162,6 +162,13 @@ class Main extends React.Component {
         this.props.acceptV2UpgradeInviteError
        ){
       return <UpgradeOrgStatusContainer />
+    }
+
+    if (this.props.currentUser.role != "org_owner" &&
+          this.props.currentOrg.isUpgradingV2At &&
+          !this.props.currentOrg.didUpgradeV2At &&
+          !this.props.currentOrg.didCancelV2UpgradeAt){
+      return <UpgradingOrgContainer />
     }
   }
 

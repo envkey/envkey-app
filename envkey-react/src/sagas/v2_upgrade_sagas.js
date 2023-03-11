@@ -172,7 +172,7 @@ function *onV2WaitForCoreProcAlive(action){
   yield put({type: V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS})
 }
 
-function *onCheckV2UpgradeStatus(action){
+function *onCheckV2UpgradeStatus(action, numAttempt=0){
   const v2UpgradeData = yield select(getV2UpgradeData)
 
   let res
@@ -190,6 +190,12 @@ function *onCheckV2UpgradeStatus(action){
       headers
     })
   } catch (err) {
+    if (numAttempt < 5){
+      yield delay(1000 * numAttempt * numAttempt)
+      yield call(onCheckV2UpgradeStatus, action, numAttempt + 1)
+      return
+    }
+
     yield put({type: CHECK_V2_UPGRADE_STATUS_FAILED, payload: err})
     return
   }
@@ -272,7 +278,7 @@ function *onV2CoreProcLoadUpgrade(action){
     res = yield axios({
       method: "post",
       url: `${V2_BASE_URL}/action`,
-      timeout: 5000,
+      timeout: 30000,
       headers: V2_REQUEST_HEADERS,
       data
     })
