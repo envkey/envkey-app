@@ -129,7 +129,7 @@ function *onCheckV2CoreProcAlive(action){
     return
   }
 
-  if (!res.data.cliVersion || !semver.gte(res.data.cliVersion, "2.3.0")){
+  if (!res.data.cliVersion || !semver.gte(res.data.cliVersion, "2.3.2")){
     yield put({type: CHECK_V2_CORE_PROC_ALIVE_FAILED, payload: new Error("EnvKey v2 CLI version >= 2.3.0 required")})
     return
   }
