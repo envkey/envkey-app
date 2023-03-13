@@ -64,4 +64,6 @@ export const
 
   getIsExportingOrg = db.path("isExportingOrg"),
 
+  getExportedOrg = db.path("exportedOrg"),
+
   getExportOrgError = db.path("exportOrgError")

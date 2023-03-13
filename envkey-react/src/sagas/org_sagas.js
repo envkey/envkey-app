@@ -399,6 +399,8 @@ function *onExportOrg(action){
       }
 
       baseEnvironmentIdsByAppIdByRole[app.id] = baseEnvironmentIdsByRole
+
+      yield call(delay, 25)
     }
 
     const allowedIpsMergeStrategies = yield select(getAllowedIpsMergeStrategies)
@@ -638,6 +640,8 @@ function *onExportOrg(action){
           }
         )
     })
+
+    yield call(delay, 1000);
 
     if (res == null){
       yield put({type: EXPORT_ORG_SUCCESS, payload: { isV2Upgrade, fileName, encryptionKey }})

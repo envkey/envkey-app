@@ -105,6 +105,15 @@ class Main extends React.Component {
            this.props.currentOrg.trialDaysRemaining < 15
   }
 
+  _shouldShowV2UpgradeAlert(){
+    return this.props.currentUser.role == "org_owner" &&
+          !(this.props.didUpgradeV2At ||
+            this.props.didFinishV2Upgrade ||
+            this.props.didFinishV2OrgUserUpgrade ||
+            this.props.isStartingV2Upgrade ||
+            this._shouldShowTrialAlert())
+  }
+
   _trialOverdue(){
     return this.props.currentOrg.trialing && this.props.currentOrg.trialOverdue
   }
@@ -113,7 +122,7 @@ class Main extends React.Component {
     return [
       ("role-" + this.props.currentUser.role),
       (orgRoleIsAdmin(this.props.currentUser.role) ? "is-org-admin" : ""),
-      ((this._shouldShowTrialAlert() || this.props.isDemo) ? "show-bottom-alert" : "")
+      ((this._shouldShowTrialAlert() || this._shouldShowV2UpgradeAlert() || this.props.isDemo) ? "show-bottom-alert" : "")
     ]
   }
 
@@ -154,8 +163,14 @@ class Main extends React.Component {
       return <UpgradedOrgContainer />
     }
 
+    const upgradeActive =  this.props.currentOrg.isUpgradingV2At &&
+      !this.props.currentOrg.didUpgradeV2At &&
+      !this.props.currentOrg.didCancelV2UpgradeAt
+
+    const shouldResume = upgradeActive &&  this.props.currentUser.role == "org_owner"
 
     if (this.props.isStartingV2Upgrade ||
+        shouldResume ||
         (this.props.upgradeToken &&
          this.props.encryptedV2InviteToken) ||
         this.props.upgradeV2Error ||
@@ -164,10 +179,7 @@ class Main extends React.Component {
       return <UpgradeOrgStatusContainer />
     }
 
-    if (this.props.currentUser.role != "org_owner" &&
-          this.props.currentOrg.isUpgradingV2At &&
-          !this.props.currentOrg.didUpgradeV2At &&
-          !this.props.currentOrg.didCancelV2UpgradeAt){
+    if (upgradeActive && this.props.currentUser.role != "org_owner"){
       return <UpgradingOrgContainer />
     }
   }
@@ -206,12 +218,7 @@ class Main extends React.Component {
 
   _renderV2UpgradeAlert(){
     if (
-        this.props.currentUser.role == "org_owner" &&
-        !(this.props.didUpgradeV2At ||
-          this.props.didFinishV2Upgrade ||
-          this.props.didFinishV2OrgUserUpgrade ||
-          this.props.isStartingV2Upgrade ||
-          this._shouldShowTrialAlert())
+        this._shouldShowV2UpgradeAlert()
        ){
       return <div className="bottom-alert trial-alert">
         <div>Your organization can be automatically upgraded to EnvKey v2.</div>

@@ -300,7 +300,7 @@ function* onSelectAccountSuccess(){
   )
 }
 
-function *onFetchCurrentUserSuccess(action){
+function *onFetchCurrentUserSuccess({payload}){
   yield put(appLoaded())
   yield [
     put({type: SOCKET_SUBSCRIBE_ORG_CHANNEL}),
@@ -308,16 +308,24 @@ function *onFetchCurrentUserSuccess(action){
     call(redirectFromOrgIndexIfNeeded)
   ]
 
-  // resume interrupted v2 upgrade if needed
-  const currentOrg = yield select(getCurrentOrg)
-  if (this.props.currentUser.role == "org_owner" &&
-      this.props.currentOrg.isUpgradingV2At &&
-      !this.props.currentOrg.didUpgradeV2At &&
-      !this.props.currentOrg.didCancelV2UpgradeAt){
-
-    yield put(startV2Upgrade())
+  if (payload.apps && payload.apps.length > 0){
+    yield take(DECRYPT_ALL_SUCCESS)
+  } else if ((payload.users && payload.users.length > 0) ||
+      (payload.servers && payload.servers.length > 0) ||
+      (payload.localKeys && payload.localKeys.length > 0)){
+    yield take(VERIFY_ORG_PUBKEYS_SUCCESS)
   }
 
+  // resume interrupted v2 upgrade if needed
+  const currentOrg = yield select(getCurrentOrg)
+  const currentUser = yield select(getCurrentUser)
+  if (currentUser.role == "org_owner" &&
+      currentOrg.isUpgradingV2At &&
+      !currentOrg.didUpgradeV2At &&
+      !currentOrg.didCancelV2UpgradeAt){
+
+    yield put(startV2Upgrade({resume: true}))
+  }
 }
 
 function *onFetchCurrentUserFailed(action){
@@ -346,12 +354,13 @@ function *onFetchCurrentUserUpdatesApiSuccess({payload}){
 
   // resume interrupted v2 upgrade if needed
   const currentOrg = yield select(getCurrentOrg)
-  if (this.props.currentUser.role == "org_owner" &&
-      this.props.currentOrg.isUpgradingV2At &&
-      !this.props.currentOrg.didUpgradeV2At &&
-      !this.props.currentOrg.didCancelV2UpgradeAt){
+  const currentUser = yield select(getCurrentUser)
+  if (currentUser.role == "org_owner" &&
+      currentOrg.isUpgradingV2At &&
+      !currentOrg.didUpgradeV2At &&
+      !currentOrg.didCancelV2UpgradeAt){
 
-    yield put(startV2Upgrade())
+    yield put(startV2Upgrade({resume: true}))
   }
 }
 

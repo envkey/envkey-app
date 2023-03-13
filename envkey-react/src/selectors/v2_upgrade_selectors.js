@@ -4,6 +4,8 @@ export const
 
   getIsStartingV2Upgrade = db.path("isStartingV2Upgrade"),
 
+  getDidResumeV2Upgrade = db.path("didResumeV2Upgrade"),
+
   getIsCancelingV2Upgrade = db.path("isCancelingV2Upgrade"),
 
   getCanceledV2Upgrade = db.path("canceledV2Upgrade"),

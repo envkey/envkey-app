@@ -65,6 +65,27 @@ export const
      }
    },
 
+   didResumeV2Upgrade = (state=false, action)=>{
+      if (isClearSessionAction(action)){
+        return false
+      }
+
+     switch(action.type){
+
+       case START_V2_UPGRADE:
+         return (action.payload && action.payload.resume) || false
+
+       case START_V2_UPGRADE_SUCCESS:
+       case START_V2_UPGRADE_FAILED:
+       case CANCEL_V2_UPGRADE:
+         return false
+
+       default:
+         return state
+
+     }
+   },
+
    isCancelingV2Upgrade = (state=false, action)=>{
 
 

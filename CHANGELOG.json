@@ -183,5 +183,9 @@
   ],
   "1.5.1": [
     "Fix for v2 upgrade timeout issue"
+  ],
+  "1.5.2": [
+    "Fixes for v2 upgrade and archive export issues",
+    "v2 upgrades can now resume if interrupted, improving robustness"
   ]
 }

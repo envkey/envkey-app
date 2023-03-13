@@ -43,7 +43,9 @@ import {
   UPDATE_NETWORK_SETTINGS_SUCCESS,
   EXPORT_ORG,
   EXPORT_ORG_SUCCESS,
-  EXPORT_ORG_FAILED
+  EXPORT_ORG_FAILED,
+  START_V2_UPGRADE
+
 } from "actions"
 import R from 'ramda'
 import {indexById} from './helpers'
@@ -273,6 +275,20 @@ export const
       case EXPORT_ORG_SUCCESS:
       case EXPORT_ORG_FAILED:
         return false
+
+      default:
+        return state
+    }
+  },
+
+  exportedOrg = (state = false, action)=> {
+    switch(action.type){
+      case START_V2_UPGRADE:
+      case EXPORT_ORG:
+        return false
+
+      case EXPORT_ORG_SUCCESS:
+        return true
 
       default:
         return state

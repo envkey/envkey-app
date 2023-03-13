@@ -16,7 +16,11 @@ import {
   getIsAcceptingV2UpgradeInvite,
   getDidAcceptV2UpgradeInvite,
   getUpgradeV2Error,
-  getAcceptV2UpgradeInviteError
+  getAcceptV2UpgradeInviteError,
+  getIsExportingOrg,
+  getExportedOrg,
+  getExportOrgError,
+  getDidResumeV2Upgrade
 } from 'selectors'
 import SmallLoader from 'components/shared/small_loader'
 import {OnboardOverlay} from 'components/onboard'
@@ -36,15 +40,15 @@ class UpgradeOrgStatus extends React.Component {
 
   render(){
 
-    if (this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError){
+    if (this.props.exportOrgErr || this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError){
       return <OnboardOverlay>
         <div className="v2-upgrade-status">
           <h1>V2 Upgrade</h1>
 
           <p>There was an error finishing your upgrade. Please contact <strong>support@envkey.com</strong> for help.</p>
 
-          { (this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError).message ?
-          <p>Error message: {(this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError).message}</p> :
+          { (this.props.exportOrgErr || this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError).message ?
+          <p>Error message: {(this.props.exportOrgErr ||  this.props.upgradeV2Error || this.props.acceptV2UpgradeInviteError).message}</p> :
           "" }
 
           <fieldset><button className="cancel" onClick={()=>{
@@ -57,6 +61,17 @@ class UpgradeOrgStatus extends React.Component {
         </div>
        </OnboardOverlay>
     }
+
+    if (!this.props.exportedOrg && !this.props.didResumeV2Upgrade){
+      return <OnboardOverlay>
+        <div className="v2-upgrade-status">
+          <h1>V2 Upgrade</h1>
+          <p>Preparing upgrade...</p>
+          <fieldset className="loader"><SmallLoader /></fieldset>
+        </div>
+      </OnboardOverlay>
+    }
+
 
     return <OnboardOverlay>
       <div className="v2-upgrade-status">
@@ -82,14 +97,17 @@ class UpgradeOrgStatus extends React.Component {
         }
 
         {
-          this.props.v2CoreProcLoadedUpgrade ? [<p>Upgrade loaded. Please leave EnvKey v1 running, then go to EnvKey v2 to finish your upgrade.</p>] : ""
+          this.props.v2CoreProcLoadedUpgrade || this.props.didResumeV2Upgrade ? [
+            <p>{this.props.didResumeV2Upgrade ? "Resuming upgrade" : "Upgrade loaded"}. Please leave EnvKey v1 running, then go to EnvKey v2 to finish your upgrade.</p>
+          ] : ""
         }
 
 
         {
           (this.props.upgradeToken && this.props.encryptedV2InviteToken) ||
           this.props.v2CoreProcIsLoadingUpgrade ||
-          this.props.v2CoreProcLoadedUpgrade
+          this.props.v2CoreProcLoadedUpgrade ||
+          this.props.didResumeV2Upgrade
             ? "" :
               <fieldset><button className="cancel" onClick={()=>{
                  this.props.cancelV2Upgrade()
@@ -113,7 +131,11 @@ const
     isAcceptingV2UpgradeInvite: getIsAcceptingV2UpgradeInvite(state),
     didAcceptV2UpgradeInvite: getDidAcceptV2UpgradeInvite(state),
     upgradeV2Error: getUpgradeV2Error(state),
-    acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state)
+    acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state),
+    isExportingOrg: getIsExportingOrg(state),
+    exportedOrg: getExportedOrg(state),
+    exportOrgErr: getExportOrgError(state),
+    didResumeV2Upgrade : getDidResumeV2Upgrade(state)
   }),
 
   mapDispatchToProps = dispatch => ({

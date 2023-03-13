@@ -165,7 +165,7 @@ function *onV2WaitForCoreProcAlive(action){
     if (aliveCheckRes.type == CHECK_V2_CORE_PROC_ALIVE_SUCCESS){
       coreProcAlive = true;
     } else {
-      yield delay(2000);
+      yield call(delay, 2000)
     }
   }
 
@@ -190,14 +190,12 @@ function *onCheckV2UpgradeStatus(action, numAttempt=0){
       headers
     })
   } catch (err) {
-    if (numAttempt < 5){
-      yield delay(1000 * numAttempt * numAttempt)
-      yield call(onCheckV2UpgradeStatus, action, numAttempt + 1)
-      return
-    }
-
-    yield put({type: CHECK_V2_UPGRADE_STATUS_FAILED, payload: err})
+    yield delay(2000 + Math.min(10000, 1000 * numAttempt))
+    yield call(onCheckV2UpgradeStatus, action, numAttempt + 1)
     return
+
+    // yield put({type: CHECK_V2_UPGRADE_STATUS_FAILED, payload: err})
+    // return
   }
 
   yield put({type: CHECK_V2_UPGRADE_STATUS_SUCCESS, payload: res.data})
@@ -294,44 +292,48 @@ function *onV2CoreProcLoadUpgrade(action){
 }
 
 function *onStartV2Upgrade(action){
+  let canceled = false;
+
   yield put({type: START_V2_UPGRADE_REQUEST})
   const startUpgradeRes = yield take([START_V2_UPGRADE_REQUEST_SUCCESS, START_V2_UPGRADE_REQUEST_FAILED, CANCEL_V2_UPGRADE])
   if (startUpgradeRes.type == START_V2_UPGRADE_REQUEST_FAILED){
     yield put({type: START_V2_UPGRADE_FAILED, payload: startUpgradeRes.payload})
     return
   }
-  let canceled = yield select(getCanceledV2Upgrade)
+  canceled = yield select(getCanceledV2Upgrade)
   if (startUpgradeRes.type == CANCEL_V2_UPGRADE || canceled){
     console.log("Upgrade canceled, returning")
     return
   }
 
-  yield put({type: V2_UPGRADE_GENERATE_ENVKEYS})
-  const generateEnvkeysRes = yield take([V2_UPGRADE_GENERATE_ENVKEYS_SUCCESS, V2_UPGRADE_GENERATE_ENVKEYS_FAILED, CANCEL_V2_UPGRADE])
-  if (generateEnvkeysRes.type == V2_UPGRADE_GENERATE_ENVKEYS_FAILED){
-    yield put({type: START_V2_UPGRADE_FAILED, payload: generateEnvkeysRes.payload})
-    return
-  }
+  if (!(action.payload && action.payload.resume)){
+    yield put({type: V2_UPGRADE_GENERATE_ENVKEYS})
+    const generateEnvkeysRes = yield take([V2_UPGRADE_GENERATE_ENVKEYS_SUCCESS, V2_UPGRADE_GENERATE_ENVKEYS_FAILED, CANCEL_V2_UPGRADE])
+    if (generateEnvkeysRes.type == V2_UPGRADE_GENERATE_ENVKEYS_FAILED){
+      yield put({type: START_V2_UPGRADE_FAILED, payload: generateEnvkeysRes.payload})
+      return
+    }
 
-  canceled = yield select(getCanceledV2Upgrade)
-  if (generateEnvkeysRes.type == CANCEL_V2_UPGRADE || canceled){
-    console.log("Upgrade canceled, returning")
-    return
-  }
+    canceled = yield select(getCanceledV2Upgrade)
+    if (generateEnvkeysRes.type == CANCEL_V2_UPGRADE || canceled){
+      console.log("Upgrade canceled, returning")
+      return
+    }
 
 
-  yield put({type: EXPORT_ORG, payload: {
-    isV2Upgrade: true
-  }})
-  const exportOrgRes = yield take([EXPORT_ORG_SUCCESS, EXPORT_ORG_FAILED, CANCEL_V2_UPGRADE])
-  if (exportOrgRes.type == EXPORT_ORG_FAILED){
-    yield put({type: START_V2_UPGRADE_FAILED, payload: exportOrgRes.payload})
-    return
-  }
-  canceled = yield select(getCanceledV2Upgrade)
-  if (exportOrgRes.type == CANCEL_V2_UPGRADE || canceled){
-    console.log("Upgrade canceled, returning")
-    return
+    yield put({type: EXPORT_ORG, payload: {
+      isV2Upgrade: true
+    }})
+    const exportOrgRes = yield take([EXPORT_ORG_SUCCESS, EXPORT_ORG_FAILED, CANCEL_V2_UPGRADE])
+    if (exportOrgRes.type == EXPORT_ORG_FAILED){
+      yield put({type: START_V2_UPGRADE_FAILED, payload: exportOrgRes.payload})
+      return
+    }
+    canceled = yield select(getCanceledV2Upgrade)
+    if (exportOrgRes.type == CANCEL_V2_UPGRADE || canceled){
+      console.log("Upgrade canceled, returning")
+      return
+    }
   }
 
   yield put({type: V2_WAIT_FOR_CORE_PROC_ALIVE})
@@ -343,18 +345,19 @@ function *onStartV2Upgrade(action){
     return
   }
 
-  yield put({type: V2_CORE_PROC_LOAD_UPGRADE})
+  if (!(action.payload && action.payload.resume)){
+    yield put({type: V2_CORE_PROC_LOAD_UPGRADE})
 
-
-  const loadUpgradeRes = yield take([V2_CORE_PROC_LOAD_UPGRADE_SUCCESS, V2_CORE_PROC_LOAD_UPGRADE_FAILED, CANCEL_V2_UPGRADE])
-  if (loadUpgradeRes.type == V2_CORE_PROC_LOAD_UPGRADE_FAILED){
-    yield put({type: START_V2_UPGRADE_FAILED, payload: loadUpgradeRes.payload})
-    return
-  }
-  canceled = yield select(getCanceledV2Upgrade)
-  if (loadUpgradeRes.type == CANCEL_V2_UPGRADE || canceled){
-    console.log("Upgrade canceled, returning")
-    return
+    const loadUpgradeRes = yield take([V2_CORE_PROC_LOAD_UPGRADE_SUCCESS, V2_CORE_PROC_LOAD_UPGRADE_FAILED, CANCEL_V2_UPGRADE])
+    if (loadUpgradeRes.type == V2_CORE_PROC_LOAD_UPGRADE_FAILED){
+      yield put({type: START_V2_UPGRADE_FAILED, payload: loadUpgradeRes.payload})
+      return
+    }
+    canceled = yield select(getCanceledV2Upgrade)
+    if (loadUpgradeRes.type == CANCEL_V2_UPGRADE || canceled){
+      console.log("Upgrade canceled, returning")
+      return
+    }
   }
 
   while (true){
@@ -375,9 +378,9 @@ function *onStartV2Upgrade(action){
 
     const status = yield select(getV2CoreProcUpgradeStatus)
 
-    if (status == "error"){
-      yield put({type: START_V2_UPGRADE_FAILED, payload: checkUpgradeStatusRes.payload})
-      return;
+    if (!status){
+      yield put({type: START_V2_UPGRADE})
+      return
     }
 
     if (status == "canceled"){
@@ -387,6 +390,8 @@ function *onStartV2Upgrade(action){
       if (cancelRes.type == CANCEL_V2_UPGRADE_FAILED){
         yield put({type: START_V2_UPGRADE_FAILED, payload: cancelRes.payload})
       }
+
+      alert("The upgrade was canceled from EnvKey v2.")
 
       return
     }
