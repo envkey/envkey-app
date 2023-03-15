@@ -187,5 +187,8 @@
   "1.5.2": [
     "Fixes for v2 upgrade and archive export issues",
     "v2 upgrades can now resume if interrupted, improving robustness"
+  ],
+  "1.5.3": [
+    "Fix for UI issue when canceling a v2 upgrade"
   ]
 }
