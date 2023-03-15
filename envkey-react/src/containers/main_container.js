@@ -27,7 +27,8 @@ import {
   getDidFinishV2OrgUserUpgrade,
   getDidUpgradeV2At,
   getUpgradeV2Error,
-  getAcceptV2UpgradeInviteError
+  getAcceptV2UpgradeInviteError,
+  getCanceledV2Upgrade
 } from 'selectors'
 import {
   appLoaded,
@@ -165,16 +166,18 @@ class Main extends React.Component {
 
     const upgradeActive =  this.props.currentOrg.isUpgradingV2At &&
       !this.props.currentOrg.didUpgradeV2At &&
-      !this.props.currentOrg.didCancelV2UpgradeAt
+      !this.props.currentOrg.didCancelV2UpgradeAt &&
+      !this.props.canceledV2Upgrade
 
     const shouldResume = upgradeActive &&  this.props.currentUser.role == "org_owner"
 
-    if (this.props.isStartingV2Upgrade ||
-        shouldResume ||
-        (this.props.upgradeToken &&
-         this.props.encryptedV2InviteToken) ||
-        this.props.upgradeV2Error ||
-        this.props.acceptV2UpgradeInviteError
+    if (
+        (this.props.isStartingV2Upgrade ||
+          shouldResume ||
+          (this.props.upgradeToken &&
+           this.props.encryptedV2InviteToken) ||
+          this.props.upgradeV2Error ||
+          this.props.acceptV2UpgradeInviteError) && !this.props.canceledV2Upgrade
        ){
       return <UpgradeOrgStatusContainer />
     }
@@ -255,7 +258,8 @@ const mapStateToProps = (state, ownProps) => {
     didFinishV2OrgUserUpgrade: getDidFinishV2OrgUserUpgrade(state),
     didUpgradeV2At: getDidUpgradeV2At(state),
     upgradeV2Error: getUpgradeV2Error(state),
-    acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state)
+    acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state),
+    canceledV2Upgrade: getCanceledV2Upgrade(state)
   }
 }
 
