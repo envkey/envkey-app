@@ -62,7 +62,7 @@ class UpgradeOrgStatus extends React.Component {
        </OnboardOverlay>
     }
 
-    if (!this.props.exportedOrg && !this.props.didResumeV2Upgrade){
+    if (!this.props.exportedOrg && !this.props.didResumeV2Upgrade && !this.props.upgradeToken){
       return <OnboardOverlay>
         <div className="v2-upgrade-status">
           <h1>V2 Upgrade</h1>

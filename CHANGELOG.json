@@ -193,5 +193,8 @@
   ],
   "1.5.4": [
     "Adapt v2 upgrades to v2 process model updates"
+  ],
+  "1.5.5": [
+    "Fixes for non-owner account v2 upgrades"
   ]
 }

@@ -170,6 +170,7 @@ function *onV2WaitForCoreProcAlive(action){
     }
   }
 
+  yield call(delay, 3000)
   yield put({type: V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS})
 }
 
