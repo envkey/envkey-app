@@ -190,5 +190,8 @@
   ],
   "1.5.3": [
     "Fix for UI issue when canceling a v2 upgrade"
+  ],
+  "1.5.4": [
+    "Adapt v2 upgrades to v2 process model updates"
   ]
 }

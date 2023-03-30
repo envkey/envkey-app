@@ -69,7 +69,8 @@ import semver from 'semver'
 import * as crypto from 'lib/crypto'
 import {signTrustedPubkeyChain} from "./helpers/crypto_helpers"
 
-const V2_BASE_URL = "http://localhost:19047"
+const V2_CORE_URL = "http://localhost:19047"
+const V2_STATUS_URL = "http://localhost:19049"
 const V2_REQUEST_HEADERS = {}
 const V2_CORE_PROC_TIMEOUT = 30000
 
@@ -120,7 +121,7 @@ function *onCheckV2CoreProcAlive(action){
   try {
     res = yield axios({
       method: "get",
-      url: `${V2_BASE_URL}/alive`,
+      url: `${V2_STATUS_URL}/v1-alive`,
       timeout: V2_CORE_PROC_TIMEOUT,
       headers: V2_REQUEST_HEADERS,
     })
@@ -129,7 +130,7 @@ function *onCheckV2CoreProcAlive(action){
     return
   }
 
-  if (!res.data.cliVersion || !semver.gte(res.data.cliVersion, "2.3.2")){
+  if (!res.data.cliVersion || !semver.gte(res.data.cliVersion, "2.4.0")){
     yield put({type: CHECK_V2_CORE_PROC_ALIVE_FAILED, payload: new Error("EnvKey v2 CLI version >= 2.3.0 required")})
     return
   }
@@ -185,7 +186,7 @@ function *onCheckV2UpgradeStatus(action, numAttempt=0){
   try {
     res = yield axios({
       method: "get",
-      url: `${V2_BASE_URL}/v1-upgrade-status`,
+      url: `${V2_STATUS_URL}/v1-upgrade-status`,
       timeout: V2_CORE_PROC_TIMEOUT,
       headers
     })
@@ -275,7 +276,7 @@ function *onV2CoreProcLoadUpgrade(action){
   try {
     res = yield axios({
       method: "post",
-      url: `${V2_BASE_URL}/action`,
+      url: `${V2_CORE_URL}/action`,
       timeout: 30000,
       headers: V2_REQUEST_HEADERS,
       data
