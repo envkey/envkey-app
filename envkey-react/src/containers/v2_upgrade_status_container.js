@@ -20,7 +20,8 @@ import {
   getIsExportingOrg,
   getExportedOrg,
   getExportOrgError,
-  getDidResumeV2Upgrade
+  getDidResumeV2Upgrade,
+  getIsStartingV2Upgrade
 } from 'selectors'
 import SmallLoader from 'components/shared/small_loader'
 import {OnboardOverlay} from 'components/onboard'
@@ -93,7 +94,9 @@ class UpgradeOrgStatus extends React.Component {
         }
 
         {
-          this.props.v2CoreProcIsLoadingUpgrade  ? [<p>EnvKey v2 is loading your upgrade.</p>, <fieldset className="loader"><SmallLoader /></fieldset>] : ""
+          this.props.v2CoreProcIsLoadingUpgrade || (
+             this.props.v2CoreProcAlive && !this.props.v2CoreProcLoadedUpgrade
+          )  ? [<p>EnvKey v2 is loading your upgrade.</p>, <fieldset className="loader"><SmallLoader /></fieldset>] : ""
         }
 
         {
@@ -135,7 +138,8 @@ const
     isExportingOrg: getIsExportingOrg(state),
     exportedOrg: getExportedOrg(state),
     exportOrgErr: getExportOrgError(state),
-    didResumeV2Upgrade : getDidResumeV2Upgrade(state)
+    didResumeV2Upgrade: getDidResumeV2Upgrade(state),
+    isStartingV2Upgrade: getIsStartingV2Upgrade(state)
   }),
 
   mapDispatchToProps = dispatch => ({
