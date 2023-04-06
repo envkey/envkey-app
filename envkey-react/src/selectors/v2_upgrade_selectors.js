@@ -44,4 +44,6 @@ export const
 
   getEncryptedV2InviteToken = db.path("encryptedV2InviteToken"),
 
-  getDidUpgradeV2At = db.path("didUpgradeV2At")
+  getDidUpgradeV2At = db.path("didUpgradeV2At"),
+
+  getClearedV2UpgradeOverlay = db.path("clearedV2UpgradeOverlay")

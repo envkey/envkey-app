@@ -6,7 +6,8 @@ import {
   FINISH_V2_UPGRADE,
   CHECK_V2_CORE_PROC_ALIVE,
   V2_WAIT_FOR_CORE_PROC_ALIVE,
-  V2_UPGRADE_ACCEPT_INVITE
+  V2_UPGRADE_ACCEPT_INVITE,
+  CLEARED_V2_UPGRADE_OVERLAY
 } from './action_types'
 
 export const
@@ -14,5 +15,6 @@ export const
   cancelV2Upgrade = createAction(CANCEL_V2_UPGRADE),
   finishV2Upgrade = createAction(FINISH_V2_UPGRADE),
   waitForV2CoreProcAlive = createAction(V2_WAIT_FOR_CORE_PROC_ALIVE),
-  acceptV2UpgradeInvite = createAction(V2_UPGRADE_ACCEPT_INVITE)
+  acceptV2UpgradeInvite = createAction(V2_UPGRADE_ACCEPT_INVITE),
+  clearedV2UpgradeOverlay = createAction(CLEARED_V2_UPGRADE_OVERLAY)
 

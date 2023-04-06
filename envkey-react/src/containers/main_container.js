@@ -28,7 +28,8 @@ import {
   getDidUpgradeV2At,
   getUpgradeV2Error,
   getAcceptV2UpgradeInviteError,
-  getCanceledV2Upgrade
+  getCanceledV2Upgrade,
+  getClearedV2UpgradeOverlay
 } from 'selectors'
 import {
   appLoaded,
@@ -153,11 +154,17 @@ class Main extends React.Component {
         {this._renderV2UpgradeOverlay()}
 
         {this._renderV2UpgradeAlert()}
+
+        {this._renderOrgUpgradedWarning()}
       </div>
     }
   }
 
   _renderV2UpgradeOverlay(){
+    if (this.props.clearedV2UpgradeOverlay){
+      return;
+    }
+
     if (this.props.didUpgradeV2At ||
         this.props.didFinishV2Upgrade ||
         this.props.didFinishV2OrgUserUpgrade){
@@ -230,6 +237,24 @@ class Main extends React.Component {
       </div>
     }
   }
+
+  _renderOrgUpgradedWarning(){
+    const upgradeActive =  this.props.currentOrg.isUpgradingV2At &&
+      !this.props.currentOrg.didUpgradeV2At &&
+      !this.props.currentOrg.didCancelV2UpgradeAt &&
+      !this.props.canceledV2Upgrade
+
+    const shouldShow = (upgradeActive && this.props.currentUser.role != "org_owner") ||
+         this.props.didUpgradeV2At ||
+        this.props.didFinishV2Upgrade ||
+        this.props.didFinishV2OrgUserUpgrade
+
+    if (shouldShow){
+      return <div className="bottom-alert trial-alert" style={{paddingTop: 20}}>
+        <div><span><strong>WARNING:{" "}</strong>this org has been upgraded to EnvKey v2.{" "}<strong>Changes won't be reflected in the v2 org.</strong></span></div>
+      </div>
+    }
+  }
 }
 
 const mapStateToProps = (state, ownProps) => {
@@ -259,7 +284,8 @@ const mapStateToProps = (state, ownProps) => {
     didUpgradeV2At: getDidUpgradeV2At(state),
     upgradeV2Error: getUpgradeV2Error(state),
     acceptV2UpgradeInviteError: getAcceptV2UpgradeInviteError(state),
-    canceledV2Upgrade: getCanceledV2Upgrade(state)
+    canceledV2Upgrade: getCanceledV2Upgrade(state),
+    clearedV2UpgradeOverlay: getClearedV2UpgradeOverlay(state)
   }
 }
 

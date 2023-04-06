@@ -32,7 +32,8 @@ import {
   V2_UPGRADE_ACCEPT_INVITE,
   V2_UPGRADE_ACCEPT_INVITE_SUCCESS,
   V2_UPGRADE_ACCEPT_INVITE_FAILED,
-  FETCH_CURRENT_USER_UPDATES_API_SUCCESS
+  FETCH_CURRENT_USER_UPDATES_API_SUCCESS,
+  CLEARED_V2_UPGRADE_OVERLAY
 } from "actions"
 import {isFetchCurrentUserAction, isClearSessionAction} from './helpers'
 import { camelizeKeys } from 'xcase'
@@ -441,6 +442,14 @@ export const
 
     if (isClearSessionAction(action)){
       return null
+    }
+
+    return state
+  },
+
+  clearedV2UpgradeOverlay = (state = false, action)=>{
+    if (action.type == CLEARED_V2_UPGRADE_OVERLAY){
+      return true;
     }
 
     return state

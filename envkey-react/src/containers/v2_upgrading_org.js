@@ -40,7 +40,6 @@ const mapStateToProps = state => ({
     currentUser: getCurrentUser(state)
   }),
   mapDispatchToProps = dispatch => ({
-
   })
 
 export default connect(mapStateToProps, mapDispatchToProps)(UpgradingOrg)
