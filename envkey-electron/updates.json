@@ -5,23 +5,23 @@
     "version": "1.5.8"
   },
   "linux-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.5.7/EnvKey-1.5.7.AppImage",
-    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.5.7/EnvKey-1.5.7.AppImage",
-    "version": "1.5.7"
+    "update": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.5.8/EnvKey-1.5.8.AppImage",
+    "install": "https://github.com/envkey/envkey-app/releases/download/linux-x64-prod-v1.5.8/EnvKey-1.5.8.AppImage",
+    "version": "1.5.8"
   },
   "win32-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.5.7",
-    "install": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.5.7/EnvKey.Setup.1.5.7.exe",
-    "version": "1.5.7"
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.5.8",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-x64-prod-v1.5.8/EnvKey.Setup.1.5.8.exe",
+    "version": "1.5.8"
   },
   "win32-ia32-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.5.7",
-    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.5.7/EnvKey.Setup.1.5.7.exe",
-    "version": "1.5.7"
+    "update": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.5.8",
+    "install": "https://github.com/envkey/envkey-app/releases/download/win32-ia32-prod-v1.5.8/EnvKey.Setup.1.5.8.exe",
+    "version": "1.5.8"
   },
   "darwin-x64-prod": {
-    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.5.7/release.json",
-    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.5.7/EnvKey-1.5.7.dmg",
-    "version": "1.5.7"
+    "update": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.5.8/release.json",
+    "install": "https://github.com/envkey/envkey-app/releases/download/darwin-x64-prod-v1.5.8/EnvKey-1.5.8.dmg",
+    "version": "1.5.8"
   }
 }
