@@ -108,12 +108,27 @@ class Main extends React.Component {
   }
 
   _shouldShowV2UpgradeAlert(){
-    return this.props.currentUser.role == "org_owner" &&
+    return this.props.decryptedAll &&
+           this.props.currentUser.role == "org_owner" &&
           !(this.props.didUpgradeV2At ||
             this.props.didFinishV2Upgrade ||
             this.props.didFinishV2OrgUserUpgrade ||
             this.props.isStartingV2Upgrade ||
             this._shouldShowTrialAlert())
+  }
+
+  _shouldRenderOrgUpgradedWarning(){
+    const upgradeActive =  this.props.currentOrg.isUpgradingV2At &&
+      !this.props.currentOrg.didUpgradeV2At &&
+      !this.props.currentOrg.didCancelV2UpgradeAt &&
+      !this.props.canceledV2Upgrade
+
+    const shouldShow = (upgradeActive && this.props.currentUser.role != "org_owner") ||
+         this.props.didUpgradeV2At ||
+        this.props.didFinishV2Upgrade ||
+        this.props.didFinishV2OrgUserUpgrade
+
+    return shouldShow;
   }
 
   _trialOverdue(){
@@ -124,7 +139,7 @@ class Main extends React.Component {
     return [
       ("role-" + this.props.currentUser.role),
       (orgRoleIsAdmin(this.props.currentUser.role) ? "is-org-admin" : ""),
-      ((this._shouldShowTrialAlert() || this._shouldShowV2UpgradeAlert() || this.props.isDemo) ? "show-bottom-alert" : "")
+      ((this._shouldShowTrialAlert() || this._shouldShowV2UpgradeAlert() || this._shouldRenderOrgUpgradedWarning() || this.props.isDemo) ? "show-bottom-alert" : "")
     ]
   }
 
@@ -161,6 +176,10 @@ class Main extends React.Component {
   }
 
   _renderV2UpgradeOverlay(){
+    if (!this.props.decryptedAll){
+      return;
+    }
+
     if (this.props.clearedV2UpgradeOverlay){
       return;
     }
@@ -239,17 +258,7 @@ class Main extends React.Component {
   }
 
   _renderOrgUpgradedWarning(){
-    const upgradeActive =  this.props.currentOrg.isUpgradingV2At &&
-      !this.props.currentOrg.didUpgradeV2At &&
-      !this.props.currentOrg.didCancelV2UpgradeAt &&
-      !this.props.canceledV2Upgrade
-
-    const shouldShow = (upgradeActive && this.props.currentUser.role != "org_owner") ||
-         this.props.didUpgradeV2At ||
-        this.props.didFinishV2Upgrade ||
-        this.props.didFinishV2OrgUserUpgrade
-
-    if (shouldShow){
+    if (this._shouldRenderOrgUpgradedWarning()){
       return <div className="bottom-alert trial-alert" style={{paddingTop: 20}}>
         <div><span><strong>WARNING:{" "}</strong>this org has been upgraded to EnvKey v2.{" "}<strong>Changes won't be reflected in the v2 org.</strong></span></div>
       </div>

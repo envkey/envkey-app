@@ -202,5 +202,8 @@
   ],
   "1.5.7": [
     "Allow access to v1 org after upgrade to v2 (with warnings changes won't be reflected in v2 org)"
+  ],
+  "1.5.8": [
+    "Fix for account upgrade issue when user hasn't entered master passphrase"
   ]
 }
