@@ -205,5 +205,9 @@
   ],
   "1.5.8": [
     "Fix for v2 account upgrade issue when user hasn't entered master passphrase"
+  ],
+  "1.5.9": [
+    "Countdown showing Org Owners the number of days to the v1 soft shutdown in upgrade prompt footer (now April 28th)",
+    "Warning if v2 version is outdated when running upgrade"
   ]
 }

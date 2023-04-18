@@ -114,6 +114,7 @@ const onFinishV2OrgUserUpgradeRequest = apiSaga({
   urlFn: (action, currentOrg)=> `/orgs/${currentOrg.slug}/finish_v2_org_user_upgrade.json`
 })
 
+let warnedOutdatedV2 = false;
 
 function *onCheckV2CoreProcAlive(action){
   let res
@@ -130,8 +131,13 @@ function *onCheckV2CoreProcAlive(action){
     return
   }
 
-  if (!res.data.cliVersion || !semver.gte(res.data.cliVersion, "2.4.0")){
-    yield put({type: CHECK_V2_CORE_PROC_ALIVE_FAILED, payload: new Error("EnvKey v2 CLI version >= 2.3.0 required")})
+  if (!res.data.cliVersion || !semver.gte(res.data.cliVersion, "2.4.6")){
+    if (!warnedOutdatedV2){
+      alert("EnvKey v2 is running, but the version is outdated. Please make sure you're running the latest version of EnvKey v2.")
+      warnedOutdatedV2 = true;
+    }
+
+    yield put({type: CHECK_V2_CORE_PROC_ALIVE_FAILED, payload: new Error("EnvKey v2 CLI version >= 2.4.6 required")})
     return
   }
 
@@ -140,6 +146,7 @@ function *onCheckV2CoreProcAlive(action){
 
 function *onV2WaitForCoreProcAlive(action){
   let coreProcAlive = false;
+  warnedOutdatedV2 = false;
 
   while (!coreProcAlive){
     let canceled = yield select(getCanceledV2Upgrade)
@@ -170,7 +177,7 @@ function *onV2WaitForCoreProcAlive(action){
     }
   }
 
-  yield call(delay, 3000)
+  yield call(delay, 2000)
   yield put({type: V2_WAIT_FOR_CORE_PROC_ALIVE_SUCCESS})
 }
 

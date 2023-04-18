@@ -249,8 +249,13 @@ class Main extends React.Component {
     if (
         this._shouldShowV2UpgradeAlert()
        ){
+      const today = new Date();
+      const targetDate = new Date(2023, 3, 28); // Note that months are zero-based, so 3 represents April
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const numDays = Math.floor((targetDate - today) / msPerDay);
+
       return <div className="bottom-alert trial-alert">
-        <div>Your organization can be automatically upgraded to EnvKey v2.</div>
+        <div><span>Your org can be upgraded to EnvKey v2. In <strong>{numDays} days,</strong> your v1 org will change to read-only.</span></div>
 
         <button onClick={()=> this.props.startV2Upgrade()}>Upgrade Org</button>
       </div>
