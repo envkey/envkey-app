@@ -377,8 +377,10 @@ function *onAuthFailed(action){
 }
 
 function *onApiFailed({payload, meta}){
-  if (R.path(["response", "status"], payload) == 403 && meta.message == "Unauthorized IP"){
-    alert(`This Org does not allow EnvKey App requests from your current IP (${payload.response.data.ip}).`)
+  if (R.path(["response", "status"], payload) == 403){
+    if (meta.message == "Unauthorized IP"){
+      alert(`This Org does not allow EnvKey App requests from your current IP (${payload.response.data.ip}).`)
+    }
   }
 }
 

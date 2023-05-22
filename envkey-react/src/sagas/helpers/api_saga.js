@@ -102,6 +102,12 @@ export default function apiSaga({
             payload = err,
             meta = {...requestAction.meta, status, requestPayload: requestAction.payload, message: msg}
 
+      if (status == 403 && msg == "EnvKey v1 is now read-only--please upgrade to v2"){
+        alert("EnvKey v1 is now read-only. Please upgrade to v2.");
+        window.location.reload();
+        return;
+      }
+
       yield put({type: API_FAILED, error: true, payload, meta})
       yield put({type: FAILURE_TYPE, error: true, payload, meta})
 

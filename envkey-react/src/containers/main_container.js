@@ -109,7 +109,7 @@ class Main extends React.Component {
 
   _shouldShowV2UpgradeAlert(){
     return this.props.decryptedAll &&
-           this.props.currentUser.role == "org_owner" &&
+           // this.props.currentUser.role == "org_owner" && // show this to everyone now
           !(this.props.didUpgradeV2At ||
             this.props.didFinishV2Upgrade ||
             this.props.didFinishV2OrgUserUpgrade ||
@@ -254,10 +254,12 @@ class Main extends React.Component {
       const msPerDay = 24 * 60 * 60 * 1000;
       const numDays = Math.floor((targetDate - today) / msPerDay);
 
-      return <div className="bottom-alert trial-alert">
-        <div><span>Your org can be upgraded to EnvKey v2. In <strong>{numDays} days,</strong> your v1 org will change to read-only.</span></div>
+      const isOwner = this.props.currentUser.role == "org_owner";
 
-        <button onClick={()=> this.props.startV2Upgrade()}>Upgrade Org</button>
+      return <div className="bottom-alert trial-alert">
+        <div><span>Your org is now <strong>read-only.</strong> {isOwner ? "Please upgrade to EnvKey v2 to make changes." : "To make changes, ask your Org Owner to upgrade to EnvKey v2."}</span></div>
+
+        {isOwner ? <button onClick={()=> this.props.startV2Upgrade()}>Upgrade Org</button> : ""}
       </div>
     }
   }
